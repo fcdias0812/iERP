@@ -100,3 +100,15 @@ test('cliente: adicionar contato, tornar principal e salvar com Ctrl+S', async (
   await expect(page).toHaveURL(/\/clientes\/cli00001$/)
   await expect(page.getByText('novo.contato@exemplo.com.br').first()).toBeVisible()
 })
+
+// Regressão: parar o mouse sobre o link (pré-carregamento da rota) e clicar travava a página
+// num laço de render da DataTable enquanto a lista ainda não tinha chegado da API.
+test('menu: mouse parado sobre Clientes e clique não travam a página', async ({ page }) => {
+  await abrir(page, '/')
+  const link = page.locator('aside a[href="/clientes"]').first()
+  await link.hover()
+  await page.waitForTimeout(800)
+  await link.click({ timeout: 5000 })
+  await expect(page.locator('main h1')).toHaveText('Clientes')
+  await expect(page.locator('main tbody tr').first()).toBeVisible()
+})

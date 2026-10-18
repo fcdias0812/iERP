@@ -106,6 +106,16 @@ const EXPAND = '__expand'
 const ACTIONS = '__actions'
 const VIRTUAL_THRESHOLD = 100
 
+/**
+ * Página vazia ESTÁVEL (mesma referência sempre). Um `{ rows: [] }` novo a cada render faz a
+ * TanStack Table achar que os dados mudaram e zerar a expansão (`onExpandedChange`) → novo
+ * render → laço infinito que trava a página enquanto a lista ainda não chegou do servidor.
+ */
+const EMPTY_PAGE: TablePage<never> = { rows: [], total: 0, totals: {} }
+
+/** Expansão vazia (nenhuma linha aberta)? */
+const isEmptyExpanded = (e: ExpandedState) => e !== true && Object.keys(e).length === 0
+
 export interface TableSelection<T> {
   count: number
   /** IDs selecionados (em modo servidor com "todos os resultados", vem vazio: use `query`). */
@@ -219,7 +229,7 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
     () => (clientMode ? runQuery(data, columns, query, getRowId) : undefined),
     [clientMode, data, columns, query, getRowId],
   )
-  const result: TablePage<T> = client ?? serverPage ?? { rows: [], total: 0, totals: {} }
+  const result: TablePage<T> = client ?? serverPage ?? EMPTY_PAGE
   const pageCount = Math.max(1, Math.ceil(result.total / query.pageSize))
 
   // Página além do fim (ex.: filtro reduziu os resultados) → volta para a última.
@@ -338,7 +348,13 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
       setAllMatching(false)
       setRowSelection((s) => (typeof u === 'function' ? u(s) : u))
     },
-    onExpandedChange: (u) => setExpanded((s) => (typeof u === 'function' ? u(s) : u)),
+    // A tabela zera a expansão quando os dados mudam: se já está vazia, mantém o MESMO estado
+    // (sem novo render) — evita laço de atualização.
+    onExpandedChange: (u) =>
+      setExpanded((s) => {
+        const next = typeof u === 'function' ? u(s) : u
+        return isEmptyExpanded(next) && isEmptyExpanded(s) ? s : next
+      }),
   })
 
   /* ---------------- ordenação */
