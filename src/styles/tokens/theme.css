@@ -1,0 +1,288 @@
+/*
+ * TOKENS SEMÂNTICOS — temas claro e escuro.
+ *
+ * Regra das cores: a cor segue o SIGNIFICADO.
+ *   info / primary (azul-petróleo) → ação e informação
+ *   success (verde)                → sucesso / finalizado
+ *   warning (amarelo)              → alerta leve (espera alguém)
+ *   alert   (laranja)              → alerta forte (quase erro)
+ *   danger  (vermelho)             → erro, exclusão, irreversível
+ *   inactive (cinza)               → bloqueado, inativo, cancelado, sem dado
+ *
+ * Para cada estado existem 5 tokens:
+ *   --X                 fundo sólido (selo forte, botão)
+ *   --X-foreground      texto sobre o sólido
+ *   --X-subtle          fundo tingido (~10%) para avisos e selos
+ *   --X-subtle-foreground texto/ícone no tom forte sobre o tingido
+ *   --X-border          borda no tom forte
+ *
+ * Todos os pares texto/fundo são validados por `npm run check:contrast`
+ * (WCAG 2.2 AA: texto 4,5:1; componentes e texto grande 3:1).
+ * Componentes NUNCA usam a paleta (--brand-teal-600...) direto: usam estes tokens.
+ */
+
+:root,
+.light {
+  color-scheme: light;
+
+  /* ---------- Superfícies (3 níveis) ---------- */
+  --background: var(--neutral-50); /* fundo da página */
+  --card: #ffffff; /* card, tabela, painel */
+  --elevated: #ffffff; /* popover, dropdown, modal (com sombra) */
+  --popover: var(--elevated);
+  --muted: var(--neutral-100); /* faixas, cabeçalho de tabela, áreas secundárias */
+
+  /* ---------- Texto ---------- */
+  --foreground: var(--neutral-900);
+  --card-foreground: var(--neutral-900);
+  --popover-foreground: var(--neutral-900);
+  --muted-foreground: var(--neutral-600); /* texto secundário, legendas */
+  --placeholder: var(--neutral-600);
+  --disabled-foreground: var(--neutral-500);
+
+  /* ---------- Bordas ---------- */
+  --border: var(--neutral-200); /* divisórias e cards (decorativa) */
+  --border-strong: var(--neutral-300);
+  --input: var(--neutral-500); /* borda de campo: 3:1 contra o fundo */
+
+  /* ---------- Ação (azul-petróleo) ---------- */
+  --primary: var(--brand-teal-600);
+  --primary-hover: var(--brand-teal-700);
+  --primary-foreground: #ffffff;
+  --link: var(--brand-teal-700);
+  --ring: var(--brand-teal-600); /* foco visível */
+  --selected: var(--brand-teal-50); /* linha selecionada, item ativo do menu */
+  --selected-foreground: var(--brand-teal-800);
+
+  /* Secundário = neutro (contorno). */
+  --secondary: #ffffff;
+  --secondary-hover: var(--neutral-100);
+  --secondary-foreground: var(--neutral-900);
+  /* Hover de itens (menu, linha de tabela, botão fantasma). */
+  --accent: var(--neutral-100);
+  --accent-foreground: var(--neutral-900);
+
+  /* Perigo (shadcn usa --destructive). */
+  --destructive: var(--danger);
+  --destructive-hover: var(--danger-700);
+  --destructive-foreground: var(--danger-foreground);
+
+  /* ---------- Estados ---------- */
+  --info: var(--brand-teal-600);
+  --info-foreground: #ffffff;
+  --info-subtle: color-mix(in oklab, var(--brand-teal-500) 10%, var(--card));
+  --info-subtle-foreground: var(--brand-teal-800);
+  --info-border: var(--brand-teal-600);
+
+  --success: var(--success-700);
+  --success-hover: var(--success-800);
+  --success-foreground: #ffffff;
+  --success-subtle: color-mix(in oklab, var(--success-500) 10%, var(--card));
+  --success-subtle-foreground: var(--success-800);
+  --success-border: var(--success-600);
+
+  /* Amarelo nunca é texto sobre claro: o texto usa âmbar escurecido. */
+  --warning: var(--warning-400);
+  --warning-foreground: var(--neutral-950);
+  --warning-subtle: color-mix(in oklab, var(--warning-400) 14%, var(--card));
+  --warning-subtle-foreground: var(--warning-800);
+  --warning-border: var(--warning-600);
+
+  --alert: var(--alert-700);
+  --alert-foreground: #ffffff;
+  --alert-subtle: color-mix(in oklab, var(--alert-500) 10%, var(--card));
+  --alert-subtle-foreground: var(--alert-800);
+  --alert-border: var(--alert-600);
+
+  --danger: var(--danger-600);
+  --danger-foreground: #ffffff;
+  --danger-subtle: color-mix(in oklab, var(--danger-500) 10%, var(--card));
+  --danger-subtle-foreground: var(--danger-800);
+  --danger-border: var(--danger-600);
+
+  --inactive: var(--neutral-600);
+  --inactive-foreground: #ffffff;
+  --inactive-subtle: var(--neutral-100);
+  --inactive-subtle-foreground: var(--neutral-700);
+  --inactive-border: var(--neutral-500);
+
+  /* ---------- Gráficos (categorias: marca + neutros, sem cores de estado) ---------- */
+  --chart-1: var(--brand-teal-600);
+  --chart-2: var(--brand-green-700);
+  --chart-3: var(--brand-lime-700);
+  --chart-4: var(--brand-teal-800);
+  --chart-5: var(--neutral-500);
+  --chart-6: var(--brand-yellow-700);
+  --chart-7: var(--brand-teal-500);
+  --chart-8: var(--neutral-700);
+
+  /* ---------- Marca (só logo, login, estado vazio e linha sob a navbar) ---------- */
+  --brand-gradient: linear-gradient(
+    90deg,
+    var(--brand-yellow-200),
+    var(--brand-lime-300) 25%,
+    var(--brand-green-500) 60%,
+    var(--brand-teal-600)
+  );
+
+  /* ---------- Ilustrações (estado vazio): cores da marca, permitidas só aqui ---------- */
+  --illustration-1: var(--brand-teal-600);
+  --illustration-2: var(--brand-green-500);
+  --illustration-3: var(--brand-lime-300);
+  --illustration-4: var(--brand-yellow-200);
+  --illustration-surface: var(--neutral-100);
+  --illustration-line: var(--neutral-300);
+
+  /* ---------- Sombras (3 níveis) ---------- */
+  --elevation-card: 0 1px 2px 0 oklch(0.2 0.02 210 / 0.06), 0 1px 3px 0 oklch(0.2 0.02 210 / 0.05);
+  --elevation-popover:
+    0 4px 8px -2px oklch(0.2 0.02 210 / 0.1), 0 2px 4px -2px oklch(0.2 0.02 210 / 0.06);
+  --elevation-modal:
+    0 20px 25px -5px oklch(0.2 0.02 210 / 0.12), 0 8px 10px -6px oklch(0.2 0.02 210 / 0.08);
+  --overlay: oklch(0.2 0.02 210 / 0.45);
+}
+
+/* Tema escuro: classe `.dark` no <html> (aplicada pelo seletor de tema).
+ * `.light` / `.dark` também podem ser usadas num trecho da tela para forçar um tema. */
+.dark {
+  color-scheme: dark;
+
+  --background: var(--neutral-950);
+  --card: color-mix(in oklab, var(--neutral-900) 55%, var(--neutral-950));
+  --elevated: var(--neutral-900);
+  --popover: var(--elevated);
+  --muted: color-mix(in oklab, var(--neutral-800) 45%, var(--neutral-950));
+
+  --foreground: var(--neutral-50);
+  --card-foreground: var(--neutral-50);
+  --popover-foreground: var(--neutral-50);
+  --muted-foreground: var(--neutral-400);
+  --placeholder: var(--neutral-400);
+  --disabled-foreground: var(--neutral-500);
+
+  --border: var(--neutral-800);
+  --border-strong: color-mix(in oklab, var(--neutral-700) 70%, var(--neutral-800));
+  --input: var(--neutral-500);
+
+  /* No escuro o primário clareia e o texto sobre ele fica escuro. */
+  --primary: var(--brand-teal-400);
+  --primary-hover: var(--brand-teal-300);
+  --primary-foreground: var(--neutral-950);
+  --link: var(--brand-teal-300);
+  --ring: var(--brand-teal-400);
+  --selected: color-mix(in oklab, var(--brand-teal-500) 20%, var(--card));
+  --selected-foreground: var(--brand-teal-200);
+
+  --secondary: var(--card);
+  --secondary-hover: var(--neutral-800);
+  --secondary-foreground: var(--neutral-50);
+  --accent: var(--neutral-800);
+  --accent-foreground: var(--neutral-50);
+
+  --destructive: var(--danger);
+  --destructive-hover: var(--danger-300);
+  --destructive-foreground: var(--danger-foreground);
+
+  --info: var(--brand-teal-400);
+  --info-foreground: var(--neutral-950);
+  --info-subtle: color-mix(in oklab, var(--brand-teal-500) 16%, var(--card));
+  --info-subtle-foreground: var(--brand-teal-200);
+  --info-border: var(--brand-teal-500);
+
+  --success: var(--success-400);
+  --success-hover: var(--success-300);
+  --success-foreground: var(--neutral-950);
+  --success-subtle: color-mix(in oklab, var(--success-500) 16%, var(--card));
+  --success-subtle-foreground: var(--success-200);
+  --success-border: var(--success-500);
+
+  --warning: var(--warning-400);
+  --warning-foreground: var(--neutral-950);
+  --warning-subtle: color-mix(in oklab, var(--warning-400) 14%, var(--card));
+  --warning-subtle-foreground: var(--warning-200);
+  --warning-border: var(--warning-500);
+
+  --alert: var(--alert-400);
+  --alert-foreground: var(--neutral-950);
+  --alert-subtle: color-mix(in oklab, var(--alert-500) 16%, var(--card));
+  --alert-subtle-foreground: var(--alert-200);
+  --alert-border: var(--alert-500);
+
+  --danger: var(--danger-400);
+  --danger-foreground: var(--neutral-950);
+  --danger-subtle: color-mix(in oklab, var(--danger-500) 16%, var(--card));
+  --danger-subtle-foreground: var(--danger-200);
+  --danger-border: var(--danger-500);
+
+  --inactive: var(--neutral-400);
+  --inactive-foreground: var(--neutral-950);
+  --inactive-subtle: var(--neutral-800);
+  --inactive-subtle-foreground: var(--neutral-300);
+  --inactive-border: var(--neutral-400);
+
+  --chart-1: var(--brand-teal-400);
+  --chart-2: var(--brand-green-400);
+  --chart-3: var(--brand-lime-400);
+  --chart-4: var(--brand-teal-200);
+  --chart-5: var(--neutral-400);
+  --chart-6: var(--brand-yellow-300);
+  --chart-7: var(--brand-teal-600);
+  --chart-8: var(--neutral-300);
+
+  --illustration-1: var(--brand-teal-400);
+  --illustration-2: var(--brand-green-400);
+  --illustration-3: var(--brand-lime-400);
+  --illustration-4: var(--brand-yellow-300);
+  --illustration-surface: var(--neutral-800);
+  --illustration-line: var(--neutral-700);
+
+  /* No escuro, sombra vira borda + superfície mais clara (ver --elevated). */
+  --elevation-card: 0 0 0 1px var(--border);
+  --elevation-popover: 0 0 0 1px var(--border-strong), 0 8px 16px -4px oklch(0 0 0 / 0.5);
+  --elevation-modal: 0 0 0 1px var(--border-strong), 0 20px 32px -8px oklch(0 0 0 / 0.6);
+  --overlay: oklch(0 0 0 / 0.6);
+}
+
+/*
+ * MENU LATERAL VERDE-ESCURO — superfície de marca.
+ * Uso: class="dark surface-sidebar" no contêiner do menu (desktop e gaveta do celular).
+ *  - `.dark` dá textos claros e troca a logo para a versão clara;
+ *  - `.surface-sidebar` troca as superfícies para o verde-escuro da marca.
+ * O verde aqui é FUNDO de navegação, não estado: item ativo continua azul-petróleo,
+ * e nenhum botão, selo ou aviso fica verde por causa dele.
+ */
+.surface-sidebar {
+  --sidebar-surface: var(--brand-green-950);
+
+  --background: var(--sidebar-surface);
+  --card: var(--sidebar-surface);
+  --elevated: var(--sidebar-surface);
+  --popover: var(--sidebar-surface);
+  --muted: color-mix(in oklab, var(--neutral-50) 10%, var(--sidebar-surface));
+
+  --foreground: var(--neutral-50);
+  --card-foreground: var(--neutral-50);
+  --muted-foreground: color-mix(in oklab, var(--neutral-50) 74%, var(--sidebar-surface));
+
+  --border: color-mix(in oklab, var(--neutral-50) 14%, var(--sidebar-surface));
+  --border-strong: color-mix(in oklab, var(--neutral-50) 26%, var(--sidebar-surface));
+
+  /* Hover de item: clareia o verde. */
+  --accent: color-mix(in oklab, var(--neutral-50) 12%, var(--sidebar-surface));
+  --accent-foreground: var(--neutral-50);
+
+  /* Item ativo: azul-petróleo (ação/seleção), como no resto do sistema. */
+  --primary: var(--brand-teal-300);
+  --ring: var(--brand-teal-300);
+  --selected: color-mix(in oklab, var(--brand-teal-400) 26%, var(--sidebar-surface));
+  --selected-foreground: var(--brand-teal-50);
+
+  /* Contadores de pendência (selo neutro). */
+  --inactive-subtle: color-mix(in oklab, var(--neutral-50) 16%, var(--sidebar-surface));
+  --inactive-subtle-foreground: var(--neutral-50);
+}
+
+/* No tema escuro o verde fica mais fechado, para não brilhar ao lado do fundo escuro. */
+.dark .surface-sidebar {
+  --sidebar-surface: color-mix(in oklab, var(--brand-green-950) 62%, var(--neutral-950));
+}

@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+*.local
+coverage
+playwright-report
+test-results
+.vite
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+!.env.example
+
+# Claude Code (configurações locais de cada máquina)
+.claude/settings.local.json

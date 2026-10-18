@@ -1,0 +1,74 @@
+/*
+ * FUNDAÇÃO — tipografia, forma, densidade e movimento.
+ * Valores independentes de tema. As cores ficam em theme.css.
+ */
+
+:root {
+  /* ---------- Fontes ---------- */
+  /* Noto Sans TC entra como fallback e só é baixada quando o idioma é zh-TW. */
+  --font-sans-family:
+    'Inter Variable', 'Noto Sans TC', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono-family: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  /* ---------- Escala tipográfica (base 14px) ---------- */
+  /* 12 / 13 / 14 / 16 / 18 / 20 / 24 / 30 */
+  --fs-12: 0.75rem;
+  --fs-13: 0.8125rem;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+  --fs-18: 1.125rem;
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-30: 1.875rem;
+
+  /* Raio e curva de movimento: definidos no @theme de src/styles/index.css. */
+
+  /* ---------- Densidade (confortável é o padrão) ---------- */
+  --control-h-sm: 2rem; /* 32px */
+  --control-h: 2.25rem; /* 36px */
+  --control-h-lg: 2.5rem; /* 40px */
+  --control-px: 0.75rem;
+  --table-row-h: 2.75rem; /* 44px */
+  --table-cell-px: 0.75rem;
+  --section-gap: 1.5rem;
+
+  /* ---------- Layout ---------- */
+  --navbar-h: 3.5rem;
+  --sidebar-w: 15rem;
+  --sidebar-w-collapsed: 3.5rem;
+  --content-max-w: 100rem; /* largura máxima da área de conteúdo */
+  --page-px: 1rem; /* margem lateral da página (cresce em telas maiores) */
+
+  /* ---------- Movimento ---------- */
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --page-px: 1.5rem;
+  }
+}
+@media (min-width: 80rem) {
+  :root {
+    --page-px: 2rem;
+  }
+}
+
+/* Densidade compacta: `data-density="compact"` no <html>. */
+[data-density='compact'] {
+  --control-h-sm: 1.75rem; /* 28px */
+  --control-h: 2rem; /* 32px */
+  --control-h-lg: 2.25rem; /* 36px */
+  --control-px: 0.625rem;
+  --table-row-h: 2.25rem; /* 36px */
+  --table-cell-px: 0.5rem;
+  --section-gap: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+  }
+}

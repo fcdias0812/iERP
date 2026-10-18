@@ -1,0 +1,121 @@
+/* ARQUIVO GERADO por scripts/generate-palette.mjs — não edite à mão. */
+/* Escalas OKLCH 50–950. Use pelos tokens semânticos (theme.css), não direto nos componentes. */
+
+:root {
+  /* brand-green (brand) */
+  --brand-green-50: oklch(0.975 0.0174 146.75);
+  --brand-green-100: oklch(0.953 0.0384 146.75);
+  --brand-green-200: oklch(0.9101 0.0785 146.75);
+  --brand-green-300: oklch(0.8501 0.1256 146.75);
+  --brand-green-400: oklch(0.7752 0.157 146.75);
+  --brand-green-500: oklch(0.6902 0.1744 146.75); /* âncora da logo #3eb755 */
+  --brand-green-600: oklch(0.5977 0.1479 150.35);
+  --brand-green-700: oklch(0.5151 0.114 153.94); /* âncora da logo #227a48 */
+  --brand-green-800: oklch(0.4943 0.1212 154);
+  --brand-green-900: oklch(0.4784 0.1205 154.06); /* âncora da logo #00703c */
+  --brand-green-950: oklch(0.32 0.0806 154.06);
+
+  /* brand-lime (brand) */
+  --brand-lime-50: oklch(0.975 0.0247 113.42);
+  --brand-lime-100: oklch(0.9578 0.0544 113.42);
+  --brand-lime-200: oklch(0.9196 0.1112 113.42);
+  --brand-lime-300: oklch(0.8644 0.1779 113.42); /* âncora da logo #d3de37 */
+  --brand-lime-400: oklch(0.7951 0.1686 124.82); /* âncora da logo #a4ce45 */
+  --brand-lime-500: oklch(0.6984 0.1751 124.82);
+  --brand-lime-600: oklch(0.6017 0.1509 124.82);
+  --brand-lime-700: oklch(0.5151 0.1291 124.82);
+  --brand-lime-800: oklch(0.4334 0.1087 124.82);
+  --brand-lime-900: oklch(0.3567 0.0894 124.82);
+  --brand-lime-950: oklch(0.27 0.0677 124.82);
+
+  /* brand-yellow (brand) */
+  --brand-yellow-50: oklch(0.975 0.034 103.32);
+  --brand-yellow-100: oklch(0.963 0.0748 103.32);
+  --brand-yellow-200: oklch(0.9384 0.153 103.32); /* âncora da logo #fdef6a */
+  --brand-yellow-300: oklch(0.8686 0.1829 103.32);
+  --brand-yellow-400: oklch(0.7838 0.165 103.32);
+  --brand-yellow-500: oklch(0.689 0.145 103.32);
+  --brand-yellow-600: oklch(0.5942 0.1251 103.32);
+  --brand-yellow-700: oklch(0.5094 0.1072 103.32);
+  --brand-yellow-800: oklch(0.4296 0.0904 103.32);
+  --brand-yellow-900: oklch(0.3548 0.0747 103.32);
+  --brand-yellow-950: oklch(0.27 0.0568 103.32);
+
+  /* brand-teal (brand) */
+  --brand-teal-50: oklch(0.975 0.0074 201.24);
+  --brand-teal-100: oklch(0.943 0.0163 201.24);
+  --brand-teal-200: oklch(0.89 0.0333 201.24);
+  --brand-teal-300: oklch(0.82 0.0533 201.24);
+  --brand-teal-400: oklch(0.735 0.0667 201.24);
+  --brand-teal-500: oklch(0.64 0.0741 201.24);
+  --brand-teal-600: oklch(0.5451 0.0741 201.24); /* âncora da logo #317d82 */
+  --brand-teal-700: oklch(0.4725 0.0696 201.24);
+  --brand-teal-800: oklch(0.405 0.0622 201.24);
+  --brand-teal-900: oklch(0.3425 0.0533 201.24);
+  --brand-teal-950: oklch(0.27 0.0415 201.24);
+
+  /* success (state) */
+  --success-50: oklch(0.975 0.0134 152.55);
+  --success-100: oklch(0.9455 0.0294 152.55);
+  --success-200: oklch(0.895 0.0601 152.55);
+  --success-300: oklch(0.8274 0.0961 152.55);
+  --success-400: oklch(0.7449 0.1202 152.55);
+  --success-500: oklch(0.6524 0.1335 152.55);
+  --success-600: oklch(0.5599 0.1335 152.55); /* âncora da logo #1f8a4c */
+  --success-700: oklch(0.4836 0.1255 152.55);
+  --success-800: oklch(0.4124 0.1072 152.55);
+  --success-900: oklch(0.3462 0.09 152.55);
+  --success-950: oklch(0.27 0.0702 152.55);
+
+  /* warning (state) */
+  --warning-50: oklch(0.975 0.018 87.66);
+  --warning-100: oklch(0.963 0.0396 87.66);
+  --warning-200: oklch(0.9353 0.0755 87.66);
+  --warning-300: oklch(0.8879 0.1297 87.66);
+  --warning-400: oklch(0.8256 0.1621 87.66); /* âncora da logo #f2be22 */
+  --warning-500: oklch(0.7238 0.1479 87.66);
+  --warning-600: oklch(0.622 0.1271 87.66);
+  --warning-700: oklch(0.5303 0.1084 87.66);
+  --warning-800: oklch(0.4435 0.0907 87.66);
+  --warning-900: oklch(0.3618 0.0739 87.66);
+  --warning-950: oklch(0.27 0.0552 87.66);
+
+  /* alert (state) */
+  --alert-50: oklch(0.975 0.0139 51.75);
+  --alert-100: oklch(0.9511 0.0278 51.75);
+  --alert-200: oklch(0.9062 0.0552 51.75);
+  --alert-300: oklch(0.8442 0.0964 51.75);
+  --alert-400: oklch(0.7673 0.1543 51.75);
+  --alert-500: oklch(0.6804 0.172 51.75); /* âncora da logo #e8730e */
+  --alert-600: oklch(0.5873 0.1515 51.75);
+  --alert-700: oklch(0.5042 0.1301 51.75);
+  --alert-800: oklch(0.4262 0.11 51.75);
+  --alert-900: oklch(0.3531 0.0911 51.75);
+  --alert-950: oklch(0.27 0.0697 51.75);
+
+  /* danger (state) */
+  --danger-50: oklch(0.975 0.0122 26.4);
+  --danger-100: oklch(0.9455 0.0272 26.4);
+  --danger-200: oklch(0.895 0.0548 26.4);
+  --danger-300: oklch(0.8275 0.096 26.4);
+  --danger-400: oklch(0.745 0.1544 26.4);
+  --danger-500: oklch(0.6525 0.1973 26.4);
+  --danger-600: oklch(0.56 0.1973 26.4); /* âncora da logo #cf2e2e */
+  --danger-700: oklch(0.4837 0.1854 26.4);
+  --danger-800: oklch(0.4125 0.1657 26.4);
+  --danger-900: oklch(0.3462 0.1408 26.4);
+  --danger-950: oklch(0.27 0.1098 26.4);
+
+  /* neutral (neutral) */
+  --neutral-50: oklch(0.985 0.0048 210);
+  --neutral-100: oklch(0.967 0.006 210);
+  --neutral-200: oklch(0.925 0.0084 210);
+  --neutral-300: oklch(0.87 0.0096 210);
+  --neutral-400: oklch(0.72 0.0108 210);
+  --neutral-500: oklch(0.6 0.012 210);
+  --neutral-600: oklch(0.52 0.012 210);
+  --neutral-700: oklch(0.44 0.012 210);
+  --neutral-800: oklch(0.34 0.012 210);
+  --neutral-900: oklch(0.255 0.012 210);
+  --neutral-950: oklch(0.2 0.0108 210);
+}

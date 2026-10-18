@@ -1,0 +1,1362 @@
+{
+  "app": {
+    "name": "iERP"
+  },
+  "brand": {
+    "logoAlt": "Re-Teck — Reverse Supply Chain Management",
+    "systemName": "Sistema interno"
+  },
+  "preferences": {
+    "theme": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "themeSystem": "Sistema",
+    "density": "Densidade",
+    "densityComfortable": "Confortável",
+    "densityCompact": "Compacta",
+    "language": "Idioma"
+  },
+  "languages": {
+    "pt-BR": "Português (Brasil)",
+    "en": "English",
+    "zh-TW": "繁體中文"
+  },
+  "tones": {
+    "info": {
+      "name": "Azul-petróleo",
+      "meaning": "Ação e informação",
+      "example": "Em andamento",
+      "examples": "Salvar, Criar, Ver detalhes, Novo"
+    },
+    "success": {
+      "name": "Verde",
+      "meaning": "Sucesso / finalizado",
+      "example": "Concluído",
+      "examples": "Concluído, Aprovado, Pago, Entregue, Online"
+    },
+    "warning": {
+      "name": "Amarelo",
+      "meaning": "Alerta leve (espera alguém)",
+      "example": "Pendente",
+      "examples": "Pendente, Aguardando aprovação, Em revisão"
+    },
+    "alert": {
+      "name": "Laranja",
+      "meaning": "Alerta forte (quase erro)",
+      "example": "Atrasado",
+      "examples": "Atrasado, Vencido, Estoque baixo"
+    },
+    "danger": {
+      "name": "Vermelho",
+      "meaning": "Erro, exclusão, ação irreversível",
+      "example": "Recusado",
+      "examples": "Excluir, Recusado, Erro, Falhou"
+    },
+    "inactive": {
+      "name": "Cinza",
+      "meaning": "Bloqueado, inativo, cancelado, sem dado",
+      "example": "Cancelado",
+      "examples": "Bloqueado, Inativo, Cancelado, Rascunho, —"
+    }
+  },
+  "ds": {
+    "title": "Design system",
+    "description": "Tokens, tipografia, forma e marca do template Re-Teck. É a referência para prototipar telas.",
+    "phaseNote": "Fundação (fase 1) e componentes (fase 3). Os modelos de página chegam na fase 5.",
+    "onThisPage": "Nesta página",
+    "contrastNote": "Todos os pares texto/fundo passam em WCAG 2.2 AA (npm run check:contrast).",
+    "sections": {
+      "colorRule": "Regra das cores",
+      "semantic": "Tokens semânticos",
+      "palette": "Paleta",
+      "charts": "Cores dos gráficos",
+      "typography": "Tipografia",
+      "shape": "Forma e profundidade",
+      "density": "Densidade",
+      "brand": "Marca",
+      "status": "Selos de status",
+      "buttons": "Botões",
+      "badges": "Contadores e tags",
+      "fields": "Campos",
+      "form": "Formulário com validação",
+      "metadata": "Metadados",
+      "navigation": "Navegação",
+      "menus": "Avatar, menus e dicas",
+      "activity": "Histórico, comentários e anexos",
+      "feedback": "Feedback",
+      "overlays": "Sobreposições",
+      "cards": "Cards",
+      "chartsDemo": "Gráficos",
+      "kanban": "Kanban",
+      "calendar": "Calendário",
+      "dataTable": "Tabela de dados"
+    },
+    "colorRule": {
+      "lead": "A cor segue o significado, não o gosto. Uma cor, um significado, no sistema inteiro.",
+      "family": "Família",
+      "meaning": "Significado",
+      "examples": "Exemplos",
+      "subtle": "Selo / aviso",
+      "solid": "Sólido",
+      "rules": [
+        "Cor de marca não é cor de estado: verde e limão da marca ficam no logo, no login, em estados vazios e na linha sob a navbar.",
+        "Botão primário = azul-petróleo. Secundário = neutro (contorno). Perigoso = vermelho. Verde só quando confirma um sucesso (Aprovar, Concluir).",
+        "Cor nunca é o único sinal: todo status tem texto e ícone.",
+        "Fundo de aviso = tingimento leve (~10%) com texto e borda no tom forte.",
+        "Amarelo nunca é cor de texto sobre fundo claro: o texto usa âmbar escurecido.",
+        "Gráficos de categoria usam paleta própria; cores de estado só quando o gráfico diz bom/atenção/ruim."
+      ],
+      "alertTitle": "Estoque abaixo do mínimo",
+      "alertBody": "12 itens estão abaixo do estoque mínimo. Reponha antes do fechamento do mês."
+    },
+    "semantic": {
+      "surfaces": "Superfícies",
+      "text": "Texto",
+      "action": "Ação e seleção",
+      "lines": "Bordas e foco",
+      "tokens": {
+        "background": "Fundo da página",
+        "card": "Card, tabela, painel",
+        "elevated": "Popover, dropdown, modal",
+        "muted": "Área secundária",
+        "foreground": "Texto principal",
+        "muted-foreground": "Texto secundário",
+        "link": "Link",
+        "primary": "Ação principal",
+        "primary-hover": "Ação principal (hover)",
+        "selected": "Linha selecionada / item ativo",
+        "accent": "Hover de itens",
+        "destructive": "Ação perigosa",
+        "border": "Divisória (decorativa)",
+        "border-strong": "Divisória forte",
+        "input": "Borda de campo (3:1)",
+        "ring": "Foco visível"
+      }
+    },
+    "palette": {
+      "lead": "Escalas OKLCH 50–950 geradas a partir da logo (npm run tokens). ★ = valor exato da logo. Componentes usam os tokens semânticos, nunca a paleta direto.",
+      "groups": {
+        "brand": "Marca",
+        "state": "Estados",
+        "neutral": "Neutros"
+      },
+      "anchor": "Valor da logo"
+    },
+    "charts": {
+      "lead": "Séries de categoria usam uma paleta própria, derivada da marca e de neutros — sem as cores de estado.",
+      "series": "Série {{n}}"
+    },
+    "typography": {
+      "lead": "Inter Variable na interface (base 14px), JetBrains Mono para códigos, IDs e seriais, Noto Sans TC para chinês tradicional.",
+      "levels": "Níveis",
+      "scale": "Escala",
+      "weights": "Pesos",
+      "numbers": "Números",
+      "numbersLead": "Valores e tabelas usam números tabulares e zero cortado (classe num).",
+      "mono": "Monoespaçada",
+      "cjk": "Chinês tradicional",
+      "cjkLead": "Noto Sans TC é carregada só quando o idioma é 繁體中文.",
+      "sample": "Pedido de venda aprovado pelo financeiro",
+      "levelNames": {
+        "display": "Destaque (KPI)",
+        "page-title": "Título de página",
+        "section-title": "Título de seção",
+        "card-title": "Título de card",
+        "body": "Corpo",
+        "label": "Rótulo",
+        "caption": "Legenda",
+        "overline": "Sobretítulo"
+      },
+      "weightNames": {
+        "400": "Regular",
+        "500": "Médio",
+        "600": "Seminegrito"
+      }
+    },
+    "shape": {
+      "radius": "Raio",
+      "radiusNames": {
+        "sm": "Campos pequenos, selos",
+        "md": "Botões e campos",
+        "lg": "Cards",
+        "xl": "Modais"
+      },
+      "shadows": "Sombras",
+      "shadowNames": {
+        "card": "Card",
+        "popover": "Dropdown / popover",
+        "modal": "Modal"
+      },
+      "shadowsLead": "No tema escuro a sombra vira borda e superfície mais clara.",
+      "spacing": "Espaçamento (grade de 4px)",
+      "motion": "Movimento",
+      "motionLead": "150–200 ms, respeitando prefers-reduced-motion."
+    },
+    "density": {
+      "lead": "Confortável (padrão) ou compacta: muda a altura de campos, botões e linhas de tabela.",
+      "control": "Altura de controle",
+      "row": "Linha de tabela"
+    },
+    "brand": {
+      "lead": "Logo completa na navbar (variação clara no tema escuro), só o globo em telas estreitas. Ícones gerados a partir do globo (npm run brand).",
+      "fullLight": "Completa — tema claro",
+      "fullDark": "Completa — tema escuro",
+      "globe": "Globo — telas estreitas",
+      "gradient": "Degradê da marca (linha sob a navbar, login, estado vazio)",
+      "icons": "Favicon e ícones do app"
+    },
+    "groups": {
+      "foundation": "Fundação",
+      "components": "Componentes"
+    },
+    "c": {
+      "statusLead": "Todo status sai do statusMap: tom (cor pelo significado) + ícone + rótulo. A ordem do fluxo é usada para ordenar tabelas.",
+      "subtle": "Tingido (padrão)",
+      "solid": "Sólido (destaque, use pouco)",
+      "small": "Pequeno",
+      "medium": "Médio",
+      "large": "Grande",
+      "buttonsLead": "Primário azul-petróleo (uma ação principal por área), secundário neutro, perigo vermelho e verde só para confirmar sucesso. Alturas seguem a densidade.",
+      "variants": "Variantes",
+      "sizes": "Tamanhos",
+      "withIcons": "Com ícone e só ícone (sempre com rótulo acessível)",
+      "states": "Estados",
+      "groupAndSplit": "Grupo e botão com menu",
+      "seeDetails": "Ver detalhes",
+      "print": "Imprimir",
+      "disabled": "Desabilitado",
+      "saving": "Salvando…",
+      "clickToLoad": "Clique: carregando",
+      "view": "Visualização",
+      "day": "Dia",
+      "week": "Semana",
+      "month": "Mês",
+      "saveAndNew": "Salvar e criar outro",
+      "saveAsDraft": "Salvar como rascunho",
+      "focusHint": "Passe o mouse para ver o hover e use Tab para ver o foco (contorno azul-petróleo de 2px).",
+      "badgesLead": "Contador neutro para pendências; vermelho só quando o número é de erro. Tags são etiquetas livres, não status.",
+      "counters": "Contadores",
+      "tags": "Tags (chips removíveis)",
+      "errorsCount": "Erros: {{count}}",
+      "notificationsCount": "Notificações: {{count}}",
+      "readOnlyTag": "Somente leitura",
+      "restore": "Restaurar",
+      "addTag": "Adicionar tag",
+      "tag1": "Eletrônicos",
+      "tag2": "Recondicionado",
+      "tag3": "Garantia estendida",
+      "tag4": "São Paulo",
+      "fieldsLead": "Todo campo tem rótulo, indicador de obrigatório, ajuda, erro ligado ao campo (aria-describedby) e contador quando há limite. Saia de um campo com máscara para validar.",
+      "f": {
+        "name": "Nome",
+        "nameHelp": "Como aparece nos documentos.",
+        "email": "E-mail",
+        "disabled": "Desabilitado",
+        "disabledValue": "Não editável",
+        "readOnly": "Somente leitura",
+        "readOnlyHelp": "Gerado pelo sistema.",
+        "quantity": "Quantidade",
+        "units": "un.",
+        "price": "Valor",
+        "discount": "Desconto",
+        "discountHelp": "De 0 a 100%.",
+        "unit": "Unidade de medida",
+        "date": "Data",
+        "period": "Período",
+        "periodHelp": "O \"até\" inclui o dia inteiro.",
+        "time": "Hora",
+        "dateTime": "Data e hora",
+        "categories": "Categorias",
+        "categoriesHelp": "Multisseleção com busca.",
+        "customer": "Cliente",
+        "customerHelp": "Busca assíncrona (digite para buscar).",
+        "password": "Senha",
+        "search": "Busca",
+        "cnpjHelp": "Aceita o CNPJ alfanumérico (letras nas 12 primeiras posições).",
+        "notes": "Observações",
+        "notesPlaceholder": "Detalhes para a equipe…",
+        "options": "Opções",
+        "optNotify": "Avisar o cliente por e-mail",
+        "optPartial": "Selecionar todos (parcial)",
+        "optDisabled": "Opção indisponível",
+        "switch": "Reservar estoque automaticamente",
+        "delivery": "Entrega",
+        "ship": {
+          "normal": "Normal (5 dias úteis)",
+          "express": "Expressa (1 dia útil)",
+          "pickup": "Retirada no CD"
+        },
+        "upload": "Anexos",
+        "filesReceived": "Arquivos recebidos: {{count}}"
+      },
+      "cat": {
+        "eletronicos": "Eletrônicos",
+        "informatica": "Informática",
+        "telefonia": "Telefonia",
+        "acessorios": "Acessórios",
+        "pecas": "Peças de reposição"
+      },
+      "units": {
+        "un": "Unidade (un)",
+        "cx": "Caixa (cx)",
+        "kg": "Quilograma (kg)",
+        "m": "Metro (m)"
+      },
+      "masks": {
+        "cpf": "CPF",
+        "cnpj": "CNPJ",
+        "cep": "CEP",
+        "phone": "Telefone",
+        "plate": "Placa (Mercosul ou antiga)"
+      },
+      "formLead": "React Hook Form + Zod: valida ao sair do campo e ao enviar; mensagens nos 3 idiomas. Tente enviar vazio.",
+      "form": {
+        "start": "Data de início",
+        "end": "Data de término",
+        "terms": "Confirmação",
+        "termsText": "Confirmo que os dados estão corretos.",
+        "submit": "Enviar",
+        "saved": "Salvo com sucesso.",
+        "fixErrors": "Corrija os campos destacados."
+      },
+      "metadataLead": "Bloco chave-valor (vazio vira \"—\"), ID copiável em fonte mono, data relativa com a data completa no tooltip e criado/alterado por.",
+      "kv": {
+        "code": "Código",
+        "status": "Status",
+        "customer": "Cliente",
+        "cnpj": "CNPJ",
+        "total": "Valor total",
+        "promised": "Entrega prometida",
+        "seller": "Vendedor",
+        "updated": "Atualizado",
+        "notes": "Observações",
+        "notesValue": "Entregar no portão 3. Conferir lacres antes da assinatura."
+      },
+      "navigationLead": "Abas, breadcrumb, etapas (wizard), paginação e árvore — todos navegáveis pelo teclado.",
+      "tabs": "Abas",
+      "tab": {
+        "data": "Dados",
+        "items": "Itens",
+        "files": "Anexos",
+        "comments": "Comentários",
+        "history": "Histórico"
+      },
+      "tabContent": "Conteúdo da aba \"{{tab}}\".",
+      "breadcrumb": "Breadcrumb",
+      "stepper": "Etapas",
+      "steps": {
+        "customer": "Cliente",
+        "items": "Itens",
+        "terms": "Condições",
+        "review": "Revisão"
+      },
+      "pagination": "Paginação",
+      "tree": "Árvore (endereçamento)",
+      "menusLead": "Avatar com iniciais, tooltip, popover, menu de ações (⋯) e menu de contexto (botão direito ou tecla Menu).",
+      "avatars": "Avatares",
+      "tooltipPopover": "Tooltip, popover e menu",
+      "hoverMe": "Passe o mouse",
+      "tooltipText": "Dica curta, sem informação essencial.",
+      "openPopover": "Abrir popover",
+      "popoverTitle": "Resumo rápido",
+      "popoverText": "Conteúdo leve, sem formulário longo.",
+      "rowActions": "Ações do registro",
+      "reprocess": "Reprocessar",
+      "contextMenu": "Menu de contexto",
+      "rightClick": "Clique com o botão direito aqui",
+      "activityLead": "Linha do tempo de auditoria (quem, quando, o quê, antes → depois), comentários e anexos com envio.",
+      "timeline": "Linha do tempo",
+      "comments": "Comentários",
+      "attachments": "Anexos",
+      "ev": {
+        "approved": "aprovou o pedido",
+        "edited": "alterou o pedido",
+        "created": "criou o pedido",
+        "note": "Cliente pediu entrega fracionada."
+      },
+      "comment1": "Separação pode começar amanhã cedo.",
+      "comment2": "Combinado. Já reservei o estoque.",
+      "feedbackLead": "Toasts para confirmações rápidas, alertas inline, banner de página, estados vazios, esqueleto, spinner e progresso — sempre com ícone e texto.",
+      "toasts": "Toasts",
+      "toast": {
+        "success": "Pedido salvo",
+        "successBtn": "Sucesso",
+        "info": "Exportação iniciada. Avisaremos quando terminar.",
+        "infoBtn": "Informação",
+        "warning": "Estoque perto do mínimo",
+        "warningDesc": "12 itens abaixo do ponto de reposição.",
+        "warningBtn": "Alerta",
+        "error": "Não foi possível salvar",
+        "errorDesc": "Falha de conexão com o servidor.",
+        "errorBtn": "Erro"
+      },
+      "alerts": "Alertas inline e banner",
+      "alert": {
+        "info": {
+          "title": "Novidade",
+          "body": "A exportação para Excel agora inclui os totais."
+        },
+        "success": {
+          "title": "Integração ativa",
+          "body": "As notas fiscais estão sendo recebidas normalmente."
+        },
+        "warning": {
+          "title": "Aguardando aprovação",
+          "body": "Este pedido precisa da aprovação do financeiro."
+        },
+        "alert": {
+          "title": "Entrega atrasada",
+          "body": "A data prometida passou há 2 dias."
+        },
+        "danger": {
+          "title": "Falha no faturamento",
+          "body": "A nota foi rejeitada. Corrija o CFOP e envie de novo."
+        },
+        "inactive": {
+          "title": "Cadastro inativo",
+          "body": "Este fornecedor não pode receber novos pedidos."
+        }
+      },
+      "banner": {
+        "title": "Manutenção programada",
+        "body": "O sistema ficará indisponível no sábado, das 22h às 23h.",
+        "action": "Ver detalhes"
+      },
+      "empty": "Estados vazios",
+      "emptyState": {
+        "title": "Nenhum pedido ainda",
+        "body": "Crie o primeiro pedido para começar a acompanhar as vendas.",
+        "action": "Novo pedido"
+      },
+      "noResults": {
+        "title": "Nada encontrado",
+        "body": "Nenhum registro corresponde aos filtros."
+      },
+      "noAccessBody": "Peça acesso ao administrador.",
+      "loading": "Carregando",
+      "loadingOrders": "Carregando pedidos…",
+      "importing": "Importando: {{pct}}%",
+      "done": "Concluído",
+      "storageUse": "Uso do armazenamento",
+      "overlaysLead": "Modais prendem o foco e fecham com Esc. Exclusão irreversível exige digitar o nome do item.",
+      "overlaysNote": "Menus, popovers e modais abrem sempre no tema global (são renderizados fora desta área).",
+      "modal": {
+        "info": "Modal informativo",
+        "infoTitle": "Sobre a conciliação",
+        "infoBody": "A conciliação compara o extrato do banco com os lançamentos do sistema.",
+        "form": "Modal com formulário",
+        "formTitle": "Novo contato",
+        "formBody": "Preencha os dados do contato.",
+        "confirm": "Confirmação",
+        "confirmTitle": "Enviar para aprovação?",
+        "confirmBody": "O pedido ficará bloqueado para edição até a decisão.",
+        "confirmAction": "Enviar",
+        "sent": "Enviado para aprovação.",
+        "approveTitle": "Aprovar o pedido {{code}}?",
+        "approveBody": "O pedido seguirá para separação.",
+        "approved": "Pedido {{code}} aprovado.",
+        "delete": "Exclusão irreversível",
+        "deleteTitle": "Excluir o pedido {{code}}?",
+        "deleteBody": "Esta ação não pode ser desfeita. Itens, anexos e histórico serão apagados.",
+        "deleteAction": "Excluir definitivamente",
+        "deleted": "Pedido {{code}} excluído."
+      },
+      "drawer": {
+        "detail": "Gaveta de detalhe",
+        "detailBody": "Resumo do pedido sem sair da lista.",
+        "openFull": "Abrir completo",
+        "filters": "Filtros",
+        "filtersBody": "Refine a lista.",
+        "apply": "Aplicar"
+      },
+      "commandPalette": "Paleta de comandos (Ctrl+K)",
+      "cardsLead": "KPI com valor, variação (verde = bom, laranja = ruim, cinza = estável) e mini gráfico; card de informação, de lista e clicável.",
+      "vsLastMonth": "vs. mês anterior",
+      "vsLastWeek": "vs. semana anterior",
+      "kpi": {
+        "leadTime": "Prazo médio de entrega",
+        "days": "{{n}} dias"
+      },
+      "infoCard": "Card de informação",
+      "infoCardDesc": "Contrato de manutenção",
+      "listCard": "Card de lista",
+      "seeAll": "Ver todos",
+      "clickableCard": "Card clicável",
+      "clickableCardDesc": "O card inteiro é um link: hover e foco visíveis.",
+      "chartsLead": "Séries de categoria usam chart-1…8. Cores de estado só quando o gráfico diz bom/ruim (ex.: no prazo × atrasado).",
+      "chart": {
+        "revenue": "Receita",
+        "cost": "Custo",
+        "margin": "Margem",
+        "line": "Linha — receita × custo",
+        "lineDesc": "Receita e custo por mês",
+        "bar": "Barras — por mês",
+        "barDesc": "Receita e custo por mês em barras",
+        "area": "Área — entregas no prazo × atrasadas",
+        "areaDesc": "Percentual de entregas no prazo e atrasadas por mês",
+        "onTime": "No prazo",
+        "late": "Atrasadas",
+        "donut": "Rosca — vendas por categoria",
+        "donutDesc": "Participação de cada categoria nas vendas",
+        "cat": {
+          "notebooks": "Notebooks",
+          "phones": "Celulares",
+          "monitors": "Monitores",
+          "parts": "Peças",
+          "others": "Outros"
+        },
+        "combined": "Combinado — receita (barras) e margem (linha)",
+        "combinedDesc": "Receita mensal em barras e margem percentual em linha"
+      },
+      "kanbanLead": "Arraste com o mouse ou pelo teclado (Tab até a alça, Espaço, setas, Espaço). A coluna com limite fica laranja quando passa dele.",
+      "kb": {
+        "lead": "Prospecção",
+        "proposal": "Proposta",
+        "negotiation": "Negociação",
+        "won": "Ganho"
+      },
+      "calendarLead": "Seletor de datas (react-day-picker) e agenda mês/semana/dia (FullCalendar). Eventos usam a cor do significado; arraste para remarcar.",
+      "cal": {
+        "inventory": "Inventário geral",
+        "audit": "Auditoria ISO 14001",
+        "delivery": "Entrega TechNova",
+        "deadline": "Prazo SPED",
+        "maintenance": "Manutenção da empilhadeira"
+      },
+      "dataTableLead": "Componente único de todas as listas: ordenação por coluna, filtro por coluna, filtros avançados, visões salvas, estado na URL, colunas, seleção, totais, exportação e cards no celular. Veja a tela de exemplo com 1.000 registros.",
+      "openDataTable": "Abrir o exemplo"
+    }
+  },
+  "common": {
+    "close": "Fechar",
+    "more": "Mais",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "export": "Exportar",
+    "new": "Novo",
+    "loading": "Carregando…",
+    "dismiss": "Dispensar",
+    "moreOptions": "Mais opções",
+    "notifications": "Notificações",
+    "removeItem": "Remover {{item}}",
+    "save": "Salvar",
+    "confirm": "Confirmar",
+    "edit": "Editar",
+    "approve": "Aprovar",
+    "back": "Voltar",
+    "next": "Avançar",
+    "finish": "Concluir",
+    "clearFilters": "Limpar filtros",
+    "tryAgain": "Tentar de novo",
+    "duplicate": "Duplicar",
+    "open": "Abrir"
+  },
+  "shell": {
+    "breadcrumb": "Caminho da página",
+    "mainMenu": "Menu principal",
+    "mainMenuDescription": "Módulos e telas do sistema",
+    "pendingCount": "{{label}} — pendências: {{count}}",
+    "expandMenu": "Expandir menu",
+    "collapseMenu": "Recolher menu",
+    "openMenu": "Abrir menu",
+    "home": "Ir para o início",
+    "skipToContent": "Pular para o conteúdo"
+  },
+  "context": {
+    "current": "{{kind}}: {{name}} — trocar contexto",
+    "switch": "Trocar contexto",
+    "kinds": {
+      "cliente": "Cliente",
+      "unidade": "Unidade",
+      "empresa": "Empresa"
+    }
+  },
+  "roles": {
+    "admin": "Administrador",
+    "operacao": "Operação",
+    "leitura": "Leitura"
+  },
+  "permissions": {
+    "denied": "Sem permissão para esta ação (perfil {{role}})."
+  },
+  "user": {
+    "role": "Perfil de acesso",
+    "roleHint": "Demonstração: troque o perfil para ver itens e botões ocultos ou desabilitados.",
+    "signOut": "Sair",
+    "signOutTitle": "Sair do sistema?",
+    "signOutDescription": "Você precisará entrar de novo para continuar. Alterações não salvas serão perdidas.",
+    "menuPrefix": "Menu do usuário:"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "trigger": "Notificações — não lidas: {{count}}",
+    "markAllRead": "Marcar todas como lidas",
+    "empty": "Nenhuma notificação por aqui.",
+    "unread": "Não lida",
+    "items": {
+      "userCreated": "Usuário {{name}} cadastrado",
+      "userBlocked": "Usuário {{name}} bloqueado"
+    }
+  },
+  "help": {
+    "title": "Ajuda"
+  },
+  "shortcuts": {
+    "title": "Atalhos de teclado",
+    "description": "Use o teclado para navegar mais rápido.",
+    "items": {
+      "search": "Abrir a busca",
+      "toggleSidebar": "Recolher ou expandir o menu",
+      "newRecord": "Novo registro (nas listas)",
+      "save": "Salvar (nos formulários)",
+      "shortcuts": "Mostrar os atalhos",
+      "close": "Fechar janela ou menu"
+    }
+  },
+  "command": {
+    "title": "Busca",
+    "description": "Procure módulos, telas e registros.",
+    "placeholder": "Buscar módulos, telas e registros…",
+    "open": "Abrir a busca",
+    "empty": "Nada encontrado.",
+    "groups": {
+      "screens": "Telas",
+      "records": "Registros",
+      "actions": "Ações"
+    },
+    "records": {
+      "user": "Usuário"
+    },
+    "actions": {
+      "lightTheme": "Mudar para o tema claro",
+      "darkTheme": "Mudar para o tema escuro"
+    },
+    "searching": "Buscando registros…",
+    "searchFailed": "Não foi possível buscar os registros agora."
+  },
+  "placeholder": {
+    "title": "Em construção",
+    "description": "Esta tela ainda não foi construída.",
+    "body": "A navegação, o caminho da página e as permissões já funcionam. Os botões acima seguem o seu perfil ({{role}}): ações sem permissão ficam desabilitadas.",
+    "notFoundTitle": "Página não encontrada",
+    "notFoundDescription": "O endereço não existe ou foi alterado.",
+    "backHome": "Voltar ao início",
+    "forbiddenTitle": "Sem acesso a esta tela",
+    "forbiddenDescription": "O perfil {{role}} não tem permissão para ver esta tela. Fale com o administrador do sistema."
+  },
+  "home": {
+    "greeting": "Olá, {{name}}",
+    "description": "Bem-vindo ao Re-Teck iERP.",
+    "usersTitle": "Usuários",
+    "modulesTitle": "Acesso rápido",
+    "screens": "Telas: {{count}}",
+    "openScreen": "Abrir"
+  },
+  "nav": {
+    "inicio": "Início",
+    "sections": {
+      "principal": "Principal",
+      "sistema": "Sistema"
+    },
+    "admin": {
+      "title": "Administração",
+      "usuarios": "Usuários"
+    },
+    "perfil": "Meu perfil",
+    "configuracoes": "Configurações"
+  },
+  "field": {
+    "required": "obrigatório",
+    "counter": "Caracteres usados:",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "clearSearch": "Limpar busca",
+    "clearDate": "Limpar data",
+    "pickDate": "Selecione uma data",
+    "pickRange": "Selecione o período",
+    "time": "Hora",
+    "selectMany": "Selecione…",
+    "selectOne": "Selecione…",
+    "selectedCount": "Selecionados: {{count}}",
+    "search": "Buscar…",
+    "noOptions": "Nenhuma opção encontrada.",
+    "clearSelection": "Limpar seleção",
+    "typeToSearch": "Digite para buscar…",
+    "minChars": "Digite ao menos {{count}} caracteres.",
+    "loadError": "Não foi possível carregar as opções."
+  },
+  "validation": {
+    "required": "Campo obrigatório.",
+    "invalidType": "Valor inválido.",
+    "minLength": "Use pelo menos {{min}} caracteres.",
+    "maxLength": "Use no máximo {{max}} caracteres.",
+    "min": "O valor mínimo é {{min}}.",
+    "max": "O valor máximo é {{max}}.",
+    "minItems": "Selecione pelo menos {{min}}.",
+    "maxItems": "Selecione no máximo {{max}}.",
+    "email": "Informe um e-mail válido.",
+    "invalidFormat": "Formato inválido.",
+    "cpf": "CPF inválido.",
+    "cnpj": "CNPJ inválido.",
+    "cep": "CEP inválido.",
+    "phone": "Telefone inválido.",
+    "plate": "Placa inválida.",
+    "dateOrder": "A data final deve ser depois da inicial.",
+    "acceptTerms": "É preciso aceitar para continuar.",
+    "passwordMatch": "As senhas não conferem.",
+    "pastDate": "A data não pode ser anterior a hoje."
+  },
+  "confirm": {
+    "typeToConfirm": "Para confirmar, digite"
+  },
+  "meta": {
+    "createdBy": "Criado por {{name}}",
+    "updatedBy": "Alterado por {{name}}",
+    "copy": "Copiar {{value}}",
+    "copyShort": "Copiar",
+    "copied": "{{value}} copiado.",
+    "copiedShort": "Copiado!",
+    "copyFailed": "Não foi possível copiar."
+  },
+  "stepper": {
+    "done": "concluída",
+    "current": "etapa atual",
+    "upcoming": "próxima"
+  },
+  "timeline": {
+    "before": "antes:",
+    "after": "depois:"
+  },
+  "comments": {
+    "empty": "Nenhum comentário ainda.",
+    "label": "Escreva um comentário",
+    "placeholder": "Escreva um comentário… (Ctrl+Enter envia)",
+    "send": "Comentar"
+  },
+  "upload": {
+    "choose": "Clique para escolher",
+    "orDrag": "ou arraste os arquivos aqui",
+    "maxSize": "até {{size}} por arquivo",
+    "tooBig": "Arquivo(s) acima do limite: {{files}}",
+    "none": "Nenhum anexo.",
+    "uploading": "Enviando {{name}}",
+    "download": "Baixar {{name}}",
+    "remove": "Remover {{name}}"
+  },
+  "pagination": {
+    "label": "Paginação",
+    "range": "{{from}}–{{to}} de {{total}}",
+    "pageSize": "Por página",
+    "first": "Primeira página",
+    "previous": "Página anterior",
+    "next": "Próxima página",
+    "last": "Última página",
+    "page": "Página {{page}}"
+  },
+  "kanban": {
+    "instructions": "Para mover um cartão, pressione Espaço, use as setas e pressione Espaço de novo para soltar. Esc cancela.",
+    "picked": "Cartão {{card}} pego na coluna {{column}}.",
+    "over": "Cartão {{card}} sobre a coluna {{column}}.",
+    "dropped": "Cartão {{card}} solto na coluna {{column}}.",
+    "cancelled": "Movimento cancelado.",
+    "empty": "Arraste cartões para cá",
+    "overLimit": "acima do limite"
+  },
+  "kpi": {
+    "trend": "Tendência de {{label}}",
+    "good": "(melhorou)",
+    "bad": "(piorou)",
+    "flat": "(estável)"
+  },
+  "status": {
+    "rascunho": "Rascunho",
+    "novo": "Novo",
+    "pendente": "Pendente",
+    "aguardando_aprovacao": "Aguardando aprovação",
+    "em_revisao": "Em revisão",
+    "aprovado": "Aprovado",
+    "em_andamento": "Em andamento",
+    "em_separacao": "Em separação",
+    "faturado": "Faturado",
+    "entregue": "Entregue",
+    "concluido": "Concluído",
+    "pago": "Pago",
+    "ativo": "Ativo",
+    "atrasado": "Atrasado",
+    "vencido": "Vencido",
+    "estoque_baixo": "Estoque baixo",
+    "recusado": "Recusado",
+    "erro": "Erro",
+    "cancelado": "Cancelado",
+    "bloqueado": "Bloqueado",
+    "inativo": "Inativo",
+    "em_transito": "Em trânsito",
+    "autorizada": "Autorizada",
+    "conciliado": "Conciliado",
+    "disponivel": "Disponível",
+    "ocupado": "Ocupado",
+    "em_ferias": "Em férias",
+    "em_manutencao": "Em manutenção",
+    "divergente": "Divergente",
+    "afastado": "Afastado"
+  },
+  "dataTable": {
+    "yes": "Sim",
+    "no": "Não",
+    "all": "Todos",
+    "searchPlaceholder": "Buscar na tabela…",
+    "searchLabel": "Buscar em {{title}}",
+    "period": "Período",
+    "anyPeriod": "Qualquer período",
+    "whichDate": "Qual data filtrar",
+    "untilInclusive": "O \"até\" inclui o dia inteiro.",
+    "filters": "Filtros",
+    "advanced": "Filtros avançados",
+    "advancedDescription": "Combine várias condições. Condições incompletas são ignoradas.",
+    "matchLabel": "Mostrar registros que atendem a",
+    "logicAnd": "todas as condições (E)",
+    "logicOr": "qualquer condição (OU)",
+    "where": "Onde",
+    "and": "e",
+    "or": "ou",
+    "column": "Coluna",
+    "operator": "Operador",
+    "value": "Valor",
+    "value2": "Até o valor",
+    "addCondition": "Adicionar condição",
+    "removeCondition": "Remover condição",
+    "apply": "Aplicar",
+    "clear": "Limpar",
+    "clearAll": "Limpar tudo",
+    "ops": {
+      "eq": "igual a",
+      "neq": "diferente de",
+      "contains": "contém",
+      "startsWith": "começa com",
+      "gt": "maior que",
+      "lt": "menor que",
+      "between": "entre",
+      "empty": "está vazio",
+      "notEmpty": "não está vazio"
+    },
+    "from": "A partir de",
+    "to": "Até",
+    "contains": "Contém…",
+    "filterBy": "Filtrar {{column}}",
+    "filterActive": "Filtrar {{column}} (filtro ativo)",
+    "activeFilters": "Filtros ativos",
+    "allConditions": "Todas as condições:",
+    "anyCondition": "Qualquer condição:",
+    "chip": {
+      "search": "Busca: {{value}}",
+      "contains": "contém “{{value}}”",
+      "many": "{{first}} e mais {{count}}"
+    },
+    "columns": "Colunas",
+    "columnsHint": "Arraste (ou use Espaço e as setas) para reordenar. Fixe colunas à esquerda.",
+    "reorder": "Reordenar a coluna {{column}}",
+    "reorderInstructions": "Pressione Espaço para pegar, use as setas para mover e Espaço para soltar. Esc cancela.",
+    "pin": "Fixar a coluna {{column}}",
+    "unpin": "Soltar a coluna {{column}}",
+    "resetColumns": "Restaurar colunas",
+    "views": "Visões",
+    "savedViews": "Visões salvas",
+    "noViews": "Nenhuma visão salva ainda.",
+    "applyView": "Aplicar",
+    "default": "padrão",
+    "setDefaultShort": "Usar como padrão",
+    "unsetDefaultShort": "Deixar de ser padrão",
+    "saveView": "Salvar visão atual…",
+    "saveViewDescription": "Guarda filtros, ordenação e colunas com um nome.",
+    "viewName": "Nome da visão",
+    "useAsDefault": "Abrir esta tabela com esta visão",
+    "viewSaved": "Visão “{{name}}” salva.",
+    "resetView": "Restaurar o padrão do sistema",
+    "compact": "Linhas compactas",
+    "exported": "Arquivo exportado.",
+    "exportFailed": "Não foi possível exportar.",
+    "bulkActions": "Ações em massa",
+    "selectedCount": "Selecionados: {{count}}",
+    "allSelected": "Todos os {{count}} resultados selecionados",
+    "selectAllMatching": "Selecionar todos os {{count}} resultados",
+    "clearSelection": "Limpar seleção",
+    "selectPage": "Selecionar todos desta página",
+    "selectRow": "Selecionar {{id}}",
+    "expand": "Expandir",
+    "expandRow": "Mostrar detalhes",
+    "collapseRow": "Ocultar detalhes",
+    "actions": "Ações",
+    "rowActions": "Ações de {{id}}",
+    "errorTitle": "Não foi possível carregar",
+    "errorDescription": "Verifique a conexão e tente de novo.",
+    "noResultsTitle": "Nenhum resultado",
+    "noResultsDescription": "Nenhum registro atende aos filtros.",
+    "emptyTitle": "Nenhum registro",
+    "emptyDescription": "Ainda não há nada por aqui.",
+    "scrollRegion": "Tabela {{title}} (role para ver mais)",
+    "caption": "{{count}} registros",
+    "totals": "Total",
+    "sortHint": "Clique para ordenar; Shift+clique ordena por várias colunas",
+    "sortOrder": "{{n}}º critério",
+    "resize": "Redimensionar a coluna {{column}} (setas)",
+    "mobileFiltersDescription": "Filtre por qualquer coluna.",
+    "showResults": "Ver {{count}} resultados",
+    "sortBy": "Ordenar por",
+    "defaultOrder": "Ordem padrão",
+    "ascending": "Crescente",
+    "descending": "Decrescente"
+  },
+  "ex": {
+    "title": "Tabela de dados (exemplo)",
+    "description": "DataTable com 1.000 pedidos fictícios: ordenação, filtros, visões salvas, colunas, seleção, totais e exportação.",
+    "mode": "Modo",
+    "modes": {
+      "client": "Modo cliente",
+      "server": "Modo servidor"
+    },
+    "tipsTitle": "Experimente",
+    "tipsClient": "Clique no título para ordenar (Shift+clique soma colunas), use o funil de cada coluna, os filtros avançados e salve uma visão. Copie a URL: o estado vai junto. N cria um registro.",
+    "tipsServer": "Mesma interface, mas cada mudança é uma consulta com latência a um servidor simulado (como será com a API).",
+    "simulateError": "Simular erro do servidor",
+    "tableTitle": "Pedidos de venda",
+    "cols": {
+      "code": "Pedido",
+      "customer": "Cliente",
+      "status": "Status",
+      "seller": "Vendedor",
+      "region": "UF",
+      "channel": "Canal",
+      "items": "Itens",
+      "total": "Valor total",
+      "issuedAt": "Emissão",
+      "promisedAt": "Entrega prometida",
+      "urgent": "Urgente"
+    },
+    "channels": {
+      "site": "Loja virtual",
+      "rep": "Representante",
+      "phone": "Telefone",
+      "marketplace": "Marketplace"
+    },
+    "openOrder": "Abrir o pedido {{code}} (a tela de detalhe chega na fase 6).",
+    "newOrder": "Novo pedido (o cadastro chega na fase 6).",
+    "newOrderShort": "Novo pedido",
+    "bulkApproved": "Pedidos aprovados: {{count}}",
+    "bulkCancelled": "Pedidos cancelados: {{count}}",
+    "cancelOrders": "Cancelar",
+    "hub": {
+      "title": "Padrões de página",
+      "description": "Toda tela do sistema segue um destes modelos. Abra, use e copie.",
+      "patterns": "Telas internas",
+      "system": "Telas do sistema",
+      "systemNote": "Login, acesso pendente e manutenção ficam fora do shell; 403, 404 e 500 aparecem dentro dele.",
+      "items": {
+        "list": {
+          "title": "Lista",
+          "desc": "Cabeçalho, KPIs e DataTable; clique abre o detalhe."
+        },
+        "detail": {
+          "title": "Detalhe",
+          "desc": "Status, ações e abas: dados, itens, anexos, comentários e histórico."
+        },
+        "form": {
+          "title": "Cadastro / edição",
+          "desc": "Seções, validação, Ctrl+S, rodapé fixo e aviso ao sair."
+        },
+        "wizard": {
+          "title": "Assistente",
+          "desc": "Novo pedido em etapas com validação e revisão final."
+        },
+        "dashboard": {
+          "title": "Dashboard",
+          "desc": "KPIs, gráficos, pendências e filtro de período."
+        },
+        "report": {
+          "title": "Relatório",
+          "desc": "Filtros no topo, gráfico, tabela e exportação."
+        },
+        "kanban": {
+          "title": "Kanban",
+          "desc": "Funil de oportunidades com arrastar e soltar."
+        },
+        "calendar": {
+          "title": "Calendário",
+          "desc": "Entregas do mês; arraste para remarcar."
+        },
+        "settings": {
+          "title": "Configurações",
+          "desc": "Seções à esquerda, formulários à direita."
+        },
+        "profile": {
+          "title": "Perfil do usuário",
+          "desc": "Dados pessoais, acessos e atividade."
+        },
+        "table": {
+          "title": "Tabela de dados",
+          "desc": "Todos os recursos do DataTable em 1.000 registros."
+        },
+        "login": {
+          "title": "Login",
+          "desc": "Entrada com e-mail e senha ou pelo Portal."
+        },
+        "pending": {
+          "title": "Acesso pendente",
+          "desc": "Entrou, mas ainda não foi liberado."
+        },
+        "e403": {
+          "title": "403 — sem permissão",
+          "desc": "Troque o perfil para Leitura e abra Administração."
+        },
+        "e404": {
+          "title": "404 — não encontrada",
+          "desc": "Endereço que não existe."
+        },
+        "e500": {
+          "title": "500 — erro",
+          "desc": "Falha simulada ao carregar a tela."
+        },
+        "maintenance": {
+          "title": "Manutenção",
+          "desc": "Sistema fora do ar de forma programada."
+        }
+      }
+    },
+    "list": {
+      "title": "Pedidos de venda",
+      "description": "Modelo do padrão Lista: KPIs, DataTable e clique para abrir o detalhe.",
+      "kpiApproval": "Aguardando aprovação",
+      "kpiLate": "Entregas atrasadas",
+      "kpiRevenue": "Faturamento do mês"
+    },
+    "detail": {
+      "description": "Vendedor: {{seller}}",
+      "general": "Dados gerais",
+      "totals": "Totais",
+      "itemsCount": "Itens",
+      "subtotal": "Subtotal",
+      "sku": "SKU",
+      "product": "Produto",
+      "quantity": "Quantidade",
+      "unitPrice": "Preço unitário",
+      "lateTitle": "Entrega atrasada",
+      "lateBody": "A entrega prometida para {{date}} ainda não aconteceu.",
+      "approvalBody": "Este pedido precisa da aprovação do financeiro para seguir.",
+      "evStatus": "mudou o status",
+      "downloadDemo": "Download simulado.",
+      "cancelTitle": "Cancelar o pedido {{code}}?",
+      "cancelBody": "O pedido sai da separação e o cliente é avisado.",
+      "cancelAction": "Cancelar pedido",
+      "cancelled": "Pedido {{code}} cancelado."
+    },
+    "form": {
+      "title": "Novo cliente",
+      "description": "Modelo do padrão Cadastro: seções, validação no campo e no envio, Ctrl+S e aviso ao sair.",
+      "sIdentity": "Identificação",
+      "sIdentityHelp": "Dados da empresa como na Receita.",
+      "legalName": "Razão social",
+      "tradeName": "Nome fantasia",
+      "sContact": "Contato",
+      "sAddress": "Endereço",
+      "street": "Logradouro",
+      "number": "Número",
+      "city": "Cidade",
+      "sCommercial": "Comercial",
+      "sCommercialHelp": "Condições padrão dos pedidos.",
+      "creditLimit": "Limite de crédito",
+      "paymentTerm": "Condição de pagamento",
+      "terms": {
+        "avista": "À vista",
+        "30": "30 dias",
+        "30-60": "30/60 dias",
+        "30-60-90": "30/60/90 dias"
+      },
+      "active": "Cliente ativo",
+      "activeHelp": "Inativo não recebe novos pedidos.",
+      "saved": "Cliente {{name}} salvo."
+    },
+    "wizard": {
+      "title": "Novo pedido",
+      "description": "Modelo do padrão Assistente: etapas com validação e revisão.",
+      "customerHelp": "Busque o cliente pelo nome.",
+      "itemsHelp": "Adicione os produtos e as quantidades.",
+      "addItem": "Adicionar item",
+      "removeItem": "Remover o item {{n}}",
+      "urgentText": "Pedido urgente (prioridade na separação)",
+      "reviewHelp": "Confira antes de concluir.",
+      "finish": "Criar pedido",
+      "created": "Pedido criado para {{customer}}."
+    },
+    "dash": {
+      "title": "Visão comercial",
+      "description": "Modelo do padrão Dashboard: KPIs, gráficos e pendências.",
+      "lastDays": "Últimos {{n}} dias",
+      "vsPrevious": "vs. período anterior",
+      "orders": "Pedidos",
+      "ticket": "Ticket médio",
+      "delivered": "Entregues",
+      "revenueByMonth": "Faturamento por mês",
+      "bySeller": "Faturamento por vendedor",
+      "awaiting": "Aguardando aprovação",
+      "late": "Entregas atrasadas",
+      "nothingPending": "Nada pendente"
+    },
+    "report": {
+      "title": "Vendas por vendedor",
+      "description": "Modelo do padrão Relatório: filtros, gráfico, tabela e exportação.",
+      "basis": "Base: {{count}} pedidos no período.",
+      "chartTitle": "Faturamento por vendedor",
+      "tableTitle": "Resumo por vendedor",
+      "lateShare": "Atrasados"
+    },
+    "kanban": {
+      "title": "Funil de oportunidades",
+      "description": "Modelo do padrão Kanban: arraste os cartões entre as etapas.",
+      "allSellers": "Todos os vendedores",
+      "newDeal": "Nova oportunidade (demonstração).",
+      "newDealShort": "Nova oportunidade"
+    },
+    "calendar": {
+      "title": "Agenda de entregas",
+      "description": "Modelo do padrão Calendário: entregas prometidas no mês.",
+      "moved": "Entrega remarcada para {{date}}."
+    }
+  },
+  "patterns": {
+    "unsaved": {
+      "title": "Sair sem salvar?",
+      "description": "Há alterações que ainda não foram salvas. Se sair agora, elas serão perdidas.",
+      "leave": "Sair sem salvar",
+      "stay": "Continuar editando"
+    },
+    "form": {
+      "requiredHint": "indica campo obrigatório.",
+      "unsavedHint": "Alterações não salvas"
+    },
+    "wizard": {
+      "steps": "Etapas",
+      "stepOf": "Etapa {{n}} de {{total}}",
+      "fixStep": "Corrija os campos desta etapa para avançar."
+    }
+  },
+  "auth": {
+    "footer": "© {{year}} Re-Teck · Uso interno",
+    "loginTitle": "Entrar",
+    "loginSubtitle": "Use o seu e-mail corporativo.",
+    "remember": "Manter conectado",
+    "forgot": "Esqueci minha senha",
+    "forgotInfo": "Fale com o TI para redefinir a senha (demonstração).",
+    "signIn": "Entrar",
+    "or": "ou",
+    "sso": "Entrar com o Portal Re-Teck",
+    "demoHint": "Demonstração: qualquer e-mail e senha entram. Um e-mail começando com \"pendente\" mostra a tela de acesso pendente.",
+    "pendingTitle": "Seu acesso está em análise",
+    "pendingDescription": "Você entrou como {{email}}, mas o administrador do sistema ainda não liberou o seu acesso. Avisaremos por e-mail.",
+    "useOtherAccount": "Usar outra conta",
+    "checkAgain": "Verificar de novo",
+    "accessGranted": "Acesso liberado (demonstração).",
+    "maintenanceTitle": "Sistema em manutenção",
+    "maintenanceDescription": "Estamos fazendo uma manutenção programada e voltamos em breve. Obrigado pela paciência."
+  },
+  "errors": {
+    "serverTitle": "Algo deu errado",
+    "serverDescription": "Não foi possível carregar esta tela. Tente de novo; se continuar, avise o TI.",
+    "technical": "Detalhes técnicos"
+  },
+  "profile": {
+    "description": "Seus dados, acessos e atividade recente.",
+    "personal": "Dados pessoais",
+    "personalHelp": "Como você aparece para a equipe.",
+    "emailHelp": "O e-mail vem do Portal e não pode ser alterado aqui.",
+    "access": "Acessos",
+    "lastLogin": "Último acesso",
+    "activity": "Atividade recente",
+    "saved": "Perfil atualizado.",
+    "ev": {
+      "approved": "aprovou o pedido {{code}}",
+      "edited": "alterou o pedido {{code}}",
+      "exported": "exportou o relatório de vendas"
+    },
+    "photo": {
+      "add": "Adicionar foto",
+      "change": "Trocar foto",
+      "remove": "Remover foto",
+      "help": "JPG, PNG ou WebP, até 5 MB.",
+      "alt": "Foto de {{name}}",
+      "updated": "Foto de perfil atualizada.",
+      "removed": "Foto de perfil removida.",
+      "failed": "Não foi possível atualizar a foto.",
+      "invalidType": "Use uma imagem JPG, PNG ou WebP.",
+      "tooLarge": "A imagem passa de 5 MB. Escolha um arquivo menor."
+    }
+  },
+  "settings": {
+    "description": "Preferências do sistema e da sua conta.",
+    "general": "Geral",
+    "generalHelp": "Idioma, tema e densidade valem para todas as telas.",
+    "notificationsHelp": "Escolha o que você quer receber.",
+    "preferenceSaved": "Preferência salva.",
+    "notif": {
+      "approvals": {
+        "title": "Pedidos aguardando minha aprovação",
+        "desc": "Aviso no sino e por e-mail."
+      },
+      "late": {
+        "title": "Entregas atrasadas",
+        "desc": "Quando um pedido passa da data prometida."
+      },
+      "mentions": {
+        "title": "Menções em comentários",
+        "desc": "Quando alguém citar você."
+      },
+      "weekly": {
+        "title": "Resumo semanal",
+        "desc": "Indicadores da semana, toda segunda-feira."
+      }
+    },
+    "security": "Segurança",
+    "changePassword": "Alterar senha",
+    "passwordHelp": "Use uma senha que você não usa em outros sistemas.",
+    "currentPassword": "Senha atual",
+    "newPassword": "Nova senha",
+    "newPasswordHelp": "Pelo menos 8 caracteres.",
+    "confirmPassword": "Confirmar nova senha",
+    "passwordChanged": "Senha alterada (demonstração).",
+    "about": "Sobre o sistema",
+    "version": "Versão",
+    "environment": "Ambiente",
+    "environmentDemo": "Demonstração (API simulada)",
+    "timezone": "Fuso horário",
+    "support": "Suporte"
+  },
+  "apiErrors": {
+    "unknown": "Erro inesperado. Tente de novo.",
+    "network": "Sem conexão com o servidor. Verifique a rede e tente de novo.",
+    "invalidTransition": "Esta ação não vale mais para o status atual do registro. Atualize a tela.",
+    "validation": "Dados inválidos: {{detail}}",
+    "notFound": "Registro não encontrado. Ele pode ter sido excluído.",
+    "forbidden": "Seu perfil não tem permissão para esta ação.",
+    "server": "O servidor encontrou um erro. Tente de novo em instantes.",
+    "emailInUse": "Já existe um usuário com este e-mail."
+  },
+  "calendar": {
+    "today": "Hoje",
+    "todayHint": "Hoje — {{unit}} atual"
+  },
+  "traducao": {
+    "escritoEm": "Escrito em",
+    "detectado": "(detectado)",
+    "automatica": "Tradução automática · original em {{idioma}}",
+    "automaticaTag": "Tradução automática",
+    "original": "Texto original em {{idioma}}",
+    "verOriginal": "Ver original",
+    "verTraducao": "Ver tradução",
+    "pendente": "Sem tradução para {{idioma}} — mostrando o original",
+    "traduzirAgora": "Traduzir agora",
+    "traduzindo": "Traduzindo…",
+    "editarTitulo": "Editar {{campo}}",
+    "editarDescricao": "Escreva no idioma que preferir. Ao salvar, o sistema traduz para os outros dois idiomas; você pode corrigir as traduções.",
+    "textoOriginal": "Texto original",
+    "traducoes": "Traduções",
+    "seraoGeradas": "As traduções serão geradas a partir do texto original ao salvar.",
+    "seraoGeradasCurto": "Gerada ao salvar",
+    "semTraducao": "Ainda sem tradução.",
+    "traduzirDeNovo": "Traduzir de novo a partir do original",
+    "editar": "Editar texto e traduções",
+    "falhou": "Salvo sem tradução",
+    "motivo": {
+      "cota": "A cota diária do serviço de tradução acabou. As traduções ficam pendentes e podem ser geradas depois.",
+      "rede": "Sem conexão com o serviço de tradução. As traduções ficam pendentes e podem ser geradas depois.",
+      "servico": "O serviço de tradução não respondeu. As traduções ficam pendentes e podem ser geradas depois.",
+      "desligada": "A tradução automática está desligada. Só o texto original foi salvo."
+    },
+    "salvo": "Texto salvo nos 3 idiomas"
+  },
+  "usuarios": {
+    "list": {
+      "description": "Pessoas com acesso ao iERP e o perfil de cada uma.",
+      "emptyTitle": "Nenhum usuário encontrado",
+      "emptyBody": "Ajuste a busca ou os filtros."
+    },
+    "kpis": {
+      "total": "Total de usuários",
+      "ativos": "Ativos",
+      "bloqueados": "Bloqueados",
+      "inativos": "Inativos"
+    },
+    "cols": {
+      "codigo": "Código",
+      "nome": "Nome",
+      "email": "E-mail",
+      "perfil": "Perfil de acesso",
+      "status": "Status",
+      "ultimoAcesso": "Último acesso",
+      "criadoEm": "Cadastrado em"
+    },
+    "new": {
+      "title": "Novo usuário",
+      "description": "Cadastre uma pessoa e defina o perfil de acesso."
+    },
+    "edit": {
+      "title": "Editar {{name}}"
+    },
+    "form": {
+      "identification": "Identificação",
+      "access": "Acesso",
+      "emailHelp": "Usado para entrar no sistema. Não pode repetir.",
+      "profileHelp": "Define o que a pessoa pode ver e fazer no sistema."
+    },
+    "detail": {
+      "tabData": "Dados",
+      "tabHistory": "Histórico",
+      "general": "Dados do usuário",
+      "neverAccessed": "Nunca acessou",
+      "blockedTitle": "Usuário bloqueado",
+      "blockedBody": "Esta pessoa não consegue entrar no sistema até ser desbloqueada.",
+      "blockedReason": "Motivo: {{reason}}",
+      "inactiveTitle": "Usuário inativo",
+      "inactiveBody": "Esta pessoa não faz mais parte do sistema. Reative para liberar o acesso."
+    },
+    "history": {
+      "criado": "Cadastrou o usuário",
+      "editado": "Alterou os dados",
+      "status": "Mudou o status"
+    },
+    "acoes": {
+      "bloquear": "Bloquear",
+      "desbloquear": "Desbloquear",
+      "inativar": "Inativar",
+      "reativar": "Reativar"
+    },
+    "reason": "Motivo",
+    "confirm": {
+      "bloquear": {
+        "title": "Bloquear {{name}}?",
+        "body": "A pessoa não conseguirá entrar até ser desbloqueada. Informe o motivo (fica no histórico)."
+      },
+      "desbloquear": {
+        "title": "Desbloquear {{name}}?",
+        "body": "A pessoa volta a entrar no sistema com o perfil atual."
+      },
+      "inativar": {
+        "title": "Inativar {{name}}?",
+        "body": "Use quando a pessoa sai da empresa. O cadastro e o histórico são mantidos e dá para reativar depois."
+      },
+      "reativar": {
+        "title": "Reativar {{name}}?",
+        "body": "A pessoa volta a entrar no sistema com o perfil atual."
+      }
+    },
+    "toast": {
+      "created": "Usuário {{name}} cadastrado.",
+      "saved": "Alterações de {{name}} salvas.",
+      "saveFailed": "Não foi possível salvar o usuário.",
+      "actionFailed": "Não foi possível concluir a ação.",
+      "acao": {
+        "bloquear": "{{name}} foi bloqueado.",
+        "desbloquear": "{{name}} foi desbloqueado.",
+        "inativar": "{{name}} foi inativado.",
+        "reativar": "{{name}} foi reativado."
+      }
+    }
+  }
+}

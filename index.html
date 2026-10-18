@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Re-Teck · iERP</title>
+    <meta name="description" content="Template padrão de sistema interno (ERP) da Re-Teck." />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101719" media="(prefers-color-scheme: dark)" />
+    <script>
+      // Aplica tema e densidade antes da primeira pintura (evita "piscar").
+      ;(function () {
+        try {
+          var s = JSON.parse(localStorage.getItem('reteck-ui') || '{}').state || {}
+          var t = s.theme || 'system'
+          var dark =
+            t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.classList.toggle('dark', dark)
+          if (s.density === 'compact') document.documentElement.dataset.density = 'compact'
+          if (s.language) document.documentElement.lang = s.language
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

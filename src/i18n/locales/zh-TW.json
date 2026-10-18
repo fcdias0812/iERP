@@ -1,0 +1,1362 @@
+{
+  "app": {
+    "name": "iERP"
+  },
+  "brand": {
+    "logoAlt": "Re-Teck — Reverse Supply Chain Management",
+    "systemName": "內部系統"
+  },
+  "preferences": {
+    "theme": "主題",
+    "themeLight": "淺色",
+    "themeDark": "深色",
+    "themeSystem": "跟隨系統",
+    "density": "密度",
+    "densityComfortable": "舒適",
+    "densityCompact": "緊湊",
+    "language": "語言"
+  },
+  "languages": {
+    "pt-BR": "Português (Brasil)",
+    "en": "English",
+    "zh-TW": "繁體中文"
+  },
+  "tones": {
+    "info": {
+      "name": "石油藍",
+      "meaning": "操作與資訊",
+      "example": "進行中",
+      "examples": "儲存、建立、查看詳情、新增"
+    },
+    "success": {
+      "name": "綠色",
+      "meaning": "成功／已完成",
+      "example": "已完成",
+      "examples": "已完成、已核准、已付款、已送達、線上"
+    },
+    "warning": {
+      "name": "黃色",
+      "meaning": "輕度警示（等待他人處理）",
+      "example": "待處理",
+      "examples": "待處理、等待核准、審核中"
+    },
+    "alert": {
+      "name": "橘色",
+      "meaning": "重度警示（接近錯誤）",
+      "example": "已逾期",
+      "examples": "延遲、已逾期、庫存不足"
+    },
+    "danger": {
+      "name": "紅色",
+      "meaning": "錯誤、刪除、不可逆操作",
+      "example": "已拒絕",
+      "examples": "刪除、已拒絕、錯誤、失敗"
+    },
+    "inactive": {
+      "name": "灰色",
+      "meaning": "封鎖、停用、取消、無資料",
+      "example": "已取消",
+      "examples": "已封鎖、停用、已取消、草稿、—"
+    }
+  },
+  "ds": {
+    "title": "設計系統",
+    "description": "Re-Teck 範本的設計標記、字體、形狀與品牌。這是畫面原型設計的參考。",
+    "phaseNote": "基礎（第 1 階段）與元件（第 3 階段）。頁面範本將於第 5 階段完成。",
+    "onThisPage": "本頁內容",
+    "contrastNote": "所有文字／背景組合皆通過 WCAG 2.2 AA（npm run check:contrast）。",
+    "sections": {
+      "colorRule": "色彩規則",
+      "semantic": "語意標記",
+      "palette": "色盤",
+      "charts": "圖表色彩",
+      "typography": "字體",
+      "shape": "形狀與層次",
+      "density": "密度",
+      "brand": "品牌",
+      "status": "狀態標籤",
+      "buttons": "按鈕",
+      "badges": "計數與標記",
+      "fields": "欄位",
+      "form": "含驗證的表單",
+      "metadata": "中繼資料",
+      "navigation": "導覽",
+      "menus": "頭像、選單與提示",
+      "activity": "歷程、留言與附件",
+      "feedback": "回饋",
+      "overlays": "疊加層",
+      "cards": "卡片",
+      "chartsDemo": "圖表",
+      "kanban": "看板",
+      "calendar": "行事曆",
+      "dataTable": "資料表格"
+    },
+    "colorRule": {
+      "lead": "顏色依意義而定，而非喜好。整個系統中，一種顏色只代表一種意義。",
+      "family": "色系",
+      "meaning": "意義",
+      "examples": "範例",
+      "subtle": "標籤／提示",
+      "solid": "實心",
+      "rules": [
+        "品牌色不是狀態色：品牌綠與萊姆綠只用於標誌、登入頁、空狀態及導覽列下方的細線。",
+        "主要按鈕＝石油藍。次要＝中性（外框）。危險＝紅色。綠色僅用於確認成功（核准、完成）。",
+        "顏色絕不是唯一訊號：每個狀態都有文字與圖示。",
+        "提示背景＝淺色染色（約 10%），文字與邊框使用深色調。",
+        "黃色絕不作為淺色背景上的文字顏色：文字改用加深的琥珀色。",
+        "類別圖表使用專屬色盤；只有在圖表表示好／注意／差時才使用狀態色。"
+      ],
+      "alertTitle": "庫存低於最低量",
+      "alertBody": "有 12 個品項低於最低庫存。請在月結前補貨。"
+    },
+    "semantic": {
+      "surfaces": "表面",
+      "text": "文字",
+      "action": "操作與選取",
+      "lines": "邊框與焦點",
+      "tokens": {
+        "background": "頁面背景",
+        "card": "卡片、表格、面板",
+        "elevated": "彈出框、下拉選單、對話框",
+        "muted": "次要區域",
+        "foreground": "主要文字",
+        "muted-foreground": "次要文字",
+        "link": "連結",
+        "primary": "主要操作",
+        "primary-hover": "主要操作（滑過）",
+        "selected": "已選取列／作用中項目",
+        "accent": "項目滑過",
+        "destructive": "危險操作",
+        "border": "分隔線（裝飾）",
+        "border-strong": "加強分隔線",
+        "input": "欄位邊框（3:1）",
+        "ring": "可見焦點"
+      }
+    },
+    "palette": {
+      "lead": "由標誌產生的 OKLCH 50–950 色階（npm run tokens）。★＝標誌原始色值。元件使用語意標記，絕不直接使用色盤。",
+      "groups": {
+        "brand": "品牌",
+        "state": "狀態",
+        "neutral": "中性色"
+      },
+      "anchor": "標誌色值"
+    },
+    "charts": {
+      "lead": "類別數列使用專屬色盤，取自品牌色與中性色——不含狀態色。",
+      "series": "數列 {{n}}"
+    },
+    "typography": {
+      "lead": "介面使用 Inter Variable（基準 14px），代碼、ID 與序號使用 JetBrains Mono，繁體中文使用 Noto Sans TC。",
+      "levels": "層級",
+      "scale": "字級",
+      "weights": "字重",
+      "numbers": "數字",
+      "numbersLead": "數值與表格使用等寬數字與斜線零（num 類別）。",
+      "mono": "等寬字體",
+      "cjk": "繁體中文",
+      "cjkLead": "僅在語言為繁體中文時載入 Noto Sans TC。",
+      "sample": "銷售訂單已由財務核准",
+      "levelNames": {
+        "display": "重點（KPI）",
+        "page-title": "頁面標題",
+        "section-title": "區段標題",
+        "card-title": "卡片標題",
+        "body": "內文",
+        "label": "標籤",
+        "caption": "說明文字",
+        "overline": "上標題"
+      },
+      "weightNames": {
+        "400": "標準",
+        "500": "中等",
+        "600": "半粗"
+      }
+    },
+    "shape": {
+      "radius": "圓角",
+      "radiusNames": {
+        "sm": "小型欄位、標籤",
+        "md": "按鈕與欄位",
+        "lg": "卡片",
+        "xl": "對話框"
+      },
+      "shadows": "陰影",
+      "shadowNames": {
+        "card": "卡片",
+        "popover": "下拉選單／彈出框",
+        "modal": "對話框"
+      },
+      "shadowsLead": "深色主題中，陰影改為邊框與較亮的表面。",
+      "spacing": "間距（4px 網格）",
+      "motion": "動態",
+      "motionLead": "150–200 毫秒，並遵循 prefers-reduced-motion。"
+    },
+    "density": {
+      "lead": "舒適（預設）或緊湊：改變欄位、按鈕與表格列的高度。",
+      "control": "控制項高度",
+      "row": "表格列"
+    },
+    "brand": {
+      "lead": "導覽列使用完整標誌（深色主題使用淺色版本），窄螢幕僅顯示地球。圖示由地球產生（npm run brand）。",
+      "fullLight": "完整——淺色主題",
+      "fullDark": "完整——深色主題",
+      "globe": "地球——窄螢幕",
+      "gradient": "品牌漸層（導覽列下方細線、登入頁、空狀態）",
+      "icons": "網站圖示與應用程式圖示"
+    },
+    "groups": {
+      "foundation": "基礎",
+      "components": "元件"
+    },
+    "c": {
+      "statusLead": "所有狀態都來自 statusMap：色調（依意義決定顏色）＋圖示＋文字。流程順序用於表格排序。",
+      "subtle": "淡色（預設）",
+      "solid": "實心（強調，少用）",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "buttonsLead": "主要按鈕為石油藍（每個區域一個主要動作），次要為中性，危險為紅色，綠色只用於確認成功。高度依密度調整。",
+      "variants": "樣式",
+      "sizes": "尺寸",
+      "withIcons": "含圖示與純圖示（一定要有無障礙標籤）",
+      "states": "狀態",
+      "groupAndSplit": "按鈕群組與分割按鈕",
+      "seeDetails": "查看詳細資料",
+      "print": "列印",
+      "disabled": "停用",
+      "saving": "儲存中…",
+      "clickToLoad": "點擊：載入中",
+      "view": "檢視",
+      "day": "日",
+      "week": "週",
+      "month": "月",
+      "saveAndNew": "儲存並新增下一筆",
+      "saveAsDraft": "儲存為草稿",
+      "focusHint": "將滑鼠移上去查看懸停效果，按 Tab 查看焦點（2px 石油藍外框）。",
+      "badgesLead": "待處理事項使用中性計數；只有在數字代表錯誤時才用紅色。標記是自由標籤，不是狀態。",
+      "counters": "計數",
+      "tags": "標記（可移除）",
+      "errorsCount": "錯誤：{{count}}",
+      "notificationsCount": "通知：{{count}}",
+      "readOnlyTag": "唯讀",
+      "restore": "還原",
+      "addTag": "新增標記",
+      "tag1": "電子產品",
+      "tag2": "整新品",
+      "tag3": "延長保固",
+      "tag4": "聖保羅",
+      "fieldsLead": "每個欄位都有標籤、必填標示、說明、與欄位連結的錯誤訊息（aria-describedby），有長度限制時顯示計數。離開有格式的欄位即會驗證。",
+      "f": {
+        "name": "名稱",
+        "nameHelp": "顯示於文件上的名稱。",
+        "email": "電子郵件",
+        "disabled": "停用",
+        "disabledValue": "不可編輯",
+        "readOnly": "唯讀",
+        "readOnlyHelp": "由系統產生。",
+        "quantity": "數量",
+        "units": "個",
+        "price": "金額",
+        "discount": "折扣",
+        "discountHelp": "0 到 100%。",
+        "unit": "計量單位",
+        "date": "日期",
+        "period": "期間",
+        "periodHelp": "「結束」日期包含整天。",
+        "time": "時間",
+        "dateTime": "日期與時間",
+        "categories": "類別",
+        "categoriesHelp": "可搜尋的多選。",
+        "customer": "客戶",
+        "customerHelp": "非同步搜尋（輸入以搜尋）。",
+        "password": "密碼",
+        "search": "搜尋",
+        "cnpjHelp": "支援英數字 CNPJ（前 12 碼可含字母）。",
+        "notes": "備註",
+        "notesPlaceholder": "給團隊的詳細說明…",
+        "options": "選項",
+        "optNotify": "以電子郵件通知客戶",
+        "optPartial": "全選（部分）",
+        "optDisabled": "無法使用的選項",
+        "switch": "自動保留庫存",
+        "delivery": "配送",
+        "ship": {
+          "normal": "一般（5 個工作天）",
+          "express": "快遞（1 個工作天）",
+          "pickup": "物流中心自取"
+        },
+        "upload": "附件",
+        "filesReceived": "已收到檔案：{{count}}"
+      },
+      "cat": {
+        "eletronicos": "電子產品",
+        "informatica": "電腦",
+        "telefonia": "電話",
+        "acessorios": "配件",
+        "pecas": "備品"
+      },
+      "units": {
+        "un": "個（un）",
+        "cx": "箱（cx）",
+        "kg": "公斤（kg）",
+        "m": "公尺（m）"
+      },
+      "masks": {
+        "cpf": "CPF",
+        "cnpj": "CNPJ",
+        "cep": "郵遞區號（CEP）",
+        "phone": "電話",
+        "plate": "車牌（Mercosul 或舊式）"
+      },
+      "formLead": "React Hook Form + Zod：離開欄位與送出時驗證，訊息支援 3 種語言。試著直接送出空白表單。",
+      "form": {
+        "start": "開始日期",
+        "end": "結束日期",
+        "terms": "確認",
+        "termsText": "我確認資料正確無誤。",
+        "submit": "送出",
+        "saved": "儲存成功。",
+        "fixErrors": "請修正標示的欄位。"
+      },
+      "metadataLead": "鍵值區塊（空值顯示「—」）、等寬字體的可複製 ID、相對日期（提示中顯示完整日期），以及建立／修改者。",
+      "kv": {
+        "code": "代碼",
+        "status": "狀態",
+        "customer": "客戶",
+        "cnpj": "CNPJ",
+        "total": "總金額",
+        "promised": "承諾交期",
+        "seller": "業務員",
+        "updated": "更新時間",
+        "notes": "備註",
+        "notesValue": "請送至 3 號門。簽收前請檢查封條。"
+      },
+      "navigationLead": "分頁標籤、頁面路徑、步驟（精靈）、分頁與樹狀結構，皆可用鍵盤操作。",
+      "tabs": "分頁標籤",
+      "tab": {
+        "data": "資料",
+        "items": "品項",
+        "files": "附件",
+        "comments": "留言",
+        "history": "歷程"
+      },
+      "tabContent": "「{{tab}}」分頁的內容。",
+      "breadcrumb": "頁面路徑",
+      "stepper": "步驟",
+      "steps": {
+        "customer": "客戶",
+        "items": "品項",
+        "terms": "條件",
+        "review": "檢查"
+      },
+      "pagination": "分頁",
+      "tree": "樹狀結構（儲位）",
+      "menusLead": "以縮寫顯示的頭像、提示、彈出框、動作選單（⋯）與右鍵選單（滑鼠右鍵或 Menu 鍵）。",
+      "avatars": "頭像",
+      "tooltipPopover": "提示、彈出框與選單",
+      "hoverMe": "將滑鼠移到這裡",
+      "tooltipText": "簡短提示，不放重要資訊。",
+      "openPopover": "開啟彈出框",
+      "popoverTitle": "快速摘要",
+      "popoverText": "輕量內容，不放長表單。",
+      "rowActions": "記錄動作",
+      "reprocess": "重新處理",
+      "contextMenu": "右鍵選單",
+      "rightClick": "在此按滑鼠右鍵",
+      "activityLead": "稽核時間軸（誰、何時、做了什麼、變更前 → 變更後）、留言與附件上傳。",
+      "timeline": "時間軸",
+      "comments": "留言",
+      "attachments": "附件",
+      "ev": {
+        "approved": "核准了訂單",
+        "edited": "修改了訂單",
+        "created": "建立了訂單",
+        "note": "客戶要求分批交貨。"
+      },
+      "comment1": "明天一早就可以開始揀貨。",
+      "comment2": "沒問題，庫存已經保留。",
+      "feedbackLead": "快速確認用的提示訊息、內嵌警示、頁面橫幅、空白狀態、骨架、載入圖示與進度條——一律搭配圖示與文字。",
+      "toasts": "提示訊息",
+      "toast": {
+        "success": "訂單已儲存",
+        "successBtn": "成功",
+        "info": "已開始匯出，完成後會通知您。",
+        "infoBtn": "資訊",
+        "warning": "庫存接近最低量",
+        "warningDesc": "有 12 個品項低於補貨點。",
+        "warningBtn": "警示",
+        "error": "無法儲存",
+        "errorDesc": "與伺服器連線失敗。",
+        "errorBtn": "錯誤"
+      },
+      "alerts": "內嵌警示與橫幅",
+      "alert": {
+        "info": {
+          "title": "新功能",
+          "body": "匯出 Excel 現在包含合計。"
+        },
+        "success": {
+          "title": "整合運作中",
+          "body": "發票正常接收中。"
+        },
+        "warning": {
+          "title": "待核准",
+          "body": "此訂單需要財務核准。"
+        },
+        "alert": {
+          "title": "交貨逾期",
+          "body": "承諾日期已過 2 天。"
+        },
+        "danger": {
+          "title": "開票失敗",
+          "body": "發票遭到拒絕。請修正 CFOP 後重新送出。"
+        },
+        "inactive": {
+          "title": "資料已停用",
+          "body": "此供應商無法接收新訂單。"
+        }
+      },
+      "banner": {
+        "title": "排定維護",
+        "body": "系統將於週六晚上 10 點至 11 點暫停服務。",
+        "action": "查看詳細資料"
+      },
+      "empty": "空白狀態",
+      "emptyState": {
+        "title": "尚無訂單",
+        "body": "建立第一張訂單以開始追蹤銷售。",
+        "action": "新增訂單"
+      },
+      "noResults": {
+        "title": "找不到資料",
+        "body": "沒有符合篩選條件的記錄。"
+      },
+      "noAccessBody": "請向管理員申請權限。",
+      "loading": "載入",
+      "loadingOrders": "正在載入訂單…",
+      "importing": "匯入中：{{pct}}%",
+      "done": "已完成",
+      "storageUse": "儲存空間使用量",
+      "overlaysLead": "對話框會鎖定焦點，按 Esc 關閉。不可復原的刪除需要輸入項目名稱。",
+      "overlaysNote": "選單、彈出框與對話框一律以全域主題開啟（它們在此區域之外繪製）。",
+      "modal": {
+        "info": "資訊對話框",
+        "infoTitle": "關於對帳",
+        "infoBody": "對帳會比對銀行對帳單與系統中的分錄。",
+        "form": "表單對話框",
+        "formTitle": "新增聯絡人",
+        "formBody": "請填寫聯絡人資料。",
+        "confirm": "確認",
+        "confirmTitle": "送交核准？",
+        "confirmBody": "在做出決定前，訂單將無法編輯。",
+        "confirmAction": "送出",
+        "sent": "已送交核准。",
+        "approveTitle": "核准訂單 {{code}}？",
+        "approveBody": "訂單將進入揀貨流程。",
+        "approved": "訂單 {{code}} 已核准。",
+        "delete": "不可復原的刪除",
+        "deleteTitle": "刪除訂單 {{code}}？",
+        "deleteBody": "此動作無法復原。品項、附件與歷程都會被刪除。",
+        "deleteAction": "永久刪除",
+        "deleted": "訂單 {{code}} 已刪除。"
+      },
+      "drawer": {
+        "detail": "詳細資料抽屜",
+        "detailBody": "不離開清單即可查看訂單摘要。",
+        "openFull": "開啟完整頁面",
+        "filters": "篩選",
+        "filtersBody": "縮小清單範圍。",
+        "apply": "套用"
+      },
+      "commandPalette": "命令面板（Ctrl+K）",
+      "cardsLead": "KPI 顯示數值、變化（綠色 = 好、橘色 = 差、灰色 = 持平）與迷你圖；另有資訊卡、清單卡與可點擊卡片。",
+      "vsLastMonth": "相較上月",
+      "vsLastWeek": "相較上週",
+      "kpi": {
+        "leadTime": "平均交貨時間",
+        "days": "{{n}} 天"
+      },
+      "infoCard": "資訊卡",
+      "infoCardDesc": "維護合約",
+      "listCard": "清單卡",
+      "seeAll": "查看全部",
+      "clickableCard": "可點擊卡片",
+      "clickableCardDesc": "整張卡片是一個連結：有明顯的懸停與焦點效果。",
+      "chartsLead": "類別數列使用 chart-1…8。只有在圖表表示好／壞時（例如準時 × 逾期）才使用狀態色。",
+      "chart": {
+        "revenue": "營收",
+        "cost": "成本",
+        "margin": "毛利率",
+        "line": "折線圖 — 營收 × 成本",
+        "lineDesc": "每月營收與成本",
+        "bar": "長條圖 — 每月",
+        "barDesc": "以長條圖呈現每月營收與成本",
+        "area": "面積圖 — 準時 × 逾期交貨",
+        "areaDesc": "每月準時與逾期交貨的比例",
+        "onTime": "準時",
+        "late": "逾期",
+        "donut": "環形圖 — 各類別銷售",
+        "donutDesc": "各類別占銷售的比例",
+        "cat": {
+          "notebooks": "筆電",
+          "phones": "手機",
+          "monitors": "螢幕",
+          "parts": "零件",
+          "others": "其他"
+        },
+        "combined": "組合圖 — 營收（長條）與毛利率（折線）",
+        "combinedDesc": "每月營收以長條呈現，毛利率以折線呈現"
+      },
+      "kanbanLead": "可用滑鼠或鍵盤拖曳（Tab 移到把手、空白鍵、方向鍵、空白鍵）。有上限的欄位超過時會變成橘色。",
+      "kb": {
+        "lead": "開發",
+        "proposal": "提案",
+        "negotiation": "議價",
+        "won": "成交"
+      },
+      "calendarLead": "日期選擇器（react-day-picker）與月／週／日行程（FullCalendar）。事件依意義著色；拖曳即可改期。",
+      "cal": {
+        "inventory": "全面盤點",
+        "audit": "ISO 14001 稽核",
+        "delivery": "TechNova 交貨",
+        "deadline": "SPED 申報期限",
+        "maintenance": "堆高機維護"
+      },
+      "dataTableLead": "所有清單共用的唯一元件：欄位排序與篩選、進階篩選、已儲存的檢視、網址狀態、欄位、選擇、合計、匯出，以及手機上的卡片。請參考含 1,000 筆記錄的範例畫面。",
+      "openDataTable": "開啟範例"
+    }
+  },
+  "common": {
+    "close": "關閉",
+    "more": "更多",
+    "cancel": "取消",
+    "delete": "刪除",
+    "export": "匯出",
+    "new": "新增",
+    "loading": "載入中…",
+    "dismiss": "關閉提示",
+    "moreOptions": "更多選項",
+    "notifications": "通知",
+    "removeItem": "移除 {{item}}",
+    "save": "儲存",
+    "confirm": "確認",
+    "edit": "編輯",
+    "approve": "核准",
+    "back": "上一步",
+    "next": "下一步",
+    "finish": "完成",
+    "clearFilters": "清除篩選",
+    "tryAgain": "重試",
+    "duplicate": "複製",
+    "open": "開啟"
+  },
+  "shell": {
+    "breadcrumb": "頁面路徑",
+    "mainMenu": "主選單",
+    "mainMenuDescription": "系統模組與畫面",
+    "pendingCount": "{{label}} — 待處理：{{count}}",
+    "expandMenu": "展開選單",
+    "collapseMenu": "收合選單",
+    "openMenu": "開啟選單",
+    "home": "前往首頁",
+    "skipToContent": "跳至主要內容"
+  },
+  "context": {
+    "current": "{{kind}}：{{name}} — 切換情境",
+    "switch": "切換情境",
+    "kinds": {
+      "cliente": "客戶",
+      "unidade": "據點",
+      "empresa": "公司"
+    }
+  },
+  "roles": {
+    "admin": "管理員",
+    "operacao": "作業人員",
+    "leitura": "唯讀"
+  },
+  "permissions": {
+    "denied": "您沒有執行此操作的權限（{{role}} 角色）。"
+  },
+  "user": {
+    "role": "存取角色",
+    "roleHint": "示範：切換角色以查看被隱藏或停用的項目與按鈕。",
+    "signOut": "登出",
+    "signOutTitle": "要登出系統嗎？",
+    "signOutDescription": "您需要重新登入才能繼續。未儲存的變更將會遺失。",
+    "menuPrefix": "使用者選單："
+  },
+  "notifications": {
+    "title": "通知",
+    "trigger": "通知 — 未讀：{{count}}",
+    "markAllRead": "全部標示為已讀",
+    "empty": "目前沒有通知。",
+    "unread": "未讀",
+    "items": {
+      "userCreated": "已建立使用者 {{name}}",
+      "userBlocked": "已封鎖使用者 {{name}}"
+    }
+  },
+  "help": {
+    "title": "說明"
+  },
+  "shortcuts": {
+    "title": "鍵盤快速鍵",
+    "description": "使用鍵盤更快速地操作。",
+    "items": {
+      "search": "開啟搜尋",
+      "toggleSidebar": "收合或展開選單",
+      "newRecord": "新增記錄（清單中）",
+      "save": "儲存（表單中）",
+      "shortcuts": "顯示快速鍵",
+      "close": "關閉視窗或選單"
+    }
+  },
+  "command": {
+    "title": "搜尋",
+    "description": "搜尋模組、畫面與記錄。",
+    "placeholder": "搜尋模組、畫面與記錄…",
+    "open": "開啟搜尋",
+    "empty": "找不到結果。",
+    "groups": {
+      "screens": "畫面",
+      "records": "記錄",
+      "actions": "動作"
+    },
+    "records": {
+      "user": "使用者"
+    },
+    "actions": {
+      "lightTheme": "切換為淺色主題",
+      "darkTheme": "切換為深色主題"
+    },
+    "searching": "正在搜尋記錄…",
+    "searchFailed": "目前無法搜尋記錄。"
+  },
+  "placeholder": {
+    "title": "建置中",
+    "description": "此畫面尚未建置。",
+    "body": "導覽、頁面路徑與權限皆已可運作。上方按鈕依您的角色（{{role}}）顯示：沒有權限的操作會被停用。",
+    "notFoundTitle": "找不到頁面",
+    "notFoundDescription": "此網址不存在或已變更。",
+    "backHome": "返回首頁",
+    "forbiddenTitle": "無法存取此畫面",
+    "forbiddenDescription": "{{role}} 角色沒有檢視此畫面的權限。請聯絡系統管理員。"
+  },
+  "home": {
+    "greeting": "{{name}}，您好",
+    "description": "歡迎使用 Re-Teck iERP。",
+    "usersTitle": "使用者",
+    "modulesTitle": "快速存取",
+    "screens": "畫面：{{count}}",
+    "openScreen": "開啟"
+  },
+  "nav": {
+    "inicio": "首頁",
+    "sections": {
+      "principal": "主要",
+      "sistema": "系統"
+    },
+    "admin": {
+      "title": "系統管理",
+      "usuarios": "使用者"
+    },
+    "perfil": "我的個人資料",
+    "configuracoes": "設定"
+  },
+  "field": {
+    "required": "必填",
+    "counter": "已使用字數：",
+    "showPassword": "顯示密碼",
+    "hidePassword": "隱藏密碼",
+    "clearSearch": "清除搜尋",
+    "clearDate": "清除日期",
+    "pickDate": "選擇日期",
+    "pickRange": "選擇期間",
+    "time": "時間",
+    "selectMany": "請選擇…",
+    "selectOne": "請選擇…",
+    "selectedCount": "已選擇：{{count}}",
+    "search": "搜尋…",
+    "noOptions": "找不到選項。",
+    "clearSelection": "清除選擇",
+    "typeToSearch": "輸入以搜尋…",
+    "minChars": "請至少輸入 {{count}} 個字元。",
+    "loadError": "無法載入選項。"
+  },
+  "validation": {
+    "required": "此欄位為必填。",
+    "invalidType": "數值無效。",
+    "minLength": "請至少輸入 {{min}} 個字元。",
+    "maxLength": "最多 {{max}} 個字元。",
+    "min": "最小值為 {{min}}。",
+    "max": "最大值為 {{max}}。",
+    "minItems": "請至少選擇 {{min}} 項。",
+    "maxItems": "最多選擇 {{max}} 項。",
+    "email": "請輸入有效的電子郵件。",
+    "invalidFormat": "格式無效。",
+    "cpf": "CPF 無效。",
+    "cnpj": "CNPJ 無效。",
+    "cep": "郵遞區號（CEP）無效。",
+    "phone": "電話號碼無效。",
+    "plate": "車牌號碼無效。",
+    "dateOrder": "結束日期必須晚於開始日期。",
+    "acceptTerms": "必須同意才能繼續。",
+    "passwordMatch": "兩次輸入的密碼不一致。",
+    "pastDate": "日期不可早於今天。"
+  },
+  "confirm": {
+    "typeToConfirm": "請輸入以下文字以確認："
+  },
+  "meta": {
+    "createdBy": "由 {{name}} 建立",
+    "updatedBy": "由 {{name}} 修改",
+    "copy": "複製 {{value}}",
+    "copyShort": "複製",
+    "copied": "已複製 {{value}}。",
+    "copiedShort": "已複製！",
+    "copyFailed": "無法複製。"
+  },
+  "stepper": {
+    "done": "已完成",
+    "current": "目前步驟",
+    "upcoming": "尚未開始"
+  },
+  "timeline": {
+    "before": "變更前：",
+    "after": "變更後："
+  },
+  "comments": {
+    "empty": "尚無留言。",
+    "label": "撰寫留言",
+    "placeholder": "撰寫留言…（Ctrl+Enter 送出）",
+    "send": "留言"
+  },
+  "upload": {
+    "choose": "點擊選擇檔案",
+    "orDrag": "或將檔案拖曳至此",
+    "maxSize": "每個檔案上限 {{size}}",
+    "tooBig": "超過大小限制的檔案：{{files}}",
+    "none": "沒有附件。",
+    "uploading": "正在上傳 {{name}}",
+    "download": "下載 {{name}}",
+    "remove": "移除 {{name}}"
+  },
+  "pagination": {
+    "label": "分頁",
+    "range": "第 {{from}}–{{to}} 筆，共 {{total}} 筆",
+    "pageSize": "每頁筆數",
+    "first": "第一頁",
+    "previous": "上一頁",
+    "next": "下一頁",
+    "last": "最後一頁",
+    "page": "第 {{page}} 頁"
+  },
+  "kanban": {
+    "instructions": "若要移動卡片，請按空白鍵，使用方向鍵移動，再按空白鍵放下。按 Esc 取消。",
+    "picked": "已拿起「{{column}}」欄中的卡片 {{card}}。",
+    "over": "卡片 {{card}} 位於「{{column}}」欄上方。",
+    "dropped": "已將卡片 {{card}} 放到「{{column}}」欄。",
+    "cancelled": "已取消移動。",
+    "empty": "將卡片拖曳至此",
+    "overLimit": "超過上限"
+  },
+  "kpi": {
+    "trend": "{{label}} 趨勢",
+    "good": "（改善）",
+    "bad": "（變差）",
+    "flat": "（持平）"
+  },
+  "status": {
+    "rascunho": "草稿",
+    "novo": "新建",
+    "pendente": "待處理",
+    "aguardando_aprovacao": "待核准",
+    "em_revisao": "審查中",
+    "aprovado": "已核准",
+    "em_andamento": "進行中",
+    "em_separacao": "揀貨中",
+    "faturado": "已開票",
+    "entregue": "已交貨",
+    "concluido": "已完成",
+    "pago": "已付款",
+    "ativo": "啟用",
+    "atrasado": "逾期",
+    "vencido": "已到期",
+    "estoque_baixo": "庫存不足",
+    "recusado": "已拒絕",
+    "erro": "錯誤",
+    "cancelado": "已取消",
+    "bloqueado": "已封鎖",
+    "inativo": "停用",
+    "em_transito": "運送中",
+    "autorizada": "已授權",
+    "conciliado": "已對帳",
+    "disponivel": "可用",
+    "ocupado": "已佔用",
+    "em_ferias": "休假中",
+    "em_manutencao": "維修中",
+    "divergente": "有差異",
+    "afastado": "留職停薪"
+  },
+  "dataTable": {
+    "yes": "是",
+    "no": "否",
+    "all": "全部",
+    "searchPlaceholder": "在表格中搜尋…",
+    "searchLabel": "搜尋{{title}}",
+    "period": "期間",
+    "anyPeriod": "不限期間",
+    "whichDate": "要篩選的日期欄位",
+    "untilInclusive": "「結束」日期包含整天。",
+    "filters": "篩選",
+    "advanced": "進階篩選",
+    "advancedDescription": "可組合多個條件。不完整的條件會被忽略。",
+    "matchLabel": "顯示符合以下的記錄：",
+    "logicAnd": "所有條件（且）",
+    "logicOr": "任一條件（或）",
+    "where": "條件",
+    "and": "且",
+    "or": "或",
+    "column": "欄位",
+    "operator": "運算子",
+    "value": "值",
+    "value2": "上限值",
+    "addCondition": "新增條件",
+    "removeCondition": "移除條件",
+    "apply": "套用",
+    "clear": "清除",
+    "clearAll": "全部清除",
+    "ops": {
+      "eq": "等於",
+      "neq": "不等於",
+      "contains": "包含",
+      "startsWith": "開頭為",
+      "gt": "大於",
+      "lt": "小於",
+      "between": "介於",
+      "empty": "為空",
+      "notEmpty": "不為空"
+    },
+    "from": "起",
+    "to": "迄",
+    "contains": "包含…",
+    "filterBy": "篩選{{column}}",
+    "filterActive": "篩選{{column}}（已套用）",
+    "activeFilters": "已套用的篩選",
+    "allConditions": "符合所有條件：",
+    "anyCondition": "符合任一條件：",
+    "chip": {
+      "search": "搜尋：{{value}}",
+      "contains": "包含「{{value}}」",
+      "many": "{{first}} 等 {{count}} 項"
+    },
+    "columns": "欄位",
+    "columnsHint": "拖曳（或使用空白鍵與方向鍵）重新排序。可將欄位固定在左側。",
+    "reorder": "重新排序欄位 {{column}}",
+    "reorderInstructions": "按空白鍵拿起，用方向鍵移動，再按空白鍵放下。按 Esc 取消。",
+    "pin": "固定欄位 {{column}}",
+    "unpin": "取消固定欄位 {{column}}",
+    "resetColumns": "還原欄位",
+    "views": "檢視",
+    "savedViews": "已儲存的檢視",
+    "noViews": "尚未儲存任何檢視。",
+    "applyView": "套用",
+    "default": "預設",
+    "setDefaultShort": "設為預設",
+    "unsetDefaultShort": "取消預設",
+    "saveView": "儲存目前的檢視…",
+    "saveViewDescription": "以名稱儲存篩選、排序與欄位設定。",
+    "viewName": "檢視名稱",
+    "useAsDefault": "開啟此表格時使用此檢視",
+    "viewSaved": "已儲存檢視「{{name}}」。",
+    "resetView": "還原系統預設",
+    "compact": "緊湊列",
+    "exported": "檔案已匯出。",
+    "exportFailed": "無法匯出。",
+    "bulkActions": "批次動作",
+    "selectedCount": "已選擇：{{count}}",
+    "allSelected": "已選擇全部 {{count}} 筆結果",
+    "selectAllMatching": "選擇全部 {{count}} 筆結果",
+    "clearSelection": "清除選擇",
+    "selectPage": "選擇本頁全部",
+    "selectRow": "選擇 {{id}}",
+    "expand": "展開",
+    "expandRow": "顯示詳細資料",
+    "collapseRow": "隱藏詳細資料",
+    "actions": "動作",
+    "rowActions": "{{id}} 的動作",
+    "errorTitle": "無法載入",
+    "errorDescription": "請檢查連線後重試。",
+    "noResultsTitle": "沒有結果",
+    "noResultsDescription": "沒有符合篩選條件的記錄。",
+    "emptyTitle": "沒有記錄",
+    "emptyDescription": "這裡還沒有任何資料。",
+    "scrollRegion": "{{title}} 表格（捲動以查看更多）",
+    "caption": "{{count}} 筆記錄",
+    "totals": "合計",
+    "sortHint": "點擊排序；Shift+點擊可依多個欄位排序",
+    "sortOrder": "第 {{n}} 排序鍵",
+    "resize": "調整欄位 {{column}} 寬度（方向鍵）",
+    "mobileFiltersDescription": "依任一欄位篩選。",
+    "showResults": "顯示 {{count}} 筆結果",
+    "sortBy": "排序依據",
+    "defaultOrder": "預設順序",
+    "ascending": "遞增",
+    "descending": "遞減"
+  },
+  "ex": {
+    "title": "資料表格（範例）",
+    "description": "含 1,000 筆模擬訂單的 DataTable：排序、篩選、已儲存的檢視、欄位、選擇、合計與匯出。",
+    "mode": "模式",
+    "modes": {
+      "client": "用戶端模式",
+      "server": "伺服器模式"
+    },
+    "tipsTitle": "試試看",
+    "tipsClient": "點擊標題排序（Shift+點擊可加入多個欄位），使用各欄位的篩選與進階篩選，並儲存檢視。複製網址即可帶走目前狀態。按 N 新增記錄。",
+    "tipsServer": "介面相同，但每次變更都是向模擬伺服器發出有延遲的查詢（接上 API 後也是如此）。",
+    "simulateError": "模擬伺服器錯誤",
+    "tableTitle": "銷售訂單",
+    "cols": {
+      "code": "訂單",
+      "customer": "客戶",
+      "status": "狀態",
+      "seller": "業務員",
+      "region": "州",
+      "channel": "通路",
+      "items": "品項數",
+      "total": "總金額",
+      "issuedAt": "開立日期",
+      "promisedAt": "承諾交期",
+      "urgent": "緊急"
+    },
+    "channels": {
+      "site": "網路商店",
+      "rep": "業務代表",
+      "phone": "電話",
+      "marketplace": "電商平台"
+    },
+    "openOrder": "開啟訂單 {{code}}（詳細頁面將於第 6 階段完成）。",
+    "newOrder": "新增訂單（表單將於第 6 階段完成）。",
+    "newOrderShort": "新增訂單",
+    "bulkApproved": "已核准訂單：{{count}}",
+    "bulkCancelled": "已取消訂單：{{count}}",
+    "cancelOrders": "取消",
+    "hub": {
+      "title": "頁面範本",
+      "description": "系統中的每個畫面都遵循其中一種範本。開啟、使用並複製。",
+      "patterns": "內部畫面",
+      "system": "系統畫面",
+      "systemNote": "登入、存取待核准與維護畫面位於外框之外；403、404 與 500 顯示在外框之內。",
+      "items": {
+        "list": {
+          "title": "清單",
+          "desc": "標題、KPI 與 DataTable；點擊開啟詳細資料。"
+        },
+        "detail": {
+          "title": "詳細資料",
+          "desc": "狀態、動作與分頁：資料、品項、附件、留言與歷程。"
+        },
+        "form": {
+          "title": "新增／編輯表單",
+          "desc": "分段、驗證、Ctrl+S、固定頁尾與離開提醒。"
+        },
+        "wizard": {
+          "title": "精靈",
+          "desc": "分步驟建立新訂單，含驗證與最終檢查。"
+        },
+        "dashboard": {
+          "title": "儀表板",
+          "desc": "KPI、圖表、待辦清單與期間篩選。"
+        },
+        "report": {
+          "title": "報表",
+          "desc": "上方篩選、圖表、表格與匯出。"
+        },
+        "kanban": {
+          "title": "看板",
+          "desc": "可拖放的商機漏斗。"
+        },
+        "calendar": {
+          "title": "行事曆",
+          "desc": "本月交貨；拖曳即可改期。"
+        },
+        "settings": {
+          "title": "設定",
+          "desc": "左側分段，右側表單。"
+        },
+        "profile": {
+          "title": "使用者個人資料",
+          "desc": "個人資料、存取權限與活動。"
+        },
+        "table": {
+          "title": "資料表格",
+          "desc": "以 1,000 筆記錄展示 DataTable 的所有功能。"
+        },
+        "login": {
+          "title": "登入",
+          "desc": "以電子郵件與密碼或入口網站登入。"
+        },
+        "pending": {
+          "title": "存取待核准",
+          "desc": "已登入但尚未開通。"
+        },
+        "e403": {
+          "title": "403 — 無權限",
+          "desc": "將角色切換為唯讀後開啟系統管理。"
+        },
+        "e404": {
+          "title": "404 — 找不到",
+          "desc": "不存在的網址。"
+        },
+        "e500": {
+          "title": "500 — 錯誤",
+          "desc": "模擬載入畫面時發生錯誤。"
+        },
+        "maintenance": {
+          "title": "維護",
+          "desc": "排定的停機維護。"
+        }
+      }
+    },
+    "list": {
+      "title": "銷售訂單",
+      "description": "清單範本：KPI、DataTable，點擊開啟詳細資料。",
+      "kpiApproval": "待核准",
+      "kpiLate": "逾期交貨",
+      "kpiRevenue": "本月營收"
+    },
+    "detail": {
+      "description": "業務員：{{seller}}",
+      "general": "一般資料",
+      "totals": "合計",
+      "itemsCount": "品項數",
+      "subtotal": "小計",
+      "sku": "SKU",
+      "product": "產品",
+      "quantity": "數量",
+      "unitPrice": "單價",
+      "lateTitle": "交貨逾期",
+      "lateBody": "承諾於 {{date}} 的交貨尚未完成。",
+      "approvalBody": "此訂單需經財務核准才能繼續。",
+      "evStatus": "變更了狀態",
+      "downloadDemo": "模擬下載。",
+      "cancelTitle": "取消訂單 {{code}}？",
+      "cancelBody": "訂單將退出揀貨流程並通知客戶。",
+      "cancelAction": "取消訂單",
+      "cancelled": "訂單 {{code}} 已取消。"
+    },
+    "form": {
+      "title": "新增客戶",
+      "description": "表單範本：分段、欄位與送出驗證、Ctrl+S 與離開提醒。",
+      "sIdentity": "識別資料",
+      "sIdentityHelp": "依稅務機關登記的公司資料。",
+      "legalName": "公司名稱",
+      "tradeName": "商號",
+      "sContact": "聯絡方式",
+      "sAddress": "地址",
+      "street": "街道",
+      "number": "門牌號碼",
+      "city": "城市",
+      "sCommercial": "商務",
+      "sCommercialHelp": "訂單預設條件。",
+      "creditLimit": "信用額度",
+      "paymentTerm": "付款條件",
+      "terms": {
+        "avista": "現金",
+        "30": "30 天",
+        "30-60": "30/60 天",
+        "30-60-90": "30/60/90 天"
+      },
+      "active": "啟用客戶",
+      "activeHelp": "停用的客戶無法接收新訂單。",
+      "saved": "客戶 {{name}} 已儲存。"
+    },
+    "wizard": {
+      "title": "新增訂單",
+      "description": "精靈範本：含驗證與檢查的步驟。",
+      "customerHelp": "依名稱搜尋客戶。",
+      "itemsHelp": "加入產品與數量。",
+      "addItem": "新增品項",
+      "removeItem": "移除第 {{n}} 個品項",
+      "urgentText": "緊急訂單（優先揀貨）",
+      "reviewHelp": "完成前請再次確認。",
+      "finish": "建立訂單",
+      "created": "已為 {{customer}} 建立訂單。"
+    },
+    "dash": {
+      "title": "銷售總覽",
+      "description": "儀表板範本：KPI、圖表與待辦清單。",
+      "lastDays": "最近 {{n}} 天",
+      "vsPrevious": "相較前一期間",
+      "orders": "訂單",
+      "ticket": "平均客單價",
+      "delivered": "已交貨",
+      "revenueByMonth": "每月營收",
+      "bySeller": "各業務員營收",
+      "awaiting": "待核准",
+      "late": "逾期交貨",
+      "nothingPending": "沒有待辦事項"
+    },
+    "report": {
+      "title": "各業務員銷售",
+      "description": "報表範本：篩選、圖表、表格與匯出。",
+      "basis": "依據：期間內 {{count}} 筆訂單。",
+      "chartTitle": "各業務員營收",
+      "tableTitle": "業務員摘要",
+      "lateShare": "逾期比例"
+    },
+    "kanban": {
+      "title": "商機漏斗",
+      "description": "看板範本：在各階段之間拖曳卡片。",
+      "allSellers": "所有業務員",
+      "newDeal": "新增商機（示範）。",
+      "newDealShort": "新增商機"
+    },
+    "calendar": {
+      "title": "交貨行程",
+      "description": "行事曆範本：本月承諾交貨。",
+      "moved": "交貨已改期至 {{date}}。"
+    }
+  },
+  "patterns": {
+    "unsaved": {
+      "title": "不儲存就離開？",
+      "description": "有尚未儲存的變更。現在離開將會遺失。",
+      "leave": "不儲存並離開",
+      "stay": "繼續編輯"
+    },
+    "form": {
+      "requiredHint": "表示必填欄位。",
+      "unsavedHint": "有未儲存的變更"
+    },
+    "wizard": {
+      "steps": "步驟",
+      "stepOf": "第 {{n}} 步，共 {{total}} 步",
+      "fixStep": "請修正此步驟的欄位後再繼續。"
+    }
+  },
+  "auth": {
+    "footer": "© {{year}} Re-Teck · 內部使用",
+    "loginTitle": "登入",
+    "loginSubtitle": "請使用公司電子郵件。",
+    "remember": "保持登入",
+    "forgot": "忘記密碼",
+    "forgotInfo": "請聯絡資訊部門重設密碼（示範）。",
+    "signIn": "登入",
+    "or": "或",
+    "sso": "使用 Re-Teck 入口網站登入",
+    "demoHint": "示範：任何電子郵件與密碼皆可登入。以「pendente」開頭的電子郵件會顯示「存取待核准」畫面。",
+    "pendingTitle": "您的存取權限審核中",
+    "pendingDescription": "您已以 {{email}} 登入，但系統管理員尚未開通您的權限。我們會以電子郵件通知您。",
+    "useOtherAccount": "使用其他帳號",
+    "checkAgain": "重新檢查",
+    "accessGranted": "已開通存取權限（示範）。",
+    "maintenanceTitle": "系統維護中",
+    "maintenanceDescription": "我們正在進行排定的維護，很快就會恢復。感謝您的耐心。"
+  },
+  "errors": {
+    "serverTitle": "發生錯誤",
+    "serverDescription": "無法載入此畫面。請重試；若持續發生，請聯絡資訊部門。",
+    "technical": "技術細節"
+  },
+  "profile": {
+    "description": "您的資料、存取權限與近期活動。",
+    "personal": "個人資料",
+    "personalHelp": "團隊看到的您。",
+    "emailHelp": "電子郵件來自入口網站，無法在此修改。",
+    "access": "存取權限",
+    "lastLogin": "上次登入",
+    "activity": "近期活動",
+    "saved": "個人資料已更新。",
+    "ev": {
+      "approved": "核准了訂單 {{code}}",
+      "edited": "修改了訂單 {{code}}",
+      "exported": "匯出了銷售報表"
+    },
+    "photo": {
+      "add": "新增相片",
+      "change": "更換相片",
+      "remove": "移除相片",
+      "help": "JPG、PNG 或 WebP，最大 5 MB。",
+      "alt": "{{name}} 的相片",
+      "updated": "個人相片已更新。",
+      "removed": "個人相片已移除。",
+      "failed": "無法更新相片。",
+      "invalidType": "請使用 JPG、PNG 或 WebP 圖片。",
+      "tooLarge": "圖片超過 5 MB，請選擇較小的檔案。"
+    }
+  },
+  "settings": {
+    "description": "系統與帳號偏好設定。",
+    "general": "一般",
+    "generalHelp": "語言、主題與密度套用於所有畫面。",
+    "notificationsHelp": "選擇您要接收的通知。",
+    "preferenceSaved": "偏好設定已儲存。",
+    "notif": {
+      "approvals": {
+        "title": "等待我核准的訂單",
+        "desc": "鈴鐺通知與電子郵件。"
+      },
+      "late": {
+        "title": "逾期交貨",
+        "desc": "訂單超過承諾日期時。"
+      },
+      "mentions": {
+        "title": "留言中提及我",
+        "desc": "有人提到您時。"
+      },
+      "weekly": {
+        "title": "每週摘要",
+        "desc": "每週一寄送當週指標。"
+      }
+    },
+    "security": "安全性",
+    "changePassword": "變更密碼",
+    "passwordHelp": "請使用未在其他系統使用過的密碼。",
+    "currentPassword": "目前密碼",
+    "newPassword": "新密碼",
+    "newPasswordHelp": "至少 8 個字元。",
+    "confirmPassword": "確認新密碼",
+    "passwordChanged": "密碼已變更（示範）。",
+    "about": "關於系統",
+    "version": "版本",
+    "environment": "環境",
+    "environmentDemo": "示範（模擬 API）",
+    "timezone": "時區",
+    "support": "支援"
+  },
+  "apiErrors": {
+    "unknown": "發生未預期的錯誤，請再試一次。",
+    "network": "無法連線到伺服器，請檢查網路後再試一次。",
+    "invalidTransition": "此操作已不適用於該紀錄目前的狀態，請重新整理頁面。",
+    "validation": "資料無效：{{detail}}",
+    "notFound": "找不到記錄，可能已被刪除。",
+    "forbidden": "您的角色沒有執行此操作的權限。",
+    "server": "伺服器發生錯誤，請稍後再試。",
+    "emailInUse": "已有使用者使用此電子郵件。"
+  },
+  "calendar": {
+    "today": "今天",
+    "todayHint": "今天 — 本{{unit}}"
+  },
+  "traducao": {
+    "escritoEm": "撰寫語言",
+    "detectado": "（自動偵測）",
+    "automatica": "機器翻譯 · 原文為{{idioma}}",
+    "automaticaTag": "機器翻譯",
+    "original": "{{idioma}}原文",
+    "verOriginal": "顯示原文",
+    "verTraducao": "顯示譯文",
+    "pendente": "尚無{{idioma}}翻譯——顯示原文",
+    "traduzirAgora": "立即翻譯",
+    "traduzindo": "翻譯中…",
+    "editarTitulo": "編輯{{campo}}",
+    "editarDescricao": "請以您偏好的語言撰寫。儲存時，系統會翻譯成另外兩種語言；您可以修正譯文。",
+    "textoOriginal": "原文",
+    "traducoes": "譯文",
+    "seraoGeradas": "儲存時將根據原文產生譯文。",
+    "seraoGeradasCurto": "儲存時產生",
+    "semTraducao": "尚無譯文。",
+    "traduzirDeNovo": "根據原文重新翻譯",
+    "editar": "編輯文字與譯文",
+    "falhou": "已儲存，但未翻譯",
+    "motivo": {
+      "cota": "翻譯服務的每日額度已用完。譯文將保持待處理，可稍後再產生。",
+      "rede": "無法連線至翻譯服務。譯文將保持待處理，可稍後再產生。",
+      "servico": "翻譯服務沒有回應。譯文將保持待處理，可稍後再產生。",
+      "desligada": "自動翻譯已關閉。僅儲存原文。"
+    },
+    "salvo": "文字已以三種語言儲存"
+  },
+  "usuarios": {
+    "list": {
+      "description": "可存取 iERP 的人員及其角色。",
+      "emptyTitle": "找不到使用者",
+      "emptyBody": "請調整搜尋或篩選條件。"
+    },
+    "kpis": {
+      "total": "使用者總數",
+      "ativos": "啟用",
+      "bloqueados": "已封鎖",
+      "inativos": "停用"
+    },
+    "cols": {
+      "codigo": "代碼",
+      "nome": "姓名",
+      "email": "電子郵件",
+      "perfil": "存取角色",
+      "status": "狀態",
+      "ultimoAcesso": "最後存取",
+      "criadoEm": "建立日期"
+    },
+    "new": {
+      "title": "新增使用者",
+      "description": "登錄人員並設定其存取角色。"
+    },
+    "edit": {
+      "title": "編輯 {{name}}"
+    },
+    "form": {
+      "identification": "基本資料",
+      "access": "存取",
+      "emailHelp": "用於登入系統，不可重複。",
+      "profileHelp": "決定此人在系統中可檢視與執行的項目。"
+    },
+    "detail": {
+      "tabData": "資料",
+      "tabHistory": "歷程",
+      "general": "使用者資料",
+      "neverAccessed": "從未登入",
+      "blockedTitle": "使用者已封鎖",
+      "blockedBody": "解除封鎖前，此人無法登入系統。",
+      "blockedReason": "原因：{{reason}}",
+      "inactiveTitle": "使用者已停用",
+      "inactiveBody": "此人已不屬於本系統。重新啟用即可恢復存取。"
+    },
+    "history": {
+      "criado": "建立了使用者",
+      "editado": "變更了資料",
+      "status": "變更了狀態"
+    },
+    "acoes": {
+      "bloquear": "封鎖",
+      "desbloquear": "解除封鎖",
+      "inativar": "停用",
+      "reativar": "重新啟用"
+    },
+    "reason": "原因",
+    "confirm": {
+      "bloquear": {
+        "title": "要封鎖 {{name}} 嗎？",
+        "body": "解除封鎖前，此人將無法登入。請填寫原因（會記錄在歷程中）。"
+      },
+      "desbloquear": {
+        "title": "要解除封鎖 {{name}} 嗎？",
+        "body": "此人將以目前的角色再次登入系統。"
+      },
+      "inativar": {
+        "title": "要停用 {{name}} 嗎？",
+        "body": "適用於人員離職時。資料與歷程會保留，之後可重新啟用。"
+      },
+      "reativar": {
+        "title": "要重新啟用 {{name}} 嗎？",
+        "body": "此人將以目前的角色再次登入系統。"
+      }
+    },
+    "toast": {
+      "created": "已建立使用者 {{name}}。",
+      "saved": "已儲存 {{name}} 的變更。",
+      "saveFailed": "無法儲存使用者。",
+      "actionFailed": "無法完成此操作。",
+      "acao": {
+        "bloquear": "已封鎖 {{name}}。",
+        "desbloquear": "已解除封鎖 {{name}}。",
+        "inativar": "已停用 {{name}}。",
+        "reativar": "已重新啟用 {{name}}。"
+      }
+    }
+  }
+}

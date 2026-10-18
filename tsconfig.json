@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.e2e.json" }
+  ],
+  // O CLI do shadcn lê o alias "@" daqui (sem isso, ele cria uma pasta "@/" na raiz).
+  "compilerOptions": { "paths": { "@/*": ["./src/*"] } }
+}

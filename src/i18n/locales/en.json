@@ -1,0 +1,1362 @@
+{
+  "app": {
+    "name": "iERP"
+  },
+  "brand": {
+    "logoAlt": "Re-Teck — Reverse Supply Chain Management",
+    "systemName": "Internal system"
+  },
+  "preferences": {
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "density": "Density",
+    "densityComfortable": "Comfortable",
+    "densityCompact": "Compact",
+    "language": "Language"
+  },
+  "languages": {
+    "pt-BR": "Português (Brasil)",
+    "en": "English",
+    "zh-TW": "繁體中文"
+  },
+  "tones": {
+    "info": {
+      "name": "Petrol blue",
+      "meaning": "Action and information",
+      "example": "In progress",
+      "examples": "Save, Create, View details, New"
+    },
+    "success": {
+      "name": "Green",
+      "meaning": "Success / done",
+      "example": "Completed",
+      "examples": "Completed, Approved, Paid, Delivered, Online"
+    },
+    "warning": {
+      "name": "Yellow",
+      "meaning": "Mild alert (waiting on someone)",
+      "example": "Pending",
+      "examples": "Pending, Awaiting approval, In review"
+    },
+    "alert": {
+      "name": "Orange",
+      "meaning": "Strong alert (almost an error)",
+      "example": "Overdue",
+      "examples": "Late, Overdue, Low stock"
+    },
+    "danger": {
+      "name": "Red",
+      "meaning": "Error, deletion, irreversible action",
+      "example": "Rejected",
+      "examples": "Delete, Rejected, Error, Failed"
+    },
+    "inactive": {
+      "name": "Gray",
+      "meaning": "Blocked, inactive, canceled, no data",
+      "example": "Canceled",
+      "examples": "Blocked, Inactive, Canceled, Draft, —"
+    }
+  },
+  "ds": {
+    "title": "Design system",
+    "description": "Tokens, typography, shape and brand of the Re-Teck template. The reference for prototyping screens.",
+    "phaseNote": "Foundation (phase 1) and components (phase 3). Page patterns arrive in phase 5.",
+    "onThisPage": "On this page",
+    "contrastNote": "Every text/background pair passes WCAG 2.2 AA (npm run check:contrast).",
+    "sections": {
+      "colorRule": "Color rule",
+      "semantic": "Semantic tokens",
+      "palette": "Palette",
+      "charts": "Chart colors",
+      "typography": "Typography",
+      "shape": "Shape and depth",
+      "density": "Density",
+      "brand": "Brand",
+      "status": "Status badges",
+      "buttons": "Buttons",
+      "badges": "Counters and tags",
+      "fields": "Fields",
+      "form": "Form with validation",
+      "metadata": "Metadata",
+      "navigation": "Navigation",
+      "menus": "Avatar, menus and tooltips",
+      "activity": "History, comments and attachments",
+      "feedback": "Feedback",
+      "overlays": "Overlays",
+      "cards": "Cards",
+      "chartsDemo": "Charts",
+      "kanban": "Kanban",
+      "calendar": "Calendar",
+      "dataTable": "Data table"
+    },
+    "colorRule": {
+      "lead": "Color follows meaning, not taste. One color, one meaning, across the whole system.",
+      "family": "Family",
+      "meaning": "Meaning",
+      "examples": "Examples",
+      "subtle": "Badge / notice",
+      "solid": "Solid",
+      "rules": [
+        "Brand color is not a state color: brand green and lime stay in the logo, login, empty states and the line under the navbar.",
+        "Primary button = petrol blue. Secondary = neutral (outline). Dangerous = red. Green only when confirming a success (Approve, Complete).",
+        "Color is never the only signal: every status has text and an icon.",
+        "Notice background = light tint (~10%) with text and border in the strong tone.",
+        "Yellow is never text on a light background: text uses darkened amber.",
+        "Category charts use their own palette; state colors only when the chart means good/attention/bad."
+      ],
+      "alertTitle": "Stock below minimum",
+      "alertBody": "12 items are below minimum stock. Restock before month-end closing."
+    },
+    "semantic": {
+      "surfaces": "Surfaces",
+      "text": "Text",
+      "action": "Action and selection",
+      "lines": "Borders and focus",
+      "tokens": {
+        "background": "Page background",
+        "card": "Card, table, panel",
+        "elevated": "Popover, dropdown, modal",
+        "muted": "Secondary area",
+        "foreground": "Primary text",
+        "muted-foreground": "Secondary text",
+        "link": "Link",
+        "primary": "Primary action",
+        "primary-hover": "Primary action (hover)",
+        "selected": "Selected row / active item",
+        "accent": "Item hover",
+        "destructive": "Dangerous action",
+        "border": "Divider (decorative)",
+        "border-strong": "Strong divider",
+        "input": "Field border (3:1)",
+        "ring": "Visible focus"
+      }
+    },
+    "palette": {
+      "lead": "OKLCH 50–950 scales generated from the logo (npm run tokens). ★ = exact logo value. Components use semantic tokens, never the palette directly.",
+      "groups": {
+        "brand": "Brand",
+        "state": "States",
+        "neutral": "Neutrals"
+      },
+      "anchor": "Logo value"
+    },
+    "charts": {
+      "lead": "Category series use their own palette, derived from the brand and neutrals — no state colors.",
+      "series": "Series {{n}}"
+    },
+    "typography": {
+      "lead": "Inter Variable for the interface (14px base), JetBrains Mono for codes, IDs and serials, Noto Sans TC for Traditional Chinese.",
+      "levels": "Levels",
+      "scale": "Scale",
+      "weights": "Weights",
+      "numbers": "Numbers",
+      "numbersLead": "Values and tables use tabular figures and slashed zero (num class).",
+      "mono": "Monospace",
+      "cjk": "Traditional Chinese",
+      "cjkLead": "Noto Sans TC loads only when the language is 繁體中文.",
+      "sample": "Sales order approved by finance",
+      "levelNames": {
+        "display": "Display (KPI)",
+        "page-title": "Page title",
+        "section-title": "Section title",
+        "card-title": "Card title",
+        "body": "Body",
+        "label": "Label",
+        "caption": "Caption",
+        "overline": "Overline"
+      },
+      "weightNames": {
+        "400": "Regular",
+        "500": "Medium",
+        "600": "Semibold"
+      }
+    },
+    "shape": {
+      "radius": "Radius",
+      "radiusNames": {
+        "sm": "Small fields, badges",
+        "md": "Buttons and fields",
+        "lg": "Cards",
+        "xl": "Modals"
+      },
+      "shadows": "Shadows",
+      "shadowNames": {
+        "card": "Card",
+        "popover": "Dropdown / popover",
+        "modal": "Modal"
+      },
+      "shadowsLead": "In dark theme, shadows become a border and a lighter surface.",
+      "spacing": "Spacing (4px grid)",
+      "motion": "Motion",
+      "motionLead": "150–200 ms, honoring prefers-reduced-motion."
+    },
+    "density": {
+      "lead": "Comfortable (default) or compact: changes the height of fields, buttons and table rows.",
+      "control": "Control height",
+      "row": "Table row"
+    },
+    "brand": {
+      "lead": "Full logo in the navbar (light variant in dark theme), globe only on narrow screens. Icons generated from the globe (npm run brand).",
+      "fullLight": "Full — light theme",
+      "fullDark": "Full — dark theme",
+      "globe": "Globe — narrow screens",
+      "gradient": "Brand gradient (line under the navbar, login, empty state)",
+      "icons": "Favicon and app icons"
+    },
+    "groups": {
+      "foundation": "Foundation",
+      "components": "Components"
+    },
+    "c": {
+      "statusLead": "Every status comes from the statusMap: tone (color by meaning) + icon + label. The flow order is used to sort tables.",
+      "subtle": "Subtle (default)",
+      "solid": "Solid (emphasis, use sparingly)",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "buttonsLead": "Teal primary (one main action per area), neutral secondary, red for danger and green only to confirm success. Heights follow density.",
+      "variants": "Variants",
+      "sizes": "Sizes",
+      "withIcons": "With icon and icon-only (always with an accessible label)",
+      "states": "States",
+      "groupAndSplit": "Group and split button",
+      "seeDetails": "See details",
+      "print": "Print",
+      "disabled": "Disabled",
+      "saving": "Saving…",
+      "clickToLoad": "Click: loading",
+      "view": "View",
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "saveAndNew": "Save and create another",
+      "saveAsDraft": "Save as draft",
+      "focusHint": "Hover to see the hover state and press Tab to see focus (2px teal outline).",
+      "badgesLead": "Neutral counter for pending items; red only when the number is about errors. Tags are free labels, not statuses.",
+      "counters": "Counters",
+      "tags": "Tags (removable chips)",
+      "errorsCount": "Errors: {{count}}",
+      "notificationsCount": "Notifications: {{count}}",
+      "readOnlyTag": "Read-only",
+      "restore": "Restore",
+      "addTag": "Add tag",
+      "tag1": "Electronics",
+      "tag2": "Refurbished",
+      "tag3": "Extended warranty",
+      "tag4": "São Paulo",
+      "fieldsLead": "Every field has a label, required indicator, help text, an error linked to the field (aria-describedby) and a counter when there's a limit. Leave a masked field to validate it.",
+      "f": {
+        "name": "Name",
+        "nameHelp": "As shown on documents.",
+        "email": "Email",
+        "disabled": "Disabled",
+        "disabledValue": "Not editable",
+        "readOnly": "Read-only",
+        "readOnlyHelp": "Generated by the system.",
+        "quantity": "Quantity",
+        "units": "pcs",
+        "price": "Amount",
+        "discount": "Discount",
+        "discountHelp": "From 0 to 100%.",
+        "unit": "Unit of measure",
+        "date": "Date",
+        "period": "Date range",
+        "periodHelp": "The \"to\" date includes the whole day.",
+        "time": "Time",
+        "dateTime": "Date and time",
+        "categories": "Categories",
+        "categoriesHelp": "Multi-select with search.",
+        "customer": "Customer",
+        "customerHelp": "Async search (type to search).",
+        "password": "Password",
+        "search": "Search",
+        "cnpjHelp": "Accepts the alphanumeric CNPJ (letters in the first 12 positions).",
+        "notes": "Notes",
+        "notesPlaceholder": "Details for the team…",
+        "options": "Options",
+        "optNotify": "Email the customer",
+        "optPartial": "Select all (partial)",
+        "optDisabled": "Unavailable option",
+        "switch": "Reserve stock automatically",
+        "delivery": "Delivery",
+        "ship": {
+          "normal": "Standard (5 business days)",
+          "express": "Express (1 business day)",
+          "pickup": "Pick up at the DC"
+        },
+        "upload": "Attachments",
+        "filesReceived": "Files received: {{count}}"
+      },
+      "cat": {
+        "eletronicos": "Electronics",
+        "informatica": "Computers",
+        "telefonia": "Phones",
+        "acessorios": "Accessories",
+        "pecas": "Spare parts"
+      },
+      "units": {
+        "un": "Unit (pc)",
+        "cx": "Box (bx)",
+        "kg": "Kilogram (kg)",
+        "m": "Meter (m)"
+      },
+      "masks": {
+        "cpf": "CPF",
+        "cnpj": "CNPJ",
+        "cep": "CEP (postal code)",
+        "phone": "Phone",
+        "plate": "License plate (Mercosur or old)"
+      },
+      "formLead": "React Hook Form + Zod: validates on blur and on submit; messages in 3 languages. Try submitting it empty.",
+      "form": {
+        "start": "Start date",
+        "end": "End date",
+        "terms": "Confirmation",
+        "termsText": "I confirm the data is correct.",
+        "submit": "Submit",
+        "saved": "Saved successfully.",
+        "fixErrors": "Fix the highlighted fields."
+      },
+      "metadataLead": "Key-value block (empty becomes \"—\"), copyable ID in monospace, relative date with full date in the tooltip, and created/updated by.",
+      "kv": {
+        "code": "Code",
+        "status": "Status",
+        "customer": "Customer",
+        "cnpj": "CNPJ",
+        "total": "Total amount",
+        "promised": "Promised delivery",
+        "seller": "Sales rep",
+        "updated": "Updated",
+        "notes": "Notes",
+        "notesValue": "Deliver at gate 3. Check seals before signing."
+      },
+      "navigationLead": "Tabs, breadcrumb, steps (wizard), pagination and tree — all keyboard accessible.",
+      "tabs": "Tabs",
+      "tab": {
+        "data": "Details",
+        "items": "Items",
+        "files": "Attachments",
+        "comments": "Comments",
+        "history": "History"
+      },
+      "tabContent": "Content of the \"{{tab}}\" tab.",
+      "breadcrumb": "Breadcrumb",
+      "stepper": "Steps",
+      "steps": {
+        "customer": "Customer",
+        "items": "Items",
+        "terms": "Terms",
+        "review": "Review"
+      },
+      "pagination": "Pagination",
+      "tree": "Tree (bin locations)",
+      "menusLead": "Avatar with initials, tooltip, popover, actions menu (⋯) and context menu (right click or Menu key).",
+      "avatars": "Avatars",
+      "tooltipPopover": "Tooltip, popover and menu",
+      "hoverMe": "Hover me",
+      "tooltipText": "Short hint, no essential information.",
+      "openPopover": "Open popover",
+      "popoverTitle": "Quick summary",
+      "popoverText": "Light content, no long forms.",
+      "rowActions": "Record actions",
+      "reprocess": "Reprocess",
+      "contextMenu": "Context menu",
+      "rightClick": "Right-click here",
+      "activityLead": "Audit timeline (who, when, what, before → after), comments and attachments with upload.",
+      "timeline": "Timeline",
+      "comments": "Comments",
+      "attachments": "Attachments",
+      "ev": {
+        "approved": "approved the order",
+        "edited": "changed the order",
+        "created": "created the order",
+        "note": "Customer asked for split delivery."
+      },
+      "comment1": "Picking can start early tomorrow.",
+      "comment2": "Agreed. Stock is already reserved.",
+      "feedbackLead": "Toasts for quick confirmations, inline alerts, page banner, empty states, skeleton, spinner and progress — always with icon and text.",
+      "toasts": "Toasts",
+      "toast": {
+        "success": "Order saved",
+        "successBtn": "Success",
+        "info": "Export started. We'll let you know when it's done.",
+        "infoBtn": "Info",
+        "warning": "Stock close to minimum",
+        "warningDesc": "12 items below the reorder point.",
+        "warningBtn": "Warning",
+        "error": "Couldn't save",
+        "errorDesc": "Connection to the server failed.",
+        "errorBtn": "Error"
+      },
+      "alerts": "Inline alerts and banner",
+      "alert": {
+        "info": {
+          "title": "What's new",
+          "body": "Excel export now includes totals."
+        },
+        "success": {
+          "title": "Integration active",
+          "body": "Invoices are being received normally."
+        },
+        "warning": {
+          "title": "Awaiting approval",
+          "body": "This order needs finance approval."
+        },
+        "alert": {
+          "title": "Late delivery",
+          "body": "The promised date passed 2 days ago."
+        },
+        "danger": {
+          "title": "Invoicing failed",
+          "body": "The invoice was rejected. Fix the CFOP and send it again."
+        },
+        "inactive": {
+          "title": "Inactive record",
+          "body": "This supplier can't receive new orders."
+        }
+      },
+      "banner": {
+        "title": "Scheduled maintenance",
+        "body": "The system will be unavailable on Saturday, from 10 pm to 11 pm.",
+        "action": "See details"
+      },
+      "empty": "Empty states",
+      "emptyState": {
+        "title": "No orders yet",
+        "body": "Create the first order to start tracking sales.",
+        "action": "New order"
+      },
+      "noResults": {
+        "title": "Nothing found",
+        "body": "No records match the filters."
+      },
+      "noAccessBody": "Ask the administrator for access.",
+      "loading": "Loading",
+      "loadingOrders": "Loading orders…",
+      "importing": "Importing: {{pct}}%",
+      "done": "Completed",
+      "storageUse": "Storage usage",
+      "overlaysLead": "Modals trap focus and close with Esc. Irreversible deletion requires typing the item name.",
+      "overlaysNote": "Menus, popovers and modals always open in the global theme (they render outside this area).",
+      "modal": {
+        "info": "Informational modal",
+        "infoTitle": "About reconciliation",
+        "infoBody": "Reconciliation compares the bank statement with the system's entries.",
+        "form": "Form modal",
+        "formTitle": "New contact",
+        "formBody": "Fill in the contact details.",
+        "confirm": "Confirmation",
+        "confirmTitle": "Send for approval?",
+        "confirmBody": "The order will be locked for editing until a decision is made.",
+        "confirmAction": "Send",
+        "sent": "Sent for approval.",
+        "approveTitle": "Approve order {{code}}?",
+        "approveBody": "The order will move on to picking.",
+        "approved": "Order {{code}} approved.",
+        "delete": "Irreversible deletion",
+        "deleteTitle": "Delete order {{code}}?",
+        "deleteBody": "This can't be undone. Items, attachments and history will be erased.",
+        "deleteAction": "Delete permanently",
+        "deleted": "Order {{code}} deleted."
+      },
+      "drawer": {
+        "detail": "Detail drawer",
+        "detailBody": "Order summary without leaving the list.",
+        "openFull": "Open full view",
+        "filters": "Filters",
+        "filtersBody": "Refine the list.",
+        "apply": "Apply"
+      },
+      "commandPalette": "Command palette (Ctrl+K)",
+      "cardsLead": "KPI with value, change (green = good, orange = bad, gray = stable) and sparkline; info, list and clickable cards.",
+      "vsLastMonth": "vs. last month",
+      "vsLastWeek": "vs. last week",
+      "kpi": {
+        "leadTime": "Average delivery time",
+        "days": "{{n}} days"
+      },
+      "infoCard": "Info card",
+      "infoCardDesc": "Maintenance contract",
+      "listCard": "List card",
+      "seeAll": "See all",
+      "clickableCard": "Clickable card",
+      "clickableCardDesc": "The whole card is a link: visible hover and focus.",
+      "chartsLead": "Category series use chart-1…8. State colors only when the chart says good/bad (e.g. on time × late).",
+      "chart": {
+        "revenue": "Revenue",
+        "cost": "Cost",
+        "margin": "Margin",
+        "line": "Line — revenue × cost",
+        "lineDesc": "Revenue and cost per month",
+        "bar": "Bars — per month",
+        "barDesc": "Revenue and cost per month as bars",
+        "area": "Area — on-time × late deliveries",
+        "areaDesc": "Share of on-time and late deliveries per month",
+        "onTime": "On time",
+        "late": "Late",
+        "donut": "Donut — sales by category",
+        "donutDesc": "Share of each category in sales",
+        "cat": {
+          "notebooks": "Laptops",
+          "phones": "Phones",
+          "monitors": "Monitors",
+          "parts": "Parts",
+          "others": "Others"
+        },
+        "combined": "Combined — revenue (bars) and margin (line)",
+        "combinedDesc": "Monthly revenue as bars and margin percentage as a line"
+      },
+      "kanbanLead": "Drag with the mouse or keyboard (Tab to the handle, Space, arrows, Space). A column with a limit turns orange when it's exceeded.",
+      "kb": {
+        "lead": "Prospecting",
+        "proposal": "Proposal",
+        "negotiation": "Negotiation",
+        "won": "Won"
+      },
+      "calendarLead": "Date picker (react-day-picker) and month/week/day schedule (FullCalendar). Events use the color of their meaning; drag to reschedule.",
+      "cal": {
+        "inventory": "Full stock count",
+        "audit": "ISO 14001 audit",
+        "delivery": "TechNova delivery",
+        "deadline": "SPED deadline",
+        "maintenance": "Forklift maintenance"
+      },
+      "dataTableLead": "The single component for every list: column sorting and filters, advanced filters, saved views, URL state, columns, selection, totals, export and cards on mobile. See the example screen with 1,000 records.",
+      "openDataTable": "Open the example"
+    }
+  },
+  "common": {
+    "close": "Close",
+    "more": "More",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "export": "Export",
+    "new": "New",
+    "loading": "Loading…",
+    "dismiss": "Dismiss",
+    "moreOptions": "More options",
+    "notifications": "Notifications",
+    "removeItem": "Remove {{item}}",
+    "save": "Save",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "approve": "Approve",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "clearFilters": "Clear filters",
+    "tryAgain": "Try again",
+    "duplicate": "Duplicate",
+    "open": "Open"
+  },
+  "shell": {
+    "breadcrumb": "Breadcrumb",
+    "mainMenu": "Main menu",
+    "mainMenuDescription": "System modules and screens",
+    "pendingCount": "{{label}} — pending: {{count}}",
+    "expandMenu": "Expand menu",
+    "collapseMenu": "Collapse menu",
+    "openMenu": "Open menu",
+    "home": "Go to home",
+    "skipToContent": "Skip to content"
+  },
+  "context": {
+    "current": "{{kind}}: {{name}} — switch context",
+    "switch": "Switch context",
+    "kinds": {
+      "cliente": "Customer",
+      "unidade": "Site",
+      "empresa": "Company"
+    }
+  },
+  "roles": {
+    "admin": "Administrator",
+    "operacao": "Operations",
+    "leitura": "Read-only"
+  },
+  "permissions": {
+    "denied": "You don't have permission for this action ({{role}} role)."
+  },
+  "user": {
+    "role": "Access role",
+    "roleHint": "Demo: switch roles to see hidden or disabled items and buttons.",
+    "signOut": "Sign out",
+    "signOutTitle": "Sign out?",
+    "signOutDescription": "You'll need to sign in again to continue. Unsaved changes will be lost.",
+    "menuPrefix": "User menu:"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "trigger": "Notifications — unread: {{count}}",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications here.",
+    "unread": "Unread",
+    "items": {
+      "userCreated": "User {{name}} created",
+      "userBlocked": "User {{name}} blocked"
+    }
+  },
+  "help": {
+    "title": "Help"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "description": "Use the keyboard to move faster.",
+    "items": {
+      "search": "Open search",
+      "toggleSidebar": "Collapse or expand the menu",
+      "newRecord": "New record (in lists)",
+      "save": "Save (in forms)",
+      "shortcuts": "Show shortcuts",
+      "close": "Close dialog or menu"
+    }
+  },
+  "command": {
+    "title": "Search",
+    "description": "Find modules, screens and records.",
+    "placeholder": "Search modules, screens and records…",
+    "open": "Open search",
+    "empty": "No results found.",
+    "groups": {
+      "screens": "Screens",
+      "records": "Records",
+      "actions": "Actions"
+    },
+    "records": {
+      "user": "User"
+    },
+    "actions": {
+      "lightTheme": "Switch to light theme",
+      "darkTheme": "Switch to dark theme"
+    },
+    "searching": "Searching records…",
+    "searchFailed": "Couldn’t search records right now."
+  },
+  "placeholder": {
+    "title": "Under construction",
+    "description": "This screen hasn't been built yet.",
+    "body": "Navigation, breadcrumb and permissions already work. The buttons above follow your role ({{role}}): actions you can't perform are disabled.",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "This address doesn't exist or has changed.",
+    "backHome": "Back to home",
+    "forbiddenTitle": "No access to this screen",
+    "forbiddenDescription": "The {{role}} role isn't allowed to see this screen. Contact your system administrator."
+  },
+  "home": {
+    "greeting": "Hello, {{name}}",
+    "description": "Welcome to Re-Teck iERP.",
+    "usersTitle": "Users",
+    "modulesTitle": "Quick access",
+    "screens": "Screens: {{count}}",
+    "openScreen": "Open"
+  },
+  "nav": {
+    "inicio": "Home",
+    "sections": {
+      "principal": "Main",
+      "sistema": "System"
+    },
+    "admin": {
+      "title": "Administration",
+      "usuarios": "Users"
+    },
+    "perfil": "My profile",
+    "configuracoes": "Settings"
+  },
+  "field": {
+    "required": "required",
+    "counter": "Characters used:",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "clearSearch": "Clear search",
+    "clearDate": "Clear date",
+    "pickDate": "Pick a date",
+    "pickRange": "Pick a date range",
+    "time": "Time",
+    "selectMany": "Select…",
+    "selectOne": "Select…",
+    "selectedCount": "Selected: {{count}}",
+    "search": "Search…",
+    "noOptions": "No options found.",
+    "clearSelection": "Clear selection",
+    "typeToSearch": "Type to search…",
+    "minChars": "Type at least {{count}} characters.",
+    "loadError": "Couldn't load the options."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalidType": "Invalid value.",
+    "minLength": "Use at least {{min}} characters.",
+    "maxLength": "Use at most {{max}} characters.",
+    "min": "The minimum value is {{min}}.",
+    "max": "The maximum value is {{max}}.",
+    "minItems": "Select at least {{min}}.",
+    "maxItems": "Select at most {{max}}.",
+    "email": "Enter a valid email.",
+    "invalidFormat": "Invalid format.",
+    "cpf": "Invalid CPF.",
+    "cnpj": "Invalid CNPJ.",
+    "cep": "Invalid postal code (CEP).",
+    "phone": "Invalid phone number.",
+    "plate": "Invalid license plate.",
+    "dateOrder": "The end date must be after the start date.",
+    "acceptTerms": "You must accept to continue.",
+    "passwordMatch": "Passwords don't match.",
+    "pastDate": "The date can’t be earlier than today."
+  },
+  "confirm": {
+    "typeToConfirm": "To confirm, type"
+  },
+  "meta": {
+    "createdBy": "Created by {{name}}",
+    "updatedBy": "Updated by {{name}}",
+    "copy": "Copy {{value}}",
+    "copyShort": "Copy",
+    "copied": "{{value}} copied.",
+    "copiedShort": "Copied!",
+    "copyFailed": "Couldn't copy."
+  },
+  "stepper": {
+    "done": "completed",
+    "current": "current step",
+    "upcoming": "upcoming"
+  },
+  "timeline": {
+    "before": "before:",
+    "after": "after:"
+  },
+  "comments": {
+    "empty": "No comments yet.",
+    "label": "Write a comment",
+    "placeholder": "Write a comment… (Ctrl+Enter to send)",
+    "send": "Comment"
+  },
+  "upload": {
+    "choose": "Click to choose",
+    "orDrag": "or drag files here",
+    "maxSize": "up to {{size}} per file",
+    "tooBig": "File(s) over the limit: {{files}}",
+    "none": "No attachments.",
+    "uploading": "Uploading {{name}}",
+    "download": "Download {{name}}",
+    "remove": "Remove {{name}}"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "range": "{{from}}–{{to}} of {{total}}",
+    "pageSize": "Per page",
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page",
+    "page": "Page {{page}}"
+  },
+  "kanban": {
+    "instructions": "To move a card, press Space, use the arrow keys and press Space again to drop. Esc cancels.",
+    "picked": "Picked up card {{card}} in column {{column}}.",
+    "over": "Card {{card}} is over column {{column}}.",
+    "dropped": "Dropped card {{card}} in column {{column}}.",
+    "cancelled": "Move cancelled.",
+    "empty": "Drag cards here",
+    "overLimit": "over the limit"
+  },
+  "kpi": {
+    "trend": "{{label}} trend",
+    "good": "(improved)",
+    "bad": "(got worse)",
+    "flat": "(stable)"
+  },
+  "status": {
+    "rascunho": "Draft",
+    "novo": "New",
+    "pendente": "Pending",
+    "aguardando_aprovacao": "Awaiting approval",
+    "em_revisao": "In review",
+    "aprovado": "Approved",
+    "em_andamento": "In progress",
+    "em_separacao": "Picking",
+    "faturado": "Invoiced",
+    "entregue": "Delivered",
+    "concluido": "Completed",
+    "pago": "Paid",
+    "ativo": "Active",
+    "atrasado": "Late",
+    "vencido": "Overdue",
+    "estoque_baixo": "Low stock",
+    "recusado": "Rejected",
+    "erro": "Error",
+    "cancelado": "Cancelled",
+    "bloqueado": "Blocked",
+    "inativo": "Inactive",
+    "em_transito": "In transit",
+    "autorizada": "Authorized",
+    "conciliado": "Reconciled",
+    "disponivel": "Available",
+    "ocupado": "Occupied",
+    "em_ferias": "On vacation",
+    "em_manutencao": "Under maintenance",
+    "divergente": "Discrepancy",
+    "afastado": "On leave"
+  },
+  "dataTable": {
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "searchPlaceholder": "Search the table…",
+    "searchLabel": "Search {{title}}",
+    "period": "Period",
+    "anyPeriod": "Any period",
+    "whichDate": "Which date to filter",
+    "untilInclusive": "The \"to\" date includes the whole day.",
+    "filters": "Filters",
+    "advanced": "Advanced filters",
+    "advancedDescription": "Combine several conditions. Incomplete conditions are ignored.",
+    "matchLabel": "Show records that match",
+    "logicAnd": "all conditions (AND)",
+    "logicOr": "any condition (OR)",
+    "where": "Where",
+    "and": "and",
+    "or": "or",
+    "column": "Column",
+    "operator": "Operator",
+    "value": "Value",
+    "value2": "Up to value",
+    "addCondition": "Add condition",
+    "removeCondition": "Remove condition",
+    "apply": "Apply",
+    "clear": "Clear",
+    "clearAll": "Clear all",
+    "ops": {
+      "eq": "equals",
+      "neq": "is not",
+      "contains": "contains",
+      "startsWith": "starts with",
+      "gt": "greater than",
+      "lt": "less than",
+      "between": "between",
+      "empty": "is empty",
+      "notEmpty": "is not empty"
+    },
+    "from": "From",
+    "to": "To",
+    "contains": "Contains…",
+    "filterBy": "Filter {{column}}",
+    "filterActive": "Filter {{column}} (filter active)",
+    "activeFilters": "Active filters",
+    "allConditions": "All conditions:",
+    "anyCondition": "Any condition:",
+    "chip": {
+      "search": "Search: {{value}}",
+      "contains": "contains “{{value}}”",
+      "many": "{{first}} and {{count}} more"
+    },
+    "columns": "Columns",
+    "columnsHint": "Drag (or use Space and the arrow keys) to reorder. Pin columns to the left.",
+    "reorder": "Reorder column {{column}}",
+    "reorderInstructions": "Press Space to pick up, use the arrow keys to move and Space to drop. Esc cancels.",
+    "pin": "Pin column {{column}}",
+    "unpin": "Unpin column {{column}}",
+    "resetColumns": "Reset columns",
+    "views": "Views",
+    "savedViews": "Saved views",
+    "noViews": "No saved views yet.",
+    "applyView": "Apply",
+    "default": "default",
+    "setDefaultShort": "Use as default",
+    "unsetDefaultShort": "Remove as default",
+    "saveView": "Save current view…",
+    "saveViewDescription": "Saves filters, sorting and columns under a name.",
+    "viewName": "View name",
+    "useAsDefault": "Open this table with this view",
+    "viewSaved": "View “{{name}}” saved.",
+    "resetView": "Restore system default",
+    "compact": "Compact rows",
+    "exported": "File exported.",
+    "exportFailed": "Couldn't export.",
+    "bulkActions": "Bulk actions",
+    "selectedCount": "Selected: {{count}}",
+    "allSelected": "All {{count}} results selected",
+    "selectAllMatching": "Select all {{count}} results",
+    "clearSelection": "Clear selection",
+    "selectPage": "Select all on this page",
+    "selectRow": "Select {{id}}",
+    "expand": "Expand",
+    "expandRow": "Show details",
+    "collapseRow": "Hide details",
+    "actions": "Actions",
+    "rowActions": "Actions for {{id}}",
+    "errorTitle": "Couldn't load",
+    "errorDescription": "Check the connection and try again.",
+    "noResultsTitle": "No results",
+    "noResultsDescription": "No records match the filters.",
+    "emptyTitle": "No records",
+    "emptyDescription": "There's nothing here yet.",
+    "scrollRegion": "{{title}} table (scroll to see more)",
+    "caption": "{{count}} records",
+    "totals": "Total",
+    "sortHint": "Click to sort; Shift+click sorts by several columns",
+    "sortOrder": "Sort key {{n}}",
+    "resize": "Resize column {{column}} (arrow keys)",
+    "mobileFiltersDescription": "Filter by any column.",
+    "showResults": "Show {{count}} results",
+    "sortBy": "Sort by",
+    "defaultOrder": "Default order",
+    "ascending": "Ascending",
+    "descending": "Descending"
+  },
+  "ex": {
+    "title": "Data table (example)",
+    "description": "DataTable with 1,000 sample orders: sorting, filters, saved views, columns, selection, totals and export.",
+    "mode": "Mode",
+    "modes": {
+      "client": "Client mode",
+      "server": "Server mode"
+    },
+    "tipsTitle": "Try it",
+    "tipsClient": "Click a header to sort (Shift+click adds columns), use each column's filter, the advanced filters, and save a view. Copy the URL: the state goes with it. N creates a record.",
+    "tipsServer": "Same interface, but each change is a query with latency to a simulated server (as it will be with the API).",
+    "simulateError": "Simulate a server error",
+    "tableTitle": "Sales orders",
+    "cols": {
+      "code": "Order",
+      "customer": "Customer",
+      "status": "Status",
+      "seller": "Sales rep",
+      "region": "State",
+      "channel": "Channel",
+      "items": "Items",
+      "total": "Total amount",
+      "issuedAt": "Issued",
+      "promisedAt": "Promised delivery",
+      "urgent": "Urgent"
+    },
+    "channels": {
+      "site": "Online store",
+      "rep": "Sales rep",
+      "phone": "Phone",
+      "marketplace": "Marketplace"
+    },
+    "openOrder": "Open order {{code}} (the detail screen arrives in phase 6).",
+    "newOrder": "New order (the form arrives in phase 6).",
+    "newOrderShort": "New order",
+    "bulkApproved": "Orders approved: {{count}}",
+    "bulkCancelled": "Orders cancelled: {{count}}",
+    "cancelOrders": "Cancel",
+    "hub": {
+      "title": "Page patterns",
+      "description": "Every screen in the system follows one of these templates. Open, use and copy.",
+      "patterns": "Internal screens",
+      "system": "System screens",
+      "systemNote": "Sign-in, pending access and maintenance are outside the shell; 403, 404 and 500 appear inside it.",
+      "items": {
+        "list": {
+          "title": "List",
+          "desc": "Header, KPIs and DataTable; clicking opens the detail."
+        },
+        "detail": {
+          "title": "Detail",
+          "desc": "Status, actions and tabs: details, items, attachments, comments and history."
+        },
+        "form": {
+          "title": "Create / edit form",
+          "desc": "Sections, validation, Ctrl+S, sticky footer and leave warning."
+        },
+        "wizard": {
+          "title": "Wizard",
+          "desc": "New order in steps with validation and a final review."
+        },
+        "dashboard": {
+          "title": "Dashboard",
+          "desc": "KPIs, charts, pending lists and period filter."
+        },
+        "report": {
+          "title": "Report",
+          "desc": "Filters on top, chart, table and export."
+        },
+        "kanban": {
+          "title": "Kanban",
+          "desc": "Opportunity pipeline with drag and drop."
+        },
+        "calendar": {
+          "title": "Calendar",
+          "desc": "Deliveries of the month; drag to reschedule."
+        },
+        "settings": {
+          "title": "Settings",
+          "desc": "Sections on the left, forms on the right."
+        },
+        "profile": {
+          "title": "User profile",
+          "desc": "Personal details, access and activity."
+        },
+        "table": {
+          "title": "Data table",
+          "desc": "Every DataTable feature over 1,000 records."
+        },
+        "login": {
+          "title": "Sign in",
+          "desc": "Email and password or the Portal."
+        },
+        "pending": {
+          "title": "Pending access",
+          "desc": "Signed in, but not granted yet."
+        },
+        "e403": {
+          "title": "403 — forbidden",
+          "desc": "Switch the role to Read-only and open Administration."
+        },
+        "e404": {
+          "title": "404 — not found",
+          "desc": "An address that doesn't exist."
+        },
+        "e500": {
+          "title": "500 — error",
+          "desc": "Simulated failure while loading the screen."
+        },
+        "maintenance": {
+          "title": "Maintenance",
+          "desc": "Scheduled downtime."
+        }
+      }
+    },
+    "list": {
+      "title": "Sales orders",
+      "description": "List pattern template: KPIs, DataTable and click to open the detail.",
+      "kpiApproval": "Awaiting approval",
+      "kpiLate": "Late deliveries",
+      "kpiRevenue": "Revenue this month"
+    },
+    "detail": {
+      "description": "Sales rep: {{seller}}",
+      "general": "General details",
+      "totals": "Totals",
+      "itemsCount": "Items",
+      "subtotal": "Subtotal",
+      "sku": "SKU",
+      "product": "Product",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "lateTitle": "Late delivery",
+      "lateBody": "The delivery promised for {{date}} hasn't happened yet.",
+      "approvalBody": "This order needs finance approval to move on.",
+      "evStatus": "changed the status",
+      "downloadDemo": "Simulated download.",
+      "cancelTitle": "Cancel order {{code}}?",
+      "cancelBody": "The order leaves picking and the customer is notified.",
+      "cancelAction": "Cancel order",
+      "cancelled": "Order {{code}} cancelled."
+    },
+    "form": {
+      "title": "New customer",
+      "description": "Form pattern template: sections, field and submit validation, Ctrl+S and leave warning.",
+      "sIdentity": "Identification",
+      "sIdentityHelp": "Company details as registered with the tax authority.",
+      "legalName": "Legal name",
+      "tradeName": "Trade name",
+      "sContact": "Contact",
+      "sAddress": "Address",
+      "street": "Street",
+      "number": "Number",
+      "city": "City",
+      "sCommercial": "Commercial",
+      "sCommercialHelp": "Default order terms.",
+      "creditLimit": "Credit limit",
+      "paymentTerm": "Payment terms",
+      "terms": {
+        "avista": "Cash",
+        "30": "30 days",
+        "30-60": "30/60 days",
+        "30-60-90": "30/60/90 days"
+      },
+      "active": "Active customer",
+      "activeHelp": "Inactive customers can't receive new orders.",
+      "saved": "Customer {{name}} saved."
+    },
+    "wizard": {
+      "title": "New order",
+      "description": "Wizard pattern template: steps with validation and review.",
+      "customerHelp": "Search the customer by name.",
+      "itemsHelp": "Add the products and quantities.",
+      "addItem": "Add item",
+      "removeItem": "Remove item {{n}}",
+      "urgentText": "Urgent order (picking priority)",
+      "reviewHelp": "Check before finishing.",
+      "finish": "Create order",
+      "created": "Order created for {{customer}}."
+    },
+    "dash": {
+      "title": "Sales overview",
+      "description": "Dashboard pattern template: KPIs, charts and pending lists.",
+      "lastDays": "Last {{n}} days",
+      "vsPrevious": "vs. previous period",
+      "orders": "Orders",
+      "ticket": "Average ticket",
+      "delivered": "Delivered",
+      "revenueByMonth": "Revenue by month",
+      "bySeller": "Revenue by sales rep",
+      "awaiting": "Awaiting approval",
+      "late": "Late deliveries",
+      "nothingPending": "Nothing pending"
+    },
+    "report": {
+      "title": "Sales by sales rep",
+      "description": "Report pattern template: filters, chart, table and export.",
+      "basis": "Based on {{count}} orders in the period.",
+      "chartTitle": "Revenue by sales rep",
+      "tableTitle": "Summary by sales rep",
+      "lateShare": "Late"
+    },
+    "kanban": {
+      "title": "Opportunity pipeline",
+      "description": "Kanban pattern template: drag cards between stages.",
+      "allSellers": "All sales reps",
+      "newDeal": "New opportunity (demo).",
+      "newDealShort": "New opportunity"
+    },
+    "calendar": {
+      "title": "Delivery schedule",
+      "description": "Calendar pattern template: deliveries promised this month.",
+      "moved": "Delivery rescheduled to {{date}}."
+    }
+  },
+  "patterns": {
+    "unsaved": {
+      "title": "Leave without saving?",
+      "description": "There are changes that haven't been saved. If you leave now, they'll be lost.",
+      "leave": "Leave without saving",
+      "stay": "Keep editing"
+    },
+    "form": {
+      "requiredHint": "marks a required field.",
+      "unsavedHint": "Unsaved changes"
+    },
+    "wizard": {
+      "steps": "Steps",
+      "stepOf": "Step {{n}} of {{total}}",
+      "fixStep": "Fix the fields in this step to continue."
+    }
+  },
+  "auth": {
+    "footer": "© {{year}} Re-Teck · Internal use",
+    "loginTitle": "Sign in",
+    "loginSubtitle": "Use your company email.",
+    "remember": "Keep me signed in",
+    "forgot": "Forgot password",
+    "forgotInfo": "Contact IT to reset your password (demo).",
+    "signIn": "Sign in",
+    "or": "or",
+    "sso": "Sign in with the Re-Teck Portal",
+    "demoHint": "Demo: any email and password work. An email starting with \"pendente\" shows the pending access screen.",
+    "pendingTitle": "Your access is under review",
+    "pendingDescription": "You signed in as {{email}}, but the system administrator hasn't granted your access yet. We'll let you know by email.",
+    "useOtherAccount": "Use another account",
+    "checkAgain": "Check again",
+    "accessGranted": "Access granted (demo).",
+    "maintenanceTitle": "System under maintenance",
+    "maintenanceDescription": "We're doing scheduled maintenance and will be back soon. Thanks for your patience."
+  },
+  "errors": {
+    "serverTitle": "Something went wrong",
+    "serverDescription": "We couldn't load this screen. Try again; if it keeps happening, contact IT.",
+    "technical": "Technical details"
+  },
+  "profile": {
+    "description": "Your details, access and recent activity.",
+    "personal": "Personal details",
+    "personalHelp": "How you appear to the team.",
+    "emailHelp": "The email comes from the Portal and can't be changed here.",
+    "access": "Access",
+    "lastLogin": "Last sign-in",
+    "activity": "Recent activity",
+    "saved": "Profile updated.",
+    "ev": {
+      "approved": "approved order {{code}}",
+      "edited": "changed order {{code}}",
+      "exported": "exported the sales report"
+    },
+    "photo": {
+      "add": "Add photo",
+      "change": "Change photo",
+      "remove": "Remove photo",
+      "help": "JPG, PNG or WebP, up to 5 MB.",
+      "alt": "Photo of {{name}}",
+      "updated": "Profile photo updated.",
+      "removed": "Profile photo removed.",
+      "failed": "Couldn’t update the photo.",
+      "invalidType": "Use a JPG, PNG or WebP image.",
+      "tooLarge": "The image is larger than 5 MB. Choose a smaller file."
+    }
+  },
+  "settings": {
+    "description": "System and account preferences.",
+    "general": "General",
+    "generalHelp": "Language, theme and density apply to every screen.",
+    "notificationsHelp": "Choose what you want to receive.",
+    "preferenceSaved": "Preference saved.",
+    "notif": {
+      "approvals": {
+        "title": "Orders awaiting my approval",
+        "desc": "Bell notification and email."
+      },
+      "late": {
+        "title": "Late deliveries",
+        "desc": "When an order passes its promised date."
+      },
+      "mentions": {
+        "title": "Mentions in comments",
+        "desc": "When someone mentions you."
+      },
+      "weekly": {
+        "title": "Weekly summary",
+        "desc": "The week's indicators, every Monday."
+      }
+    },
+    "security": "Security",
+    "changePassword": "Change password",
+    "passwordHelp": "Use a password you don't use on other systems.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "newPasswordHelp": "At least 8 characters.",
+    "confirmPassword": "Confirm new password",
+    "passwordChanged": "Password changed (demo).",
+    "about": "About the system",
+    "version": "Version",
+    "environment": "Environment",
+    "environmentDemo": "Demo (simulated API)",
+    "timezone": "Time zone",
+    "support": "Support"
+  },
+  "apiErrors": {
+    "unknown": "Unexpected error. Please try again.",
+    "network": "No connection to the server. Check your network and try again.",
+    "invalidTransition": "This action no longer applies to the record’s current status. Refresh the page.",
+    "validation": "Invalid data: {{detail}}",
+    "notFound": "Record not found. It may have been deleted.",
+    "forbidden": "Your role isn’t allowed to do this.",
+    "server": "The server ran into an error. Try again in a moment.",
+    "emailInUse": "A user with this email already exists."
+  },
+  "calendar": {
+    "today": "Today",
+    "todayHint": "Today — current {{unit}}"
+  },
+  "traducao": {
+    "escritoEm": "Written in",
+    "detectado": "(detected)",
+    "automatica": "Machine translation · original in {{idioma}}",
+    "automaticaTag": "Machine translation",
+    "original": "Original text in {{idioma}}",
+    "verOriginal": "Show original",
+    "verTraducao": "Show translation",
+    "pendente": "No translation into {{idioma}} — showing the original",
+    "traduzirAgora": "Translate now",
+    "traduzindo": "Translating…",
+    "editarTitulo": "Edit {{campo}}",
+    "editarDescricao": "Write in the language you prefer. When you save, the system translates into the other two languages; you can correct the translations.",
+    "textoOriginal": "Original text",
+    "traducoes": "Translations",
+    "seraoGeradas": "Translations will be generated from the original text when you save.",
+    "seraoGeradasCurto": "Generated on save",
+    "semTraducao": "No translation yet.",
+    "traduzirDeNovo": "Translate again from the original",
+    "editar": "Edit text and translations",
+    "falhou": "Saved without translation",
+    "motivo": {
+      "cota": "The translation service's daily quota has run out. Translations are pending and can be generated later.",
+      "rede": "No connection to the translation service. Translations are pending and can be generated later.",
+      "servico": "The translation service did not respond. Translations are pending and can be generated later.",
+      "desligada": "Automatic translation is turned off. Only the original text was saved."
+    },
+    "salvo": "Text saved in all 3 languages"
+  },
+  "usuarios": {
+    "list": {
+      "description": "People with access to iERP and their roles.",
+      "emptyTitle": "No users found",
+      "emptyBody": "Adjust the search or filters."
+    },
+    "kpis": {
+      "total": "Total users",
+      "ativos": "Active",
+      "bloqueados": "Blocked",
+      "inativos": "Inactive"
+    },
+    "cols": {
+      "codigo": "Code",
+      "nome": "Name",
+      "email": "Email",
+      "perfil": "Access role",
+      "status": "Status",
+      "ultimoAcesso": "Last access",
+      "criadoEm": "Created on"
+    },
+    "new": {
+      "title": "New user",
+      "description": "Register a person and set their access role."
+    },
+    "edit": {
+      "title": "Edit {{name}}"
+    },
+    "form": {
+      "identification": "Identification",
+      "access": "Access",
+      "emailHelp": "Used to sign in. Must be unique.",
+      "profileHelp": "Defines what the person can see and do in the system."
+    },
+    "detail": {
+      "tabData": "Details",
+      "tabHistory": "History",
+      "general": "User details",
+      "neverAccessed": "Never signed in",
+      "blockedTitle": "User blocked",
+      "blockedBody": "This person can’t sign in until unblocked.",
+      "blockedReason": "Reason: {{reason}}",
+      "inactiveTitle": "User inactive",
+      "inactiveBody": "This person is no longer part of the system. Reactivate to restore access."
+    },
+    "history": {
+      "criado": "Created the user",
+      "editado": "Changed the details",
+      "status": "Changed the status"
+    },
+    "acoes": {
+      "bloquear": "Block",
+      "desbloquear": "Unblock",
+      "inativar": "Deactivate",
+      "reativar": "Reactivate"
+    },
+    "reason": "Reason",
+    "confirm": {
+      "bloquear": {
+        "title": "Block {{name}}?",
+        "body": "The person won’t be able to sign in until unblocked. Enter the reason (kept in the history)."
+      },
+      "desbloquear": {
+        "title": "Unblock {{name}}?",
+        "body": "The person can sign in again with the current role."
+      },
+      "inativar": {
+        "title": "Deactivate {{name}}?",
+        "body": "Use when the person leaves the company. The record and history are kept and it can be reactivated later."
+      },
+      "reativar": {
+        "title": "Reactivate {{name}}?",
+        "body": "The person can sign in again with the current role."
+      }
+    },
+    "toast": {
+      "created": "User {{name}} created.",
+      "saved": "Changes to {{name}} saved.",
+      "saveFailed": "Couldn’t save the user.",
+      "actionFailed": "Couldn’t complete the action.",
+      "acao": {
+        "bloquear": "{{name}} was blocked.",
+        "desbloquear": "{{name}} was unblocked.",
+        "inativar": "{{name}} was deactivated.",
+        "reativar": "{{name}} was reactivated."
+      }
+    }
+  }
+}

@@ -1,0 +1,542 @@
+{
+  "brand-green": {
+    "group": "brand",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.975 0.0174 146.75)",
+        "hex": "#f0faf0",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.953 0.0384 146.75)",
+        "hex": "#e0f7e1",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.9101 0.0785 146.75)",
+        "hex": "#c0f0c3",
+        "anchor": false
+      },
+      "300": {
+        "oklch": "oklch(0.8501 0.1256 146.75)",
+        "hex": "#95e49d",
+        "anchor": false
+      },
+      "400": {
+        "oklch": "oklch(0.7752 0.157 146.75)",
+        "hex": "#6ad078",
+        "anchor": false
+      },
+      "500": {
+        "oklch": "oklch(0.6902 0.1744 146.75)",
+        "hex": "#3eb755",
+        "anchor": true
+      },
+      "600": {
+        "oklch": "oklch(0.5977 0.1479 150.35)",
+        "hex": "#26974d",
+        "anchor": false
+      },
+      "700": {
+        "oklch": "oklch(0.5151 0.114 153.94)",
+        "hex": "#227a48",
+        "anchor": true
+      },
+      "800": {
+        "oklch": "oklch(0.4943 0.1212 154)",
+        "hex": "#0a7540",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.4784 0.1205 154.06)",
+        "hex": "#00703c",
+        "anchor": true
+      },
+      "950": {
+        "oklch": "oklch(0.32 0.0806 154.06)",
+        "hex": "#003e1f",
+        "anchor": false
+      }
+    }
+  },
+  "brand-lime": {
+    "group": "brand",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.975 0.0247 113.42)",
+        "hex": "#f6f9e6",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.9578 0.0544 113.42)",
+        "hex": "#f0f6cc",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.9196 0.1112 113.42)",
+        "hex": "#e4ed95",
+        "anchor": false
+      },
+      "300": {
+        "oklch": "oklch(0.8644 0.1779 113.42)",
+        "hex": "#d3de37",
+        "anchor": true
+      },
+      "400": {
+        "oklch": "oklch(0.7951 0.1686 124.82)",
+        "hex": "#a4ce45",
+        "anchor": true
+      },
+      "500": {
+        "oklch": "oklch(0.6984 0.1751 124.82)",
+        "hex": "#86af00",
+        "anchor": false
+      },
+      "600": {
+        "oklch": "oklch(0.6017 0.1509 124.82)",
+        "hex": "#6d8f00",
+        "anchor": false
+      },
+      "700": {
+        "oklch": "oklch(0.5151 0.1291 124.82)",
+        "hex": "#577300",
+        "anchor": false
+      },
+      "800": {
+        "oklch": "oklch(0.4334 0.1087 124.82)",
+        "hex": "#435a00",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.3567 0.0894 124.82)",
+        "hex": "#324400",
+        "anchor": false
+      },
+      "950": {
+        "oklch": "oklch(0.27 0.0677 124.82)",
+        "hex": "#1f2c00",
+        "anchor": false
+      }
+    }
+  },
+  "brand-yellow": {
+    "group": "brand",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.975 0.034 103.32)",
+        "hex": "#faf8de",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.963 0.0748 103.32)",
+        "hex": "#fbf6bc",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.9384 0.153 103.32)",
+        "hex": "#fdef6a",
+        "anchor": true
+      },
+      "300": {
+        "oklch": "oklch(0.8686 0.1829 103.32)",
+        "hex": "#ead800",
+        "anchor": false
+      },
+      "400": {
+        "oklch": "oklch(0.7838 0.165 103.32)",
+        "hex": "#ccbc00",
+        "anchor": false
+      },
+      "500": {
+        "oklch": "oklch(0.689 0.145 103.32)",
+        "hex": "#ac9e00",
+        "anchor": false
+      },
+      "600": {
+        "oklch": "oklch(0.5942 0.1251 103.32)",
+        "hex": "#8c8100",
+        "anchor": false
+      },
+      "700": {
+        "oklch": "oklch(0.5094 0.1072 103.32)",
+        "hex": "#716800",
+        "anchor": false
+      },
+      "800": {
+        "oklch": "oklch(0.4296 0.0904 103.32)",
+        "hex": "#595100",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.3548 0.0747 103.32)",
+        "hex": "#433d00",
+        "anchor": false
+      },
+      "950": {
+        "oklch": "oklch(0.27 0.0568 103.32)",
+        "hex": "#2c2700",
+        "anchor": false
+      }
+    }
+  },
+  "brand-teal": {
+    "group": "brand",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.975 0.0074 201.24)",
+        "hex": "#f1f8f9",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.943 0.0163 201.24)",
+        "hex": "#e0f0f1",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.89 0.0333 201.24)",
+        "hex": "#c2e2e4",
+        "anchor": false
+      },
+      "300": {
+        "oklch": "oklch(0.82 0.0533 201.24)",
+        "hex": "#9ccfd2",
+        "anchor": false
+      },
+      "400": {
+        "oklch": "oklch(0.735 0.0667 201.24)",
+        "hex": "#75b6bb",
+        "anchor": false
+      },
+      "500": {
+        "oklch": "oklch(0.64 0.0741 201.24)",
+        "hex": "#509a9f",
+        "anchor": false
+      },
+      "600": {
+        "oklch": "oklch(0.5451 0.0741 201.24)",
+        "hex": "#317d82",
+        "anchor": true
+      },
+      "700": {
+        "oklch": "oklch(0.4725 0.0696 201.24)",
+        "hex": "#1e676c",
+        "anchor": false
+      },
+      "800": {
+        "oklch": "oklch(0.405 0.0622 201.24)",
+        "hex": "#125357",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.3425 0.0533 201.24)",
+        "hex": "#0a4144",
+        "anchor": false
+      },
+      "950": {
+        "oklch": "oklch(0.27 0.0415 201.24)",
+        "hex": "#062c2f",
+        "anchor": false
+      }
+    }
+  },
+  "success": {
+    "group": "state",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.975 0.0134 152.55)",
+        "hex": "#f0faf2",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.9455 0.0294 152.55)",
+        "hex": "#dff3e4",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.895 0.0601 152.55)",
+        "hex": "#bfe9ca",
+        "anchor": false
+      },
+      "300": {
+        "oklch": "oklch(0.8274 0.0961 152.55)",
+        "hex": "#96d9a8",
+        "anchor": false
+      },
+      "400": {
+        "oklch": "oklch(0.7449 0.1202 152.55)",
+        "hex": "#6cc287",
+        "anchor": false
+      },
+      "500": {
+        "oklch": "oklch(0.6524 0.1335 152.55)",
+        "hex": "#43a767",
+        "anchor": false
+      },
+      "600": {
+        "oklch": "oklch(0.5599 0.1335 152.55)",
+        "hex": "#1f8a4c",
+        "anchor": true
+      },
+      "700": {
+        "oklch": "oklch(0.4836 0.1255 152.55)",
+        "hex": "#017239",
+        "anchor": false
+      },
+      "800": {
+        "oklch": "oklch(0.4124 0.1072 152.55)",
+        "hex": "#005b2c",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.3462 0.09 152.55)",
+        "hex": "#004621",
+        "anchor": false
+      },
+      "950": {
+        "oklch": "oklch(0.27 0.0702 152.55)",
+        "hex": "#003014",
+        "anchor": false
+      }
+    }
+  },
+  "warning": {
+    "group": "state",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.975 0.018 87.66)",
+        "hex": "#fcf6e9",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.963 0.0396 87.66)",
+        "hex": "#fef2d5",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.9353 0.0755 87.66)",
+        "hex": "#ffe7b0",
+        "anchor": false
+      },
+      "300": {
+        "oklch": "oklch(0.8879 0.1297 87.66)",
+        "hex": "#fed56e",
+        "anchor": false
+      },
+      "400": {
+        "oklch": "oklch(0.8256 0.1621 87.66)",
+        "hex": "#f2be22",
+        "anchor": true
+      },
+      "500": {
+        "oklch": "oklch(0.7238 0.1479 87.66)",
+        "hex": "#cd9f00",
+        "anchor": false
+      },
+      "600": {
+        "oklch": "oklch(0.622 0.1271 87.66)",
+        "hex": "#a78100",
+        "anchor": false
+      },
+      "700": {
+        "oklch": "oklch(0.5303 0.1084 87.66)",
+        "hex": "#866700",
+        "anchor": false
+      },
+      "800": {
+        "oklch": "oklch(0.4435 0.0907 87.66)",
+        "hex": "#695000",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.3618 0.0739 87.66)",
+        "hex": "#4e3b00",
+        "anchor": false
+      },
+      "950": {
+        "oklch": "oklch(0.27 0.0552 87.66)",
+        "hex": "#322400",
+        "anchor": false
+      }
+    }
+  },
+  "alert": {
+    "group": "state",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.975 0.0139 51.75)",
+        "hex": "#fff4ee",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.9511 0.0278 51.75)",
+        "hex": "#ffeade",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.9062 0.0552 51.75)",
+        "hex": "#ffd7bf",
+        "anchor": false
+      },
+      "300": {
+        "oklch": "oklch(0.8442 0.0964 51.75)",
+        "hex": "#ffba92",
+        "anchor": false
+      },
+      "400": {
+        "oklch": "oklch(0.7673 0.1543 51.75)",
+        "hex": "#ff944d",
+        "anchor": false
+      },
+      "500": {
+        "oklch": "oklch(0.6804 0.172 51.75)",
+        "hex": "#e8730e",
+        "anchor": true
+      },
+      "600": {
+        "oklch": "oklch(0.5873 0.1515 51.75)",
+        "hex": "#c05c00",
+        "anchor": false
+      },
+      "700": {
+        "oklch": "oklch(0.5042 0.1301 51.75)",
+        "hex": "#9c4a00",
+        "anchor": false
+      },
+      "800": {
+        "oklch": "oklch(0.4262 0.11 51.75)",
+        "hex": "#7c3900",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.3531 0.0911 51.75)",
+        "hex": "#5f2a00",
+        "anchor": false
+      },
+      "950": {
+        "oklch": "oklch(0.27 0.0697 51.75)",
+        "hex": "#401a00",
+        "anchor": false
+      }
+    }
+  },
+  "danger": {
+    "group": "state",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.975 0.0122 26.4)",
+        "hex": "#fff4f2",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.9455 0.0272 26.4)",
+        "hex": "#ffe7e3",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.895 0.0548 26.4)",
+        "hex": "#ffcfc9",
+        "anchor": false
+      },
+      "300": {
+        "oklch": "oklch(0.8275 0.096 26.4)",
+        "hex": "#ffafa6",
+        "anchor": false
+      },
+      "400": {
+        "oklch": "oklch(0.745 0.1544 26.4)",
+        "hex": "#ff8277",
+        "anchor": false
+      },
+      "500": {
+        "oklch": "oklch(0.6525 0.1973 26.4)",
+        "hex": "#f0504a",
+        "anchor": false
+      },
+      "600": {
+        "oklch": "oklch(0.56 0.1973 26.4)",
+        "hex": "#cf2e2e",
+        "anchor": true
+      },
+      "700": {
+        "oklch": "oklch(0.4837 0.1854 26.4)",
+        "hex": "#b0151c",
+        "anchor": false
+      },
+      "800": {
+        "oklch": "oklch(0.4125 0.1657 26.4)",
+        "hex": "#900310",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.3462 0.1408 26.4)",
+        "hex": "#710009",
+        "anchor": false
+      },
+      "950": {
+        "oklch": "oklch(0.27 0.1098 26.4)",
+        "hex": "#4f0004",
+        "anchor": false
+      }
+    }
+  },
+  "neutral": {
+    "group": "neutral",
+    "steps": {
+      "50": {
+        "oklch": "oklch(0.985 0.0048 210)",
+        "hex": "#f7fbfc",
+        "anchor": false
+      },
+      "100": {
+        "oklch": "oklch(0.967 0.006 210)",
+        "hex": "#f0f5f6",
+        "anchor": false
+      },
+      "200": {
+        "oklch": "oklch(0.925 0.0084 210)",
+        "hex": "#e0e8e9",
+        "anchor": false
+      },
+      "300": {
+        "oklch": "oklch(0.87 0.0096 210)",
+        "hex": "#cdd6d8",
+        "anchor": false
+      },
+      "400": {
+        "oklch": "oklch(0.72 0.0108 210)",
+        "hex": "#9da7a8",
+        "anchor": false
+      },
+      "500": {
+        "oklch": "oklch(0.6 0.012 210)",
+        "hex": "#788284",
+        "anchor": false
+      },
+      "600": {
+        "oklch": "oklch(0.52 0.012 210)",
+        "hex": "#616b6d",
+        "anchor": false
+      },
+      "700": {
+        "oklch": "oklch(0.44 0.012 210)",
+        "hex": "#4b5456",
+        "anchor": false
+      },
+      "800": {
+        "oklch": "oklch(0.34 0.012 210)",
+        "hex": "#313a3b",
+        "anchor": false
+      },
+      "900": {
+        "oklch": "oklch(0.255 0.012 210)",
+        "hex": "#1c2426",
+        "anchor": false
+      },
+      "950": {
+        "oklch": "oklch(0.2 0.0108 210)",
+        "hex": "#101719",
+        "anchor": false
+      }
+    }
+  }
+}
