@@ -10,7 +10,8 @@ antigo (v1) nem de outro lugar.
   `C:\Systems\template-padrao\.claude\CONTEXTO.md`.
 - **Backend** (`server/`): TypeScript + Node + Express 5. Banco **SQLite** via **Kysely**
   (better-sqlite3), preparado para migrar para **PostgreSQL** (ver "Backend" abaixo).
-- Módulos hoje: **Administração › Usuários** (modelo completo para copiar).
+- Módulos hoje: **Clientes** (item direto no menu; tudo do cliente fica em **abas** do detalhe —
+  contatos, logística, documentos, configurações) e **Administração › Usuários**.
 - Regra da organização: pesquisar na web antes de afirmar fato técnico (versão, API, menu).
   Pacote novo: confirmar versão estável e licença no npm e fixar versão exata (`save-exact`).
 
@@ -120,9 +121,17 @@ Regras:
 
 ## Como adicionar um módulo
 
-O layout não muda. **Modelo completo: Administração › Usuários** — frontend em
-`src/features/admin/usuarios/` (lista, detalhe, formulário, `use-usuarios.ts`, `fluxo.ts`), rotas em
-`src/routes/_app/admin/usuarios/`, backend em `server/src/modules/usuarios/`.
+O layout não muda. Modelos completos para copiar:
+
+- **Clientes** — item direto no menu (sem submenu); detalhe com abas na URL (`?aba=`); formulário
+  com lista de contatos (`useFieldArray`). Frontend `src/features/clientes/`, rotas
+  `src/routes/_app/clientes/`, backend `server/src/modules/clientes/` (com view
+  `clientes_lista` para filtrar pelo contato principal).
+- **Administração › Usuários** — módulo com submenu. Frontend `src/features/admin/usuarios/`,
+  rotas `src/routes/_app/admin/usuarios/`, backend `server/src/modules/usuarios/`.
+
+Coisas que pertencem a um registro (contatos, locais, documentos do cliente) viram **abas** do
+detalhe dele, não itens de menu.
 
 1. **Rótulos**: crie as chaves `nav.<modulo>.title` e `nav.<modulo>.<tela>` nos 3 arquivos de idioma.
    Não use `_` como nome de chave nem `context`/`count` como nome de variável: são reservados do i18next.

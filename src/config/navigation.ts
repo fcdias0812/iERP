@@ -1,4 +1,4 @@
-import { House, Package, Settings, Users, type LucideIcon } from 'lucide-react'
+import { Building2, House, Package, Settings, Users, type LucideIcon } from 'lucide-react'
 import type { ParseKeys } from 'i18next'
 
 /*
@@ -62,6 +62,14 @@ function leaf(
 
 export const MODULES = {
   inicio: { id: 'inicio', labelKey: 'nav.inicio', icon: House, to: '/' },
+  // Item direto (sem submenu): contatos, logística, documentos… ficam em abas do cliente.
+  clientes: {
+    id: 'clientes',
+    labelKey: 'nav.clientes',
+    icon: Building2,
+    to: '/clientes',
+    permission: 'clientes.ver',
+  },
   admin: {
     id: 'admin',
     labelKey: 'nav.admin.title',
@@ -90,6 +98,7 @@ export const CONTEXTS: AppContext[] = [
     kind: 'empresa',
     sections: [
       section('principal', 'nav.sections.principal', ['inicio']),
+      section('relacionamento', 'nav.sections.relacionamento', ['clientes']),
       section('sistema', 'nav.sections.sistema', ['admin']),
     ],
   },

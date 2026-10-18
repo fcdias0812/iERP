@@ -27,6 +27,8 @@ export interface ColunaConsulta {
   tipo: TipoColuna
   /** status: ordem do fluxo (código → posição). Sem mapa, ordena pelo código. */
   ordem?: Record<string, number>
+  /** Texto guardado sem pontuação (CNPJ, telefone): limpa o que a pessoa digitou no filtro. */
+  limpar?: (valor: string) => string
 }
 
 export type Filtro =
@@ -196,8 +198,12 @@ function vazio(c: ColunaConsulta): Cond {
     : sql<SqlBool>`${ref} is null`
 }
 
+/** Valor digitado no filtro, no formato em que a coluna é guardada. */
+const valorDe = (c: ColunaConsulta, valor: string) =>
+  (c.limpar ? c.limpar(valor) : valor).toLowerCase()
+
 const contem = (c: ColunaConsulta, valor: string, inicio = false): Cond =>
-  sql<SqlBool>`lower(${sql.ref(c.id)}) like ${`${inicio ? '' : '%'}${escaparLike(valor.toLowerCase())}%`} escape '\\'`
+  sql<SqlBool>`lower(${sql.ref(c.id)}) like ${`${inicio ? '' : '%'}${escaparLike(valorDe(c, valor))}%`} escape '\\'`
 
 /** Instantes [início, fim) que cobrem os dias de `de` até `ate` no fuso da empresa. */
 function entreDias(c: ColunaConsulta, de?: string, ate?: string): Cond {
@@ -281,7 +287,7 @@ function condicaoSql(c: ColunaConsulta, cond: Condicao): Cond {
     return comVazio(cond.op === 'neq' ? sql<SqlBool>`not ${dentro}` : dentro)
   }
   // texto
-  const q = String(cond.value ?? '').toLowerCase()
+  const q = valorDe(c, String(cond.value ?? ''))
   switch (cond.op) {
     case 'eq':
       return comVazio(sql<SqlBool>`lower(${ref}) = ${q}`)

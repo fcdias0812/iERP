@@ -8,6 +8,13 @@ import { abrir, preferencias, violacoes, type Idioma, type Tema } from './helper
 
 const TODAS = [
   '/',
+  '/clientes',
+  '/clientes/cli00001',
+  '/clientes/cli00001?aba=contatos',
+  '/clientes/cli00001?aba=logistica',
+  '/clientes/cli00001?aba=historico',
+  '/clientes/cli00001/editar',
+  '/clientes/novo',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
   '/admin/usuarios/usr00001/editar',
@@ -17,7 +24,14 @@ const TODAS = [
   '/login',
 ]
 
-const AMOSTRA = ['/', '/admin/usuarios', '/admin/usuarios/usr00001', '/admin/usuarios/novo']
+const AMOSTRA = [
+  '/',
+  '/clientes',
+  '/clientes/cli00001',
+  '/clientes/cli00001/editar',
+  '/admin/usuarios',
+  '/admin/usuarios/usr00001',
+]
 
 const CENARIOS: { tema: Tema; idioma: Idioma; rotas: string[] }[] = [
   { tema: 'light', idioma: 'pt-BR', rotas: TODAS },

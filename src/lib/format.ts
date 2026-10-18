@@ -134,3 +134,22 @@ export function formatBytes(bytes: number, lang = currentLang()): string {
     return `${formatNumber(bytes / 1024, { maximumFractionDigits: 1 }, lang)} KB`
   return `${formatNumber(bytes / 1024 ** 2, { maximumFractionDigits: 1 }, lang)} MB`
 }
+
+/* ------------------------------------------------------------ documentos (guardados sem pontuação) */
+
+/** CNPJ (numérico ou alfanumérico) com pontuação: 12.ABC.345/01DE-35. Inválido → como veio. */
+export function formatCnpj(value: string | null | undefined): string {
+  if (!value) return EMPTY
+  const v = value.replace(/[^0-9a-z]/gi, '').toUpperCase()
+  if (v.length !== 14) return value
+  return `${v.slice(0, 2)}.${v.slice(2, 5)}.${v.slice(5, 8)}/${v.slice(8, 12)}-${v.slice(12)}`
+}
+
+/** Telefone com DDD: (11) 98765-4321 ou (11) 3234-5678. Outro formato → como veio. */
+export function formatPhone(value: string | null | undefined): string {
+  if (!value) return EMPTY
+  const d = value.replace(/\D/g, '')
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
+  return value
+}

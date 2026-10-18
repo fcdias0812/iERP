@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, LoaderCircle, PanelLeft, SunMoon, UserRound } from 'lucide-react'
+import { Building2, Keyboard, LoaderCircle, PanelLeft, SunMoon, UserRound } from 'lucide-react'
 import {
   CommandDialog,
   CommandEmpty,
@@ -31,6 +31,7 @@ interface Screen {
 
 /** Tipo do registro da busca global → rótulo e ícone. */
 const KINDS = {
+  cliente: { label: 'command.records.customer', icon: Building2 },
   usuario: { label: 'command.records.user', icon: UserRound },
 } as const
 

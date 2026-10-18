@@ -625,6 +625,7 @@
       "actions": "Actions"
     },
     "records": {
+      "customer": "Customer",
       "user": "User"
     },
     "actions": {
@@ -654,8 +655,10 @@
   },
   "nav": {
     "inicio": "Home",
+    "clientes": "Customers",
     "sections": {
       "principal": "Main",
+      "relacionamento": "Relationships",
       "sistema": "System"
     },
     "admin": {
@@ -1236,7 +1239,8 @@
     "notFound": "Record not found. It may have been deleted.",
     "forbidden": "Your role isn’t allowed to do this.",
     "server": "The server ran into an error. Try again in a moment.",
-    "emailInUse": "A user with this email already exists."
+    "emailInUse": "A user with this email already exists.",
+    "cnpjInUse": "A customer with this CNPJ already exists."
   },
   "calendar": {
     "today": "Today",
@@ -1354,6 +1358,97 @@
       "acao": {
         "bloquear": "{{name}} was blocked.",
         "desbloquear": "{{name}} was unblocked.",
+        "inativar": "{{name}} was deactivated.",
+        "reativar": "{{name}} was reactivated."
+      }
+    }
+  },
+  "clientes": {
+    "list": {
+      "description": "Companies we serve and their contacts.",
+      "emptyTitle": "No customers found",
+      "emptyBody": "Adjust the search or filters."
+    },
+    "kpis": {
+      "total": "Total customers",
+      "ativos": "Active",
+      "inativos": "Inactive"
+    },
+    "cols": {
+      "codigo": "Code",
+      "nome": "Name",
+      "cnpj": "CNPJ",
+      "contatoEmail": "Main contact email",
+      "contatoTelefone": "Main contact phone",
+      "contatos": "Contacts",
+      "status": "Status",
+      "criadoEm": "Created on"
+    },
+    "new": {
+      "title": "New customer",
+      "description": "Register the company and its contacts."
+    },
+    "edit": {
+      "title": "Edit {{name}}"
+    },
+    "form": {
+      "identification": "Customer details",
+      "contacts": "Contacts",
+      "contactsHelp": "The first contact is the main one. Add as many as you need.",
+      "contactN": "Contact {{n}}",
+      "main": "Main",
+      "makeMain": "Make main",
+      "removeN": "Remove contact {{n}}",
+      "addContact": "Add contact",
+      "contactName": "Contact name",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "tabs": {
+      "visaoGeral": "Overview",
+      "contatos": "Contacts",
+      "logistica": "Logistics",
+      "documentos": "Documents",
+      "configuracoes": "Settings",
+      "historico": "History",
+      "emDefinicao": "To be defined",
+      "logisticaHelp": "The customer’s logistics data, such as pickup locations, will be here.",
+      "documentosHelp": "The customer’s documents will be here.",
+      "configuracoesHelp": "Settings specific to this customer will be here."
+    },
+    "detail": {
+      "general": "Customer details",
+      "mainContact": "Main contact",
+      "noContacts": "No contacts registered",
+      "manageContacts": "Edit contacts",
+      "inactiveTitle": "Inactive customer",
+      "inactiveBody": "The record and history are kept. Reactivate to use this customer again."
+    },
+    "history": {
+      "criado": "Created the customer",
+      "editado": "Changed the details",
+      "status": "Changed the status"
+    },
+    "acoes": {
+      "inativar": "Deactivate",
+      "reativar": "Reactivate"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Deactivate {{name}}?",
+        "body": "Use when the company is no longer a customer. The record and history are kept and it can be reactivated later."
+      },
+      "reativar": {
+        "title": "Reactivate {{name}}?",
+        "body": "The customer becomes active again."
+      }
+    },
+    "toast": {
+      "created": "Customer {{name}} created.",
+      "saved": "Changes to {{name}} saved.",
+      "saveFailed": "Couldn’t save the customer.",
+      "actionFailed": "Couldn’t complete the action.",
+      "acao": {
         "inativar": "{{name}} was deactivated.",
         "reativar": "{{name}} was reactivated."
       }

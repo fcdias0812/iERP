@@ -1,6 +1,10 @@
 import { fakerPT_BR as faker } from '@faker-js/faker'
 import type {
+  AcaoCliente,
   AcaoUsuario,
+  Cliente,
+  ClienteResumo,
+  ClienteStatus,
   EventoHistorico,
   Notificacao,
   Usuario,
@@ -8,6 +12,7 @@ import type {
   UsuarioResumo,
   UsuarioStatus,
 } from '@/services/types'
+import { gerarCnpj, seeded } from './generators'
 
 /*
  * "Banco de dados" do servidor simulado, em memória, gerado com faker pt_BR e
@@ -70,10 +75,94 @@ const semAcento = (s: string) =>
     .toLowerCase()
     .replace(/[^a-z]/g, '')
 
+/* ------------------------------------------------------------ clientes */
+
+export const TRANSICOES_CLIENTE: Record<
+  ClienteStatus,
+  Partial<Record<AcaoCliente, ClienteStatus>>
+> = {
+  ativo: { inativar: 'inativo' },
+  inativo: { reativar: 'ativo' },
+}
+
+export const acoesCliente = (status: ClienteStatus) =>
+  Object.keys(TRANSICOES_CLIENTE[status]) as AcaoCliente[]
+
+export const codigoCliente = (seq: number) => `CLI-${String(seq).padStart(5, '0')}`
+
+export function resumoCliente(c: Cliente): ClienteResumo {
+  const p = c.contatos.find((k) => k.principal) ?? c.contatos[0]
+  return {
+    id: c.id,
+    codigo: c.codigo,
+    nome: c.nome,
+    cnpj: c.cnpj,
+    contatoNome: p?.nome ?? null,
+    contatoEmail: p?.email ?? null,
+    contatoTelefone: p?.telefone ?? null,
+    contatos: c.contatos.length,
+    status: c.status,
+    criadoEm: c.criadoEm,
+  }
+}
+
+const SUFIXOS = ['Ltda', 'S.A.', 'Eireli', 'Comércio Ltda', 'Serviços Ltda']
+
+function gerarClientes(hoje: number): Cliente[] {
+  const rand = seeded(1018)
+  return Array.from({ length: 36 }, (_, i) => {
+    const empresa = `${faker.company.name().replace(/ (e|-) .*$/, '')} ${faker.helpers.arrayElement(SUFIXOS)}`
+    const dominio = `${semAcento(empresa.split(' ')[0]!)}.exemplo.com.br`
+    const contatos = Array.from({ length: faker.number.int({ min: 1, max: 3 }) }, (_, k) => {
+      const nome = `${faker.person.firstName()} ${faker.person.lastName()}`
+      return {
+        id: `ct${i + 1}-${k}`,
+        nome: k === 2 ? null : nome,
+        email: k === 2 ? `contato@${dominio}` : `${semAcento(nome.split(' ')[0]!)}@${dominio}`,
+        // Celular (11 dígitos, começa com 9) ou fixo (10 dígitos).
+        telefone: k === 1 ? `113${faker.string.numeric(7)}` : `119${faker.string.numeric(8)}`,
+        principal: k === 0,
+      }
+    })
+    const status = faker.helpers.weightedArrayElement<ClienteStatus>([
+      { weight: 9, value: 'ativo' },
+      { weight: 1, value: 'inativo' },
+    ])
+    const criado = hoje - faker.number.int({ min: 10, max: 700 }) * DAY
+    const historico: EventoHistorico[] = [
+      { id: `hc${i}-0`, autor: ADMIN_SISTEMA, em: new Date(criado).toISOString(), acao: 'criado' },
+    ]
+    if (status === 'inativo')
+      historico.unshift({
+        id: `hc${i}-1`,
+        autor: ADMIN_SISTEMA,
+        em: new Date(criado + 5 * DAY).toISOString(),
+        acao: 'status',
+        mudancas: [{ campo: 'status', antes: 'ativo', depois: 'inativo' }],
+      })
+    return {
+      id: `cli${String(i + 1).padStart(5, '0')}`,
+      codigo: codigoCliente(i + 1),
+      nome: empresa,
+      cnpj: gerarCnpj(rand, false),
+      status,
+      contatos,
+      criadoEm: new Date(criado).toISOString(),
+      criadoPor: ADMIN_SISTEMA,
+      alteradoEm: historico[0]!.em,
+      alteradoPor: ADMIN_SISTEMA,
+      historico,
+      acoesPermitidas: acoesCliente(status),
+    }
+  })
+}
+
 export interface Db {
   usuarios: Usuario[]
+  clientes: Cliente[]
   notificacoes: Notificacao[]
   seq: number
+  seqClientes: number
 }
 
 function gerar(): Db {
@@ -154,7 +243,8 @@ function gerar(): Db {
     },
   ]
 
-  return { usuarios, notificacoes, seq: usuarios.length }
+  const clientes = gerarClientes(hoje)
+  return { usuarios, clientes, notificacoes, seq: usuarios.length, seqClientes: clientes.length }
 }
 
 let db: Db | null = null

@@ -17,8 +17,12 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoes'
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
+import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
+import { Route as AppClientesNovoRouteImport } from './routes/_app/clientes/novo'
 import { Route as AppAdminUsuariosIndexRouteImport } from './routes/_app/admin/usuarios/index'
 import { Route as AppAdminUsuariosNovoRouteImport } from './routes/_app/admin/usuarios/novo'
+import { Route as AppClientesIdIndexRouteImport } from './routes/_app/clientes/$id.index'
+import { Route as AppClientesIdEditarRouteImport } from './routes/_app/clientes/$id.editar'
 import { Route as AppAdminUsuariosIdIndexRouteImport } from './routes/_app/admin/usuarios/$id.index'
 import { Route as AppAdminUsuariosIdEditarRouteImport } from './routes/_app/admin/usuarios/$id.editar'
 
@@ -61,6 +65,16 @@ const AppPerfilRoute = AppPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AppRoute,
 } as any)
+const AppClientesIndexRoute = AppClientesIndexRouteImport.update({
+  id: '/clientes/',
+  path: '/clientes/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClientesNovoRoute = AppClientesNovoRouteImport.update({
+  id: '/clientes/novo',
+  path: '/clientes/novo',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminUsuariosIndexRoute = AppAdminUsuariosIndexRouteImport.update({
   id: '/admin/usuarios/',
   path: '/admin/usuarios/',
@@ -69,6 +83,16 @@ const AppAdminUsuariosIndexRoute = AppAdminUsuariosIndexRouteImport.update({
 const AppAdminUsuariosNovoRoute = AppAdminUsuariosNovoRouteImport.update({
   id: '/admin/usuarios/novo',
   path: '/admin/usuarios/novo',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClientesIdIndexRoute = AppClientesIdIndexRouteImport.update({
+  id: '/clientes/$id/',
+  path: '/clientes/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClientesIdEditarRoute = AppClientesIdEditarRouteImport.update({
+  id: '/clientes/$id/editar',
+  path: '/clientes/$id/editar',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminUsuariosIdIndexRoute = AppAdminUsuariosIdIndexRouteImport.update({
@@ -91,8 +115,12 @@ export interface FileRoutesByFullPath {
   '/$': typeof AppSplatRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
+  '/clientes/novo': typeof AppClientesNovoRoute
+  '/clientes/': typeof AppClientesIndexRoute
   '/admin/usuarios/novo': typeof AppAdminUsuariosNovoRoute
+  '/clientes/$id/editar': typeof AppClientesIdEditarRoute
   '/admin/usuarios/': typeof AppAdminUsuariosIndexRoute
+  '/clientes/$id/': typeof AppClientesIdIndexRoute
   '/admin/usuarios/$id/editar': typeof AppAdminUsuariosIdEditarRoute
   '/admin/usuarios/$id/': typeof AppAdminUsuariosIdIndexRoute
 }
@@ -104,8 +132,12 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
+  '/clientes/novo': typeof AppClientesNovoRoute
+  '/clientes': typeof AppClientesIndexRoute
   '/admin/usuarios/novo': typeof AppAdminUsuariosNovoRoute
+  '/clientes/$id/editar': typeof AppClientesIdEditarRoute
   '/admin/usuarios': typeof AppAdminUsuariosIndexRoute
+  '/clientes/$id': typeof AppClientesIdIndexRoute
   '/admin/usuarios/$id/editar': typeof AppAdminUsuariosIdEditarRoute
   '/admin/usuarios/$id': typeof AppAdminUsuariosIdIndexRoute
 }
@@ -119,8 +151,12 @@ export interface FileRoutesById {
   '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/clientes/novo': typeof AppClientesNovoRoute
+  '/_app/clientes/': typeof AppClientesIndexRoute
   '/_app/admin/usuarios/novo': typeof AppAdminUsuariosNovoRoute
+  '/_app/clientes/$id/editar': typeof AppClientesIdEditarRoute
   '/_app/admin/usuarios/': typeof AppAdminUsuariosIndexRoute
+  '/_app/clientes/$id/': typeof AppClientesIdIndexRoute
   '/_app/admin/usuarios/$id/editar': typeof AppAdminUsuariosIdEditarRoute
   '/_app/admin/usuarios/$id/': typeof AppAdminUsuariosIdIndexRoute
 }
@@ -134,8 +170,12 @@ export interface FileRouteTypes {
     | '/$'
     | '/configuracoes'
     | '/perfil'
+    | '/clientes/novo'
+    | '/clientes/'
     | '/admin/usuarios/novo'
+    | '/clientes/$id/editar'
     | '/admin/usuarios/'
+    | '/clientes/$id/'
     | '/admin/usuarios/$id/editar'
     | '/admin/usuarios/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -147,8 +187,12 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/perfil'
     | '/'
+    | '/clientes/novo'
+    | '/clientes'
     | '/admin/usuarios/novo'
+    | '/clientes/$id/editar'
     | '/admin/usuarios'
+    | '/clientes/$id'
     | '/admin/usuarios/$id/editar'
     | '/admin/usuarios/$id'
   id:
@@ -161,8 +205,12 @@ export interface FileRouteTypes {
     | '/_app/configuracoes'
     | '/_app/perfil'
     | '/_app/'
+    | '/_app/clientes/novo'
+    | '/_app/clientes/'
     | '/_app/admin/usuarios/novo'
+    | '/_app/clientes/$id/editar'
     | '/_app/admin/usuarios/'
+    | '/_app/clientes/$id/'
     | '/_app/admin/usuarios/$id/editar'
     | '/_app/admin/usuarios/$id/'
   fileRoutesById: FileRoutesById
@@ -232,6 +280,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPerfilRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/clientes/': {
+      id: '/_app/clientes/'
+      path: '/clientes'
+      fullPath: '/clientes/'
+      preLoaderRoute: typeof AppClientesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/clientes/novo': {
+      id: '/_app/clientes/novo'
+      path: '/clientes/novo'
+      fullPath: '/clientes/novo'
+      preLoaderRoute: typeof AppClientesNovoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/admin/usuarios/': {
       id: '/_app/admin/usuarios/'
       path: '/admin/usuarios'
@@ -244,6 +306,20 @@ declare module '@tanstack/react-router' {
       path: '/admin/usuarios/novo'
       fullPath: '/admin/usuarios/novo'
       preLoaderRoute: typeof AppAdminUsuariosNovoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/clientes/$id/': {
+      id: '/_app/clientes/$id/'
+      path: '/clientes/$id'
+      fullPath: '/clientes/$id/'
+      preLoaderRoute: typeof AppClientesIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/clientes/$id/editar': {
+      id: '/_app/clientes/$id/editar'
+      path: '/clientes/$id/editar'
+      fullPath: '/clientes/$id/editar'
+      preLoaderRoute: typeof AppClientesIdEditarRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/usuarios/$id/': {
@@ -268,8 +344,12 @@ interface AppRouteChildren {
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppClientesNovoRoute: typeof AppClientesNovoRoute
+  AppClientesIndexRoute: typeof AppClientesIndexRoute
   AppAdminUsuariosNovoRoute: typeof AppAdminUsuariosNovoRoute
+  AppClientesIdEditarRoute: typeof AppClientesIdEditarRoute
   AppAdminUsuariosIndexRoute: typeof AppAdminUsuariosIndexRoute
+  AppClientesIdIndexRoute: typeof AppClientesIdIndexRoute
   AppAdminUsuariosIdEditarRoute: typeof AppAdminUsuariosIdEditarRoute
   AppAdminUsuariosIdIndexRoute: typeof AppAdminUsuariosIdIndexRoute
 }
@@ -279,8 +359,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
+  AppClientesNovoRoute: AppClientesNovoRoute,
+  AppClientesIndexRoute: AppClientesIndexRoute,
   AppAdminUsuariosNovoRoute: AppAdminUsuariosNovoRoute,
+  AppClientesIdEditarRoute: AppClientesIdEditarRoute,
   AppAdminUsuariosIndexRoute: AppAdminUsuariosIndexRoute,
+  AppClientesIdIndexRoute: AppClientesIdIndexRoute,
   AppAdminUsuariosIdEditarRoute: AppAdminUsuariosIdEditarRoute,
   AppAdminUsuariosIdIndexRoute: AppAdminUsuariosIdIndexRoute,
 }

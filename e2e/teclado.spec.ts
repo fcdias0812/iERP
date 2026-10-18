@@ -86,3 +86,17 @@ test('abas e menus têm os papéis ARIA certos', async ({ page }) => {
   await page.keyboard.press('Escape')
   await expect(page.getByRole('menu')).toBeHidden()
 })
+
+test('cliente: adicionar contato, tornar principal e salvar com Ctrl+S', async ({ page }) => {
+  await abrir(page, '/clientes/cli00001/editar')
+  await page.getByRole('button', { name: 'Adicionar contato' }).click()
+  const lista = page.getByRole('list', { name: 'Contatos' })
+  const ultimo = lista.getByRole('listitem').last()
+  await ultimo.getByLabel(/^E-mail/).fill('novo.contato@exemplo.com.br')
+  await ultimo.getByLabel(/^Telefone/).fill('11987650000')
+  await ultimo.getByRole('button', { name: /Tornar principal/ }).click()
+  await expect(lista.getByRole('listitem').first()).toContainText('Principal')
+  await page.keyboard.press('Control+s')
+  await expect(page).toHaveURL(/\/clientes\/cli00001$/)
+  await expect(page.getByText('novo.contato@exemplo.com.br').first()).toBeVisible()
+})

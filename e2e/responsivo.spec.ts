@@ -6,6 +6,9 @@ import { abrir, rolagemHorizontal } from './helpers'
 const LARGURAS = [375, 768, 1280]
 const ROTAS = [
   '/',
+  '/clientes',
+  '/clientes/cli00001',
+  '/clientes/cli00001/editar',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
   '/admin/usuarios/novo',

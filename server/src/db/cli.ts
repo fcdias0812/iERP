@@ -14,7 +14,7 @@ try {
   )
   if (comando === 'seed') {
     const n = await semear(db)
-    console.log(n ? `Usuários de exemplo criados: ${n}` : 'Já há usuários; nada foi criado.')
+    console.log(n ? `Registros de exemplo criados: ${n}` : 'Já há dados; nada foi criado.')
   }
 } finally {
   await db.destroy()

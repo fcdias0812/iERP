@@ -11,7 +11,7 @@ test('nenhuma requisição para fora do servidor', async ({ page }) => {
     externas.push(route.request().url())
     return route.abort()
   })
-  for (const rota of ['/', '/admin/usuarios', '/admin/usuarios/usr00001']) {
+  for (const rota of ['/', '/clientes', '/clientes/cli00001', '/admin/usuarios']) {
     await abrir(page, rota)
   }
   // Troca para chinês: carrega a fonte Noto Sans TC (local).

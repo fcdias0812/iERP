@@ -625,6 +625,7 @@
       "actions": "Ações"
     },
     "records": {
+      "customer": "Cliente",
       "user": "Usuário"
     },
     "actions": {
@@ -654,8 +655,10 @@
   },
   "nav": {
     "inicio": "Início",
+    "clientes": "Clientes",
     "sections": {
       "principal": "Principal",
+      "relacionamento": "Relacionamento",
       "sistema": "Sistema"
     },
     "admin": {
@@ -1236,7 +1239,8 @@
     "notFound": "Registro não encontrado. Ele pode ter sido excluído.",
     "forbidden": "Seu perfil não tem permissão para esta ação.",
     "server": "O servidor encontrou um erro. Tente de novo em instantes.",
-    "emailInUse": "Já existe um usuário com este e-mail."
+    "emailInUse": "Já existe um usuário com este e-mail.",
+    "cnpjInUse": "Já existe um cliente com este CNPJ."
   },
   "calendar": {
     "today": "Hoje",
@@ -1354,6 +1358,97 @@
       "acao": {
         "bloquear": "{{name}} foi bloqueado.",
         "desbloquear": "{{name}} foi desbloqueado.",
+        "inativar": "{{name}} foi inativado.",
+        "reativar": "{{name}} foi reativado."
+      }
+    }
+  },
+  "clientes": {
+    "list": {
+      "description": "Empresas atendidas e seus contatos.",
+      "emptyTitle": "Nenhum cliente encontrado",
+      "emptyBody": "Ajuste a busca ou os filtros."
+    },
+    "kpis": {
+      "total": "Total de clientes",
+      "ativos": "Ativos",
+      "inativos": "Inativos"
+    },
+    "cols": {
+      "codigo": "Código",
+      "nome": "Nome",
+      "cnpj": "CNPJ",
+      "contatoEmail": "E-mail do contato principal",
+      "contatoTelefone": "Telefone do contato principal",
+      "contatos": "Contatos",
+      "status": "Status",
+      "criadoEm": "Cadastrado em"
+    },
+    "new": {
+      "title": "Novo cliente",
+      "description": "Cadastre a empresa e os contatos dela."
+    },
+    "edit": {
+      "title": "Editar {{name}}"
+    },
+    "form": {
+      "identification": "Dados do cliente",
+      "contacts": "Contatos",
+      "contactsHelp": "O primeiro contato é o principal. Adicione quantos precisar.",
+      "contactN": "Contato {{n}}",
+      "main": "Principal",
+      "makeMain": "Tornar principal",
+      "removeN": "Remover contato {{n}}",
+      "addContact": "Adicionar contato",
+      "contactName": "Nome do contato",
+      "email": "E-mail",
+      "phone": "Telefone"
+    },
+    "tabs": {
+      "visaoGeral": "Visão geral",
+      "contatos": "Contatos",
+      "logistica": "Logística",
+      "documentos": "Documentos",
+      "configuracoes": "Configurações",
+      "historico": "Histórico",
+      "emDefinicao": "Em definição",
+      "logisticaHelp": "Aqui ficarão os dados de logística do cliente, como os locais de coleta.",
+      "documentosHelp": "Aqui ficarão os documentos do cliente.",
+      "configuracoesHelp": "Aqui ficarão as configurações específicas deste cliente."
+    },
+    "detail": {
+      "general": "Dados do cliente",
+      "mainContact": "Contato principal",
+      "noContacts": "Nenhum contato cadastrado",
+      "manageContacts": "Editar contatos",
+      "inactiveTitle": "Cliente inativo",
+      "inactiveBody": "O cadastro e o histórico são mantidos. Reative para voltar a usar este cliente."
+    },
+    "history": {
+      "criado": "Cadastrou o cliente",
+      "editado": "Alterou os dados",
+      "status": "Mudou o status"
+    },
+    "acoes": {
+      "inativar": "Inativar",
+      "reativar": "Reativar"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Inativar {{name}}?",
+        "body": "Use quando a empresa deixa de ser cliente. O cadastro e o histórico são mantidos e dá para reativar depois."
+      },
+      "reativar": {
+        "title": "Reativar {{name}}?",
+        "body": "O cliente volta a ficar ativo."
+      }
+    },
+    "toast": {
+      "created": "Cliente {{name}} cadastrado.",
+      "saved": "Alterações de {{name}} salvas.",
+      "saveFailed": "Não foi possível salvar o cliente.",
+      "actionFailed": "Não foi possível concluir a ação.",
+      "acao": {
         "inativar": "{{name}} foi inativado.",
         "reativar": "{{name}} foi reativado."
       }

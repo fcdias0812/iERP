@@ -18,16 +18,29 @@ export const sistemaHandlers = [
     if (fail) return fail
     const q = (new URL(request.url).searchParams.get('q') ?? '').trim()
     if (q.length < 2) return HttpResponse.json([])
-    const out: ResultadoBusca[] = getDb()
-      .usuarios.filter((u) => contem(u.nome, q) || contem(u.email, q) || contem(u.codigo, q))
-      .slice(0, 8)
-      .map((u) => ({
-        tipo: 'usuario' as const,
-        id: u.id,
-        codigo: u.codigo,
-        titulo: u.nome,
-        rota: `/admin/usuarios/${u.id}`,
-      }))
+    const db = getDb()
+    const out: ResultadoBusca[] = [
+      ...db.clientes
+        .filter((c) => contem(c.nome, q) || contem(c.codigo, q) || c.cnpj.includes(q.toUpperCase()))
+        .slice(0, 5)
+        .map((c) => ({
+          tipo: 'cliente' as const,
+          id: c.id,
+          codigo: c.codigo,
+          titulo: c.nome,
+          rota: `/clientes/${c.id}`,
+        })),
+      ...db.usuarios
+        .filter((u) => contem(u.nome, q) || contem(u.email, q) || contem(u.codigo, q))
+        .slice(0, 5)
+        .map((u) => ({
+          tipo: 'usuario' as const,
+          id: u.id,
+          codigo: u.codigo,
+          titulo: u.nome,
+          rota: `/admin/usuarios/${u.id}`,
+        })),
+    ]
     return HttpResponse.json(out)
   }),
 

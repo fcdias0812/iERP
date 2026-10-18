@@ -3,8 +3,10 @@
 ERP da Re-Teck focado em **logística reversa**. Esta é a versão 2, construída do zero a partir do
 **template padrão de frontend** da Re-Teck (`C:\Systems\template-padrao`).
 
-> **Status:** 1 módulo — **Administração › Usuários** (lista, detalhe com histórico, cadastro,
-> edição, bloquear/desbloquear, inativar/reativar). Login ainda não definido (sessão simulada).
+> **Status:** 2 módulos — **Clientes** (cadastro com CNPJ e contatos; detalhe em abas: visão geral,
+> contatos, logística, documentos, configurações, histórico) e **Administração › Usuários**.
+> Abas de logística, documentos e configurações ainda em definição. Login ainda não definido
+> (sessão simulada).
 
 ## Arquitetura
 
@@ -98,18 +100,18 @@ npm run test:e2e
 
 ## Scripts
 
-| Script                               | O que faz                                                   |
-| ------------------------------------ | ----------------------------------------------------------- |
-| `npm run dev`                        | Frontend (Vite, porta 5173)                                 |
-| `npm run dev:api`                    | Backend em modo observação (tsx, porta 3001)                |
-| `npm run build`                      | Checagem de tipos + build do frontend em `dist/`            |
-| `npm run typecheck` / `lint`         | TypeScript strict / ESLint (frontend e backend)             |
-| `npm run test` / `test:api`          | Testes do frontend / da API                                 |
-| `npm run test:e2e`                   | Ponta a ponta (acessibilidade, teclado, responsivo)         |
-| `npm run check:contrast`             | Contraste WCAG 2.2 AA dos tokens de cor                     |
-| `npm run check:colors`               | Falha se houver cor fora de token em `src/`                 |
-| `npm --prefix server run db:migrate` | Aplica as migrations pendentes                              |
-| `npm --prefix server run db:seed`    | Migrations + usuários fictícios (se a tabela estiver vazia) |
+| Script                               | O que faz                                            |
+| ------------------------------------ | ---------------------------------------------------- |
+| `npm run dev`                        | Frontend (Vite, porta 5173)                          |
+| `npm run dev:api`                    | Backend em modo observação (tsx, porta 3001)         |
+| `npm run build`                      | Checagem de tipos + build do frontend em `dist/`     |
+| `npm run typecheck` / `lint`         | TypeScript strict / ESLint (frontend e backend)      |
+| `npm run test` / `test:api`          | Testes do frontend / da API                          |
+| `npm run test:e2e`                   | Ponta a ponta (acessibilidade, teclado, responsivo)  |
+| `npm run check:contrast`             | Contraste WCAG 2.2 AA dos tokens de cor              |
+| `npm run check:colors`               | Falha se houver cor fora de token em `src/`          |
+| `npm --prefix server run db:migrate` | Aplica as migrations pendentes                       |
+| `npm --prefix server run db:seed`    | Migrations + dados fictícios (só nas tabelas vazias) |
 
 ## Estrutura
 
@@ -117,18 +119,34 @@ npm run test:e2e
 src/                        FRONTEND (padrão do template)
   config/navigation.ts      menu, módulos e contexto
   config/permissions.ts     perfis × permissões
+  features/clientes/        telas de Clientes (lista, detalhe com abas, formulário com contatos)
   features/admin/usuarios/  telas de Admin › Usuários (lista, detalhe, formulário)
-  routes/_app/admin/usuarios/  rotas
+  routes/_app/              rotas (clientes/, admin/usuarios/)
   services/                 chamadas à API + contrato (types.ts)
   mocks/                    API simulada (opcional)
   i18n/locales/             pt-BR, en, zh-TW
 server/                     BACKEND
   src/app.ts                aplicação Express (rotas em /api)
   src/db/                   conexão (database.ts), tipos das tabelas (schema.ts), migrations, seed
-  src/modules/usuarios/     rotas → serviço (regras) → repositório (banco) + testes
-  src/shared/               erros, consulta de tabela (filtros/ordenação → SQL), datas, texto
+  src/modules/<modulo>/     clientes, usuarios: rotas → serviço (regras) → repositório (banco) + testes
+  src/shared/               erros, consulta de tabela (filtros/ordenação → SQL), datas, texto,
+                            documentos (CNPJ, telefone), histórico
   data/                     arquivo do SQLite (fora do git)
 ```
+
+## API de clientes
+
+| Método e caminho                   | O que faz                                                              |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| `GET /api/clientes`                | lista (com o contato principal) — busca, filtros, ordenação, paginação |
+| `GET /api/clientes/resumo`         | total, ativos, inativos                                                |
+| `GET /api/clientes/:id`            | detalhe + contatos + histórico + ações permitidas                      |
+| `POST /api/clientes`               | cria (`nome`, `cnpj`, `contatos[]`) — CNPJ único (409)                 |
+| `PUT /api/clientes/:id`            | edita (substitui os contatos); histórico antes → depois                |
+| `POST /api/clientes/:id/transicao` | `inativar`, `reativar`                                                 |
+
+CNPJ (numérico ou alfanumérico) e telefone são guardados **sem pontuação** e validados no
+servidor; cada cliente tem **um** contato principal. Cliente não é excluído: é inativado.
 
 ## API de usuários
 
@@ -143,7 +161,7 @@ server/                     BACKEND
 | `GET /api/busca?q=`                | busca global (Ctrl+K)                                                  |
 
 Erros seguem `{ code, message, details? }` (ex.: `validation` 422, `email_in_use` 409,
-`invalid_transition` 409, `not_found` 404).
+`cnpj_in_use` 409, `invalid_transition` 409, `not_found` 404).
 
 ## Pendências conhecidas
 

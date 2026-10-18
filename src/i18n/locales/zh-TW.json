@@ -625,6 +625,7 @@
       "actions": "動作"
     },
     "records": {
+      "customer": "客戶",
       "user": "使用者"
     },
     "actions": {
@@ -654,8 +655,10 @@
   },
   "nav": {
     "inicio": "首頁",
+    "clientes": "客戶",
     "sections": {
       "principal": "主要",
+      "relacionamento": "客戶關係",
       "sistema": "系統"
     },
     "admin": {
@@ -1236,7 +1239,8 @@
     "notFound": "找不到記錄，可能已被刪除。",
     "forbidden": "您的角色沒有執行此操作的權限。",
     "server": "伺服器發生錯誤，請稍後再試。",
-    "emailInUse": "已有使用者使用此電子郵件。"
+    "emailInUse": "已有使用者使用此電子郵件。",
+    "cnpjInUse": "已有客戶使用此 CNPJ。"
   },
   "calendar": {
     "today": "今天",
@@ -1354,6 +1358,97 @@
       "acao": {
         "bloquear": "已封鎖 {{name}}。",
         "desbloquear": "已解除封鎖 {{name}}。",
+        "inativar": "已停用 {{name}}。",
+        "reativar": "已重新啟用 {{name}}。"
+      }
+    }
+  },
+  "clientes": {
+    "list": {
+      "description": "服務的公司及其聯絡人。",
+      "emptyTitle": "找不到客戶",
+      "emptyBody": "請調整搜尋或篩選條件。"
+    },
+    "kpis": {
+      "total": "客戶總數",
+      "ativos": "啟用",
+      "inativos": "停用"
+    },
+    "cols": {
+      "codigo": "代碼",
+      "nome": "名稱",
+      "cnpj": "CNPJ",
+      "contatoEmail": "主要聯絡人電子郵件",
+      "contatoTelefone": "主要聯絡人電話",
+      "contatos": "聯絡人",
+      "status": "狀態",
+      "criadoEm": "建立日期"
+    },
+    "new": {
+      "title": "新增客戶",
+      "description": "登錄公司及其聯絡人。"
+    },
+    "edit": {
+      "title": "編輯 {{name}}"
+    },
+    "form": {
+      "identification": "客戶資料",
+      "contacts": "聯絡人",
+      "contactsHelp": "第一位聯絡人為主要聯絡人。可依需要新增。",
+      "contactN": "聯絡人 {{n}}",
+      "main": "主要",
+      "makeMain": "設為主要",
+      "removeN": "移除聯絡人 {{n}}",
+      "addContact": "新增聯絡人",
+      "contactName": "聯絡人姓名",
+      "email": "電子郵件",
+      "phone": "電話"
+    },
+    "tabs": {
+      "visaoGeral": "總覽",
+      "contatos": "聯絡人",
+      "logistica": "物流",
+      "documentos": "文件",
+      "configuracoes": "設定",
+      "historico": "歷程",
+      "emDefinicao": "待定義",
+      "logisticaHelp": "此處將顯示客戶的物流資料，例如收件地點。",
+      "documentosHelp": "此處將顯示客戶的文件。",
+      "configuracoesHelp": "此處將顯示此客戶專屬的設定。"
+    },
+    "detail": {
+      "general": "客戶資料",
+      "mainContact": "主要聯絡人",
+      "noContacts": "尚未登錄聯絡人",
+      "manageContacts": "編輯聯絡人",
+      "inactiveTitle": "客戶已停用",
+      "inactiveBody": "資料與歷程會保留。重新啟用即可再次使用此客戶。"
+    },
+    "history": {
+      "criado": "建立了客戶",
+      "editado": "變更了資料",
+      "status": "變更了狀態"
+    },
+    "acoes": {
+      "inativar": "停用",
+      "reativar": "重新啟用"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "要停用 {{name}} 嗎？",
+        "body": "適用於公司不再是客戶時。資料與歷程會保留，之後可重新啟用。"
+      },
+      "reativar": {
+        "title": "要重新啟用 {{name}} 嗎？",
+        "body": "客戶將恢復為啟用狀態。"
+      }
+    },
+    "toast": {
+      "created": "已建立客戶 {{name}}。",
+      "saved": "已儲存 {{name}} 的變更。",
+      "saveFailed": "無法儲存客戶。",
+      "actionFailed": "無法完成此操作。",
+      "acao": {
         "inativar": "已停用 {{name}}。",
         "reativar": "已重新啟用 {{name}}。"
       }

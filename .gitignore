@@ -15,3 +15,6 @@ Thumbs.db
 
 # Claude Code (configurações locais de cada máquina)
 .claude/settings.local.json
+
+# Arquivos temporários do gerador de rotas do TanStack
+.tanstack
