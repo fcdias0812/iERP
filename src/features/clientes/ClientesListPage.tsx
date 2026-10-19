@@ -47,6 +47,13 @@ function useColunas(): DataTableColumn<ClienteResumo>[] {
         exportValue: (r) => formatCnpj(r.cnpj),
       },
       {
+        id: 'slaDias',
+        header: t('clientes.cols.slaDias'),
+        type: 'number',
+        accessor: (r) => r.slaDias,
+        size: 120,
+      },
+      {
         id: 'contatoEmail',
         header: t('clientes.cols.contatoEmail'),
         type: 'unique-text',

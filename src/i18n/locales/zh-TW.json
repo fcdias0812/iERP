@@ -836,7 +836,12 @@
     "em_manutencao": "維修中",
     "divergente": "有差異",
     "afastado": "留職停薪",
-    "agendado": "已排程"
+    "agendado": "已排程",
+    "inspecao": "檢驗",
+    "processo": "處理中",
+    "aguardando_cod": "等待 COD",
+    "no_prazo": "正常",
+    "sem_sla": "未設定 SLA"
   },
   "dataTable": {
     "yes": "是",
@@ -1426,7 +1431,8 @@
       "contatoTelefone": "主要聯絡人電話",
       "contatos": "聯絡人",
       "status": "狀態",
-      "criadoEm": "建立日期"
+      "criadoEm": "建立日期",
+      "slaDias": "SLA（天）"
     },
     "new": {
       "title": "新增客戶",
@@ -1446,7 +1452,9 @@
       "addContact": "新增聯絡人",
       "contactName": "聯絡人姓名",
       "email": "電子郵件",
-      "phone": "電話"
+      "phone": "電話",
+      "slaHelp": "從抵達 Re-Teck 到 COD 的最長天數。選填。",
+      "dias": "天"
     },
     "tabs": {
       "visaoGeral": "總覽",
@@ -1516,6 +1524,7 @@
       "campos": {
         "nome": "名稱",
         "cnpj": "CNPJ",
+        "slaDias": "SLA（天）",
         "contatos": "聯絡人",
         "status": "狀態",
         "codigo": "站點代碼",
@@ -2007,6 +2016,144 @@
         "totalVolumes": "件數",
         "status": "狀態",
         "criadoEm": "排程時間"
+      }
+    }
+  },
+  "operacao": {
+    "dashboard": {
+      "title": "營運儀表板",
+      "description": "到達、處理中的批次與 SLA 控管。",
+      "atualizado": "更新於 {{hora}} · 每 30 秒重新讀取",
+      "atualizar": "更新",
+      "dias": "{{n}} 天",
+      "cards": {
+        "chegadas": {
+          "titulo": "預計到達（7 天）",
+          "unidade": "批",
+          "detalhe": "依收運日期排程的批次"
+        },
+        "emProcesso": {
+          "titulo": "處理中的批次",
+          "unidade": "批",
+          "detalhe": "檢驗 {{inspecao}} · 處理 {{processo}} · 等待 COD {{cod}}"
+        },
+        "vencido": {
+          "titulo": "SLA 逾期",
+          "unidade": "批",
+          "detalhe": "抵達後天數超過客戶 SLA"
+        },
+        "risco": {
+          "titulo": "SLA 風險",
+          "unidade": "批",
+          "detalhe": "已用 SLA ≥ 80%，仍在期限內"
+        },
+        "cumprimento": {
+          "titulo": "SLA 達成率（30 天）",
+          "detalhe": "目標 ≥ 95%",
+          "semDado": "30 天內沒有設定 SLA 的已結案批次"
+        },
+        "cod": {
+          "titulo": "待 COD",
+          "unidade": "批",
+          "detalhe": "等待 COD 的批次"
+        }
+      },
+      "forecast": {
+        "titulo": "到達預測 · 未來 7 天",
+        "hoje": "今天",
+        "vazio": "無到達",
+        "pallets": "{{n}} 棧板",
+        "gaylords": "{{n}} Gaylord 箱",
+        "racks": "{{n}} 機櫃",
+        "boxes": "{{n}} 箱",
+        "semVolume": "未填寫件數",
+        "diaRotulo": "{{dia}}：{{n}} 批"
+      },
+      "mapa": {
+        "titulo": "Microsoft 資料中心",
+        "coletas": "期間內 {{n}} 次收運",
+        "nenhumaColeta": "期間內沒有收運",
+        "rotulo": "Microsoft 資料中心地圖",
+        "periodo": "地圖期間",
+        "periodos": {
+          "dia": "日",
+          "semana": "週",
+          "mes": "月"
+        },
+        "anterior": "上一期間",
+        "proximo": "下一期間",
+        "hoje": "今天",
+        "fundo": "地圖底圖",
+        "fundos": {
+          "limpo": "標準",
+          "cinza": "灰階",
+          "satelite": "衛星"
+        },
+        "semCliente": "沒有名稱包含「Microsoft」的啟用客戶。",
+        "semPontos": "地圖上沒有已定位的 Microsoft 據點。",
+        "semLocalizacao": "未定位：{{sites}} — 請在 客戶 › 物流 設定位置。",
+        "coletasSite": "{{site}}：{{n}} 次收運",
+        "carregando": "地圖載入中…"
+      },
+      "porCliente": {
+        "titulo": "各客戶訂單狀況 · SLA 控管",
+        "ajuda": "SLA = 從抵達 Re-Teck 到 COD 的最長天數。點選客戶可開啟資料。",
+        "cols": {
+          "cliente": "客戶",
+          "sla": "SLA（天）",
+          "emProcesso": "處理中",
+          "etapas": "階段（檢驗 / 處理 / 等待 COD）",
+          "diasDecorridos": "已過天數（平均）",
+          "emRisco": "風險",
+          "atrasados": "逾期",
+          "slaCumprido": "SLA 達成（30 天）",
+          "situacao": "狀態"
+        },
+        "vazio": "沒有啟用的客戶。"
+      },
+      "anomalias": {
+        "titulo": "期限異常的訂單",
+        "filtro": "顯示",
+        "soAnomalias": "僅異常",
+        "todos": "全部處理中",
+        "cols": {
+          "codigo": "批次",
+          "cliente": "客戶",
+          "chegada": "抵達",
+          "fluxo": "流程進度",
+          "diasSla": "已過天數 / SLA",
+          "restante": "剩餘",
+          "anomalias": "期限異常"
+        },
+        "atrasado": "逾期 {{n}} 天",
+        "risco": "已用 SLA {{pct}}",
+        "naEtapa": "{{n}} 天",
+        "diasDeSla": "{{dias}} / {{sla}} 天",
+        "vazio": "沒有期限異常的批次。",
+        "vazioTodos": "沒有處理中的批次。"
+      },
+      "altoValor": {
+        "titulo": "高價值流程 · Harvesting / Refurbish / Value Recovery",
+        "harvesting": {
+          "titulo": "Harvesting",
+          "sub": "拆解與零件提取"
+        },
+        "refurbish": {
+          "titulo": "Refurbish",
+          "sub": "整新"
+        },
+        "valueRecovery": {
+          "titulo": "Value Recovery",
+          "sub": "價值回收與銷售"
+        },
+        "aguardandoChamados": {
+          "titulo": "等待內部工單",
+          "corpo": "Harvesting 的數據將來自 營運 › 內部工單，該功能尚未建立。"
+        },
+        "aguardandoItad": {
+          "titulo": "等待 ITAD 系統",
+          "corpo": "此流程將由仍在建置中的新 ITAD 系統衡量。"
+        }
       }
     }
   }

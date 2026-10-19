@@ -19,6 +19,7 @@ import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoe
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
 import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
 import { Route as AppMotoristasIndexRouteImport } from './routes/_app/motoristas/index'
+import { Route as AppOperacaoDashboardRouteImport } from './routes/_app/operacao/dashboard'
 import { Route as AppOrdensAgendamentoRouteImport } from './routes/_app/ordens/agendamento'
 import { Route as AppOrdensLotesRouteImport } from './routes/_app/ordens/lotes'
 import { Route as AppTransportadorasIndexRouteImport } from './routes/_app/transportadoras/index'
@@ -77,6 +78,11 @@ const AppMotoristasIndexRoute = AppMotoristasIndexRouteImport.update({
   path: '/motoristas/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOperacaoDashboardRoute = AppOperacaoDashboardRouteImport.update({
+  id: '/operacao/dashboard',
+  path: '/operacao/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrdensAgendamentoRoute = AppOrdensAgendamentoRouteImport.update({
   id: '/ordens/agendamento',
   path: '/ordens/agendamento',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof AppSplatRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
+  '/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/ordens/lotes': typeof AppOrdensLotesRoute
   '/clientes/': typeof AppClientesIndexRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
+  '/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/ordens/lotes': typeof AppOrdensLotesRoute
   '/clientes': typeof AppClientesIndexRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/_app/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/_app/ordens/lotes': typeof AppOrdensLotesRoute
   '/_app/clientes/': typeof AppClientesIndexRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/configuracoes'
     | '/perfil'
+    | '/operacao/dashboard'
     | '/ordens/agendamento'
     | '/ordens/lotes'
     | '/clientes/'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/perfil'
     | '/'
+    | '/operacao/dashboard'
     | '/ordens/agendamento'
     | '/ordens/lotes'
     | '/clientes'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/_app/configuracoes'
     | '/_app/perfil'
     | '/_app/'
+    | '/_app/operacao/dashboard'
     | '/_app/ordens/agendamento'
     | '/_app/ordens/lotes'
     | '/_app/clientes/'
@@ -318,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMotoristasIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/operacao/dashboard': {
+      id: '/_app/operacao/dashboard'
+      path: '/operacao/dashboard'
+      fullPath: '/operacao/dashboard'
+      preLoaderRoute: typeof AppOperacaoDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/ordens/agendamento': {
       id: '/_app/ordens/agendamento'
       path: '/ordens/agendamento'
@@ -382,6 +401,7 @@ interface AppRouteChildren {
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppOperacaoDashboardRoute: typeof AppOperacaoDashboardRoute
   AppOrdensAgendamentoRoute: typeof AppOrdensAgendamentoRoute
   AppOrdensLotesRoute: typeof AppOrdensLotesRoute
   AppClientesIndexRoute: typeof AppClientesIndexRoute
@@ -399,6 +419,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
+  AppOperacaoDashboardRoute: AppOperacaoDashboardRoute,
   AppOrdensAgendamentoRoute: AppOrdensAgendamentoRoute,
   AppOrdensLotesRoute: AppOrdensLotesRoute,
   AppClientesIndexRoute: AppClientesIndexRoute,

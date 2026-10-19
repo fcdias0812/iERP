@@ -54,6 +54,8 @@ export interface ClientesTable {
   criadoPor: string
   alteradoEm: string
   alteradoPor: string
+  /** SLA: prazo máximo (dias) da chegada na Re-Teck até o COD. */
+  slaDias: number | null
 }
 
 export interface ClientesContatosTable {
@@ -248,10 +250,16 @@ export interface OrdensTable extends Controle {
   observacoes: string | null
   /** Pré-cálculo do momento da criação (JSON). */
   calculo: string | null
+  /** Chegada na Re-Teck (início do SLA). */
+  recebidoEm: string | null
+  /** Entrou na etapa (status) atual. */
+  etapaDesde: string | null
+  codEmitidoEm: string | null
 }
 
 export interface OrdensListaView extends OrdensTable {
   clienteNome: string
+  clienteSlaDias: number | null
   siteCodigo: string
   docaNumero: string
   transportadoraNome: string | null

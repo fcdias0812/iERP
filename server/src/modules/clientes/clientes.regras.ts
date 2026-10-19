@@ -41,6 +41,14 @@ const contatoSchema = z.object({
 export const clienteInputSchema = z.object({
   nome: z.string().trim().min(2, 'Informe o nome do cliente.').max(160),
   cnpj: z.string().transform(soAlfanumerico).refine(cnpjValido, 'CNPJ inválido.'),
+  /** SLA em dias (opcional). */
+  slaDias: z
+    .number()
+    .int('O SLA deve ser um número inteiro de dias.')
+    .min(1)
+    .max(3650)
+    .nullish()
+    .transform((v) => v ?? null),
   contatos: z
     .array(contatoSchema)
     .min(1, 'Informe pelo menos um contato.')
@@ -61,6 +69,7 @@ export const COLUNAS_CLIENTE: ColunaConsulta[] = [
   { id: 'codigo', tipo: 'unique-text' },
   { id: 'nome', tipo: 'unique-text' },
   { id: 'cnpj', tipo: 'unique-text', limpar: soAlfanumerico },
+  { id: 'slaDias', tipo: 'number' },
   { id: 'contatoEmail', tipo: 'unique-text' },
   { id: 'contatoTelefone', tipo: 'unique-text', limpar: limparTelefone },
   { id: 'contatos', tipo: 'number' },

@@ -15,6 +15,7 @@ const ROTAS = [
   '/veiculos?aberto=vei00001',
   '/ordens/lotes',
   '/ordens/agendamento',
+  '/operacao/dashboard',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
   '/admin/usuarios?aberto=novo',

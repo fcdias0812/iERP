@@ -28,6 +28,7 @@ function colunas(): EngineColumn<ClienteResumo>[] {
     { id: 'codigo', type: 'unique-text', accessor: (r) => r.codigo },
     { id: 'nome', type: 'unique-text', accessor: (r) => r.nome },
     { id: 'cnpj', type: 'unique-text', accessor: (r) => r.cnpj },
+    { id: 'slaDias', type: 'number', accessor: (r) => r.slaDias },
     { id: 'contatoEmail', type: 'unique-text', accessor: (r) => r.contatoEmail },
     { id: 'contatoTelefone', type: 'unique-text', accessor: (r) => r.contatoTelefone },
     { id: 'contatos', type: 'number', accessor: (r) => r.contatos },
@@ -77,7 +78,9 @@ function validar(input: Partial<ClienteInput>): string | ClienteInput {
   if (contatos.some((c) => !isValidPhone(c.telefone))) return 'Telefone do contato inválido.'
   if (contatos.filter((c) => c.principal).length !== 1)
     return 'Marque exatamente um contato como principal.'
-  return { nome, cnpj, contatos }
+  const slaDias = input.slaDias ?? null
+  if (slaDias !== null && (!Number.isInteger(slaDias) || slaDias < 1)) return 'SLA inválido.'
+  return { nome, cnpj, slaDias, contatos }
 }
 
 const cnpjEmUso = (cnpj: string, idAtual?: string) =>
@@ -139,6 +142,7 @@ export const clientesHandlers = [
       codigo: codigoCliente(db.seqClientes),
       nome: dados.nome,
       cnpj: dados.cnpj,
+      slaDias: dados.slaDias,
       status: 'ativo',
       contatos: comIds(id, dados.contatos),
       criadoEm: agora,
@@ -163,7 +167,7 @@ export const clientesHandlers = [
     if (typeof dados === 'string') return apiError(422, 'validation', dados)
     if (cnpjEmUso(dados.cnpj, atual.id))
       return apiError(409, 'cnpj_in_use', 'Já existe um cliente com este CNPJ.')
-    const mudancas: Mudanca[] = (['nome', 'cnpj'] as const)
+    const mudancas: Mudanca[] = (['nome', 'cnpj', 'slaDias'] as const)
       .filter((k) => atual[k] !== dados[k])
       .map((k) => ({ campo: k, antes: atual[k], depois: dados[k] }))
     const antes = resumoContatos(atual.contatos)
@@ -174,6 +178,7 @@ export const clientesHandlers = [
       ...atual,
       nome: dados.nome,
       cnpj: dados.cnpj,
+      slaDias: dados.slaDias,
       contatos: comIds(atual.id, dados.contatos),
       alteradoEm: mudancas.length ? agora : atual.alteradoEm,
       alteradoPor: mudancas.length ? autor() : atual.alteradoPor,

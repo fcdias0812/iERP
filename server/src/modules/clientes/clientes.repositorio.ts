@@ -44,6 +44,7 @@ function paraResumo(l: Selectable<ClientesListaView>): ClienteResumo {
     codigo: l.codigo,
     nome: l.nome,
     cnpj: l.cnpj,
+    slaDias: l.slaDias,
     contatoNome: l.contatoNome,
     contatoEmail: l.contatoEmail,
     contatoTelefone: l.contatoTelefone,
@@ -124,6 +125,7 @@ export function criarRepositorioClientes(db: Db) {
       codigo: linha.codigo,
       nome: linha.nome,
       cnpj: linha.cnpj,
+      slaDias: linha.slaDias,
       status: linha.status as ClienteStatus,
       contatos: contatos.map((k) => ({
         id: k.id,

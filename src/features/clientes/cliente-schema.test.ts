@@ -9,6 +9,7 @@ const cliente: Cliente = {
   codigo: 'CLI-00001',
   nome: 'Teste Ltda',
   cnpj: '12ABC34501DE35',
+  slaDias: 15,
   status: 'ativo',
   contatos: [
     { id: 'k2', nome: null, email: 'b@teste.com.br', telefone: '1132345678', principal: false },

@@ -105,6 +105,8 @@ export interface ClienteResumo {
   codigo: string
   nome: string
   cnpj: string
+  /** SLA: prazo máximo (dias) da chegada na Re-Teck até o COD. */
+  slaDias: number | null
   contatoNome: string | null
   contatoEmail: string | null
   contatoTelefone: string | null
@@ -119,6 +121,7 @@ export interface Cliente {
   codigo: string
   nome: string
   cnpj: string
+  slaDias: number | null
   status: ClienteStatus
   /** O principal vem primeiro. */
   contatos: ContatoCliente[]
@@ -138,6 +141,7 @@ export interface Cliente {
 export interface ClienteInput {
   nome: string
   cnpj: string
+  slaDias: number | null
   contatos: {
     id: string | null
     nome: string | null
@@ -428,7 +432,8 @@ export type PaginaVeiculos = TablePage<Veiculo> & {
 
 /* ------------------------------------------------------------ ordens (agendamento / lotes) */
 
-export type StatusOrdem = 'agendado'
+/** Etapas do lote: agendado → inspeção (recebido) → processo → aguardando COD → concluído. */
+export type StatusOrdem = 'agendado' | 'inspecao' | 'processo' | 'aguardando_cod' | 'concluido'
 export type SecaoAnexo = 'escopo' | 'observacoes'
 
 export interface ServicosOs {
@@ -502,6 +507,10 @@ export interface OrdemResumo {
   placa: string | null
   servicos: ServicosOs
   totalVolumes: number
+  /** Chegada na Re-Teck (início do SLA). */
+  recebidoEm: string | null
+  etapaDesde: string | null
+  codEmitidoEm: string | null
   criadoEm: string
 }
 
@@ -544,6 +553,87 @@ export interface OrdemInput {
 
 export type PaginaOrdens = TablePage<OrdemResumo> & {
   facets: Record<string, Record<string, number>>
+}
+
+/* ------------------------------------------------------------ dashboard da operação */
+
+export interface EtapasContagem {
+  inspecao: number
+  processo: number
+  aguardandoCod: number
+}
+
+export type SituacaoSla = 'atrasado' | 'no_prazo' | 'sem_sla'
+
+export type AnomaliaPrazo = { tipo: 'atrasado'; dias: number } | { tipo: 'risco'; uso: number }
+
+/** GET /api/dashboard/operacao (datas `yyyy-mm-dd`; instantes em ISO UTC). */
+export interface DashboardOperacao {
+  atualizadoEm: string
+  hoje: string
+  cards: {
+    chegadasPrevistas7d: number
+    emProcesso: EtapasContagem & { total: number }
+    slaVencido: number
+    slaEmRisco: number
+    /** 0..1; null = sem lote fechado com SLA em 30 dias. */
+    cumprimentoSla30d: number | null
+    codPendente: number
+  }
+  forecast: {
+    dia: string
+    lotes: {
+      id: string
+      codigo: string
+      clienteNome: string
+      siteCodigo: string
+      pallets: number
+      gaylords: number
+      racks: number
+      boxes: number
+    }[]
+  }[]
+  mapa: {
+    de: string
+    ate: string
+    clienteEncontrado: boolean
+    pontos: {
+      siteId: string
+      clienteId: string
+      siteCodigo: string
+      endereco: string | null
+      latitude: number
+      longitude: number
+      coletas: number
+    }[]
+    semLocalizacao: { siteId: string; clienteId: string; siteCodigo: string }[]
+  }
+  porCliente: {
+    clienteId: string
+    clienteNome: string
+    slaDias: number | null
+    emProcesso: number
+    etapas: EtapasContagem
+    diasDecorridos: number | null
+    emRisco: number
+    atrasados: number
+    slaCumprido30d: number | null
+    situacao: SituacaoSla
+  }[]
+  lotes: {
+    id: string
+    codigo: string
+    clienteId: string
+    clienteNome: string
+    etapa: StatusOrdem
+    recebidoEm: string | null
+    etapaDesde: string | null
+    diasNaEtapa: number | null
+    diasDecorridos: number | null
+    slaDias: number | null
+    restante: number | null
+    anomalias: AnomaliaPrazo[]
+  }[]
 }
 
 /* ------------------------------------------------------------ shell (busca e notificações) */

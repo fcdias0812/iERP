@@ -22,7 +22,8 @@ antigo (v1) nem de outro lugar.
   detalhe — contatos, logística, documentos, configurações), **Transportadoras** (detalhe em abas:
   dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral);
   seção **Operação** — **Ordens** (Lotes agendados, Agendamento; Viagens ativas e Histórico de
-  viagens em construção), **Operação** e **Estoque** (submenus em construção); e
+  viagens em construção), **Operação** (Dashboard pronto; demais em construção) e **Estoque** (em
+  construção); e
   **Administração › Usuários**.
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
   cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
@@ -166,6 +167,11 @@ O layout não muda. Modelos completos para copiar:
   os mesmos testes — mudar número do cálculo é decisão de negócio). Cada ordem é um lote
   `LOT-00001` com status `agendado`. Frontend `src/features/ordens/`. Veículos: volume mín./máx.
   são **quantidade de volumes** (pallets + gaylords + racks; boxes não contam), não m².
+- **Operação › Dashboard** — `server/src/modules/dashboard/dashboard.ts` (um endpoint calcula
+  tudo: cards de SLA, previsão, mapa, por cliente, anomalias) e `src/features/operacao/` (mapa Leaflet
+  carregado sob demanda; config leve em `mapa-config.ts` para não puxar o Leaflet). SLA = `slaDias`
+  do cliente; etapas do lote no `status` da ordem (`inspecao`, `processo`, `aguardando_cod`,
+  `concluido`).
 - **Transportadoras** — detalhe em abas + cadastro no painel (`TransportadoraSheet`) com contatos
   opcionais e motoristas (da lista ou novos). Histórico genérico: tabela `historico` (`server/src/shared/historico.repositorio.ts`).
 

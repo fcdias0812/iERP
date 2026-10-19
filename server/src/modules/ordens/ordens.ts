@@ -44,7 +44,20 @@ import {
 
 /* ------------------------------------------------------------ contrato (espelho de src/services/types.ts) */
 
-export type StatusOrdem = 'agendado'
+/**
+ * Etapas do lote: agendado → inspecao (recebido) → processo → aguardando_cod → concluido
+ * (COD emitido). Hoje só o Agendamento cria (agendado); as outras virão da integração.
+ */
+export const ETAPAS = ['agendado', 'inspecao', 'processo', 'aguardando_cod', 'concluido'] as const
+export type StatusOrdem = (typeof ETAPAS)[number]
+/** Ordem do fluxo (= flowOrder do statusMap do frontend). */
+export const ORDEM_ETAPAS: Record<StatusOrdem, number> = {
+  agendado: 65,
+  inspecao: 66,
+  processo: 67,
+  aguardando_cod: 68,
+  concluido: 110,
+}
 export type SecaoAnexo = 'escopo' | 'observacoes'
 
 export interface AnexoOrdem {
@@ -75,6 +88,11 @@ export interface OrdemResumo {
   placa: string | null
   servicos: ServicosOs
   totalVolumes: number
+  /** Chegada na Re-Teck (início do SLA). */
+  recebidoEm: string | null
+  /** Entrou na etapa atual. */
+  etapaDesde: string | null
+  codEmitidoEm: string | null
   criadoEm: string
 }
 
@@ -210,7 +228,7 @@ export const COLUNAS_ORDEM: ColunaConsulta[] = [
   { id: 'dataChegada', tipo: 'date' },
   { id: 'rastrear', tipo: 'boolean' },
   { id: 'totalVolumes', tipo: 'number' },
-  { id: 'status', tipo: 'status', ordem: { agendado: 65 } },
+  { id: 'status', tipo: 'status', ordem: ORDEM_ETAPAS },
   { id: 'criadoEm', tipo: 'date' },
 ]
 
@@ -246,6 +264,9 @@ const paraResumo = (l: Linha): OrdemResumo => ({
     valueRecoveryItad: sim(l.valueRecoveryItad),
   },
   totalVolumes: Number(l.totalVolumes),
+  recebidoEm: l.recebidoEm,
+  etapaDesde: l.etapaDesde,
+  codEmitidoEm: l.codEmitidoEm,
   criadoEm: l.criadoEm,
 })
 
@@ -533,6 +554,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
                   v.placa ?? '',
                 ].join(' '),
               ),
+              etapaDesde: agora,
               criadoEm: agora,
               criadoPor: autor,
               alteradoEm: agora,

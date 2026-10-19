@@ -71,25 +71,28 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `538bd99` | Clientes: visão geral, logística (sites/docas/mapa), documentos e histórico              |
 | `492ab13` | Relacionamento: Transportadoras, Veículos, Motoristas; cadastro sempre no painel lateral |
 | `a66737c` | Operação: menu Ordens/Operação/Estoque; Ordens › Lotes e Agendamento com pré-cálculo     |
+| `5a6a734` | Contexto completo em `.claude/` (primeiro push no GitHub)                                |
+| (este)    | Operação › Dashboard; SLA no cliente; etapas do lote                                     |
 
 Portão de qualidade verde em `a66737c`: lint, typecheck (front e servidor), 59 testes unitários,
 57 testes do servidor, 133 e2e (Playwright + axe WCAG 2.2 AA), contraste 158/158, cores, build.
 
 ### Menu hoje
 
-| Seção          | Módulo / item                                                              | Situação                                  |
-| -------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-| Principal      | Início                                                                     | painel do template                        |
-| Relacionamento | Clientes (item direto)                                                     | **pronto** (6 abas)                       |
-|                | Transportadoras (item direto)                                              | **pronto** (detalhe em abas)              |
-|                | Veículos (item direto)                                                     | **pronto** (lista + painel)               |
-|                | Motoristas (item direto)                                                   | **pronto** (lista + painel)               |
-| Operação       | Ordens › **Lotes**                                                         | **pronto** (lista dos lotes agendados)    |
-|                | Ordens › **Agendamento**                                                   | **pronto** (página própria + pré-cálculo) |
-|                | Ordens › Viagens ativas · Histórico de viagens                             | em construção (rota coringa)              |
-|                | Operação › Dashboard · Lotes · Recebimento · Chamados internos · Histórico | em construção                             |
-|                | Estoque › Materiais · Assets · Servidores · E-commerce · Peças · Histórico | em construção                             |
-| Sistema        | Administração › Usuários                                                   | **pronto**                                |
+| Seção          | Módulo / item                                                              | Situação                                      |
+| -------------- | -------------------------------------------------------------------------- | --------------------------------------------- |
+| Principal      | Início                                                                     | painel do template                            |
+| Relacionamento | Clientes (item direto)                                                     | **pronto** (6 abas)                           |
+|                | Transportadoras (item direto)                                              | **pronto** (detalhe em abas)                  |
+|                | Veículos (item direto)                                                     | **pronto** (lista + painel)                   |
+|                | Motoristas (item direto)                                                   | **pronto** (lista + painel)                   |
+| Operação       | Ordens › **Lotes**                                                         | **pronto** (lista dos lotes agendados)        |
+|                | Ordens › **Agendamento**                                                   | **pronto** (página própria + pré-cálculo)     |
+|                | Ordens › Viagens ativas · Histórico de viagens                             | em construção (rota coringa)                  |
+|                | Operação › **Dashboard**                                                   | **pronto** (quase tudo zerado sem integração) |
+|                | Operação › Lotes · Recebimento · Chamados internos · Histórico             | em construção                                 |
+|                | Estoque › Materiais · Assets · Servidores · E-commerce · Peças · Histórico | em construção                                 |
+| Sistema        | Administração › Usuários                                                   | **pronto**                                    |
 
 A seção e um item se chamam "Operação" (aparece **Operação › Operação**). O usuário foi avisado; ainda
 não respondeu se quer trocar o nome da seção.
@@ -204,6 +207,39 @@ página de detalhe, abre o detalhe.
     volumes, caminhão, capacidade do caminhão, número de viagens, pessoas, caminhão com plataforma,
     levar shredder, levar gaylord, levar pallet vazio (+ avisos).
 
+### 5.7 Operação › Dashboard (19/10/2026)
+
+Pedido dele (mostrou prints do dashboard da v1 como referência): **6 cards** — chegadas previstas
+(qtd. de lotes); lotes em processo (+ quantos em **inspeção** = recebimento, **processo** =
+pós-recebimento, **aguardando COD** = pós-processo); SLA vencido; SLA em risco (≥ 80%); cumprimento
+de SLA em 30 dias (meta ≥ 95%); COD pendente — **previsão de chegada** (semana visual com os lotes
+pela **data de coleta**; "geralmente a data de coleta é a de recebimento, mas haverá exceções que ele
+vai mostrar depois") — **Datacenters Microsoft** (mapa com filtro dia/semana/mês e fundo cinza ou
+satélite) — **situação dos pedidos por cliente** (SLA, em processo, barra colorida das etapas, dias
+decorridos após o recebimento, em risco, atrasados, SLA cumprido 30 dias, status) — **pedidos com
+anomalia de prazo** — **processos de alto valor** (Harvesting, Refurbish, Value Recovery). Ele sabia
+que, sem integração, quase tudo fica em branco.
+
+Respostas dele:
+
+- **SLA do cliente:** "no que fizer mais sentido, com praticidade e agilidade" → campo **SLA (dias)**
+  opcional no cadastro do cliente (painel), também na lista e no histórico.
+- **Etapas do lote:** agendado → **inspeção** (recebido) → **processo** → **aguardando COD** →
+  **concluído** (COD emitido). Hoje só o Agendamento cria (agendado); as demais virão da integração.
+  Datas: `recebido_em` (início do SLA), `etapa_desde`, `cod_emitido_em`.
+- **Mapa Microsoft:** "ao criar uma coleta com o cliente Microsoft escolhemos site e doca; pega daí,
+  do endereço do site" → pontos = sites (com latitude/longitude) dos clientes com "Microsoft" no
+  nome; número no balão = coletas (data de coleta) no período; sites sem pino listados embaixo.
+- **Satélite:** conta e chave da Esri (ArcGIS Location Platform, gratuita até 2 milhões de
+  tiles/mês) em `VITE_ESRI_API_KEY` (ver `.env.example`). **Pendente:** o TI criar a conta e passar a
+  chave — sem ela o botão Satélite fica oculto. "Cinza" = OpenStreetMap em escala de cinza.
+
+Regras de cálculo (`server/src/modules/dashboard/dashboard.ts`): vencido = dias desde a chegada >
+SLA; risco = ≥ 80% do SLA e ainda no prazo; cumprimento = lotes com COD nos últimos 30 dias que
+fecharam dentro do SLA; "parado há X dias" por etapa ainda **não** gera anomalia (sem limite
+definido) — a tela só mostra há quantos dias o lote está na etapa. Harvesting espera Operação ›
+Chamados internos; Refurbish e Value Recovery esperam o sistema de ITAD novo. Relê a cada 30 s.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -238,6 +274,9 @@ negócio (perguntar). Resumo:
   editar/cancelar ordem.
 - **Operação e Estoque:** de qual sistema de produção vêm os dados (integração) e o que se cadastra
   no próprio iERP; diferença entre Materiais, Assets, Servidores, E-commerce e Peças.
+- **Dashboard:** as exceções entre data de coleta e de recebimento (ele vai mostrar depois); limite
+  de dias "parado na etapa" para virar anomalia; de qual sistema vêm as etapas do lote (integração);
+  a chave da Esri (TI).
 - **Publicação:** nada foi publicado em servidor ainda (a empresa tem skills `reteck-skills:deploy`
   etc. — só com pedido dele).
 

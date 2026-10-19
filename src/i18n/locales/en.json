@@ -836,7 +836,12 @@
     "em_manutencao": "Under maintenance",
     "divergente": "Discrepancy",
     "afastado": "On leave",
-    "agendado": "Scheduled"
+    "agendado": "Scheduled",
+    "inspecao": "Inspection",
+    "processo": "Processing",
+    "aguardando_cod": "Awaiting COD",
+    "no_prazo": "On track",
+    "sem_sla": "No SLA set"
   },
   "dataTable": {
     "yes": "Yes",
@@ -1426,7 +1431,8 @@
       "contatoTelefone": "Main contact phone",
       "contatos": "Contacts",
       "status": "Status",
-      "criadoEm": "Created on"
+      "criadoEm": "Created on",
+      "slaDias": "SLA (days)"
     },
     "new": {
       "title": "New customer",
@@ -1446,7 +1452,9 @@
       "addContact": "Add contact",
       "contactName": "Contact name",
       "email": "Email",
-      "phone": "Phone"
+      "phone": "Phone",
+      "slaHelp": "Maximum time, in days, from arrival at Re-Teck to the COD. Optional.",
+      "dias": "days"
     },
     "tabs": {
       "visaoGeral": "Overview",
@@ -1516,6 +1524,7 @@
       "campos": {
         "nome": "Name",
         "cnpj": "CNPJ",
+        "slaDias": "SLA (days)",
         "contatos": "Contacts",
         "status": "Status",
         "codigo": "Site code",
@@ -2007,6 +2016,144 @@
         "totalVolumes": "Volumes",
         "status": "Status",
         "criadoEm": "Scheduled on"
+      }
+    }
+  },
+  "operacao": {
+    "dashboard": {
+      "title": "Operations dashboard",
+      "description": "Arrivals, lots in process and SLA control.",
+      "atualizado": "Updated at {{hora}} · refreshes every 30 s",
+      "atualizar": "Refresh",
+      "dias": "{{n}} days",
+      "cards": {
+        "chegadas": {
+          "titulo": "Expected arrivals (7 days)",
+          "unidade": "lots",
+          "detalhe": "Lots scheduled by pickup date"
+        },
+        "emProcesso": {
+          "titulo": "Lots in process",
+          "unidade": "lots",
+          "detalhe": "Inspection {{inspecao}} · processing {{processo}} · awaiting COD {{cod}}"
+        },
+        "vencido": {
+          "titulo": "SLA overdue",
+          "unidade": "lots",
+          "detalhe": "Days since arrival above the customer's SLA"
+        },
+        "risco": {
+          "titulo": "SLA at risk",
+          "unidade": "lots",
+          "detalhe": "≥ 80% of the SLA used, still on time"
+        },
+        "cumprimento": {
+          "titulo": "SLA compliance (30 days)",
+          "detalhe": "Target ≥ 95%",
+          "semDado": "No lot closed with SLA in 30 days"
+        },
+        "cod": {
+          "titulo": "COD pending",
+          "unidade": "lots",
+          "detalhe": "Lots awaiting the COD"
+        }
+      },
+      "forecast": {
+        "titulo": "Arrival forecast · Next 7 days",
+        "hoje": "Today",
+        "vazio": "No arrivals",
+        "pallets": "{{n}} pallets",
+        "gaylords": "{{n}} gaylords",
+        "racks": "{{n}} racks",
+        "boxes": "{{n}} boxes",
+        "semVolume": "no volumes given",
+        "diaRotulo": "{{dia}}: {{n}} lots"
+      },
+      "mapa": {
+        "titulo": "Microsoft datacenters",
+        "coletas": "{{n}} pickups in the period",
+        "nenhumaColeta": "No pickups in the period",
+        "rotulo": "Map of Microsoft datacenters",
+        "periodo": "Map period",
+        "periodos": {
+          "dia": "Day",
+          "semana": "Week",
+          "mes": "Month"
+        },
+        "anterior": "Previous period",
+        "proximo": "Next period",
+        "hoje": "Today",
+        "fundo": "Map background",
+        "fundos": {
+          "limpo": "Clean",
+          "cinza": "Gray",
+          "satelite": "Satellite"
+        },
+        "semCliente": "No active customer with “Microsoft” in the name.",
+        "semPontos": "No Microsoft site with a location on the map.",
+        "semLocalizacao": "No location: {{sites}} — set the pin in Customers › Logistics.",
+        "coletasSite": "{{site}}: {{n}} pickups",
+        "carregando": "Loading the map…"
+      },
+      "porCliente": {
+        "titulo": "Orders by customer · SLA control",
+        "ajuda": "SLA = maximum time (days) from arrival at Re-Teck to the COD. Click the customer to open it.",
+        "cols": {
+          "cliente": "Customer",
+          "sla": "SLA (days)",
+          "emProcesso": "In process",
+          "etapas": "Stages (inspection / processing / awaiting COD)",
+          "diasDecorridos": "Days elapsed (average)",
+          "emRisco": "At risk",
+          "atrasados": "Overdue",
+          "slaCumprido": "SLA met (30 days)",
+          "situacao": "Status"
+        },
+        "vazio": "No active customers."
+      },
+      "anomalias": {
+        "titulo": "Orders with deadline anomalies",
+        "filtro": "Show",
+        "soAnomalias": "Anomalies only",
+        "todos": "All in process",
+        "cols": {
+          "codigo": "Lot",
+          "cliente": "Customer",
+          "chegada": "Arrival",
+          "fluxo": "Flow progress",
+          "diasSla": "Days elapsed / SLA",
+          "restante": "Remaining",
+          "anomalias": "Deadline anomalies"
+        },
+        "atrasado": "Overdue {{n}} days",
+        "risco": "{{pct}} of SLA used",
+        "naEtapa": "{{n}} d",
+        "diasDeSla": "{{dias}} / {{sla}} days",
+        "vazio": "No lots with deadline anomalies.",
+        "vazioTodos": "No lots in process."
+      },
+      "altoValor": {
+        "titulo": "High-value processes · Harvesting / Refurbish / Value Recovery",
+        "harvesting": {
+          "titulo": "Harvesting",
+          "sub": "Disassembly and parts extraction"
+        },
+        "refurbish": {
+          "titulo": "Refurbish",
+          "sub": "Reconditioning"
+        },
+        "valueRecovery": {
+          "titulo": "Value Recovery",
+          "sub": "Value recovery and resale"
+        },
+        "aguardandoChamados": {
+          "titulo": "Waiting for Internal tickets",
+          "corpo": "Harvesting numbers will come from Operations › Internal tickets, which is not built yet."
+        },
+        "aguardandoItad": {
+          "titulo": "Waiting for the ITAD system",
+          "corpo": "This process will be measured by the new ITAD system, which is still being built."
+        }
       }
     }
   }

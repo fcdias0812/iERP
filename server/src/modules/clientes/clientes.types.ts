@@ -23,6 +23,8 @@ export interface ClienteResumo {
   codigo: string
   nome: string
   cnpj: string
+  /** SLA: prazo máximo (dias) da chegada até o COD. */
+  slaDias: number | null
   contatoNome: string | null
   contatoEmail: string | null
   contatoTelefone: string | null
@@ -37,6 +39,7 @@ export interface Cliente {
   codigo: string
   nome: string
   cnpj: string
+  slaDias: number | null
   status: ClienteStatus
   contatos: ContatoCliente[]
   criadoEm: string
@@ -54,6 +57,7 @@ export interface Cliente {
 export interface ClienteInput {
   nome: string
   cnpj: string
+  slaDias?: number | null
   contatos: {
     id?: string | null
     nome?: string | null

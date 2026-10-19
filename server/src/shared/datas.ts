@@ -30,3 +30,18 @@ export function inicioDoDia(dia: string, fuso = FUSO_EMPRESA): string {
 export function diaSeguinte(dia: string): string {
   return new Date(Date.parse(`${dia}T12:00:00Z`) + 86_400_000).toISOString().slice(0, 10)
 }
+
+/** Dia (`yyyy-mm-dd`) do instante no fuso da empresa — "hoje" em São Paulo. */
+export function diaNoFuso(instante: Date = new Date(), fuso = FUSO_EMPRESA): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: fuso,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(instante)
+}
+
+/** Soma dias a um `yyyy-mm-dd`. */
+export function somarDias(dia: string, n: number): string {
+  return new Date(Date.parse(`${dia}T12:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10)
+}

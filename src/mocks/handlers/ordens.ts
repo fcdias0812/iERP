@@ -25,6 +25,9 @@ import { getRelacionamento } from './relacionamento'
 const autor = () => useSessionStore.getState().user.name
 let ordens: Ordem[] = []
 
+/** Lotes criados na sessão (o dashboard simulado usa para a previsão de chegada). */
+export const ordensMock = () => ordens
+
 const COLS: EngineColumn<OrdemResumo>[] = [
   { id: 'codigo', type: 'unique-text', accessor: (r) => r.codigo },
   { id: 'clienteNome', type: 'unique-text', accessor: (r) => r.clienteNome },
@@ -224,6 +227,9 @@ export const ordensHandlers = [
       observacoes: d.observacoes,
       anexos,
       calculo: calcular(d.servicos, q, achou.doca),
+      recebidoEm: null,
+      etapaDesde: agora,
+      codEmitidoEm: null,
       criadoEm: agora,
       criadoPor: autor(),
       alteradoEm: agora,

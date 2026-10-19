@@ -2,7 +2,7 @@ import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { RhfField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { MaskedInput } from '@/components/ui/masked-input'
+import { MaskedInput, NumberInput } from '@/components/ui/masked-input'
 import { CadastroSecao } from '@/features/comum/CadastroSheet'
 import { ContatosEditor, type ComContatos } from '@/features/comum/ContatosEditor'
 import type { ClienteForm } from './cliente-schema'
@@ -32,6 +32,24 @@ export function ClienteFields({ form }: { form: UseFormReturn<ClienteForm> }) {
               onValueChange={field.onChange}
               onBlur={field.onBlur}
               name={field.name}
+            />
+          )}
+        </RhfField>
+        <RhfField
+          control={form.control}
+          name="slaDias"
+          label={t('clientes.cols.slaDias')}
+          help={t('clientes.form.slaHelp')}
+        >
+          {({ field, control }) => (
+            <NumberInput
+              {...control}
+              value={field.value ?? null}
+              onValueChange={field.onChange}
+              onBlur={field.onBlur}
+              scale={0}
+              min={1}
+              suffix={t('clientes.form.dias')}
             />
           )}
         </RhfField>

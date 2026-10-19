@@ -3,6 +3,7 @@ import {
   EMPTY,
   formatCnpj,
   formatCpf,
+  formatDayMonth,
   formatCurrency,
   formatDate,
   formatDateTime,
@@ -10,6 +11,8 @@ import {
   formatPercent,
   formatPhone,
   formatRelative,
+  formatTime,
+  formatWeekday,
 } from './format'
 
 // Intl usa espaço não separável entre "R$" e o valor; normalizamos para comparar.
@@ -53,6 +56,14 @@ describe('format', () => {
     expect(formatDate(null)).toBe(EMPTY)
     expect(formatCurrency(undefined)).toBe(EMPTY)
     expect(formatDate('não é data')).toBe(EMPTY)
+  })
+
+  it('hora, dia/mês e dia da semana no fuso de São Paulo', () => {
+    expect(formatTime('2026-10-19T09:25:06Z', 'pt-BR')).toBe('06:25:06')
+    expect(formatDayMonth('2026-10-21', 'pt-BR')).toBe('21/10')
+    expect(formatWeekday('2026-10-21', 'pt-BR')).toBe('qua.')
+    expect(formatWeekday('2026-10-21', 'en')).toBe('Wed')
+    expect(formatTime(null)).toBe(EMPTY)
   })
 
   it('CNPJ, CPF e telefone guardados sem pontuação', () => {

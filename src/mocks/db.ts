@@ -99,6 +99,7 @@ export function resumoCliente(c: Cliente): ClienteResumo {
     codigo: c.codigo,
     nome: c.nome,
     cnpj: c.cnpj,
+    slaDias: c.slaDias,
     contatoNome: p?.nome ?? null,
     contatoEmail: p?.email ?? null,
     contatoTelefone: p?.telefone ?? null,
@@ -147,6 +148,8 @@ function gerarClientes(hoje: number): Cliente[] {
       codigo: codigoCliente(i + 1),
       nome: empresa,
       cnpj: gerarCnpj(rand, false),
+      // SLA fictício (sem usar o faker, para não mudar os outros dados gerados).
+      slaDias: [15, 45, null][i % 3] ?? null,
       status,
       contatos,
       criadoEm: new Date(criado).toISOString(),

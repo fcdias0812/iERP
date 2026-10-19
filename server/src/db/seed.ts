@@ -169,6 +169,8 @@ async function semearClientes(db: Db): Promise<number> {
         {
           nome,
           cnpj: cnpjFicticio(raiz),
+          // SLA fictício em alguns clientes (dias da chegada até o COD).
+          slaDias: [15, 45, null][i % 3] ?? null,
           status,
           criadoEm: criado,
           criadoPor: 'Sistema',

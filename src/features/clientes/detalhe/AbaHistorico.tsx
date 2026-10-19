@@ -19,6 +19,7 @@ const ACOES = [
 const CAMPOS = [
   'nome',
   'cnpj',
+  'slaDias',
   'contatos',
   'status',
   'codigo',

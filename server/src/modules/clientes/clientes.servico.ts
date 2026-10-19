@@ -70,7 +70,7 @@ export function criarServicoClientes(repo: RepositorioClientes) {
         if (!atual) throw naoAchou()
         if (await repo.cnpjEmUso(dados.cnpj, id, trx)) throw cnpjEmUso()
         // Histórico com antes → depois só do que mudou.
-        const mudancas: Mudanca[] = (['nome', 'cnpj'] as const)
+        const mudancas: Mudanca[] = (['nome', 'cnpj', 'slaDias'] as const)
           .filter((k) => atual[k] !== dados[k])
           .map((k) => ({ campo: k, antes: atual[k], depois: dados[k] }))
         const novos = contatos.map((c) => ({ ...c, id: '' }))

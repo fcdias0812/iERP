@@ -53,6 +53,51 @@ export function formatDate(value: DateInput | null | undefined, lang = currentLa
   }).format(d)
 }
 
+/** 14:30:05 (hora no fuso da empresa). */
+export function formatTime(value: DateInput | null | undefined, lang = currentLang()): string {
+  if (value == null) return EMPTY
+  const d = toDate(value)
+  if (!isValid(d)) return EMPTY
+  return new Intl.DateTimeFormat(lang, {
+    timeZone: TIME_ZONE,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(d)
+}
+
+/** 15/10 (dia e mês, sem ano). */
+export function formatDayMonth(value: DateInput | null | undefined, lang = currentLang()): string {
+  if (value == null) return EMPTY
+  const d = toDate(value)
+  if (!isValid(d)) return EMPTY
+  return new Intl.DateTimeFormat(lang, {
+    timeZone: TIME_ZONE,
+    day: '2-digit',
+    month: '2-digit',
+  }).format(d)
+}
+
+/** "outubro de 2026" — mês e ano. */
+export function formatMonthYear(value: DateInput | null | undefined, lang = currentLang()): string {
+  if (value == null) return EMPTY
+  const d = toDate(value)
+  if (!isValid(d)) return EMPTY
+  return new Intl.DateTimeFormat(lang, {
+    timeZone: TIME_ZONE,
+    month: 'long',
+    year: 'numeric',
+  }).format(d)
+}
+
+/** "qua." / "Wed" — dia da semana abreviado. */
+export function formatWeekday(value: DateInput | null | undefined, lang = currentLang()): string {
+  if (value == null) return EMPTY
+  const d = toDate(value)
+  if (!isValid(d)) return EMPTY
+  return new Intl.DateTimeFormat(lang, { timeZone: TIME_ZONE, weekday: 'short' }).format(d)
+}
+
 /** 15/10/2026, 14:30 */
 export function formatDateTime(value: DateInput | null | undefined, lang = currentLang()): string {
   if (value == null) return EMPTY

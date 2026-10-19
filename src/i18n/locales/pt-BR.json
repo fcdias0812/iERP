@@ -836,7 +836,12 @@
     "em_manutencao": "Em manutenção",
     "divergente": "Divergente",
     "afastado": "Afastado",
-    "agendado": "Agendado"
+    "agendado": "Agendado",
+    "inspecao": "Inspeção",
+    "processo": "Processo",
+    "aguardando_cod": "Aguardando COD",
+    "no_prazo": "Normal",
+    "sem_sla": "Sem SLA medido"
   },
   "dataTable": {
     "yes": "Sim",
@@ -1426,7 +1431,8 @@
       "contatoTelefone": "Telefone do contato principal",
       "contatos": "Contatos",
       "status": "Status",
-      "criadoEm": "Cadastrado em"
+      "criadoEm": "Cadastrado em",
+      "slaDias": "SLA (dias)"
     },
     "new": {
       "title": "Novo cliente",
@@ -1446,7 +1452,9 @@
       "addContact": "Adicionar contato",
       "contactName": "Nome do contato",
       "email": "E-mail",
-      "phone": "Telefone"
+      "phone": "Telefone",
+      "slaHelp": "Prazo máximo, em dias, da chegada na Re-Teck até o COD. Opcional.",
+      "dias": "dias"
     },
     "tabs": {
       "visaoGeral": "Visão geral",
@@ -1516,6 +1524,7 @@
       "campos": {
         "nome": "Nome",
         "cnpj": "CNPJ",
+        "slaDias": "SLA (dias)",
         "contatos": "Contatos",
         "status": "Status",
         "codigo": "Código do site",
@@ -2007,6 +2016,144 @@
         "totalVolumes": "Volumes",
         "status": "Status",
         "criadoEm": "Agendado em"
+      }
+    }
+  },
+  "operacao": {
+    "dashboard": {
+      "title": "Dashboard da operação",
+      "description": "Chegadas, lotes em processo e controle de SLA.",
+      "atualizado": "Atualizado às {{hora}} · relê a cada 30 s",
+      "atualizar": "Atualizar",
+      "dias": "{{n}} dias",
+      "cards": {
+        "chegadas": {
+          "titulo": "Chegadas previstas (7 dias)",
+          "unidade": "lotes",
+          "detalhe": "Lotes agendados pela data de coleta"
+        },
+        "emProcesso": {
+          "titulo": "Lotes em processo",
+          "unidade": "lotes",
+          "detalhe": "Inspeção {{inspecao}} · processo {{processo}} · aguard. COD {{cod}}"
+        },
+        "vencido": {
+          "titulo": "SLA vencido",
+          "unidade": "lotes",
+          "detalhe": "Dias desde a chegada acima do SLA do cliente"
+        },
+        "risco": {
+          "titulo": "SLA em risco",
+          "unidade": "lotes",
+          "detalhe": "≥ 80% do SLA usado, ainda no prazo"
+        },
+        "cumprimento": {
+          "titulo": "Cumprimento de SLA (30 dias)",
+          "detalhe": "Meta ≥ 95%",
+          "semDado": "Nenhum lote fechado com SLA em 30 dias"
+        },
+        "cod": {
+          "titulo": "COD pendente",
+          "unidade": "lotes",
+          "detalhe": "Lotes aguardando o COD"
+        }
+      },
+      "forecast": {
+        "titulo": "Previsão de chegada (Forecast) · Próximos 7 dias",
+        "hoje": "Hoje",
+        "vazio": "Sem chegada",
+        "pallets": "{{n}} pallets",
+        "gaylords": "{{n}} gaylords",
+        "racks": "{{n}} racks",
+        "boxes": "{{n}} boxes",
+        "semVolume": "sem volumes informados",
+        "diaRotulo": "{{dia}}: {{n}} lotes"
+      },
+      "mapa": {
+        "titulo": "Datacenters Microsoft",
+        "coletas": "{{n}} coletas no período",
+        "nenhumaColeta": "Nenhuma coleta no período",
+        "rotulo": "Mapa dos datacenters Microsoft",
+        "periodo": "Período do mapa",
+        "periodos": {
+          "dia": "Dia",
+          "semana": "Semana",
+          "mes": "Mês"
+        },
+        "anterior": "Período anterior",
+        "proximo": "Próximo período",
+        "hoje": "Hoje",
+        "fundo": "Fundo do mapa",
+        "fundos": {
+          "limpo": "Limpo",
+          "cinza": "Cinza",
+          "satelite": "Satélite"
+        },
+        "semCliente": "Nenhum cliente ativo com “Microsoft” no nome.",
+        "semPontos": "Nenhum site da Microsoft com localização no mapa.",
+        "semLocalizacao": "Sem localização: {{sites}} — ponha o pino em Clientes › Logística.",
+        "coletasSite": "{{site}}: {{n}} coletas",
+        "carregando": "Carregando o mapa…"
+      },
+      "porCliente": {
+        "titulo": "Situação dos pedidos por cliente · Controle de SLA",
+        "ajuda": "SLA = prazo máximo (dias) da chegada na Re-Teck até o COD. Clique no cliente para abrir o cadastro.",
+        "cols": {
+          "cliente": "Cliente",
+          "sla": "SLA (dias)",
+          "emProcesso": "Em processo",
+          "etapas": "Etapas (inspeção / processo / aguard. COD)",
+          "diasDecorridos": "Dias decorridos (média)",
+          "emRisco": "Em risco",
+          "atrasados": "Atrasados",
+          "slaCumprido": "SLA cumprido (30 dias)",
+          "situacao": "Status"
+        },
+        "vazio": "Nenhum cliente ativo."
+      },
+      "anomalias": {
+        "titulo": "Pedidos com anomalia de prazo",
+        "filtro": "Mostrar",
+        "soAnomalias": "Só anomalias",
+        "todos": "Todos em processo",
+        "cols": {
+          "codigo": "Lote",
+          "cliente": "Cliente",
+          "chegada": "Chegada",
+          "fluxo": "Progresso do fluxo",
+          "diasSla": "Dias decorridos / SLA",
+          "restante": "Restante",
+          "anomalias": "Anomalias de prazo"
+        },
+        "atrasado": "Atrasado {{n}} dias",
+        "risco": "{{pct}} do SLA usado",
+        "naEtapa": "{{n}} d",
+        "diasDeSla": "{{dias}} / {{sla}} dias",
+        "vazio": "Nenhum lote com anomalia de prazo.",
+        "vazioTodos": "Nenhum lote em processo."
+      },
+      "altoValor": {
+        "titulo": "Processos de alto valor · Harvesting / Refurbish / Value Recovery",
+        "harvesting": {
+          "titulo": "Harvesting",
+          "sub": "Desmontagem e extração de peças"
+        },
+        "refurbish": {
+          "titulo": "Refurbish",
+          "sub": "Recondicionamento"
+        },
+        "valueRecovery": {
+          "titulo": "Value Recovery",
+          "sub": "Recuperação de valor e venda"
+        },
+        "aguardandoChamados": {
+          "titulo": "Aguardando os Chamados internos",
+          "corpo": "Os números do Harvesting virão de Operação › Chamados internos, que ainda vai ser construído."
+        },
+        "aguardandoItad": {
+          "titulo": "Aguardando o sistema de ITAD",
+          "corpo": "Este processo vai ser medido pelo sistema de ITAD novo, que ainda está em construção."
+        }
       }
     }
   }

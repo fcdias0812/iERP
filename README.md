@@ -15,7 +15,9 @@ Repositório: https://github.com/fcdias0812/iERP
 > configurações, histórico em tabela), **Transportadoras** (contatos e motoristas), **Veículos**
 > (tipo, medidas e capacidade) e **Motoristas**; menu **Operação** com **Ordens › Lotes**
 > (lotes agendados) e **Ordens › Agendamento** (cria o lote, com pré-cálculo de caminhão, viagens
-> e pessoas) — as demais telas de Operação e Estoque estão "em construção"; e
+> e pessoas), **Operação › Dashboard** (cards de SLA, previsão de chegada, mapa dos datacenters
+> Microsoft, situação por cliente, anomalias de prazo) — as demais telas de Operação e Estoque
+> estão "em construção"; e
 > **Administração › Usuários**. Pendentes: aba Configurações (a definir) e a integração
 > de lotes com os sistemas de produção. Login ainda não definido (sessão simulada).
 
@@ -225,6 +227,19 @@ de volumes do cadastro de Veículos (só os ativos) e é rebaixado se não coube
 
 - 2 (Onsite Shredding) + 1 (Recycle Only) + 2 a cada 10 racks (Value Recovery); plataforma quando
   a doca não tem dock leveler ou tem tail lift. Sem veículo ativo: 422 `no_vehicles`.
+
+## API do dashboard da operação
+
+`GET /api/dashboard/operacao?mapaDe=AAAA-MM-DD&mapaAte=AAAA-MM-DD` devolve, num só JSON: cards
+(chegadas previstas em 7 dias, lotes em processo por etapa, SLA vencido, SLA em risco ≥ 80%,
+cumprimento de SLA em 30 dias, COD pendente), previsão de chegada (7 dias, pela data de coleta),
+mapa (sites dos clientes com "Microsoft" no nome e as coletas do período), situação por cliente e
+lotes em processo com as anomalias de prazo. **SLA** = `slaDias` do cliente (cadastro), contado da
+chegada (`recebidoEm`) até o COD. Etapas do lote: `agendado` → `inspecao` → `processo` →
+`aguardando_cod` → `concluido` (as quatro últimas virão da integração).
+
+Fundo **Satélite** do mapa: chave da Esri em `VITE_ESRI_API_KEY` (veja `.env.example`); sem ela, só
+"Limpo" e "Cinza" (OpenStreetMap).
 
 ## API de usuários
 
