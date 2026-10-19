@@ -1,5 +1,4 @@
 import { Ban, CircleCheck, CircleMinus, LockOpen, type LucideIcon } from 'lucide-react'
-import type { Role } from '@/config/permissions'
 import type { AcaoUsuario, UsuarioStatus } from '@/services/types'
 
 /*
@@ -24,33 +23,31 @@ export const ACOES: Record<AcaoUsuario, AcaoMeta> = {
   inativar: {
     icon: CircleMinus,
     variant: 'secondary',
-    permission: 'admin.editar',
+    permission: 'admin.usuarios.editar',
     confirm: 'simple',
     peso: 1,
   },
   bloquear: {
     icon: Ban,
     variant: 'secondary',
-    permission: 'admin.editar',
+    permission: 'admin.usuarios.editar',
     motivo: true,
     peso: 2,
   },
   desbloquear: {
     icon: LockOpen,
     variant: 'default',
-    permission: 'admin.editar',
+    permission: 'admin.usuarios.editar',
     confirm: 'simple',
     peso: 5,
   },
   reativar: {
     icon: CircleCheck,
     variant: 'default',
-    permission: 'admin.editar',
+    permission: 'admin.usuarios.editar',
     confirm: 'simple',
     peso: 5,
   },
 }
 
-/** Perfis de acesso (mesmos papéis de src/config/permissions.ts). */
-export const PERFIS = ['admin', 'operacao', 'leitura'] as const satisfies readonly Role[]
 export const STATUS_USUARIO: UsuarioStatus[] = ['ativo', 'bloqueado', 'inativo']

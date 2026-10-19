@@ -306,6 +306,20 @@ Fundo **Satélite** do mapa: chave da Esri em `VITE_ESRI_API_KEY` (veja `.env.ex
 Erros seguem `{ code, message, details? }` (ex.: `validation` 422, `email_in_use` 409,
 `cnpj_in_use` 409, `invalid_transition` 409, `not_found` 404).
 
+## API de perfis de acesso e auditoria
+
+| Método e caminho                 | O que faz                                                                          |
+| -------------------------------- | ---------------------------------------------------------------------------------- |
+| `GET /api/perfis`                | perfis (com quantos usuários usam cada um); `admin` é fixo e vem primeiro          |
+| `GET /api/perfis/:id`            | detalhe + histórico (uma mudança por página: `pagina:<página>`) + ações            |
+| `POST /api/perfis`               | cria (`nome` e `descricao` LocalizedText, `permissoes` página → `ver`/`editar`)    |
+| `PUT /api/perfis/:id`            | edita; o Administrador não muda (409 `fixed_profile`)                              |
+| `POST /api/perfis/:id/transicao` | `inativar`/`reativar`; perfil com usuário ativo não inativa (409 `profile_in_use`) |
+| `GET /api/auditoria?desde=<ISO>` | todos os históricos do sistema, mais recente primeiro, com `tipo` e registro       |
+
+Páginas aceitas: `server/src/shared/paginas.ts` (as outras são ignoradas). Nome repetido: 409
+`name_in_use`. Usuário só recebe perfil ativo (422).
+
 ## Pendências conhecidas
 
 - **Login/autenticação** não definido: a sessão do frontend é simulada e o histórico grava

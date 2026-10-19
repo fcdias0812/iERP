@@ -1,8 +1,7 @@
 import { cloneElement, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useCan } from '@/hooks/use-can'
-import { useSessionStore } from '@/stores/session-store'
+import { useCan, useNomePerfil } from '@/hooks/use-can'
 
 interface CanProps {
   /** Permissão exigida (ex.: 'comercial.criar'). */
@@ -23,7 +22,7 @@ interface CanProps {
 export function Can({ permission, fallback = 'hide', children }: CanProps) {
   const { t } = useTranslation()
   const allowed = useCan(permission)
-  const role = useSessionStore((s) => s.role)
+  const perfil = useNomePerfil()
 
   if (allowed) return children
   if (fallback === 'hide') return null
@@ -36,7 +35,7 @@ export function Can({ permission, fallback = 'hide', children }: CanProps) {
           {cloneElement(children, { disabled: true, 'aria-disabled': true })}
         </span>
       </TooltipTrigger>
-      <TooltipContent>{t('permissions.denied', { role: t(`roles.${role}`) })}</TooltipContent>
+      <TooltipContent>{t('permissions.denied', { role: perfil })}</TooltipContent>
     </Tooltip>
   )
 }

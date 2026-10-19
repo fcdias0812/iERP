@@ -44,7 +44,7 @@ export function AbaMateriais({
   const { t } = useTranslation()
   const idioma = useUiStore((s) => s.language)
   const lista = useMateriais()
-  const podeCriar = useCan('cadastros.criar')
+  const podeCriar = useCan('cadastros.materiais.criar')
   const [query, setQuery] = useState<TableQuery>(ORDEM)
 
   const colunas = useMemo<DataTableColumn<Material>[]>(
@@ -184,7 +184,7 @@ function MaterialFormulario({
       formId="form-material"
       salvando={form.formState.isSubmitting}
       sujo={form.formState.isDirty || traduzido !== (material?.nome ?? null)}
-      permissao={material ? 'cadastros.editar' : 'cadastros.criar'}
+      permissao={material ? 'cadastros.materiais.editar' : 'cadastros.materiais.criar'}
       acoes={material?.acoesPermitidas}
       onAcao={(acao) => transicao.mutateAsync({ id: material!.id, acao })}
       textosAcao={(acao) => ({

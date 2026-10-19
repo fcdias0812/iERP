@@ -46,7 +46,7 @@ export function AbaAreas({
   const { t } = useTranslation()
   const idioma = useUiStore((s) => s.language)
   const lista = useAreas()
-  const podeCriar = useCan('cadastros.criar')
+  const podeCriar = useCan('cadastros.areas.criar')
   const [query, setQuery] = useState<TableQuery>(ORDEM)
 
   const colunas = useMemo<DataTableColumn<AreaEstoque>[]>(
@@ -193,7 +193,7 @@ function AreaFormulario({
       formId="form-area"
       salvando={form.formState.isSubmitting}
       sujo={form.formState.isDirty || traduzido !== (area?.descricao ?? null)}
-      permissao={area ? 'cadastros.editar' : 'cadastros.criar'}
+      permissao={area ? 'cadastros.areas.editar' : 'cadastros.areas.criar'}
       acoes={area?.acoesPermitidas}
       onAcao={(acao) => transicao.mutateAsync({ id: area!.id, acao })}
       textosAcao={(acao) => ({

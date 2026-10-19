@@ -571,11 +571,6 @@
       "empresa": "公司"
     }
   },
-  "roles": {
-    "admin": "管理員",
-    "operacao": "作業人員",
-    "leitura": "唯讀"
-  },
   "permissions": {
     "denied": "您沒有執行此操作的權限（{{role}} 角色）。"
   },
@@ -693,7 +688,9 @@
     },
     "admin": {
       "title": "系統管理",
-      "usuarios": "使用者"
+      "usuarios": "使用者",
+      "perfis": "存取權限設定檔",
+      "auditoria": "稽核紀錄"
     },
     "perfil": "我的個人資料",
     "configuracoes": "設定",
@@ -1307,7 +1304,9 @@
     "cpfInUse": "已有司機使用此 CPF。",
     "noVehicles": "沒有可用於計算的啟用車輛。請在「車輛」新增或重新啟用。",
     "scopeRequired": "請填寫工作範圍，或至少附上一份文件。",
-    "nameInUse": "已有相同名稱的資料。"
+    "nameInUse": "已有相同名稱的資料。",
+    "fixedProfile": "管理員設定檔為固定設定檔：無法編輯或停用。",
+    "profileInUse": "仍有使用者使用此設定檔。請先變更他們的設定檔再停用。"
   },
   "calendar": {
     "today": "今天",
@@ -1428,6 +1427,63 @@
         "inativar": "已停用 {{name}}。",
         "reativar": "已重新啟用 {{name}}。"
       }
+    }
+  },
+  "perfis": {
+    "descricaoPagina": "每個設定檔在系統各頁面可以執行的操作。每位人員的設定檔在「使用者」中選擇。",
+    "descricaoPainel": "設定檔名稱，以及每個選單頁面的存取等級。",
+    "novo": "新增設定檔",
+    "vazio": "沒有存取權限設定檔。",
+    "fixo": "固定",
+    "paginasDe": "{{n}} / {{total}}",
+    "cols": {
+      "nome": "名稱",
+      "descricao": "說明",
+      "paginas": "可存取頁面",
+      "usuarios": "使用者",
+      "status": "狀態"
+    },
+    "secaoDados": "設定檔資料",
+    "descricaoAjuda": "選填。設定檔的用途（儲存時翻譯成其他語言）。",
+    "secaoPaginas": "各頁面存取權限",
+    "secaoPaginasAjuda": "檢視：查看與匯出。編輯：全部——新增、修改、停用與移除。無存取權：該頁面不會出現在選單中。",
+    "resumo": "可存取 {{n}} / {{total}} 個頁面 · 可編輯 {{editar}} 個。",
+    "aplicarTodas": "套用至全部",
+    "niveis": {
+      "nenhum": "無存取權",
+      "ver": "檢視",
+      "editar": "編輯"
+    },
+    "fixoTitle": "固定設定檔",
+    "fixoBody": "管理員可完整存取所有頁面，且無法變更或停用。",
+    "inativoBody": "已停用的設定檔：無法指派給使用者。重新啟用後即可再次使用。",
+    "confirm": {
+      "inativar": "此設定檔將不再出現在使用者設定檔的選項中。資料與歷史紀錄會保留，之後可重新啟用。",
+      "reativar": "此設定檔可再次指派給使用者。"
+    },
+    "toast": {
+      "criado": "已新增設定檔 {{name}}。",
+      "salvo": "已儲存設定檔 {{name}}。",
+      "falhou": "無法儲存設定檔。"
+    }
+  },
+  "auditoria": {
+    "descricao": "系統中發生的所有事項，涵蓋所有紀錄，由新到舊排列。",
+    "erro": "無法載入稽核紀錄。",
+    "cols": {
+      "registro": "紀錄"
+    },
+    "tipos": {
+      "cliente": "客戶",
+      "transportadora": "貨運公司",
+      "motorista": "司機",
+      "veiculo": "車輛",
+      "ordem": "批次",
+      "material": "物料",
+      "recipiente": "木箱 / 棧板",
+      "area": "庫存區域",
+      "usuario": "使用者",
+      "perfil": "存取權限設定檔"
     }
   },
   "clientes": {
@@ -1679,7 +1735,8 @@
       "depois": "變更後",
       "nota": "參考",
       "cliente": "客戶",
-      "lote": "批次"
+      "lote": "批次",
+      "tipo": "類型"
     },
     "vazio": "沒有歷程紀錄。",
     "acoes": {

@@ -11,13 +11,18 @@ import { useCan } from '@/hooks/use-can'
 import { formatNumber } from '@/lib/format'
 import type { UsuarioResumo } from '@/services/types'
 import { listarTodosUsuarios } from '@/services/usuarios'
-import { PERFIS, STATUS_USUARIO } from './fluxo'
+import { usePerfis } from '@/hooks/use-can'
+import { textoEm } from '@/lib/localized-text'
+import { useUiStore } from '@/stores/ui-store'
+import { STATUS_USUARIO } from './fluxo'
 import { useUsuariosLista, useUsuariosResumo } from './use-usuarios'
 import { UsuarioSheet } from './UsuarioSheet'
 
 /** Colunas da lista — ids iguais aos campos que a API filtra/ordena. */
 function useColunas(): DataTableColumn<UsuarioResumo>[] {
   const { t } = useTranslation()
+  const perfis = usePerfis()
+  const idioma = useUiStore((s) => s.language)
   return useMemo(
     () => [
       {
@@ -50,7 +55,7 @@ function useColunas(): DataTableColumn<UsuarioResumo>[] {
         type: 'enum',
         accessor: (r) => r.perfil,
         size: 160,
-        options: PERFIS.map((p) => ({ value: p, label: t(`roles.${p}`) })),
+        options: (perfis.data ?? []).map((p) => ({ value: p.id, label: textoEm(p.nome, idioma) })),
       },
       {
         id: 'status',
@@ -77,14 +82,14 @@ function useColunas(): DataTableColumn<UsuarioResumo>[] {
         hidden: true,
       },
     ],
-    [t],
+    [t, perfis.data, idioma],
   )
 }
 
 /** Admin › Usuários — lista (padrão Lista, DataTable em modo servidor). */
 export function UsuariosListPage() {
   return (
-    <RequirePermission permission="admin.ver">
+    <RequirePermission permission="admin.usuarios.ver">
       <UsuariosList />
     </RequirePermission>
   )
@@ -100,7 +105,7 @@ function UsuariosList() {
   const resumo = resumoQ.data
   // Sem resumo (erro): mostra "—" em vez de carregar para sempre.
   const kpiLoading = resumoQ.isPending
-  const canCreate = useCan('admin.criar')
+  const canCreate = useCan('admin.usuarios.criar')
   const { aberto } = useSearch({ from: '/_app/admin/usuarios/' })
   const painel = (id: string | undefined) =>
     void navigate({ to: '.', search: (s) => ({ ...s, aberto: id }) })
@@ -143,7 +148,7 @@ function UsuariosList() {
               <Eye aria-hidden />
               {t('common.open')}
             </DropdownMenuItem>
-            <Can permission="admin.editar">
+            <Can permission="admin.usuarios.editar">
               <DropdownMenuItem onSelect={() => painel(r.id)}>
                 <Pencil aria-hidden />
                 {t('common.edit')}

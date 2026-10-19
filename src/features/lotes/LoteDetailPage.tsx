@@ -40,7 +40,7 @@ import type { AbaLote, OrigemLote } from './origem'
 export function LoteDetailPage({ origem }: { origem: OrigemLote }) {
   const { id } = useParams({ strict: false }) as { id: string }
   return (
-    <RequirePermission permission={`${origem}.ver`}>
+    <RequirePermission permission={`${origem}.lotes.ver`}>
       <LoteDetail id={id} origem={origem} />
     </RequirePermission>
   )
@@ -84,7 +84,7 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
     receber,
   } = useSearch({ strict: false }) as LoteSearch
   const ir = useIrNoLote(origem, o.id)
-  const permissaoEditar = `${origem}.editar`
+  const permissaoEditar = `${origem}.lotes.editar`
   const abaUrl = (a: AbaLote) => (a === 'informacoes' ? undefined : a)
   const abrirOcorrencia = (oc: string) => ir({ aba: 'ocorrencias', ocorrencia: oc })
   const ativas = o.ocorrencias.filter((x) => x.status === 'registrada').length
@@ -129,7 +129,7 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
               </Can>
             )}
             {podeCorrigirRecebimento && (
-              <Can permission="operacao.editar" fallback="disable">
+              <Can permission="operacao.recebimento.editar" fallback="disable">
                 <Button variant="secondary" onClick={() => ir({ aba: abaUrl(aba), receber: true })}>
                   <ClipboardPen aria-hidden />
                   {t('recebimento.corrigir')}
@@ -146,7 +146,7 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
               </Button>
             </Can>
             {podeReceber && (
-              <Can permission="operacao.editar" fallback="disable">
+              <Can permission="operacao.recebimento.editar" fallback="disable">
                 <Button onClick={() => ir({ aba: abaUrl(aba), receber: true })}>
                   <PackageCheck aria-hidden />
                   {t('recebimento.receberLote')}
@@ -184,7 +184,7 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
               <AbaDocumentosLote
                 o={o}
                 permissao={permissaoEditar}
-                permissaoExcluir={`${origem}.excluir`}
+                permissaoExcluir={`${origem}.lotes.excluir`}
               />
             ),
           },
@@ -200,7 +200,7 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
       {receber && (podeReceber || podeCorrigirRecebimento) && (
         <RecebimentoSheet
           loteId={o.id}
-          permissao="operacao.editar"
+          permissao="operacao.recebimento.editar"
           onClose={() => ir({ aba: abaUrl(aba) })}
         />
       )}

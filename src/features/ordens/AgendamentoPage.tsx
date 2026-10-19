@@ -26,7 +26,7 @@ import { useCriarOrdem, usePreCalculo } from './use-ordens'
 
 export function AgendamentoPage() {
   return (
-    <RequirePermission permission="ordens.criar">
+    <RequirePermission permission="ordens.agendamento.criar">
       <Agendamento />
     </RequirePermission>
   )

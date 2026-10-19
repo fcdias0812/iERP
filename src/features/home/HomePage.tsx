@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { KpiCard } from '@/components/ui/kpi-card'
 import { FALLBACK_ICON, type NavItem } from '@/config/navigation'
 import { can } from '@/config/permissions'
-import { useCan, useCurrentContext } from '@/hooks/use-can'
+import { useCan, useCurrentContext, usePermissoes } from '@/hooks/use-can'
 import { formatNumber } from '@/lib/format'
 import { resumoUsuarios, usuariosKeys } from '@/services/usuarios'
 import { useSessionStore } from '@/stores/session-store'
@@ -17,9 +17,10 @@ const INDICADORES = ['ativos', 'bloqueados', 'inativos'] as const
 export function HomePage() {
   const { t } = useTranslation()
   const ctx = useCurrentContext()
-  const { user, role } = useSessionStore()
+  const { user } = useSessionStore()
+  const role = usePermissoes()
   const firstName = user.name.split(' ')[0] ?? user.name
-  const verUsuarios = useCan('admin.ver')
+  const verUsuarios = useCan('admin.usuarios.ver')
   const resumo = useQuery({
     queryKey: usuariosKeys.resumo(),
     queryFn: resumoUsuarios,

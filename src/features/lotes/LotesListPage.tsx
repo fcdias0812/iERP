@@ -17,7 +17,7 @@ import type { OrigemLote } from './origem'
 
 export function LotesListPage({ origem }: { origem: OrigemLote }) {
   return (
-    <RequirePermission permission={`${origem}.ver`}>
+    <RequirePermission permission={`${origem}.lotes.ver`}>
       <Lotes origem={origem} />
     </RequirePermission>
   )
@@ -29,7 +29,7 @@ function Lotes({ origem }: { origem: OrigemLote }) {
   const columns = useColunasLotes()
   const [query, setQuery] = useUrlTableQuery(columns)
   const lista = useLotes(query)
-  const podeAgendar = useCan('ordens.criar')
+  const podeAgendar = useCan('ordens.agendamento.criar')
   const abrir = (r: OrdemResumo) =>
     void (origem === 'ordens'
       ? navigate({ to: '/ordens/lotes/$id', params: { id: r.id } })

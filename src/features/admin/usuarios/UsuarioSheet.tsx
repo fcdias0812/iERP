@@ -88,7 +88,7 @@ function Formulario({
       formId="form-usuario"
       salvando={form.formState.isSubmitting}
       sujo={form.formState.isDirty}
-      permissao={usuario ? 'admin.editar' : 'admin.criar'}
+      permissao={usuario ? 'admin.usuarios.editar' : 'admin.usuarios.criar'}
       dados={
         <form
           id="form-usuario"

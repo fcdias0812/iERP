@@ -68,6 +68,7 @@ export function CadastroSheet({
   acoes,
   onAcao,
   textosAcao,
+  somenteLeitura,
 }: {
   open: boolean
   onClose: () => void
@@ -90,6 +91,8 @@ export function CadastroSheet({
   onAcao?: (acao: AcaoCadastro) => Promise<unknown>
   /** Textos da confirmação de cada ação. */
   textosAcao?: (acao: AcaoCadastro) => { titulo: string; corpo: string; botao: string }
+  /** Registro que não se edita (ex.: perfil Administrador): sem Salvar, só Fechar. */
+  somenteLeitura?: boolean
 }) {
   const { t } = useTranslation()
   const [descartar, setDescartar] = useState(false)
@@ -100,7 +103,7 @@ export function CadastroSheet({
   useHotkey(
     { key: 's', mod: true },
     () => (document.getElementById(formId) as HTMLFormElement | null)?.requestSubmit(),
-    open && !salvando,
+    open && !salvando && !somenteLeitura,
   )
 
   return (
@@ -115,12 +118,14 @@ export function CadastroSheet({
             <SheetDescription>{descricao}</SheetDescription>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto p-4">
-            <p className="mb-4 type-caption text-muted-foreground">
-              <span aria-hidden className="text-danger-subtle-foreground">
-                *
-              </span>{' '}
-              {t('patterns.form.requiredHint')}
-            </p>
+            {!somenteLeitura && (
+              <p className="mb-4 type-caption text-muted-foreground">
+                <span aria-hidden className="text-danger-subtle-foreground">
+                  *
+                </span>{' '}
+                {t('patterns.form.requiredHint')}
+              </p>
+            )}
             {historico ? (
               <Tabs defaultValue="dados">
                 <TabsList>
@@ -162,26 +167,32 @@ export function CadastroSheet({
                 </Can>
               ))}
             </div>
-            <div className="flex items-center gap-2">
-              <span className="hidden items-center gap-1 type-caption text-muted-foreground md:flex">
-                <Kbd>{isMac() ? '⌘' : 'Ctrl'}</Kbd>
-                <Kbd>S</Kbd>
-              </span>
-              <Button variant="secondary" onClick={fechar}>
-                {t('common.cancel')}
+            {somenteLeitura ? (
+              <Button variant="secondary" onClick={onClose}>
+                {t('common.close')}
               </Button>
-              <Can permission={permissao} fallback="disable">
-                <Button
-                  type="submit"
-                  form={formId}
-                  loading={salvando}
-                  aria-keyshortcuts={isMac() ? 'Meta+S' : 'Control+S'}
-                >
-                  {!salvando && <Save aria-hidden />}
-                  {t('common.save')}
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="hidden items-center gap-1 type-caption text-muted-foreground md:flex">
+                  <Kbd>{isMac() ? '⌘' : 'Ctrl'}</Kbd>
+                  <Kbd>S</Kbd>
+                </span>
+                <Button variant="secondary" onClick={fechar}>
+                  {t('common.cancel')}
                 </Button>
-              </Can>
-            </div>
+                <Can permission={permissao} fallback="disable">
+                  <Button
+                    type="submit"
+                    form={formId}
+                    loading={salvando}
+                    aria-keyshortcuts={isMac() ? 'Meta+S' : 'Control+S'}
+                  >
+                    {!salvando && <Save aria-hidden />}
+                    {t('common.save')}
+                  </Button>
+                </Can>
+              </div>
+            )}
           </SheetFooter>
         </SheetContent>
       </Sheet>

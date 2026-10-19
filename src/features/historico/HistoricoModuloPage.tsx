@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
@@ -6,31 +6,21 @@ import { RequirePermission } from '@/components/layout/RequirePermission'
 import { ListPage } from '@/components/patterns/ListPage'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { ButtonGroup } from '@/components/ui/button-group'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { HistoricoTabela } from '@/features/comum/HistoricoTabela'
+import { HistoricoTabela, type RegistroDaLinha } from '@/features/comum/HistoricoTabela'
 import { useRotulosHistoricoLote } from '@/features/lotes/historico-lote'
 import { apiErrorMessage } from '@/lib/api-errors'
 import { historicoKeys, listarHistoricoModulo } from '@/services/historico'
 import type { EventoHistoricoModulo, ModuloHistorico } from '@/services/types'
+import { desdeDo, type Periodo } from './periodo'
+import { SeletorPeriodo } from './SeletorPeriodo'
 
 /*
  * Histórico do MÓDULO (Ordens › Histórico e Operação › Histórico — pedido do usuário): a mesma
  * auditoria em tabela dos registros, de todos os lotes do módulo, com a coluna do lote (abre o
  * lote no próprio módulo) e do cliente. O servidor já filtra o que é de cada módulo.
- * Período carregado: 30 dias, 90 dias (padrão), 12 meses ou tudo — mantém a tela leve.
+ * Período carregado: ver `SeletorPeriodo`.
  */
-
-const PERIODOS = ['30', '90', '365', 'tudo'] as const
-type Periodo = (typeof PERIODOS)[number]
 
 /** Ações que aparecem em cada módulo (as mesmas do servidor). */
 const ACOES_DO_MODULO: Record<ModuloHistorico, string[]> = {
@@ -56,18 +46,9 @@ const ACOES_DO_MODULO: Record<ModuloHistorico, string[]> = {
 
 const SEM_EVENTOS: EventoHistoricoModulo[] = []
 
-/** Início do período (ISO), contado a partir de agora. */
-function desdeDo(periodo: Periodo): string | null {
-  if (periodo === 'tudo') return null
-  const d = new Date()
-  d.setDate(d.getDate() - Number(periodo))
-  d.setHours(0, 0, 0, 0)
-  return d.toISOString()
-}
-
 export function HistoricoModuloPage({ modulo }: { modulo: ModuloHistorico }) {
   return (
-    <RequirePermission permission={`${modulo}.ver`}>
+    <RequirePermission permission={`${modulo}.historico.ver`}>
       <Historico modulo={modulo} />
     </RequirePermission>
   )
@@ -76,7 +57,6 @@ export function HistoricoModuloPage({ modulo }: { modulo: ModuloHistorico }) {
 function Historico({ modulo }: { modulo: ModuloHistorico }) {
   const { t } = useTranslation()
   const [periodo, setPeriodo] = useState<Periodo>('90')
-  const periodoId = useId()
   // O início do período é fixado ao escolher (não muda a cada render).
   const desde = useMemo(() => desdeDo(periodo), [periodo])
   const consulta = useQuery({
@@ -94,7 +74,7 @@ function Historico({ modulo }: { modulo: ModuloHistorico }) {
   const registro = useMemo(
     () => ({
       titulo: t('historico.cols.lote'),
-      link: (id: string, codigo: string) =>
+      link: ({ id, rotulo: codigo }: RegistroDaLinha) =>
         modulo === 'ordens' ? (
           <Link
             to="/ordens/lotes/$id"
@@ -120,35 +100,7 @@ function Historico({ modulo }: { modulo: ModuloHistorico }) {
 
   return (
     <ListPage title={t(`nav.${modulo}.historico`)} description={t(`historicoModulo.${modulo}`)}>
-      {/* Celular: lista de escolha (os 4 botões não cabem lado a lado). */}
-      <div className="flex flex-col gap-1.5 sm:hidden">
-        <Label htmlFor={periodoId}>{t('historicoModulo.periodo')}</Label>
-        <Select value={periodo} onValueChange={(v) => setPeriodo(v as Periodo)}>
-          <SelectTrigger id={periodoId}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PERIODOS.map((p) => (
-              <SelectItem key={p} value={p}>
-                {t(`historicoModulo.periodos.${p}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <ButtonGroup aria-label={t('historicoModulo.periodo')} className="hidden sm:inline-flex">
-        {PERIODOS.map((p) => (
-          <Button
-            key={p}
-            size="sm"
-            variant={periodo === p ? 'default' : 'secondary'}
-            aria-pressed={periodo === p}
-            onClick={() => setPeriodo(p)}
-          >
-            {t(`historicoModulo.periodos.${p}`)}
-          </Button>
-        ))}
-      </ButtonGroup>
+      <SeletorPeriodo periodo={periodo} onChange={setPeriodo} />
       {consulta.isPending ? (
         <Skeleton className="h-64 w-full" />
       ) : consulta.isError ? (

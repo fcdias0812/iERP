@@ -10,7 +10,14 @@ import type { EventoHistorico, Mudanca } from './historico.js'
  */
 
 export type Entidade =
-  'transportadora' | 'motorista' | 'veiculo' | 'ordem' | 'material' | 'area' | 'recipiente'
+  | 'transportadora'
+  | 'motorista'
+  | 'veiculo'
+  | 'ordem'
+  | 'material'
+  | 'area'
+  | 'recipiente'
+  | 'perfil'
 type Conexao = Db | Transaction<Database>
 
 export async function registrarHistorico(

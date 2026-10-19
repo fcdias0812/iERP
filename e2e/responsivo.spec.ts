@@ -28,6 +28,9 @@ const ROTAS = [
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
   '/admin/usuarios?aberto=novo',
+  '/admin/perfis',
+  '/admin/perfis?aberto=operacao',
+  '/admin/auditoria',
   '/perfil',
 ]
 

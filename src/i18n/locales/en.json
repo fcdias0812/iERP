@@ -571,11 +571,6 @@
       "empresa": "Company"
     }
   },
-  "roles": {
-    "admin": "Administrator",
-    "operacao": "Operations",
-    "leitura": "Read-only"
-  },
   "permissions": {
     "denied": "You don't have permission for this action ({{role}} role)."
   },
@@ -693,7 +688,9 @@
     },
     "admin": {
       "title": "Administration",
-      "usuarios": "Users"
+      "usuarios": "Users",
+      "perfis": "Access profiles",
+      "auditoria": "Audit log"
     },
     "perfil": "My profile",
     "configuracoes": "Settings",
@@ -1307,7 +1304,9 @@
     "cpfInUse": "A driver with this CPF already exists.",
     "noVehicles": "No active vehicle for the calculation. Add or reactivate one in Vehicles.",
     "scopeRequired": "Write the scope of work or attach at least one document.",
-    "nameInUse": "A record with this name already exists."
+    "nameInUse": "A record with this name already exists.",
+    "fixedProfile": "The Administrator profile is fixed: it cannot be edited or deactivated.",
+    "profileInUse": "Some users have this profile. Change their profile before deactivating it."
   },
   "calendar": {
     "today": "Today",
@@ -1428,6 +1427,63 @@
         "inativar": "{{name}} was deactivated.",
         "reativar": "{{name}} was reactivated."
       }
+    }
+  },
+  "perfis": {
+    "descricaoPagina": "What each profile can do on each page of the system. Each person's profile is chosen in Users.",
+    "descricaoPainel": "Profile name and the access level for each menu page.",
+    "novo": "New profile",
+    "vazio": "No access profiles.",
+    "fixo": "Fixed",
+    "paginasDe": "{{n}} of {{total}}",
+    "cols": {
+      "nome": "Name",
+      "descricao": "Description",
+      "paginas": "Pages with access",
+      "usuarios": "Users",
+      "status": "Status"
+    },
+    "secaoDados": "Profile details",
+    "descricaoAjuda": "Optional. What the profile is for (translated into the other languages when saved).",
+    "secaoPaginas": "Access per page",
+    "secaoPaginasAjuda": "View: see and export. Edit: everything — create, change, deactivate and remove. No access: the page disappears from the menu.",
+    "resumo": "Access to {{n}} of {{total}} pages · edits {{editar}}.",
+    "aplicarTodas": "Apply to all",
+    "niveis": {
+      "nenhum": "No access",
+      "ver": "View",
+      "editar": "Edit"
+    },
+    "fixoTitle": "Fixed profile",
+    "fixoBody": "The Administrator has full access to every page and cannot be changed or deactivated.",
+    "inativoBody": "Inactive profile: it cannot be assigned to users. Reactivate it to use it again.",
+    "confirm": {
+      "inativar": "The profile will no longer be offered when choosing a user's profile. The record and history are kept and it can be reactivated later.",
+      "reativar": "The profile can be assigned to users again."
+    },
+    "toast": {
+      "criado": "Profile {{name}} created.",
+      "salvo": "Profile {{name}} saved.",
+      "falhou": "Could not save the profile."
+    }
+  },
+  "auditoria": {
+    "descricao": "Everything that happens in the system, across all records, newest first.",
+    "erro": "Could not load the audit log.",
+    "cols": {
+      "registro": "Record"
+    },
+    "tipos": {
+      "cliente": "Customer",
+      "transportadora": "Carrier",
+      "motorista": "Driver",
+      "veiculo": "Vehicle",
+      "ordem": "Lot",
+      "material": "Material",
+      "recipiente": "Crate / pallet",
+      "area": "Stock area",
+      "usuario": "User",
+      "perfil": "Access profile"
     }
   },
   "clientes": {
@@ -1679,7 +1735,8 @@
       "depois": "After",
       "nota": "Reference",
       "cliente": "Customer",
-      "lote": "Lot"
+      "lote": "Lot",
+      "tipo": "Type"
     },
     "vazio": "No history records.",
     "acoes": {

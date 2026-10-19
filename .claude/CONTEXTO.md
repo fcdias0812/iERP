@@ -76,11 +76,12 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `2a872a1` | Detalhe do lote (5 abas), editar lote, tipos de documento e Operação › Lotes             |
 | `17f9602` | Operação › Recebimento (lacres, notas, inspeção, pallets, fotos; corrigir em Inspeção)   |
 | `159dd25` | Histórico de Ordens e de Operação; menu de Ordens com Viagens                            |
-| (local)   | Sistema › Cadastros (materiais, pallets, caixotes, áreas, rastreadores GPS)              |
+| `bdad159` | Sistema › Cadastros (materiais, pallets, caixotes, áreas, rastreadores GPS)              |
+| (local)   | Administração › Perfis de acesso e Auditoria                                             |
 
-Portão de qualidade verde no commit de Cadastros: lint, typecheck (front e servidor), 60 testes
-unitários, 80 testes do servidor, 219 e2e (Playwright + axe WCAG 2.2 AA), contraste 158/158,
-cores, formatação, build. Commit **local** (push só quando ele pedir).
+Portão de qualidade verde em Perfis de acesso/Auditoria: lint, typecheck (front e servidor), 62
+testes unitários, 84 testes do servidor, e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
+formatação, build, 241 e2e. Commit **local**, testado por ele (push só quando ele pedir).
 
 **Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
 clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
@@ -109,7 +110,9 @@ Esri (`VITE_ESRI_API_KEY`, em `.env.local`) ainda não existe — sem ela, só f
 |                | Operação › Chamados internos                                               | em construção                                 |
 |                | Estoque › Materiais · Assets · Servidores · E-commerce · Peças · Histórico | em construção                                 |
 | Sistema        | **Cadastros** › Materiais · Pallets · Caixotes · Áreas · Rastreadores GPS  | **pronto** (Rastreadores aguardam a API)      |
-|                | Administração › Usuários                                                   | **pronto**                                    |
+|                | Administração › Usuários                                                   | **pronto** (perfil vem de Perfis de acesso)   |
+|                | Administração › **Perfis de acesso**                                       | **pronto** (nível por página)                 |
+|                | Administração › **Auditoria**                                              | **pronto** (histórico do sistema inteiro)     |
 
 A seção e um item se chamam "Operação" (aparece **Operação › Operação**). O usuário foi avisado; ainda
 não respondeu se quer trocar o nome da seção.
@@ -149,8 +152,8 @@ Respostas do usuário sobre a v1 (18/10/2026):
 
 ### 5.1 Administração › Usuários
 
-Primeiro módulo pedido. Lista, detalhe e cadastro (painel lateral). Perfis: `admin`, `operacao`,
-`leitura` (matriz em `src/config/permissions.ts`). **Login/autenticação ainda não definido**: sessão
+Primeiro módulo pedido. Lista, detalhe e cadastro (painel lateral). O perfil de cada usuário vem
+de **Administração › Perfis de acesso** (§5.12). **Login/autenticação ainda não definido**: sessão
 simulada no front; o histórico grava "Sistema" como autor (`server/src/shared/autor.ts`).
 
 ### 5.2 Clientes (Relacionamento)
@@ -360,6 +363,33 @@ submenu, uma tela por item (`/cadastros/materiais`, `/pallets`, `/caixotes`, `/a
   tabela vazia e o aviso "Aguardando a integração" (sem backend).
 - Resposta dele: **só inativar** (nada de excluir), com histórico em cada registro.
 
+### 5.12 Administração › Perfis de acesso e Auditoria (19/10/2026)
+
+Pedido dele: "Perfis de acesso: cadastrar todos os perfis e tudo o que eles podem fazer, desde
+visualizar ou editar, nenhuma, uma ou mais páginas; associar aos usuários" e "Auditoria: o
+histórico completo de tudo o que está acontecendo no sistema". Respostas dele (todas as
+recomendadas):
+
+- Permissão **por página** (cada item do menu; Início é livre). As páginas saem do próprio menu
+  (`src/config/paginas.ts`); o servidor tem o espelho `server/src/shared/paginas.ts` — um teste
+  (`src/config/paginas.test.ts`) falha se as listas divergirem. Item novo no menu: incluir no servidor.
+- Níveis **Sem acesso / Visualizar / Editar**: Visualizar = ver + exportar; Editar = tudo
+  (criar, editar, inativar, remover). Permissão no código = `<página>.<ação>`
+  (`clientes.criar`, `ordens.lotes.editar`, `cadastros.caixotes.ver`…).
+- **Administrador fixo** (acesso total, não se edita nem inativa — 409 `fixed_profile`).
+  Operação e Leitura viraram perfis editáveis (migration `2026-10-19-08`); usuários mantêm o perfil.
+- **Um perfil por usuário.** Perfil com usuário ativo/bloqueado não é inativado (409
+  `profile_in_use`); usuário só recebe perfil ativo.
+- Tela: lista + painel lateral com a matriz agrupada como o menu (módulos sem submenu de uma seção
+  ficam juntos, ex.: "Relacionamento") e "Aplicar a todas" por grupo. Histórico do perfil: uma
+  linha por página que mudou de nível. Nome e descrição traduzíveis.
+- Trocar de perfil (demonstração, até existir login): menu do usuário › Perfil de acesso.
+- **Auditoria** (`GET /api/auditoria?desde=`): junta os históricos de usuários, clientes e da
+  tabela genérica (transportadoras, motoristas, veículos, lotes, materiais, áreas, caixotes/pallets,
+  perfis), com coluna **Tipo** e o **registro** com link para ele. Mesmo período dos históricos de
+  módulo (30/90/365 dias/tudo; padrão 90).
+- **Ainda não**: o servidor não confere a permissão (não há login); hoje vale nas telas.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -387,7 +417,9 @@ negócio (perguntar). Resumo:
 - **Login/SSO:** como será a autenticação (hoje simulada). A empresa tem skills de SSO com o Portal
   Re-Teck (`reteck-integracao:*`) — só aplicar se ele pedir.
 - **Menu:** quais submódulos da v1 não são usados; se troca o nome da seção "Operação"; se
-  Pontos do mapa entra em Cadastros; se Administração ganha Perfis de acesso e Integração (API).
+  Pontos do mapa entra em Cadastros; se Administração ganha Integração (API).
+- **Perfis de acesso:** quando houver login, o servidor passa a conferir a permissão de cada
+  chamada; a Auditoria deve mostrar também acessos (entrar/sair)?
 - **Cadastros:** a API do sistema de GPS (rastreadores); material precisa de outros campos (código,
   categoria, preço)?
 - **Ordens:** etapas de uma viagem (Viagens ativas / Histórico de viagens); o que acontece com o

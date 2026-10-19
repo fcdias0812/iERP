@@ -4,7 +4,8 @@
  */
 
 export type UsuarioStatus = 'ativo' | 'bloqueado' | 'inativo'
-export type UsuarioPerfil = 'admin' | 'operacao' | 'leitura'
+/** Id do perfil de acesso (tabela perfis_acesso). */
+export type UsuarioPerfil = string
 export type AcaoUsuario = 'bloquear' | 'desbloquear' | 'inativar' | 'reativar'
 
 export type { EventoHistorico, Mudanca } from '../../shared/historico.js'

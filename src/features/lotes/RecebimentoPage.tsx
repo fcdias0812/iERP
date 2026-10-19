@@ -29,7 +29,7 @@ const RECEBIDOS: StatusOrdem[] = ['inspecao', 'processo', 'aguardando_cod', 'con
 
 export function RecebimentoPage() {
   return (
-    <RequirePermission permission="operacao.ver">
+    <RequirePermission permission="operacao.recebimento.ver">
       <Recebimento />
     </RequirePermission>
   )
@@ -68,7 +68,7 @@ function Recebimento() {
     [query, recebidos],
   )
   const lista = useLotes(consulta)
-  const podeReceber = useCan('operacao.editar')
+  const podeReceber = useCan('operacao.recebimento.editar')
 
   const painel = (valor: string | undefined) =>
     void navigate({
@@ -92,7 +92,7 @@ function Recebimento() {
       title={t('nav.operacao.recebimento')}
       description={t('recebimento.paginaDescricao')}
       actions={
-        <Can permission="operacao.editar" fallback="disable">
+        <Can permission="operacao.recebimento.editar" fallback="disable">
           <Button onClick={() => painel('novo')}>
             <PackageCheck aria-hidden />
             {t('recebimento.receberLote')}
@@ -130,7 +130,7 @@ function Recebimento() {
         rowActions={(r) => (
           <>
             {r.status === 'agendado' && (
-              <Can permission="operacao.editar">
+              <Can permission="operacao.recebimento.editar">
                 <DropdownMenuItem onSelect={() => painel(r.id)}>
                   <PackageCheck aria-hidden />
                   {t('recebimento.receberLote')}
@@ -138,7 +138,7 @@ function Recebimento() {
               </Can>
             )}
             {r.status === 'inspecao' && (
-              <Can permission="operacao.editar">
+              <Can permission="operacao.recebimento.editar">
                 <DropdownMenuItem onSelect={() => painel(r.id)}>
                   <Pencil aria-hidden />
                   {t('recebimento.corrigir')}
@@ -161,7 +161,7 @@ function Recebimento() {
         <RecebimentoSheet
           key={aberto}
           loteId={aberto === 'novo' ? null : aberto}
-          permissao="operacao.editar"
+          permissao="operacao.recebimento.editar"
           onClose={() => painel(undefined)}
         />
       )}

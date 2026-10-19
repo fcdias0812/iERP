@@ -4,7 +4,6 @@ import type { AcaoUsuario, UsuarioStatus } from './usuarios.types.js'
 
 /* Regras do cadastro de usuários: perfis, fluxo de status, validação e colunas da lista. */
 
-export const PERFIS = ['admin', 'operacao', 'leitura'] as const
 export const STATUS = ['ativo', 'bloqueado', 'inativo'] as const
 
 /** Fluxo: Ativo ⇄ Bloqueado; Ativo/Bloqueado → Inativo → Ativo. */
@@ -19,7 +18,8 @@ export const acoesDe = (status: UsuarioStatus) => Object.keys(TRANSICOES[status]
 export const usuarioInputSchema = z.object({
   nome: z.string().trim().min(3, 'Informe o nome completo.').max(120),
   email: z.string().trim().toLowerCase().pipe(z.email('E-mail inválido.').max(160)),
-  perfil: z.enum(PERFIS, 'Perfil de acesso inválido.'),
+  // Id de um perfil de acesso cadastrado e ativo (conferido no serviço).
+  perfil: z.string().trim().min(1, 'Escolha o perfil de acesso.'),
 })
 
 export const transicaoSchema = z.object({

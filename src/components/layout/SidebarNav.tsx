@@ -15,13 +15,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { FALLBACK_ICON, type NavItem, type NavSection } from '@/config/navigation'
-import { can, type Role } from '@/config/permissions'
-import { useCurrentContext } from '@/hooks/use-can'
-import { useSessionStore } from '@/stores/session-store'
+import { can, type PermissoesDoPerfil } from '@/config/permissions'
+import { useCurrentContext, usePermissoes } from '@/hooks/use-can'
 import { AppLink } from './AppLink'
 
-/** Filtra itens pela permissão do papel; módulo sem filhos visíveis some. */
-function visibleItems(items: NavItem[], role: Role): NavItem[] {
+/** Filtra itens pela permissão do perfil; módulo sem filhos visíveis some. */
+function visibleItems(items: NavItem[], role: PermissoesDoPerfil | null): NavItem[] {
   return items.flatMap((item) => {
     if (!can(role, item.permission)) return []
     if (!item.children) return [item]
@@ -48,7 +47,7 @@ interface SidebarNavProps {
 export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const { t } = useTranslation()
   const ctx = useCurrentContext()
-  const role = useSessionStore((s) => s.role)
+  const role = usePermissoes()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   const sections: NavSection[] = ctx.sections

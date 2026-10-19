@@ -1,28 +1,34 @@
 import { describe, expect, it } from 'vitest'
-import { can } from './permissions'
+import { ACESSO_TOTAL, can, type PermissoesDoPerfil } from './permissions'
 
-describe('permissões', () => {
-  it('admin pode tudo', () => {
-    expect(can('admin', 'admin.ver')).toBe(true)
-    expect(can('admin', 'comercial.excluir')).toBe(true)
+/* Perfis de acesso: nível por página (sem acesso / visualizar / editar); Administrador pode tudo. */
+
+const recebimento: PermissoesDoPerfil = {
+  fixo: false,
+  paginas: { 'operacao.recebimento': 'editar', 'operacao.lotes': 'ver', clientes: 'ver' },
+}
+
+describe('permissões por página', () => {
+  it('Administrador (fixo) pode tudo', () => {
+    expect(can(ACESSO_TOTAL, 'admin.perfis.editar')).toBe(true)
+    expect(can(ACESSO_TOTAL, 'ordens.lotes.excluir')).toBe(true)
   })
 
-  it('operação vê, cria e edita, mas não exclui nem entra na administração', () => {
-    expect(can('operacao', 'comercial.ver')).toBe(true)
-    expect(can('operacao', 'comercial.criar')).toBe(true)
-    expect(can('operacao', 'comercial.excluir')).toBe(false)
-    expect(can('operacao', 'compras.aprovar')).toBe(true)
-    expect(can('operacao', 'admin.ver')).toBe(false)
+  it('editar permite todas as ações da página', () => {
+    for (const acao of ['ver', 'criar', 'editar', 'excluir', 'exportar'])
+      expect(can(recebimento, `operacao.recebimento.${acao}`)).toBe(true)
   })
 
-  it('leitura só vê', () => {
-    expect(can('leitura', 'estoque.ver')).toBe(true)
-    expect(can('leitura', 'estoque.criar')).toBe(false)
-    expect(can('leitura', 'compras.aprovar')).toBe(false)
-    expect(can('leitura', 'admin.ver')).toBe(false)
+  it('visualizar permite ver e exportar, nada mais', () => {
+    expect(can(recebimento, 'operacao.lotes.ver')).toBe(true)
+    expect(can(recebimento, 'operacao.lotes.exportar')).toBe(true)
+    expect(can(recebimento, 'operacao.lotes.editar')).toBe(false)
+    expect(can(recebimento, 'clientes.criar')).toBe(false)
   })
 
-  it('item sem permissão declarada é livre', () => {
-    expect(can('leitura', undefined)).toBe(true)
+  it('página fora do perfil = sem acesso; sem perfil = nada; sem permissão exigida = livre', () => {
+    expect(can(recebimento, 'ordens.lotes.ver')).toBe(false)
+    expect(can(null, 'clientes.ver')).toBe(false)
+    expect(can(null, undefined)).toBe(true)
   })
 })

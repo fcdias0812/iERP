@@ -61,7 +61,7 @@ export function AbaRecipientes({
   const lista = useRecipientes(tipo)
   const materiais = useMateriais()
   const areas = useAreas()
-  const podeCriar = useCan('cadastros.criar')
+  const podeCriar = useCan(`cadastros.${tipo}s.criar`)
   const [query, setQuery] = useState<TableQuery>(ORDEM)
 
   const colunas = useMemo<DataTableColumn<Recipiente>[]>(
@@ -277,7 +277,7 @@ function RecipienteFormulario({
       formId="form-recipiente"
       salvando={form.formState.isSubmitting}
       sujo={form.formState.isDirty}
-      permissao={recipiente ? 'cadastros.editar' : 'cadastros.criar'}
+      permissao={`cadastros.${tipo}s.${recipiente ? 'editar' : 'criar'}`}
       acoes={recipiente?.acoesPermitidas}
       onAcao={(acao) => transicao.mutateAsync({ id: recipiente!.id, acao })}
       textosAcao={(acao) => ({

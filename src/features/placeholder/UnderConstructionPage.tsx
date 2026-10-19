@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Can } from '@/components/layout/Can'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { findNavItemAnyContext, findNavTrail } from '@/config/navigation'
-import { useCan, useCurrentContext } from '@/hooks/use-can'
-import { useSessionStore } from '@/stores/session-store'
+import { useCan, useCurrentContext, useNomePerfil } from '@/hooks/use-can'
 
 /** Módulo da permissão `<módulo>.ver` → `<módulo>.criar`, etc. */
 function modulePermission(permission: string | undefined, action: string) {
@@ -24,7 +23,7 @@ export function UnderConstructionPage() {
   const { t } = useTranslation()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const ctx = useCurrentContext()
-  const role = useSessionStore((s) => s.role)
+  const perfil = useNomePerfil()
   const item = findNavTrail(ctx, pathname).at(-1) ?? findNavItemAnyContext(pathname)
   const allowed = useCan(item?.permission)
 
@@ -64,7 +63,7 @@ export function UnderConstructionPage() {
       <StateCard
         icon={<Construction className="size-6" aria-hidden />}
         title={t('placeholder.title')}
-        description={t('placeholder.body', { role: t(`roles.${role}`) })}
+        description={t('placeholder.body', { role: perfil })}
       />
     </div>
   )

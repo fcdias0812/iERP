@@ -58,6 +58,11 @@ const TODAS = [
   '/admin/usuarios/usr00001',
   '/admin/usuarios/usr00001?editar=true',
   '/admin/usuarios?aberto=novo',
+  '/admin/perfis',
+  '/admin/perfis?aberto=novo',
+  '/admin/perfis?aberto=admin',
+  '/admin/perfis?aberto=operacao',
+  '/admin/auditoria',
   '/perfil',
   '/configuracoes',
   '/login',
@@ -82,6 +87,8 @@ const AMOSTRA = [
   '/cadastros/pallets',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
+  '/admin/perfis?aberto=operacao',
+  '/admin/auditoria',
 ]
 
 const CENARIOS: { tema: Tema; idioma: Idioma; rotas: string[] }[] = [

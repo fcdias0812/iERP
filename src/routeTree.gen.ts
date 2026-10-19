@@ -17,6 +17,8 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoes'
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
+import { Route as AppAdminAuditoriaRouteImport } from './routes/_app/admin/auditoria'
+import { Route as AppAdminPerfisRouteImport } from './routes/_app/admin/perfis'
 import { Route as AppCadastrosIndexRouteImport } from './routes/_app/cadastros/index'
 import { Route as AppCadastrosAreasRouteImport } from './routes/_app/cadastros/areas'
 import { Route as AppCadastrosCaixotesRouteImport } from './routes/_app/cadastros/caixotes'
@@ -78,6 +80,16 @@ const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
 const AppPerfilRoute = AppPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminAuditoriaRoute = AppAdminAuditoriaRouteImport.update({
+  id: '/admin/auditoria',
+  path: '/admin/auditoria',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminPerfisRoute = AppAdminPerfisRouteImport.update({
+  id: '/admin/perfis',
+  path: '/admin/perfis',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCadastrosIndexRoute = AppCadastrosIndexRouteImport.update({
@@ -206,6 +218,8 @@ export interface FileRoutesByFullPath {
   '/$': typeof AppSplatRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
+  '/admin/auditoria': typeof AppAdminAuditoriaRoute
+  '/admin/perfis': typeof AppAdminPerfisRoute
   '/cadastros/areas': typeof AppCadastrosAreasRoute
   '/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
   '/cadastros/materiais': typeof AppCadastrosMateriaisRoute
@@ -238,6 +252,8 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
+  '/admin/auditoria': typeof AppAdminAuditoriaRoute
+  '/admin/perfis': typeof AppAdminPerfisRoute
   '/cadastros/areas': typeof AppCadastrosAreasRoute
   '/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
   '/cadastros/materiais': typeof AppCadastrosMateriaisRoute
@@ -272,6 +288,8 @@ export interface FileRoutesById {
   '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/admin/auditoria': typeof AppAdminAuditoriaRoute
+  '/_app/admin/perfis': typeof AppAdminPerfisRoute
   '/_app/cadastros/areas': typeof AppCadastrosAreasRoute
   '/_app/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
   '/_app/cadastros/materiais': typeof AppCadastrosMateriaisRoute
@@ -306,6 +324,8 @@ export interface FileRouteTypes {
     | '/$'
     | '/configuracoes'
     | '/perfil'
+    | '/admin/auditoria'
+    | '/admin/perfis'
     | '/cadastros/areas'
     | '/cadastros/caixotes'
     | '/cadastros/materiais'
@@ -338,6 +358,8 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/perfil'
     | '/'
+    | '/admin/auditoria'
+    | '/admin/perfis'
     | '/cadastros/areas'
     | '/cadastros/caixotes'
     | '/cadastros/materiais'
@@ -371,6 +393,8 @@ export interface FileRouteTypes {
     | '/_app/configuracoes'
     | '/_app/perfil'
     | '/_app/'
+    | '/_app/admin/auditoria'
+    | '/_app/admin/perfis'
     | '/_app/cadastros/areas'
     | '/_app/cadastros/caixotes'
     | '/_app/cadastros/materiais'
@@ -459,6 +483,20 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AppPerfilRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/auditoria': {
+      id: '/_app/admin/auditoria'
+      path: '/admin/auditoria'
+      fullPath: '/admin/auditoria'
+      preLoaderRoute: typeof AppAdminAuditoriaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/perfis': {
+      id: '/_app/admin/perfis'
+      path: '/admin/perfis'
+      fullPath: '/admin/perfis'
+      preLoaderRoute: typeof AppAdminPerfisRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/cadastros/': {
@@ -630,6 +668,8 @@ interface AppRouteChildren {
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppAdminAuditoriaRoute: typeof AppAdminAuditoriaRoute
+  AppAdminPerfisRoute: typeof AppAdminPerfisRoute
   AppCadastrosAreasRoute: typeof AppCadastrosAreasRoute
   AppCadastrosCaixotesRoute: typeof AppCadastrosCaixotesRoute
   AppCadastrosMateriaisRoute: typeof AppCadastrosMateriaisRoute
@@ -660,6 +700,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
+  AppAdminAuditoriaRoute: AppAdminAuditoriaRoute,
+  AppAdminPerfisRoute: AppAdminPerfisRoute,
   AppCadastrosAreasRoute: AppCadastrosAreasRoute,
   AppCadastrosCaixotesRoute: AppCadastrosCaixotesRoute,
   AppCadastrosMateriaisRoute: AppCadastrosMateriaisRoute,

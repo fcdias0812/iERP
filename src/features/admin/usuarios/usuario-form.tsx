@@ -10,7 +10,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { CadastroSecao } from '@/features/comum/CadastroSheet'
-import { PERFIS } from './fluxo'
+import { usePerfis } from '@/hooks/use-can'
+import { textoEm } from '@/lib/localized-text'
+import { useUiStore } from '@/stores/ui-store'
 import type { UsuarioForm } from './usuario-schema'
 
 /* ------------------------------------------------------------ campos */
@@ -18,6 +20,8 @@ import type { UsuarioForm } from './usuario-schema'
 /** Seções do formulário de usuário (painel lateral: novo e editar). */
 export function UsuarioFields({ form }: { form: UseFormReturn<UsuarioForm> }) {
   const { t } = useTranslation()
+  const perfis = usePerfis()
+  const idioma = useUiStore((s) => s.language)
   return (
     <>
       <CadastroSecao titulo={t('usuarios.form.identification')}>
@@ -56,11 +60,13 @@ export function UsuarioFields({ form }: { form: UseFormReturn<UsuarioForm> }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {PERFIS.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {t(`roles.${p}`)}
-                  </SelectItem>
-                ))}
+                {(perfis.data ?? [])
+                  .filter((p) => p.status === 'ativo' || p.id === field.value)
+                  .map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {textoEm(p.nome, idioma)}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           )}

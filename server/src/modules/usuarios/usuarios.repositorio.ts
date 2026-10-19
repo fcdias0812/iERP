@@ -119,6 +119,16 @@ export function criarRepositorioUsuarios(db: Db) {
     }
   }
 
+  /** O perfil existe e está ativo? */
+  async function perfilAtivo(perfilId: string, cx: Conexao = db) {
+    const p = await cx
+      .selectFrom('perfisAcesso')
+      .select('status')
+      .where('id', '=', perfilId)
+      .executeTakeFirst()
+    return p?.status === 'ativo'
+  }
+
   /** Outro usuário (≠ `excetoId`) já usa o e-mail? */
   async function emailEmUso(email: string, excetoId?: string, cx: Conexao = db) {
     let q = cx.selectFrom('usuarios').select('id').where('email', '=', email)
@@ -211,6 +221,7 @@ export function criarRepositorioUsuarios(db: Db) {
     contarPorStatus,
     obter,
     emailEmUso,
+    perfilAtivo,
     inserir,
     atualizar,
     registrarHistorico,

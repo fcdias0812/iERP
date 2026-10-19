@@ -24,11 +24,11 @@ import {
 } from '@/components/ui/command'
 import { EXTRA_PAGES, FALLBACK_ICON, type NavItem } from '@/config/navigation'
 import { can } from '@/config/permissions'
+import { usePermissoes } from '@/hooks/use-can'
 import { useCurrentContext } from '@/hooks/use-can'
 import { useDebounced } from '@/hooks/use-debounced'
 import { isMac, useHotkey } from '@/hooks/use-hotkey'
 import { buscaGlobal, sistemaKeys } from '@/services/sistema'
-import { useSessionStore } from '@/stores/session-store'
 import { useShellStore } from '@/stores/shell-store'
 import { useUiStore } from '@/stores/ui-store'
 
@@ -51,7 +51,7 @@ export function CommandPalette() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const ctx = useCurrentContext()
-  const role = useSessionStore((s) => s.role)
+  const permissoes = usePermissoes()
   const open = useShellStore((s) => s.commandOpen)
   const setOpen = useShellStore((s) => s.setCommandOpen)
   const setShortcutsOpen = useShellStore((s) => s.setShortcutsOpen)
@@ -84,7 +84,7 @@ export function CommandPalette() {
   const screens: Screen[] = []
   const collect = (items: NavItem[], parent?: NavItem) => {
     for (const item of items) {
-      if (!can(role, item.permission)) continue
+      if (!can(permissoes, item.permission)) continue
       if (item.children) collect(item.children, item)
       else if (item.to) screens.push({ item, parent })
     }

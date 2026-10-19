@@ -65,7 +65,7 @@ function andar(periodo: Periodo, ref: string, passo: 1 | -1) {
 
 export function DashboardOperacaoPage() {
   return (
-    <RequirePermission permission="operacao.ver">
+    <RequirePermission permission="operacao.dashboard.ver">
       <Dashboard />
     </RequirePermission>
   )

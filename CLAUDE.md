@@ -25,7 +25,7 @@ antigo (v1) nem de outro lugar.
   construção), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo detalhe de Ordens › Lotes
   —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (em construção); e,
   em Sistema, **Cadastros** (submenu: Materiais, Pallets, Caixotes, Áreas do estoque, Rastreadores GPS)
-  e **Administração › Usuários**.
+  e **Administração** (Usuários, Perfis de acesso, Auditoria).
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
   cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
 - Regra da organização: pesquisar na web antes de afirmar fato técnico (versão, API, menu).
@@ -92,7 +92,10 @@ antigo (v1) nem de outro lugar.
 10. Alturas de controles por densidade: `h-control`, `h-control-sm`, `h-control-lg`, `var(--table-row-h)`.
 11. Datas, moeda, números e porcentagens **só** por `src/lib/format.ts` (idioma atual + fuso
     `America/Sao_Paulo`). Valor vazio = `—` (`EMPTY`).
-12. Ações que dependem de perfil passam por `<Can>`/`useCan` — nunca checar o papel direto na tela.
+12. Ações que dependem de perfil passam por `<Can>`/`useCan` — nunca checar o perfil direto na tela.
+    Permissão = `<página>.<ação>`: a página é o id do item do menu (`clientes`, `ordens.lotes`,
+    `cadastros.caixotes`) e o perfil dá a cada página **Visualizar** (ver/exportar) ou **Editar**
+    (tudo); Administrador pode tudo (`src/config/permissions.ts`, Administração › Perfis de acesso).
 
 ## Antes de entregar
 
@@ -204,6 +207,11 @@ O layout não muda. Modelos completos para copiar:
   carregado sob demanda; config leve em `mapa-config.ts` para não puxar o Leaflet). SLA = `slaDias`
   do cliente; etapas do lote no `status` da ordem (`inspecao`, `processo`, `aguardando_cod`,
   `concluido`).
+- **Perfis de acesso e Auditoria** (Administração) — `server/src/modules/perfis/perfis.ts`
+  (tabela `perfis_acesso`, permissões página → nível em JSON; `admin` fixo) e
+  `server/src/modules/auditoria/auditoria.ts` (junta todos os históricos). Frontend
+  `src/features/admin/perfis/` (matriz `MatrizPermissoes`) e `src/features/admin/auditoria/`.
+  Páginas: `src/config/paginas.ts` (do menu) = `server/src/shared/paginas.ts` (teste confere).
 - **Transportadoras** — detalhe em abas + cadastro no painel (`TransportadoraSheet`) com contatos
   opcionais e motoristas (da lista ou novos). Histórico genérico: tabela `historico` (`server/src/shared/historico.repositorio.ts`).
 
@@ -224,10 +232,12 @@ pelo id interno e a ordem parece aleatória — e de **lista estável** (constan
    Não use `_` como nome de chave nem `context`/`count` como nome de variável: são reservados do i18next.
 2. **Declaração**: em `src/config/navigation.ts`, adicione o módulo em `MODULES` (ícone do
    lucide-react, `labelKey`, `children` com `leaf(modulo, id, labelKey, rota)`). A permissão padrão
-   de cada tela é `<modulo>.ver`; contador de pendências em `badge`.
+   de cada tela é `<modulo>.<tela>.ver` (item direto: `<modulo>.ver`); contador de pendências em
+   `badge`. Página nova entra sozinha nos Perfis de acesso — inclua a chave também em
+   `server/src/shared/paginas.ts` (o teste `src/config/paginas.test.ts` confere).
 3. **Menu**: inclua o id do módulo numa seção do contexto em `CONTEXTS`.
-4. **Permissões**: ajuste a matriz `ROLE_PERMISSIONS` em `src/config/permissions.ts` se o módulo
-   precisar de regra diferente (ações: `ver`, `criar`, `editar`, `excluir`, `aprovar`, `exportar`).
+4. **Permissões**: vêm dos Perfis de acesso (nível por página). Ações: `ver`, `criar`, `editar`,
+   `excluir`, `aprovar`, `exportar` — Visualizar libera `ver`/`exportar`; Editar libera todas.
 5. **Backend**: migration + tipos em `server/src/db/schema.ts` + módulo em
    `server/src/modules/<modulo>/` (ver "Backend") + rotas em `server/src/app.ts` + testes.
 6. **Contrato e chamadas**: tipos em `src/services/types.ts`, chamadas em `src/services/<modulo>.ts`

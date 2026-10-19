@@ -18,7 +18,7 @@ type Item = 'materiais' | 'pallets' | 'caixotes' | 'areas' | 'rastreadores'
 function Pagina({ item, children }: { item: Item; children: ReactNode }) {
   const { t } = useTranslation()
   return (
-    <RequirePermission permission="cadastros.ver">
+    <RequirePermission permission={`cadastros.${item}.ver`}>
       <ListPage title={t(`nav.cadastros.${item}`)} description={t(`cadastros.paginas.${item}`)}>
         {children}
       </ListPage>

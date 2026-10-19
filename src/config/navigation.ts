@@ -69,7 +69,8 @@ function leaf(
   to: string,
   extra: Partial<NavItem> = {},
 ): NavItem {
-  return { id: `${moduleId}.${id}`, labelKey, to, permission: `${moduleId}.ver`, ...extra }
+  // Permissão por PÁGINA (Perfis de acesso): `<módulo>.<item>.ver`, ex.: `ordens.lotes.ver`.
+  return { id: `${moduleId}.${id}`, labelKey, to, permission: `${moduleId}.${id}.ver`, ...extra }
 }
 
 // ---------------------------------------------------------------- módulos
@@ -160,7 +161,11 @@ export const MODULES = {
     id: 'admin',
     labelKey: 'nav.admin.title',
     icon: Settings,
-    children: [leaf('admin', 'usuarios', 'nav.admin.usuarios', '/admin/usuarios')],
+    children: [
+      leaf('admin', 'usuarios', 'nav.admin.usuarios', '/admin/usuarios'),
+      leaf('admin', 'perfis', 'nav.admin.perfis', '/admin/perfis'),
+      leaf('admin', 'auditoria', 'nav.admin.auditoria', '/admin/auditoria'),
+    ],
   },
 } satisfies Record<string, NavItem>
 

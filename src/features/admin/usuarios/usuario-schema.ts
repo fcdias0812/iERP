@@ -1,13 +1,13 @@
 import { z } from '@/lib/zod-i18n'
 import type { Usuario, UsuarioInput } from '@/services/types'
-import { PERFIS } from './fluxo'
 
 /* ------------------------------------------------------------ esquema */
 
 export const usuarioSchema = z.object({
   nome: z.string().trim().min(3).max(120),
   email: z.email().max(160),
-  perfil: z.enum(PERFIS),
+  // Id de um perfil de acesso ativo (Administração › Perfis de acesso).
+  perfil: z.string().min(1, 'validation.required'),
 })
 
 export type UsuarioForm = z.input<typeof usuarioSchema>

@@ -10,6 +10,8 @@ import { criarServicoOrdens, rotasOrdens } from './modules/ordens/ordens.js'
 import { criarServicoDashboard, rotasDashboard } from './modules/dashboard/dashboard.js'
 import { criarServicoHistorico, rotasHistorico } from './modules/historico/historico.js'
 import { criarServicoCadastros, rotasCadastro } from './modules/cadastros/cadastros.js'
+import { criarServicoPerfis, rotasPerfis } from './modules/perfis/perfis.js'
+import { criarServicoAuditoria, rotasAuditoria } from './modules/auditoria/auditoria.js'
 import {
   criarServicoTransportadoras,
   rotasTransportadoras,
@@ -60,6 +62,8 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   api.use('/materiais', rotasCadastro(cadastros.materiais))
   api.use('/areas', rotasCadastro(cadastros.areas))
   api.use('/recipientes', rotasCadastro(cadastros.recipientes, 'tipo'))
+  api.use('/perfis', rotasPerfis(criarServicoPerfis(db)))
+  api.use('/auditoria', rotasAuditoria(criarServicoAuditoria(db)))
   api.use(rotasSistema({ usuarios, clientes, transportadoras, motoristas }))
   api.use(rotaInexistente)
 

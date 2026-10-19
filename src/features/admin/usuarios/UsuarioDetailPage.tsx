@@ -27,7 +27,10 @@ import { AppError, NotFoundContent } from '@/features/system/ErrorPages'
 import { formatDateTime, formatRelative } from '@/lib/format'
 import type { StatusId } from '@/lib/status/statusMap'
 import { ApiError } from '@/services/http'
-import type { AcaoUsuario, Mudanca, Usuario, UsuarioPerfil } from '@/services/types'
+import { usePerfis } from '@/hooks/use-can'
+import { textoEm } from '@/lib/localized-text'
+import type { AcaoUsuario, Mudanca, Usuario } from '@/services/types'
+import { useUiStore } from '@/stores/ui-store'
 import { useBreadcrumb } from '@/stores/breadcrumb-store'
 import { ACOES } from './fluxo'
 import { useTransicaoUsuario, useUsuario } from './use-usuarios'
@@ -37,7 +40,7 @@ import { UsuarioSheet } from './UsuarioSheet'
 export function UsuarioDetailPage() {
   const { id } = useParams({ from: '/_app/admin/usuarios/$id/' })
   return (
-    <RequirePermission permission="admin.ver">
+    <RequirePermission permission="admin.usuarios.ver">
       <UsuarioDetail id={id} />
     </RequirePermission>
   )
@@ -91,11 +94,19 @@ function Detalhe({ u }: { u: Usuario }) {
   const executar = (acao: AcaoUsuario, m?: string) =>
     transicao.mutateAsync({ id: u.id, acao, motivo: m })
 
+  const perfis = usePerfis()
+  const idioma = useUiStore((s) => s.language)
+  /** Nome do perfil de acesso (no idioma da tela). */
+  const nomeDoPerfil = (id: string) => {
+    const p = perfis.data?.find((x) => x.id === id)
+    return p ? textoEm(p.nome, idioma) : id
+  }
+
   /** Valor legível de um campo do histórico. */
   const valor = (campo: string, v: Mudanca['antes']) => {
     if (v === null || v === '') return '—'
     if (campo === 'status') return t(`status.${v as StatusId}`)
-    if (campo === 'perfil') return t(`roles.${v as UsuarioPerfil}`)
+    if (campo === 'perfil') return nomeDoPerfil(String(v))
     return String(v)
   }
   const eventos: TimelineEvent[] = u.historico.map((e) => ({
@@ -149,7 +160,7 @@ function Detalhe({ u }: { u: Usuario }) {
         }
         actions={
           <>
-            <Can permission="admin.editar" fallback="disable">
+            <Can permission="admin.usuarios.editar" fallback="disable">
               <Button variant="secondary" onClick={() => painel(true)}>
                 <Pencil aria-hidden />
                 {t('common.edit')}
@@ -192,7 +203,7 @@ function Detalhe({ u }: { u: Usuario }) {
                     items={[
                       { label: t('usuarios.cols.nome'), value: u.nome },
                       { label: t('usuarios.cols.email'), value: u.email },
-                      { label: t('usuarios.cols.perfil'), value: t(`roles.${u.perfil}`) },
+                      { label: t('usuarios.cols.perfil'), value: nomeDoPerfil(u.perfil) },
                       { label: t('usuarios.cols.status'), value: t(`status.${u.status}`) },
                       {
                         label: t('usuarios.cols.ultimoAcesso'),

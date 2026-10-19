@@ -99,7 +99,7 @@ function CadastroSheetCarregando({ onClose }: { onClose: () => void }) {
       formId="form-recebimento"
       salvando={false}
       sujo={false}
-      permissao="operacao.editar"
+      permissao="operacao.recebimento.editar"
       dados={<Skeleton className="h-64 w-full" />}
     />
   )

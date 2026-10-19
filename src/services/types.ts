@@ -1,5 +1,5 @@
 import type { TablePage } from '@/components/data-table/types'
-import type { Role } from '@/config/permissions'
+import type { NivelAcesso } from '@/config/permissions'
 import type { LocalizedText } from '@/lib/localized-text'
 
 /*
@@ -42,8 +42,8 @@ export interface EventoHistorico {
 
 export type UsuarioStatus = 'ativo' | 'bloqueado' | 'inativo'
 
-/** Perfil de acesso do usuário (mesmos papéis de src/config/permissions.ts). */
-export type UsuarioPerfil = Role
+/** Id do perfil de acesso (Administração › Perfis de acesso). */
+export type UsuarioPerfil = string
 
 /** Ações do fluxo de status do usuário. */
 export type AcaoUsuario = 'bloquear' | 'desbloquear' | 'inativar' | 'reativar'
@@ -871,4 +871,54 @@ export interface RecipienteInput {
   taraKg: number
   areaId: string
   posicao: string
+}
+
+/* ---------------- Administração › Perfis de acesso e Auditoria */
+
+export interface PerfilAcesso {
+  id: string
+  nome: LocalizedText
+  descricao: LocalizedText | null
+  /** Administrador: pode tudo, não muda. */
+  fixo: boolean
+  /** Página do menu → nível; ausente = sem acesso. */
+  permissoes: Partial<Record<string, NivelAcesso>>
+  /** Usuários com este perfil. */
+  usuarios: number
+  status: StatusCadastro
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+export type PerfilAcessoDetalhe = PerfilAcesso & {
+  historico: EventoHistorico[]
+  acoesPermitidas: AcaoCadastro[]
+}
+export interface PerfilAcessoInput {
+  nome: LocalizedText
+  descricao: LocalizedText | null
+  /** Página → nível (null = sem acesso). */
+  permissoes: Record<string, NivelAcesso | null>
+}
+
+export type TipoRegistroAuditoria =
+  | 'usuario'
+  | 'perfil'
+  | 'cliente'
+  | 'transportadora'
+  | 'motorista'
+  | 'veiculo'
+  | 'ordem'
+  | 'material'
+  | 'area'
+  | 'recipiente'
+
+/** Evento da Auditoria: o evento + o registro (tipo, id e nome/código). */
+export interface EventoAuditoria extends EventoHistorico {
+  tipo: TipoRegistroAuditoria
+  registroId: string
+  registroRotulo: string
+  /** Caixote ou pallet (recipientes). */
+  registroSubtipo: string | null
 }

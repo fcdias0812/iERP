@@ -1,8 +1,7 @@
 import { http, HttpResponse } from 'msw/http'
-import i18n from '@/i18n'
 import { facetCounts, runQuery, type EngineColumn } from '@/components/data-table/engine'
 import { searchToQuery, tableSearchSchema } from '@/components/data-table/url-state'
-import { ROLES } from '@/config/permissions'
+import { perfisMock } from './perfis'
 import type {
   AcaoUsuario,
   Mudanca,
@@ -35,7 +34,7 @@ export function colunasUsuario(): EngineColumn<UsuarioResumo>[] {
       id: 'perfil',
       type: 'enum',
       accessor: (r) => r.perfil,
-      options: ROLES.map((r) => ({ value: r, label: i18n.t(`roles.${r}`) })),
+      options: perfisMock().map((p) => ({ value: p.id, label: p.nome.textos['pt-BR'] ?? p.id })),
     },
     { id: 'status', type: 'status', accessor: (r) => r.status },
     { id: 'ultimoAcesso', type: 'date', accessor: (r) => r.ultimoAcesso },
@@ -76,7 +75,8 @@ function validar(input: Partial<UsuarioInput>): string | UsuarioInput {
   const email = normEmail(input.email ?? '')
   if (nome.length < 3) return 'Informe o nome completo.'
   if (!EMAIL.test(email)) return 'E-mail inválido.'
-  if (!input.perfil || !ROLES.includes(input.perfil)) return 'Perfil de acesso inválido.'
+  if (!input.perfil || !perfisMock().some((p) => p.id === input.perfil && p.status === 'ativo'))
+    return 'Escolha um perfil de acesso ativo.'
   return { nome, email, perfil: input.perfil }
 }
 

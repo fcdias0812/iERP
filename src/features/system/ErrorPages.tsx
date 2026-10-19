@@ -4,7 +4,7 @@ import { FileQuestion, House, RefreshCw, ServerCrash, ShieldX } from 'lucide-rea
 import { AppLink } from '@/components/layout/AppLink'
 import { AuthLayout, StatusPage } from '@/components/patterns/StatusPages'
 import { Button } from '@/components/ui/button'
-import { useSessionStore } from '@/stores/session-store'
+import { useNomePerfil } from '@/hooks/use-can'
 
 /*
  * Telas de erro do sistema:
@@ -42,14 +42,14 @@ export function NotFoundContent() {
 /** 403 dentro do shell (perfil sem permissão para a tela). */
 export function ForbiddenContent() {
   const { t } = useTranslation()
-  const role = useSessionStore((s) => s.role)
+  const perfil = useNomePerfil()
   return (
     <StatusPage
       className="py-16"
       icon={<ShieldX />}
       code="403"
       title={t('placeholder.forbiddenTitle')}
-      description={t('placeholder.forbiddenDescription', { role: t(`roles.${role}`) })}
+      description={t('placeholder.forbiddenDescription', { role: perfil })}
       actions={<HomeButton variant="secondary" />}
     />
   )

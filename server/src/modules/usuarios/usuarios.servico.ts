@@ -14,6 +14,9 @@ import type { Mudanca, UsuarioInput, UsuariosResumo } from './usuarios.types.js'
 const emailEmUso = () => new ErroApi(409, 'email_in_use', 'Já existe um usuário com este e-mail.')
 const CAMPOS_EDITAVEIS: (keyof UsuarioInput)[] = ['nome', 'email', 'perfil']
 
+/** Perfil inexistente ou inativo. */
+const perfilInvalido = () => new ErroApi(422, 'validation', 'Escolha um perfil de acesso ativo.')
+
 export function criarServicoUsuarios(repo: RepositorioUsuarios) {
   return {
     listar: (consulta: ConsultaTabela) => repo.listar(consulta),
@@ -36,6 +39,7 @@ export function criarServicoUsuarios(repo: RepositorioUsuarios) {
       const dados = usuarioInputSchema.parse(corpo)
       const id = await repo.transacao(async (trx) => {
         if (await repo.emailEmUso(dados.email, undefined, trx)) throw emailEmUso()
+        if (!(await repo.perfilAtivo(dados.perfil, trx))) throw perfilInvalido()
         const agora = new Date().toISOString()
         const novoId = await repo.inserir(
           trx,
@@ -62,6 +66,8 @@ export function criarServicoUsuarios(repo: RepositorioUsuarios) {
         const atual = await repo.obter(id, trx)
         if (!atual) throw naoEncontrado('Usuário não encontrado.')
         if (await repo.emailEmUso(dados.email, id, trx)) throw emailEmUso()
+        if (dados.perfil !== atual.perfil && !(await repo.perfilAtivo(dados.perfil, trx)))
+          throw perfilInvalido()
         // Histórico com antes → depois só do que mudou.
         const mudancas: Mudanca[] = CAMPOS_EDITAVEIS.filter((k) => atual[k] !== dados[k]).map(
           (k) => ({ campo: k, antes: atual[k], depois: dados[k] }),

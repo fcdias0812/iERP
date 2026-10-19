@@ -571,11 +571,6 @@
       "empresa": "Empresa"
     }
   },
-  "roles": {
-    "admin": "Administrador",
-    "operacao": "Operação",
-    "leitura": "Leitura"
-  },
   "permissions": {
     "denied": "Sem permissão para esta ação (perfil {{role}})."
   },
@@ -693,7 +688,9 @@
     },
     "admin": {
       "title": "Administração",
-      "usuarios": "Usuários"
+      "usuarios": "Usuários",
+      "perfis": "Perfis de acesso",
+      "auditoria": "Auditoria"
     },
     "perfil": "Meu perfil",
     "configuracoes": "Configurações",
@@ -1307,7 +1304,9 @@
     "cpfInUse": "Já existe um motorista com este CPF.",
     "noVehicles": "Nenhum veículo ativo para o cálculo. Cadastre ou reative um em Veículos.",
     "scopeRequired": "Escreva o escopo de trabalho ou anexe pelo menos um documento.",
-    "nameInUse": "Já existe um cadastro com este nome."
+    "nameInUse": "Já existe um cadastro com este nome.",
+    "fixedProfile": "O perfil Administrador é fixo: não se edita nem inativa.",
+    "profileInUse": "Há usuários usando este perfil. Troque o perfil deles antes de inativar."
   },
   "calendar": {
     "today": "Hoje",
@@ -1428,6 +1427,63 @@
         "inativar": "{{name}} foi inativado.",
         "reativar": "{{name}} foi reativado."
       }
+    }
+  },
+  "perfis": {
+    "descricaoPagina": "O que cada perfil pode fazer em cada página do sistema. O perfil de cada pessoa é escolhido em Usuários.",
+    "descricaoPainel": "Nome do perfil e o nível de acesso em cada página do menu.",
+    "novo": "Novo perfil",
+    "vazio": "Nenhum perfil de acesso.",
+    "fixo": "Fixo",
+    "paginasDe": "{{n}} de {{total}}",
+    "cols": {
+      "nome": "Nome",
+      "descricao": "Descrição",
+      "paginas": "Páginas com acesso",
+      "usuarios": "Usuários",
+      "status": "Status"
+    },
+    "secaoDados": "Dados do perfil",
+    "descricaoAjuda": "Opcional. Para que serve o perfil (traduzida para os outros idiomas ao salvar).",
+    "secaoPaginas": "Acesso por página",
+    "secaoPaginasAjuda": "Visualizar: ver e exportar. Editar: tudo — cadastrar, alterar, inativar e remover. Sem acesso: a página some do menu.",
+    "resumo": "Acesso a {{n}} de {{total}} páginas · edita {{editar}}.",
+    "aplicarTodas": "Aplicar a todas",
+    "niveis": {
+      "nenhum": "Sem acesso",
+      "ver": "Visualizar",
+      "editar": "Editar"
+    },
+    "fixoTitle": "Perfil fixo",
+    "fixoBody": "O Administrador tem acesso total a todas as páginas e não pode ser alterado nem inativado.",
+    "inativoBody": "Perfil inativo: não pode ser escolhido para usuários. Reative para usar de novo.",
+    "confirm": {
+      "inativar": "O perfil deixa de aparecer na escolha do perfil dos usuários. O cadastro e o histórico são mantidos e dá para reativar depois.",
+      "reativar": "O perfil volta a poder ser escolhido para os usuários."
+    },
+    "toast": {
+      "criado": "Perfil {{name}} cadastrado.",
+      "salvo": "Perfil {{name}} salvo.",
+      "falhou": "Não foi possível salvar o perfil."
+    }
+  },
+  "auditoria": {
+    "descricao": "Tudo o que acontece no sistema, de todos os registros, do mais recente para o mais antigo.",
+    "erro": "Não foi possível carregar a auditoria.",
+    "cols": {
+      "registro": "Registro"
+    },
+    "tipos": {
+      "cliente": "Cliente",
+      "transportadora": "Transportadora",
+      "motorista": "Motorista",
+      "veiculo": "Veículo",
+      "ordem": "Lote",
+      "material": "Material",
+      "recipiente": "Caixote / pallet",
+      "area": "Área do estoque",
+      "usuario": "Usuário",
+      "perfil": "Perfil de acesso"
     }
   },
   "clientes": {
@@ -1679,7 +1735,8 @@
       "depois": "Depois",
       "nota": "Referência",
       "cliente": "Cliente",
-      "lote": "Lote"
+      "lote": "Lote",
+      "tipo": "Tipo"
     },
     "vazio": "Nenhum registro no histórico.",
     "acoes": {

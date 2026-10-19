@@ -34,6 +34,7 @@ import { apiErrorMessage } from '@/lib/api-errors'
 import { isValidPhone } from '@/lib/validators/br'
 import { enviarFotoPerfil, FOTO_MAX_BYTES, FOTO_TIPOS, removerFotoPerfil } from '@/services/perfil'
 import { z } from '@/lib/zod-i18n'
+import { useNomePerfil } from '@/hooks/use-can'
 import { initials, useSessionStore } from '@/stores/session-store'
 import { useUiStore, type Density, type Language, type ThemePreference } from '@/stores/ui-store'
 
@@ -130,7 +131,8 @@ function ProfilePhoto() {
 /** PERFIL DO USUÁRIO: dados pessoais, acessos e atividade recente. */
 export function ProfilePage() {
   const { t } = useTranslation()
-  const { user, role } = useSessionStore()
+  const { user } = useSessionStore()
+  const perfil = useNomePerfil()
   const form = useForm({
     resolver: zodResolver(profileSchema),
     mode: 'onTouched',
@@ -155,7 +157,7 @@ export function ProfilePage() {
             {user.jobTitle} · {user.email}
           </p>
           <div className="flex flex-wrap gap-2 pt-1">
-            <Badge variant="info">{t(`roles.${role}`)}</Badge>
+            <Badge variant="info">{perfil}</Badge>
             <StatusBadge status="ativo" size="sm" />
           </div>
         </div>
@@ -223,7 +225,7 @@ export function ProfilePage() {
             <KeyValueList
               columns={1}
               items={[
-                { label: t('user.role'), value: t(`roles.${role}`) },
+                { label: t('user.role'), value: perfil },
                 { label: t('context.switch'), value: CONTEXTS.map((c) => c.name).join(', ') },
                 { label: t('profile.lastLogin'), value: formatDateTime(ago(2)) },
               ]}

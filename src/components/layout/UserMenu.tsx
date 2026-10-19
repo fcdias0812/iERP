@@ -26,7 +26,8 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ROLES, type Role } from '@/config/permissions'
+import { useNomePerfil, usePerfis } from '@/hooks/use-can'
+import { textoEm } from '@/lib/localized-text'
 import { initials, useSessionStore } from '@/stores/session-store'
 import { useShellStore } from '@/stores/shell-store'
 import { useUiStore, type Density, type Language, type ThemePreference } from '@/stores/ui-store'
@@ -49,7 +50,10 @@ const DENSITY_KEYS = {
 /** Usuário na navbar: avatar, nome e cargo, com o menu de preferências. */
 export function UserMenu() {
   const { t } = useTranslation()
-  const { user, role, setRole } = useSessionStore()
+  const { user, perfilId, setPerfil } = useSessionStore()
+  const nomePerfil = useNomePerfil()
+  const perfis = usePerfis()
+  const idiomaTela = useUiStore((s) => s.language)
   const { theme, density, language, setTheme, setDensity, setLanguage } = useUiStore()
   const setShortcutsOpen = useShellStore((s) => s.setShortcutsOpen)
   const setSignOutOpen = useShellStore((s) => s.setSignOutOpen)
@@ -174,20 +178,20 @@ export function UserMenu() {
             <DropdownMenuSubTrigger>
               <ShieldUser aria-hidden />
               <span>{t('user.role')}</span>
-              <span className="ml-auto type-caption text-muted-foreground">
-                {t(`roles.${role}`)}
-              </span>
+              <span className="ml-auto type-caption text-muted-foreground">{nomePerfil}</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent className="w-60">
               <DropdownMenuLabel className="type-caption font-normal text-muted-foreground">
                 {t('user.roleHint')}
               </DropdownMenuLabel>
-              <DropdownMenuRadioGroup value={role} onValueChange={(v) => setRole(v as Role)}>
-                {ROLES.map((r) => (
-                  <DropdownMenuRadioItem key={r} value={r}>
-                    {t(`roles.${r}`)}
-                  </DropdownMenuRadioItem>
-                ))}
+              <DropdownMenuRadioGroup value={perfilId} onValueChange={setPerfil}>
+                {(perfis.data ?? [])
+                  .filter((p) => p.status === 'ativo')
+                  .map((p) => (
+                    <DropdownMenuRadioItem key={p.id} value={p.id}>
+                      {textoEm(p.nome, idiomaTela)}
+                    </DropdownMenuRadioItem>
+                  ))}
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>

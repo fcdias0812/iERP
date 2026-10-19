@@ -410,6 +410,22 @@ export interface RecipientesTable {
   alteradoPor: string
 }
 
+/** Perfis de acesso: nível de cada página (JSON); `fixo` = Administrador. */
+export interface PerfisAcessoTable {
+  id: string
+  nome: string
+  nomeOrdem: string
+  descricao: string | null
+  fixo: number
+  permissoes: string
+  status: string
+  busca: string
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
 export interface Database {
   usuarios: UsuariosTable
   usuariosHistorico: UsuariosHistoricoTable
@@ -441,4 +457,5 @@ export interface Database {
   materiais: MateriaisTable
   areasEstoque: AreasEstoqueTable
   recipientes: RecipientesTable
+  perfisAcesso: PerfisAcessoTable
 }
