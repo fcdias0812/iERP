@@ -72,10 +72,17 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `492ab13` | Relacionamento: Transportadoras, Veículos, Motoristas; cadastro sempre no painel lateral |
 | `a66737c` | Operação: menu Ordens/Operação/Estoque; Ordens › Lotes e Agendamento com pré-cálculo     |
 | `5a6a734` | Contexto completo em `.claude/` (primeiro push no GitHub)                                |
-| (este)    | Operação › Dashboard; SLA no cliente; etapas do lote                                     |
+| `33519cd` | Operação › Dashboard; SLA no cliente; etapas do lote                                     |
 
-Portão de qualidade verde em `a66737c`: lint, typecheck (front e servidor), 59 testes unitários,
-57 testes do servidor, 133 e2e (Playwright + axe WCAG 2.2 AA), contraste 158/158, cores, build.
+Portão de qualidade verde em `33519cd`: lint, typecheck (front e servidor), 60 testes unitários,
+61 testes do servidor, 141 e2e (Playwright + axe WCAG 2.2 AA), contraste 158/158, cores, build.
+
+**Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
+clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
+de desenvolvimento deste PC (dados de teste do usuário) **não** vai junto — o outro PC começa com o
+seed fictício (inclui SLA fictício em alguns clientes). Não há cliente "Microsoft" no seed: para ver o
+mapa com pontos, cadastre um cliente com "Microsoft" no nome, com sites com localização. A chave da
+Esri (`VITE_ESRI_API_KEY`, em `.env.local`) ainda não existe — sem ela, só fundos Limpo e Cinza.
 
 ### Menu hoje
 
@@ -282,6 +289,8 @@ negócio (perguntar). Resumo:
 
 ## 7. Próximo passo sugerido
 
-Ele escolhe. Opções já levantadas: Viagens ativas / Histórico de viagens; página de detalhe do lote;
-Operação › Lotes e as etapas; Estoque. Antes de construir qualquer uma, fazer as perguntas da §6
-correspondentes.
+Ele escolhe. Opções já levantadas: Ordens › Viagens ativas / Histórico de viagens; página de detalhe
+do lote; Operação › Lotes, Recebimento e as etapas (quem muda a etapa — integração ou tela); Operação ›
+Chamados internos (alimenta o Harvesting do dashboard); Operação › Histórico; Estoque. Ele também
+disse que vai mostrar as **exceções entre data de coleta e de recebimento** (afetam a previsão de
+chegada). Antes de construir qualquer uma, fazer as perguntas da §6 correspondentes.
