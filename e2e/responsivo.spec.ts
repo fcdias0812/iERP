@@ -13,6 +13,8 @@ const ROTAS = [
   '/transportadoras?aberto=novo',
   '/motoristas?aberto=mot00001',
   '/veiculos?aberto=vei00001',
+  '/ordens/lotes',
+  '/ordens/agendamento',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
   '/admin/usuarios?aberto=novo',

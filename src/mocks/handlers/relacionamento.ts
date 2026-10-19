@@ -162,24 +162,24 @@ function gerar(): Store {
   })
   const veiculos = [
     vei(1, 'van', {
-      volumeMinimo: 4,
-      volumeMaximo: 8,
+      volumeMinimo: 1,
+      volumeMaximo: 4,
       comprimento: 3.5,
       largura: 1.8,
       capacidadePallets: 4,
       capacidadeToneladas: 1.5,
     }),
     vei(2, 'truck', {
-      volumeMinimo: 12,
-      volumeMaximo: 20,
+      volumeMinimo: 5,
+      volumeMaximo: 14,
       comprimento: 8.5,
       largura: 2.5,
       capacidadePallets: 14,
       capacidadeToneladas: 14,
     }),
     vei(3, 'carreta', {
-      volumeMinimo: 25,
-      volumeMaximo: 35,
+      volumeMinimo: 15,
+      volumeMaximo: 28,
       comprimento: 14,
       largura: 2.6,
       capacidadePallets: 28,

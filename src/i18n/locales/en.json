@@ -664,7 +664,32 @@
     "sections": {
       "principal": "Main",
       "relacionamento": "Relationships",
-      "sistema": "System"
+      "sistema": "System",
+      "operacao": "Operations"
+    },
+    "ordens": {
+      "title": "Orders",
+      "lotes": "Lots",
+      "agendamento": "Scheduling",
+      "viagensAtivas": "Active trips",
+      "historico": "Trip history"
+    },
+    "operacao": {
+      "title": "Operations",
+      "dashboard": "Dashboard",
+      "lotes": "Lots",
+      "recebimento": "Receiving",
+      "chamados": "Internal tickets",
+      "historico": "History"
+    },
+    "estoque": {
+      "title": "Inventory",
+      "materiais": "Materials",
+      "assets": "Assets",
+      "servidores": "Servers",
+      "ecommerce": "E-commerce",
+      "pecas": "Parts",
+      "historico": "History"
     },
     "admin": {
       "title": "Administration",
@@ -715,7 +740,8 @@
     "pastDate": "The date can’t be earlier than today.",
     "coordinates": "Use the \"latitude, longitude\" format (e.g. -22.85, -47.22).",
     "duplicate": "This value is already in use.",
-    "volumeOrder": "Minimum volume can’t be greater than the maximum."
+    "volumeOrder": "Minimum volume can’t be greater than the maximum.",
+    "scopeRequired": "Write the scope of work or attach at least one document."
   },
   "confirm": {
     "typeToConfirm": "To confirm, type"
@@ -809,7 +835,8 @@
     "em_ferias": "On vacation",
     "em_manutencao": "Under maintenance",
     "divergente": "Discrepancy",
-    "afastado": "On leave"
+    "afastado": "On leave",
+    "agendado": "Scheduled"
   },
   "dataTable": {
     "yes": "Yes",
@@ -1255,7 +1282,9 @@
     "geoUnavailable": "Location service unavailable. Try again.",
     "cepNotFound": "ZIP code (CEP) not found.",
     "addressNotFound": "Address not found on the map.",
-    "cpfInUse": "A driver with this CPF already exists."
+    "cpfInUse": "A driver with this CPF already exists.",
+    "noVehicles": "No active vehicle for the calculation. Add or reactivate one in Vehicles.",
+    "scopeRequired": "Write the scope of work or attach at least one document."
   },
   "calendar": {
     "today": "Today",
@@ -1851,12 +1880,134 @@
     "inativoTitle": "Inactive vehicle",
     "inativoBody": "The record and history are kept. Reactivate to use it again.",
     "escolhaTipo": "Choose the type",
-    "pallets": "pallets"
+    "pallets": "pallets",
+    "unidadeVolumes": "volumes"
   },
   "cadastro": {
     "abas": {
       "dados": "Details",
       "historico": "History"
+    }
+  },
+  "ordens": {
+    "agendamento": {
+      "title": "Scheduling",
+      "description": "Schedule the pickup. Creating the order adds the lot to Orders › Lots as scheduled.",
+      "secoes": {
+        "local": "Customer and location",
+        "coleta": "Pickup",
+        "rastreio": "Tracking",
+        "servicos": "Services",
+        "quantidades": "Quantities",
+        "anexos": "Work order attachments"
+      },
+      "secoesAjuda": {
+        "local": "The site appears after the customer; the dock, after the site.",
+        "rastreio": "Tracking the pickup lets you set the driver and the truck plate.",
+        "servicos": "III and IV come checked: they are the most common.",
+        "anexos": "Free text and documents. Only the scope of work is required."
+      },
+      "campos": {
+        "cliente": "Customer",
+        "site": "Site",
+        "doca": "Dock",
+        "transportadora": "Carrier",
+        "referenciaCliente": "Customer's reference lot number",
+        "dataColeta": "Pickup date",
+        "coletaPrevista": "Expected pickup",
+        "dataChegada": "Arrival date",
+        "rastrear": "Track the pickup",
+        "motorista": "Driver",
+        "placa": "Truck plate",
+        "boxes": "Boxes",
+        "pallets": "Pallets",
+        "gaylords": "Gaylords",
+        "racks": "Racks",
+        "placasPolicarbonato": "Polycarbonate sheets needed",
+        "requerPalletsVazios": "Requires empty pallets",
+        "palletsVazios": "Number of empty pallets",
+        "itensMais25kg": "Will items weigh more than 25 kg?",
+        "fatorLimitante": "Limiting factor",
+        "escopo": "Scope of work",
+        "observacoes": "Notes & attachments",
+        "texto": "Text",
+        "arquivos": "Documents"
+      },
+      "ajuda": {
+        "escolhaCliente": "Choose the customer first.",
+        "escolhaSite": "Choose the site first.",
+        "semSites": "This customer has no site yet. Add one in the customer's Logistics tab.",
+        "semDocas": "This site has no dock.",
+        "buscarCliente": "Search customer…",
+        "nenhumaTransportadora": "No carrier",
+        "nenhumMotorista": "No driver",
+        "coletaPrevista": "Estimated day, while the pickup has no set date.",
+        "placas": "How many sheets to bring to protect floors and passages.",
+        "fatorLimitante": "E.g.: stairs, small elevator, restricted hours.",
+        "escopo": "Required: write the scope or attach at least one document.",
+        "removerArquivo": "Remove {{name}}",
+        "doca": "Dock {{numero}}"
+      },
+      "servicos": {
+        "psm": "I. PSM (shredded gaylords)",
+        "onsiteShredding": "II. Onsite Shredding (DBD)",
+        "recycleOnly": "III. Recycle Only",
+        "valueRecoveryRacks": "IV. Value Recovery (Racks)",
+        "valueRecoveryItad": "V. Value Recovery (ITAD)"
+      },
+      "criar": "Create order",
+      "preCalcular": "Pre-calculate",
+      "recalcular": "Recalculate",
+      "toast": {
+        "created": "Lot {{code}} scheduled.",
+        "failed": "Couldn't create the order."
+      },
+      "calculo": {
+        "titulo": "Pre-calculation",
+        "vazio": "Works out the truck, trips, people and what to bring, from the chosen quantities, services and dock. Nothing is saved.",
+        "faltaDoca": "Choose the dock: the calculation depends on its limits.",
+        "desatualizado": "The data changed since the last calculation. Recalculate.",
+        "erro": "Couldn't calculate.",
+        "totalVolumes": "Total volumes",
+        "boxesNaoContam": "boxes don't count",
+        "caminhao": "Truck",
+        "capacidade": "Truck capacity",
+        "viagens": "Number of trips",
+        "pessoas": "People",
+        "plataforma": "Truck with lift platform",
+        "shredder": "Bring shredder",
+        "gaylord": "Bring gaylord",
+        "palletVazio": "Bring empty pallet",
+        "simQtd": "Yes ({{n}})",
+        "volumesN": "{{n}} volumes",
+        "avisos": {
+          "sem_servico": "No service checked.",
+          "nenhum_cabe": "No vehicle fits the dock; the smallest ({{tipo}}) was kept. Check manually.",
+          "rebaixado": "The ideal truck ({{desejado}}) doesn't fit the dock; changed to {{final}}."
+        }
+      }
+    },
+    "lotes": {
+      "description": "Scheduled lots. To schedule a new one, use Scheduling.",
+      "emptyTitle": "No scheduled lots",
+      "emptyBody": "Adjust the search or filters, or schedule a new lot.",
+      "novo": "New scheduling",
+      "cols": {
+        "codigo": "Lot",
+        "cliente": "Customer",
+        "site": "Site",
+        "doca": "Dock",
+        "referencia": "Customer ref.",
+        "transportadora": "Carrier",
+        "dataColeta": "Pickup date",
+        "coletaPrevista": "Expected pickup",
+        "dataChegada": "Arrival date",
+        "rastrear": "Tracked",
+        "servicos": "Services",
+        "totalVolumes": "Volumes",
+        "status": "Status",
+        "criadoEm": "Scheduled on"
+      }
     }
   }
 }

@@ -236,10 +236,11 @@ const MOTORISTAS: [string, string, string, number | null][] = [
 ]
 
 const VEICULOS: ['truck' | 'carreta' | 'van', number, number, number, number, number, number][] = [
-  // tipo, vol. mín (m²), vol. máx (m²), comprimento (m), largura (m), pallets, toneladas
-  ['van', 4, 8, 3.2, 1.7, 4, 1.5],
-  ['truck', 14, 28, 8.5, 2.5, 12, 12],
-  ['carreta', 30, 45, 14.6, 2.6, 28, 32],
+  // tipo, volumes mín., volumes máx., comprimento (m), largura (m), pallets, toneladas
+  // (faixas de volumes contínuas: o cálculo da OS escolhe o veículo por elas)
+  ['van', 1, 4, 3.2, 1.7, 4, 1.5],
+  ['truck', 5, 12, 8.5, 2.5, 12, 12],
+  ['carreta', 13, 28, 14.6, 2.6, 28, 32],
 ]
 
 export async function semearRelacionamento(db: Db): Promise<number> {

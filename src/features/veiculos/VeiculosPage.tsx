@@ -89,13 +89,13 @@ function Veiculos() {
       },
       ...(
         [
-          ['volumeMinimo', 'm²', 150],
-          ['volumeMaximo', 'm²', 150],
+          ['volumeMinimo', t('veiculos.unidadeVolumes'), 150],
+          ['volumeMaximo', t('veiculos.unidadeVolumes'), 150],
           ['comprimento', 'm', 140],
           ['largura', 'm', 120],
           ['capacidadePallets', '', 180],
           ['capacidadeToneladas', 't', 190],
-        ] as const
+        ] as const satisfies readonly (readonly [keyof Veiculo, string, number])[]
       ).map(([id, unidade, size]): DataTableColumn<Veiculo> => ({
         id,
         header: t(`veiculos.cols.${id}`),
@@ -320,8 +320,8 @@ function VeiculoFormulario({
             </RhfField>
           </CadastroSecao>
           <CadastroSecao titulo={t('veiculos.secoes.medidas')}>
-            {numero('volumeMinimo', 'm²')}
-            {numero('volumeMaximo', 'm²')}
+            {numero('volumeMinimo', t('veiculos.unidadeVolumes'), 0)}
+            {numero('volumeMaximo', t('veiculos.unidadeVolumes'), 0)}
             {numero('comprimento', 'm')}
             {numero('largura', 'm')}
           </CadastroSecao>

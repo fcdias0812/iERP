@@ -19,6 +19,8 @@ import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoe
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
 import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
 import { Route as AppMotoristasIndexRouteImport } from './routes/_app/motoristas/index'
+import { Route as AppOrdensAgendamentoRouteImport } from './routes/_app/ordens/agendamento'
+import { Route as AppOrdensLotesRouteImport } from './routes/_app/ordens/lotes'
 import { Route as AppTransportadorasIndexRouteImport } from './routes/_app/transportadoras/index'
 import { Route as AppVeiculosIndexRouteImport } from './routes/_app/veiculos/index'
 import { Route as AppAdminUsuariosIndexRouteImport } from './routes/_app/admin/usuarios/index'
@@ -75,6 +77,16 @@ const AppMotoristasIndexRoute = AppMotoristasIndexRouteImport.update({
   path: '/motoristas/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrdensAgendamentoRoute = AppOrdensAgendamentoRouteImport.update({
+  id: '/ordens/agendamento',
+  path: '/ordens/agendamento',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrdensLotesRoute = AppOrdensLotesRouteImport.update({
+  id: '/ordens/lotes',
+  path: '/ordens/lotes',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTransportadorasIndexRoute = AppTransportadorasIndexRouteImport.update({
   id: '/transportadoras/',
   path: '/transportadoras/',
@@ -115,6 +127,8 @@ export interface FileRoutesByFullPath {
   '/$': typeof AppSplatRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
+  '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
+  '/ordens/lotes': typeof AppOrdensLotesRoute
   '/clientes/': typeof AppClientesIndexRoute
   '/motoristas/': typeof AppMotoristasIndexRoute
   '/transportadoras/': typeof AppTransportadorasIndexRoute
@@ -132,6 +146,8 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
+  '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
+  '/ordens/lotes': typeof AppOrdensLotesRoute
   '/clientes': typeof AppClientesIndexRoute
   '/motoristas': typeof AppMotoristasIndexRoute
   '/transportadoras': typeof AppTransportadorasIndexRoute
@@ -151,6 +167,8 @@ export interface FileRoutesById {
   '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/ordens/agendamento': typeof AppOrdensAgendamentoRoute
+  '/_app/ordens/lotes': typeof AppOrdensLotesRoute
   '/_app/clientes/': typeof AppClientesIndexRoute
   '/_app/motoristas/': typeof AppMotoristasIndexRoute
   '/_app/transportadoras/': typeof AppTransportadorasIndexRoute
@@ -170,6 +188,8 @@ export interface FileRouteTypes {
     | '/$'
     | '/configuracoes'
     | '/perfil'
+    | '/ordens/agendamento'
+    | '/ordens/lotes'
     | '/clientes/'
     | '/motoristas/'
     | '/transportadoras/'
@@ -187,6 +207,8 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/perfil'
     | '/'
+    | '/ordens/agendamento'
+    | '/ordens/lotes'
     | '/clientes'
     | '/motoristas'
     | '/transportadoras'
@@ -205,6 +227,8 @@ export interface FileRouteTypes {
     | '/_app/configuracoes'
     | '/_app/perfil'
     | '/_app/'
+    | '/_app/ordens/agendamento'
+    | '/_app/ordens/lotes'
     | '/_app/clientes/'
     | '/_app/motoristas/'
     | '/_app/transportadoras/'
@@ -294,6 +318,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMotoristasIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/ordens/agendamento': {
+      id: '/_app/ordens/agendamento'
+      path: '/ordens/agendamento'
+      fullPath: '/ordens/agendamento'
+      preLoaderRoute: typeof AppOrdensAgendamentoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ordens/lotes': {
+      id: '/_app/ordens/lotes'
+      path: '/ordens/lotes'
+      fullPath: '/ordens/lotes'
+      preLoaderRoute: typeof AppOrdensLotesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/transportadoras/': {
       id: '/_app/transportadoras/'
       path: '/transportadoras'
@@ -344,6 +382,8 @@ interface AppRouteChildren {
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppOrdensAgendamentoRoute: typeof AppOrdensAgendamentoRoute
+  AppOrdensLotesRoute: typeof AppOrdensLotesRoute
   AppClientesIndexRoute: typeof AppClientesIndexRoute
   AppMotoristasIndexRoute: typeof AppMotoristasIndexRoute
   AppTransportadorasIndexRoute: typeof AppTransportadorasIndexRoute
@@ -359,6 +399,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
+  AppOrdensAgendamentoRoute: AppOrdensAgendamentoRoute,
+  AppOrdensLotesRoute: AppOrdensLotesRoute,
   AppClientesIndexRoute: AppClientesIndexRoute,
   AppMotoristasIndexRoute: AppMotoristasIndexRoute,
   AppTransportadorasIndexRoute: AppTransportadorasIndexRoute,

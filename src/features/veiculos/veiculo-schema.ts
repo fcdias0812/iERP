@@ -10,8 +10,9 @@ const medida = (max: number) => z.number().min(0).max(max).nullable()
 export const veiculoSchema = z
   .object({
     tipo: z.enum(['truck', 'carreta', 'van'], { error: 'validation.required' }),
-    volumeMinimo: medida(10_000),
-    volumeMaximo: medida(10_000),
+    // Quantidade de volumes (pallets + gaylords + racks): faixa do cálculo da OS.
+    volumeMinimo: z.number().int().min(0).max(10_000).nullable(),
+    volumeMaximo: z.number().int().min(0).max(10_000).nullable(),
     comprimento: medida(50),
     largura: medida(10),
     capacidadePallets: z.number().int().min(0).max(1000).nullable(),

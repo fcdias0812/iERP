@@ -203,9 +203,9 @@ export interface MotoristasListaView extends MotoristasTable {
 
 export interface VeiculosTable extends Controle {
   tipo: string
-  /** m² */
+  /** Quantidade de volumes (pallets + gaylords + racks) — faixa usada no cálculo da OS. */
   volumeMinimo: number | null
-  /** m² */
+  /** Quantidade de volumes. */
   volumeMaximo: number | null
   /** metros */
   comprimento: number | null
@@ -215,6 +215,59 @@ export interface VeiculosTable extends Controle {
   capacidadePallets: number | null
   /** toneladas */
   capacidadeToneladas: number | null
+}
+
+/** Ordem = lote agendado. Sim/não em 0/1; datas como início do dia (ISO UTC). */
+export interface OrdensTable extends Controle {
+  clienteId: string
+  siteId: string
+  docaId: string
+  transportadoraId: string | null
+  referenciaCliente: string | null
+  dataColeta: string
+  coletaPrevista: string | null
+  dataChegada: string | null
+  rastrear: number
+  motoristaId: string | null
+  placa: string | null
+  psm: number
+  onsiteShredding: number
+  recycleOnly: number
+  valueRecoveryRacks: number
+  valueRecoveryItad: number
+  qtdBoxes: number | null
+  qtdPallets: number | null
+  qtdGaylords: number | null
+  qtdRacks: number | null
+  placasPolicarbonato: number | null
+  requerPalletsVazios: number
+  qtdPalletsVazios: number | null
+  itensMais25kg: number
+  fatorLimitante: string | null
+  escopo: string | null
+  observacoes: string | null
+  /** Pré-cálculo do momento da criação (JSON). */
+  calculo: string | null
+}
+
+export interface OrdensListaView extends OrdensTable {
+  clienteNome: string
+  siteCodigo: string
+  docaNumero: string
+  transportadoraNome: string | null
+  motoristaNome: string | null
+  totalVolumes: number
+}
+
+export interface OrdensAnexosTable {
+  id: string
+  ordemId: string
+  secao: string
+  nome: string
+  extensao: string
+  tamanho: number
+  enviadoEm: string
+  enviadoPor: string
 }
 
 export interface Database {
@@ -234,4 +287,7 @@ export interface Database {
   motoristas: MotoristasTable
   motoristasLista: MotoristasListaView
   veiculos: VeiculosTable
+  ordens: OrdensTable
+  ordensLista: OrdensListaView
+  ordensAnexos: OrdensAnexosTable
 }

@@ -6,7 +6,10 @@ ERP da Re-Teck focado em **logística reversa**. Esta é a versão 2, construíd
 > **Status:** menu **Relacionamento** com **Clientes** (cadastro com CNPJ e contatos; detalhe em
 > abas: visão geral com lotes, contatos, logística com sites/docas e mapa, documentos,
 > configurações, histórico em tabela), **Transportadoras** (contatos e motoristas), **Veículos**
-> (tipo, medidas e capacidade) e **Motoristas**; e **Administração › Usuários**. Pendentes: aba Configurações (a definir) e a integração
+> (tipo, medidas e capacidade) e **Motoristas**; menu **Operação** com **Ordens › Lotes**
+> (lotes agendados) e **Ordens › Agendamento** (cria o lote, com pré-cálculo de caminhão, viagens
+> e pessoas) — as demais telas de Operação e Estoque estão "em construção"; e
+> **Administração › Usuários**. Pendentes: aba Configurações (a definir) e a integração
 > de lotes com os sistemas de produção. Login ainda não definido (sessão simulada).
 
 ## Arquitetura
@@ -124,10 +127,11 @@ src/                        FRONTEND (padrão do template)
   features/transportadoras/ Transportadoras (lista, detalhe com abas, formulário com contatos e motoristas)
   features/motoristas/      Motoristas (lista + painel lateral)
   features/veiculos/        Veículos (lista + painel lateral)
+  features/ordens/          Ordens › Lotes (agendados) e Agendamento (página própria + pré-cálculo)
   features/comum/           peças compartilhadas: contatos, histórico (auditoria), painel de cadastro
                             (CadastroSheet — todo cadastro/edição abre no painel lateral à direita)
   features/admin/usuarios/  telas de Admin › Usuários (lista, detalhe, formulário)
-  routes/_app/              rotas (clientes/, transportadoras/, motoristas/, veiculos/, admin/usuarios/)
+  routes/_app/              rotas (clientes/, transportadoras/, motoristas/, veiculos/, ordens/, admin/usuarios/)
   services/                 chamadas à API + contrato (types.ts)
   mocks/                    API simulada (opcional)
   i18n/locales/             pt-BR, en, zh-TW
@@ -181,14 +185,37 @@ Os três seguem o mesmo molde: `GET /api/<modulo>` (lista do DataTable), `GET /r
 `GET /:id` (detalhe + histórico + ações), `POST`, `PUT /:id` e `POST /:id/transicao`
 (`inativar`, `reativar` — nada é excluído).
 
-| Módulo          | Campos                                                                                                                       | Regras                                                                                                                                                                           |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Transportadoras | `nome`, `cnpj`, `contatos[]` (opcionais), `motoristas[]` (`{ id }` da lista ou `{ novo: { nome, cpf, telefone } }`)          | CNPJ único (409 `cnpj_in_use`); se houver contatos, um é o principal; motorista de outra transportadora muda para esta; quem sai da lista fica sem transportadora. `GET /opcoes` |
-| Motoristas      | `nome`, `cpf`, `telefone`, `transportadoraId` **ou** `novaTransportadora: { nome, cnpj }` (opcional)                         | CPF único (409 `cpf_in_use`); a transportadora nova entra em Transportadoras                                                                                                     |
-| Veículos        | `tipo` (`truck`, `carreta`, `van`), volume mínimo/máximo (m²), comprimento/largura (m), capacidade em pallets e em toneladas | volume mínimo ≤ máximo; sem placa e sem vínculo com transportadora ou motorista                                                                                                  |
+| Módulo          | Campos                                                                                                                                          | Regras                                                                                                                                                                           |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Transportadoras | `nome`, `cnpj`, `contatos[]` (opcionais), `motoristas[]` (`{ id }` da lista ou `{ novo: { nome, cpf, telefone } }`)                             | CNPJ único (409 `cnpj_in_use`); se houver contatos, um é o principal; motorista de outra transportadora muda para esta; quem sai da lista fica sem transportadora. `GET /opcoes` |
+| Motoristas      | `nome`, `cpf`, `telefone`, `transportadoraId` **ou** `novaTransportadora: { nome, cnpj }` (opcional)                                            | CPF único (409 `cpf_in_use`); a transportadora nova entra em Transportadoras                                                                                                     |
+| Veículos        | `tipo` (`truck`, `carreta`, `van`), volume mínimo/máximo (quantidade de volumes), comprimento/largura (m), capacidade em pallets e em toneladas | volume mínimo ≤ máximo; sem placa e sem vínculo com transportadora ou motorista                                                                                                  |
 
 Toda mudança (inclusive vincular/desvincular motorista) vai para o histórico do registro
 (tabela `historico`, por entidade).
+
+## API de ordens (agendamento)
+
+| Método e caminho                              | O que faz                                                                                                                  |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/ordens`                             | lotes agendados (formato do DataTable)                                                                                     |
+| `GET /api/ordens/:id`                         | detalhe com quantidades, anexos, cálculo guardado e histórico                                                              |
+| `POST /api/ordens/pre-calculo`                | `{ docaId, servicos, quantidades }` → caminhão, capacidade, viagens, pessoas, plataforma, o que levar e avisos (não grava) |
+| `POST /api/ordens`                            | cria o lote `LOT-00001` (multipart: `dados` JSON + arquivos `escopo` e `observacoes`, até 20 cada, 25 MB por arquivo)      |
+| `GET /api/ordens/:id/anexos/:anexoId/arquivo` | baixa um anexo (sempre como anexo)                                                                                         |
+
+Obrigatórios: cliente, site (do cliente), doca (do site), data de coleta e o escopo de trabalho (texto **ou**
+arquivo — 422 `scope_required`). Placas de policarbonato só com o serviço IV (Value Recovery –
+Racks); quantidade de pallets vazios quando "requer pallets vazios"; motorista e placa só com
+rastreio. Datas de coleta/chegada são gravadas como o início do dia em São Paulo.
+
+**Pré-cálculo** (`server/src/modules/ordens/ordens.calculo.ts`, portado do sistema anterior com os
+mesmos números): volumes = pallets + gaylords + racks (boxes não contam); o caminhão sai da faixa
+de volumes do cadastro de Veículos (só os ativos) e é rebaixado se não couber na doca
+(comprimento máximo e espaço); viagens = volumes ÷ capacidade em pallets, para cima; pessoas = 2
+
+- 2 (Onsite Shredding) + 1 (Recycle Only) + 2 a cada 10 racks (Value Recovery); plataforma quando
+  a doca não tem dock leveler ou tem tail lift. Sem veículo ativo: 422 `no_vehicles`.
 
 ## API de usuários
 

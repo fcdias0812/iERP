@@ -387,9 +387,9 @@ export interface Veiculo {
   id: string
   codigo: string
   tipo: TipoVeiculo
-  /** m² */
+  /** Quantidade de volumes (pallets + gaylords + racks): faixa usada no cálculo da OS. */
   volumeMinimo: number | null
-  /** m² */
+  /** Quantidade de volumes. */
   volumeMaximo: number | null
   /** metros */
   comprimento: number | null
@@ -423,6 +423,126 @@ export type VeiculoInput = Pick<
 >
 
 export type PaginaVeiculos = TablePage<Veiculo> & {
+  facets: Record<string, Record<string, number>>
+}
+
+/* ------------------------------------------------------------ ordens (agendamento / lotes) */
+
+export type StatusOrdem = 'agendado'
+export type SecaoAnexo = 'escopo' | 'observacoes'
+
+export interface ServicosOs {
+  psm: boolean
+  onsiteShredding: boolean
+  recycleOnly: boolean
+  valueRecoveryRacks: boolean
+  valueRecoveryItad: boolean
+}
+
+export interface QuantidadesOs {
+  boxes: number | null
+  pallets: number | null
+  gaylords: number | null
+  racks: number | null
+  /** Só com Value Recovery (Racks). */
+  placasPolicarbonato: number | null
+  requerPalletsVazios: boolean
+  /** Só quando requer pallets vazios. */
+  palletsVazios: number | null
+  itensMais25kg: boolean
+  fatorLimitante: string | null
+}
+
+export type AvisoCalculo =
+  | { codigo: 'sem_servico' }
+  | { codigo: 'nenhum_cabe'; tipo: string; comprimentoMax: number | null }
+  | { codigo: 'rebaixado'; desejado: string; final: string }
+
+/** Pré-cálculo da OS (o que levar, caminhão, viagens, pessoas). */
+export interface CalculoOs {
+  totalVolumes: number
+  volumesEfetivos: number
+  veiculo: { tipo: string; comprimento: number | null; capacidade: number }
+  caminhaoPlataforma: boolean
+  viagens: number
+  levarShredder: boolean
+  levarGaylordReteck: boolean
+  levarPalletsVazios: boolean
+  qtdPalletsVazios: number
+  totalPessoas: number
+  avisos: AvisoCalculo[]
+}
+
+export interface AnexoOrdem {
+  id: string
+  secao: SecaoAnexo
+  nome: string
+  extensao: string
+  tamanho: number
+  enviadoEm: string
+  enviadoPor: string
+}
+
+/** Lote agendado (linha da lista). Datas: início do dia (ISO UTC). */
+export interface OrdemResumo {
+  id: string
+  codigo: string
+  status: StatusOrdem
+  clienteId: string
+  clienteNome: string
+  siteCodigo: string
+  docaNumero: string
+  transportadoraNome: string | null
+  referenciaCliente: string | null
+  dataColeta: string
+  coletaPrevista: string | null
+  dataChegada: string | null
+  rastrear: boolean
+  motoristaNome: string | null
+  placa: string | null
+  servicos: ServicosOs
+  totalVolumes: number
+  criadoEm: string
+}
+
+export interface Ordem extends OrdemResumo {
+  siteId: string
+  docaId: string
+  transportadoraId: string | null
+  motoristaId: string | null
+  quantidades: QuantidadesOs
+  escopo: string | null
+  observacoes: string | null
+  anexos: AnexoOrdem[]
+  calculo: CalculoOs | null
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+  historico: EventoHistorico[]
+}
+
+/** Nova ordem (vai como `dados` no multipart, com os arquivos de escopo e observações). */
+export interface OrdemInput {
+  clienteId: string
+  siteId: string
+  docaId: string
+  transportadoraId: string | null
+  referenciaCliente: string | null
+  /** yyyy-mm-dd (obrigatória) */
+  dataColeta: string
+  coletaPrevista: string | null
+  dataChegada: string | null
+  rastrear: boolean
+  motoristaId: string | null
+  /** Sem pontuação. */
+  placa: string | null
+  servicos: ServicosOs
+  quantidades: QuantidadesOs
+  escopo: string | null
+  observacoes: string | null
+}
+
+export type PaginaOrdens = TablePage<OrdemResumo> & {
   facets: Record<string, Record<string, number>>
 }
 

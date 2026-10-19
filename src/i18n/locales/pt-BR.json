@@ -664,7 +664,32 @@
     "sections": {
       "principal": "Principal",
       "relacionamento": "Relacionamento",
-      "sistema": "Sistema"
+      "sistema": "Sistema",
+      "operacao": "Operação"
+    },
+    "ordens": {
+      "title": "Ordens",
+      "lotes": "Lotes",
+      "agendamento": "Agendamento",
+      "viagensAtivas": "Viagens ativas",
+      "historico": "Histórico de viagens"
+    },
+    "operacao": {
+      "title": "Operação",
+      "dashboard": "Dashboard",
+      "lotes": "Lotes",
+      "recebimento": "Recebimento",
+      "chamados": "Chamados internos",
+      "historico": "Histórico"
+    },
+    "estoque": {
+      "title": "Estoque",
+      "materiais": "Materiais",
+      "assets": "Assets",
+      "servidores": "Servidores",
+      "ecommerce": "E-commerce",
+      "pecas": "Peças",
+      "historico": "Histórico"
     },
     "admin": {
       "title": "Administração",
@@ -715,7 +740,8 @@
     "pastDate": "A data não pode ser anterior a hoje.",
     "coordinates": "Use o formato \"latitude, longitude\" (ex.: -22.85, -47.22).",
     "duplicate": "Este valor já foi usado.",
-    "volumeOrder": "O volume mínimo não pode ser maior que o máximo."
+    "volumeOrder": "O volume mínimo não pode ser maior que o máximo.",
+    "scopeRequired": "Escreva o escopo de trabalho ou anexe pelo menos um documento."
   },
   "confirm": {
     "typeToConfirm": "Para confirmar, digite"
@@ -809,7 +835,8 @@
     "em_ferias": "Em férias",
     "em_manutencao": "Em manutenção",
     "divergente": "Divergente",
-    "afastado": "Afastado"
+    "afastado": "Afastado",
+    "agendado": "Agendado"
   },
   "dataTable": {
     "yes": "Sim",
@@ -1255,7 +1282,9 @@
     "geoUnavailable": "Serviço de localização indisponível. Tente de novo.",
     "cepNotFound": "CEP não encontrado.",
     "addressNotFound": "Endereço não encontrado no mapa.",
-    "cpfInUse": "Já existe um motorista com este CPF."
+    "cpfInUse": "Já existe um motorista com este CPF.",
+    "noVehicles": "Nenhum veículo ativo para o cálculo. Cadastre ou reative um em Veículos.",
+    "scopeRequired": "Escreva o escopo de trabalho ou anexe pelo menos um documento."
   },
   "calendar": {
     "today": "Hoje",
@@ -1851,12 +1880,134 @@
     "inativoTitle": "Veículo inativo",
     "inativoBody": "O cadastro e o histórico são mantidos. Reative para voltar a usar.",
     "escolhaTipo": "Escolha o tipo",
-    "pallets": "pallets"
+    "pallets": "pallets",
+    "unidadeVolumes": "volumes"
   },
   "cadastro": {
     "abas": {
       "dados": "Dados",
       "historico": "Histórico"
+    }
+  },
+  "ordens": {
+    "agendamento": {
+      "title": "Agendamento",
+      "description": "Agende a coleta. Ao criar a ordem, o lote entra em Ordens › Lotes como agendado.",
+      "secoes": {
+        "local": "Cliente e local",
+        "coleta": "Coleta",
+        "rastreio": "Rastreio",
+        "servicos": "Serviços",
+        "quantidades": "Quantidades",
+        "anexos": "Anexos da OS"
+      },
+      "secoesAjuda": {
+        "local": "O site aparece depois do cliente; a doca, depois do site.",
+        "rastreio": "Rastrear a coleta permite informar o motorista e a placa do caminhão.",
+        "servicos": "III e IV já vêm marcados: são os mais comuns.",
+        "anexos": "Texto livre e documentos. Só o escopo de trabalho é obrigatório."
+      },
+      "campos": {
+        "cliente": "Cliente",
+        "site": "Site",
+        "doca": "Doca",
+        "transportadora": "Transportadora",
+        "referenciaCliente": "Nº do lote de referência do cliente",
+        "dataColeta": "Data de coleta",
+        "coletaPrevista": "Coleta prevista",
+        "dataChegada": "Data de chegada",
+        "rastrear": "Rastrear a coleta",
+        "motorista": "Motorista",
+        "placa": "Placa do caminhão",
+        "boxes": "Boxes",
+        "pallets": "Pallets",
+        "gaylords": "Gaylords",
+        "racks": "Racks",
+        "placasPolicarbonato": "Placas de policarbonato necessárias",
+        "requerPalletsVazios": "Requer pallets vazios",
+        "palletsVazios": "Quantidade de pallets vazios",
+        "itensMais25kg": "Os itens terão mais de 25 kg?",
+        "fatorLimitante": "Fator limitante",
+        "escopo": "Escopo de trabalho",
+        "observacoes": "Observações & anexos",
+        "texto": "Texto",
+        "arquivos": "Documentos"
+      },
+      "ajuda": {
+        "escolhaCliente": "Escolha o cliente primeiro.",
+        "escolhaSite": "Escolha o site primeiro.",
+        "semSites": "Este cliente ainda não tem site. Cadastre na aba Logística do cliente.",
+        "semDocas": "Este site não tem doca cadastrada.",
+        "buscarCliente": "Buscar cliente…",
+        "nenhumaTransportadora": "Sem transportadora",
+        "nenhumMotorista": "Sem motorista",
+        "coletaPrevista": "Dia estimado, enquanto a coleta não tem data marcada.",
+        "placas": "Quantas placas levar para proteger piso e passagens.",
+        "fatorLimitante": "Ex.: escada, elevador pequeno, horário restrito.",
+        "escopo": "Obrigatório: escreva o escopo ou anexe pelo menos um documento.",
+        "removerArquivo": "Remover {{name}}",
+        "doca": "Doca {{numero}}"
+      },
+      "servicos": {
+        "psm": "I. PSM (gaylords triturados)",
+        "onsiteShredding": "II. Onsite Shredding (DBD)",
+        "recycleOnly": "III. Recycle Only",
+        "valueRecoveryRacks": "IV. Value Recovery (Racks)",
+        "valueRecoveryItad": "V. Value Recovery (ITAD)"
+      },
+      "criar": "Criar ordem",
+      "preCalcular": "Pré-calcular",
+      "recalcular": "Recalcular",
+      "toast": {
+        "created": "Lote {{code}} agendado.",
+        "failed": "Não foi possível criar a ordem."
+      },
+      "calculo": {
+        "titulo": "Pré-cálculo",
+        "vazio": "Calcula o caminhão, as viagens, as pessoas e o que levar, com as quantidades, os serviços e a doca escolhidos. Nada é gravado.",
+        "faltaDoca": "Escolha a doca: o cálculo depende das restrições dela.",
+        "desatualizado": "Os dados mudaram desde o último cálculo. Recalcule.",
+        "erro": "Não foi possível calcular.",
+        "totalVolumes": "Total de volumes",
+        "boxesNaoContam": "boxes não contam",
+        "caminhao": "Caminhão",
+        "capacidade": "Capacidade do caminhão",
+        "viagens": "Número de viagens",
+        "pessoas": "Pessoas",
+        "plataforma": "Caminhão com plataforma",
+        "shredder": "Levar shredder",
+        "gaylord": "Levar gaylord",
+        "palletVazio": "Levar pallet vazio",
+        "simQtd": "Sim ({{n}})",
+        "volumesN": "{{n}} volumes",
+        "avisos": {
+          "sem_servico": "Nenhum serviço marcado.",
+          "nenhum_cabe": "Nenhum veículo cabe na doca; ficou o menor ({{tipo}}). Confira manualmente.",
+          "rebaixado": "O caminhão ideal ({{desejado}}) não cabe na doca; trocado por {{final}}."
+        }
+      }
+    },
+    "lotes": {
+      "description": "Lotes agendados. Para agendar um novo, use Agendamento.",
+      "emptyTitle": "Nenhum lote agendado",
+      "emptyBody": "Ajuste a busca ou os filtros, ou agende um novo lote.",
+      "novo": "Novo agendamento",
+      "cols": {
+        "codigo": "Lote",
+        "cliente": "Cliente",
+        "site": "Site",
+        "doca": "Doca",
+        "referencia": "Ref. do cliente",
+        "transportadora": "Transportadora",
+        "dataColeta": "Data de coleta",
+        "coletaPrevista": "Coleta prevista",
+        "dataChegada": "Data de chegada",
+        "rastrear": "Rastreada",
+        "servicos": "Serviços",
+        "totalVolumes": "Volumes",
+        "status": "Status",
+        "criadoEm": "Agendado em"
+      }
     }
   }
 }

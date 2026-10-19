@@ -1,12 +1,15 @@
 import {
   Building2,
   Container,
+  Factory,
   House,
   IdCard,
   Package,
+  Route,
   Settings,
   Truck,
   Users,
+  Warehouse,
   type LucideIcon,
 } from 'lucide-react'
 import type { ParseKeys } from 'i18next'
@@ -101,6 +104,43 @@ export const MODULES = {
     to: '/motoristas',
     permission: 'motoristas.ver',
   },
+  // Operação: três módulos com submenu. Telas sem rota própria abrem "em construção".
+  ordens: {
+    id: 'ordens',
+    labelKey: 'nav.ordens.title',
+    icon: Route,
+    children: [
+      leaf('ordens', 'lotes', 'nav.ordens.lotes', '/ordens/lotes'),
+      leaf('ordens', 'agendamento', 'nav.ordens.agendamento', '/ordens/agendamento'),
+      leaf('ordens', 'viagensAtivas', 'nav.ordens.viagensAtivas', '/ordens/viagens-ativas'),
+      leaf('ordens', 'historico', 'nav.ordens.historico', '/ordens/historico'),
+    ],
+  },
+  operacao: {
+    id: 'operacao',
+    labelKey: 'nav.operacao.title',
+    icon: Factory,
+    children: [
+      leaf('operacao', 'dashboard', 'nav.operacao.dashboard', '/operacao/dashboard'),
+      leaf('operacao', 'lotes', 'nav.operacao.lotes', '/operacao/lotes'),
+      leaf('operacao', 'recebimento', 'nav.operacao.recebimento', '/operacao/recebimento'),
+      leaf('operacao', 'chamados', 'nav.operacao.chamados', '/operacao/chamados'),
+      leaf('operacao', 'historico', 'nav.operacao.historico', '/operacao/historico'),
+    ],
+  },
+  estoque: {
+    id: 'estoque',
+    labelKey: 'nav.estoque.title',
+    icon: Warehouse,
+    children: [
+      leaf('estoque', 'materiais', 'nav.estoque.materiais', '/estoque/materiais'),
+      leaf('estoque', 'assets', 'nav.estoque.assets', '/estoque/assets'),
+      leaf('estoque', 'servidores', 'nav.estoque.servidores', '/estoque/servidores'),
+      leaf('estoque', 'ecommerce', 'nav.estoque.ecommerce', '/estoque/ecommerce'),
+      leaf('estoque', 'pecas', 'nav.estoque.pecas', '/estoque/pecas'),
+      leaf('estoque', 'historico', 'nav.estoque.historico', '/estoque/historico'),
+    ],
+  },
   admin: {
     id: 'admin',
     labelKey: 'nav.admin.title',
@@ -135,6 +175,7 @@ export const CONTEXTS: AppContext[] = [
         'veiculos',
         'motoristas',
       ]),
+      section('operacao', 'nav.sections.operacao', ['ordens', 'operacao', 'estoque']),
       section('sistema', 'nav.sections.sistema', ['admin']),
     ],
   },

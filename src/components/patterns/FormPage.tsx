@@ -19,6 +19,8 @@ interface FormPageProps {
   dirty: boolean
   submitting?: boolean
   submitLabel?: string
+  /** Botões extras no rodapé, antes de Cancelar (ex.: "Pré-calcular"). */
+  extraActions?: ReactNode
   /** Seções do formulário (<FormSection />). */
   children: ReactNode
 }
@@ -37,6 +39,7 @@ export function FormPage({
   dirty,
   submitting,
   submitLabel,
+  extraActions,
   children,
 }: FormPageProps) {
   const { t } = useTranslation()
@@ -74,6 +77,7 @@ export function FormPage({
           <Kbd>{isMac() ? '⌘' : 'Ctrl'}</Kbd>
           <Kbd>S</Kbd>
         </span>
+        {extraActions}
         <Button variant="secondary" onClick={onCancel} disabled={submitting}>
           {t('common.cancel')}
         </Button>

@@ -1,6 +1,7 @@
 import {
   AlarmClock,
   Ban,
+  CalendarClock,
   CalendarX,
   CircleCheck,
   CircleCheckBig,
@@ -55,6 +56,7 @@ export const STATUS_MAP = {
   aguardando_aprovacao: { tone: 'warning', icon: Hourglass, flowOrder: 40 },
   em_revisao: { tone: 'warning', icon: Eye, flowOrder: 50 },
   aprovado: { tone: 'success', icon: CircleCheck, flowOrder: 60 },
+  agendado: { tone: 'info', icon: CalendarClock, flowOrder: 65 },
   em_andamento: { tone: 'info', icon: CirclePlay, flowOrder: 70 },
   em_separacao: { tone: 'info', icon: PackageOpen, flowOrder: 80 },
   faturado: { tone: 'info', icon: Receipt, flowOrder: 90 },

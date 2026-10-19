@@ -8,10 +8,10 @@ import type { Mudanca } from './historico.js'
 
 type Conexao = Db | Transaction<Database>
 
-/** Próximo número sequencial da tabela (gera o código: TRA-00001, MOT-00001, VEI-00001). */
+/** Próximo número sequencial da tabela (gera o código: TRA-00001, MOT-00001, VEI-00001, LOT-00001). */
 export async function proximoNumero(
   cx: Conexao,
-  tabela: 'transportadoras' | 'motoristas' | 'veiculos',
+  tabela: 'transportadoras' | 'motoristas' | 'veiculos' | 'ordens',
 ): Promise<number> {
   const r = await cx
     .selectFrom(tabela)

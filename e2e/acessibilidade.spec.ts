@@ -29,6 +29,11 @@ const TODAS = [
   '/veiculos',
   '/veiculos?aberto=vei00001',
   '/veiculos?aberto=novo',
+  '/ordens/lotes',
+  '/ordens/agendamento',
+  // Operação: ainda "em construção" (menu já montado).
+  '/operacao/dashboard',
+  '/estoque/materiais',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
   '/admin/usuarios/usr00001?editar=true',
@@ -47,6 +52,7 @@ const AMOSTRA = [
   '/transportadoras/tra00001?editar=true',
   '/motoristas?aberto=mot00001',
   '/veiculos',
+  '/ordens/agendamento',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
 ]

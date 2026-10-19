@@ -6,6 +6,7 @@ import { criarRepositorioSites } from './modules/clientes/clientes-sites.reposit
 import { criarServicoSites } from './modules/clientes/clientes-sites.servico.js'
 import { rotasGeo } from './modules/geo/geo.rotas.js'
 import { criarServicoMotoristas, rotasMotoristas } from './modules/motoristas/motoristas.js'
+import { criarServicoOrdens, rotasOrdens } from './modules/ordens/ordens.js'
 import {
   criarServicoTransportadoras,
   rotasTransportadoras,
@@ -37,6 +38,7 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   const transportadoras = criarServicoTransportadoras(db)
   const motoristas = criarServicoMotoristas(db)
   const veiculos = criarServicoVeiculos(db)
+  const ordens = criarServicoOrdens(db, { pasta: opcoes.arquivosDir ?? config.arquivosDir })
 
   const api = express.Router()
   api.get('/saude', (_req, res) => {
@@ -48,6 +50,7 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   api.use('/transportadoras', rotasTransportadoras(transportadoras))
   api.use('/motoristas', rotasMotoristas(motoristas))
   api.use('/veiculos', rotasVeiculos(veiculos))
+  api.use('/ordens', rotasOrdens(ordens))
   api.use(rotasSistema({ usuarios, clientes, transportadoras, motoristas }))
   api.use(rotaInexistente)
 

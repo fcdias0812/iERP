@@ -12,8 +12,10 @@ antigo (v1) nem de outro lugar.
   (better-sqlite3), preparado para migrar para **PostgreSQL** (ver "Backend" abaixo).
 - Módulos hoje: seção **Relacionamento** — **Clientes** (tudo do cliente fica em **abas** do
   detalhe — contatos, logística, documentos, configurações), **Transportadoras** (detalhe em abas:
-  dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral) —
-  e **Administração › Usuários**.
+  dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral);
+  seção **Operação** — **Ordens** (Lotes agendados, Agendamento; Viagens ativas e Histórico de
+  viagens em construção), **Operação** e **Estoque** (submenus em construção); e
+  **Administração › Usuários**.
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
   cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
 - Regra da organização: pesquisar na web antes de afirmar fato técnico (versão, API, menu).
@@ -61,7 +63,9 @@ antigo (v1) nem de outro lugar.
    `src/features/system/`. Detalhe fora do menu: `useBreadcrumb({ parent, label })`.
    **Cadastro e edição SEMPRE no painel lateral à direita** (`CadastroSheet` +
    `CadastroSecao`, `src/features/comum/CadastroSheet.tsx`) — pedido do usuário, um padrão só para
-   todos os módulos. Nada de página própria `/novo` ou `/:id/editar`. Na lista: `?aberto=novo` ou
+   todos os módulos. Nada de página própria `/novo` ou `/:id/editar` — **única exceção:
+   Ordens › Agendamento** (`/ordens/agendamento`, página própria com `FormPage` e o card de
+   pré-cálculo ao lado; decisão do usuário). Na lista: `?aberto=novo` ou
    `?aberto=<id>`; no detalhe: `?editar=true`. O painel já traz Ctrl+S, aviso de campo obrigatório
    e confirmação ao fechar com alterações. Registro com página de detalhe: depois de criar, abre o
    detalhe. (`FormPage` fica só para formulários que não são cadastro, ex.: configurações.)
@@ -144,6 +148,12 @@ O layout não muda. Modelos completos para copiar:
 - **Cadastro simples** (Veículos, Motoristas) — só lista; o painel lateral (`CadastroSheet`) tem
   abas Dados/Histórico e Inativar/Reativar, aberto por `?aberto=<id|novo>` na URL. Backend num arquivo só
   (`server/src/modules/veiculos/veiculos.ts`); hooks por `criarHooksCadastro` (`features/comum/use-cadastro.ts`).
+- **Ordens** — `server/src/modules/ordens/`: `ordens.ts` (regras, serviço, rotas; criação em
+  multipart com `dados` JSON + arquivos `escopo`/`observacoes`) e `ordens.calculo.ts` (pré-cálculo
+  da OS **portado fielmente** de `C:\Systems\TI-Re-Teck-iERP\backend\src\lib\calculoOs.js`, com
+  os mesmos testes — mudar número do cálculo é decisão de negócio). Cada ordem é um lote
+  `LOT-00001` com status `agendado`. Frontend `src/features/ordens/`. Veículos: volume mín./máx.
+  são **quantidade de volumes** (pallets + gaylords + racks; boxes não contam), não m².
 - **Transportadoras** — detalhe em abas + cadastro no painel (`TransportadoraSheet`) com contatos
   opcionais e motoristas (da lista ou novos). Histórico genérico: tabela `historico` (`server/src/shared/historico.repositorio.ts`).
 

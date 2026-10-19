@@ -44,9 +44,9 @@ export interface Veiculo {
   id: string
   codigo: string
   tipo: TipoVeiculo
-  /** m² */
+  /** Quantidade de volumes (pallets + gaylords + racks): faixa do cálculo da OS. */
   volumeMinimo: number | null
-  /** m² */
+  /** Quantidade de volumes. */
   volumeMaximo: number | null
   /** metros */
   comprimento: number | null
@@ -76,11 +76,21 @@ const medida = (max: number) =>
     .nullish()
     .transform((v) => v ?? null)
 
+/** Quantidade de volumes (inteiro). */
+const volumes = () =>
+  z
+    .number()
+    .int('Volume deve ser uma quantidade inteira.')
+    .min(0)
+    .max(10_000)
+    .nullish()
+    .transform((v) => v ?? null)
+
 export const veiculoInputSchema = z
   .object({
     tipo: z.enum(TIPOS_VEICULO, 'Tipo de veículo inválido.'),
-    volumeMinimo: medida(10_000),
-    volumeMaximo: medida(10_000),
+    volumeMinimo: volumes(),
+    volumeMaximo: volumes(),
     comprimento: medida(50),
     largura: medida(10),
     capacidadePallets: z

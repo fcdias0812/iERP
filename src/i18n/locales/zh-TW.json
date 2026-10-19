@@ -664,7 +664,32 @@
     "sections": {
       "principal": "主要",
       "relacionamento": "客戶關係",
-      "sistema": "系統"
+      "sistema": "系統",
+      "operacao": "營運"
+    },
+    "ordens": {
+      "title": "訂單",
+      "lotes": "批次",
+      "agendamento": "排程",
+      "viagensAtivas": "進行中的運輸",
+      "historico": "運輸歷程"
+    },
+    "operacao": {
+      "title": "營運",
+      "dashboard": "儀表板",
+      "lotes": "批次",
+      "recebimento": "收貨",
+      "chamados": "內部工單",
+      "historico": "歷程"
+    },
+    "estoque": {
+      "title": "庫存",
+      "materiais": "物料",
+      "assets": "資產",
+      "servidores": "伺服器",
+      "ecommerce": "電子商務",
+      "pecas": "零件",
+      "historico": "歷程"
     },
     "admin": {
       "title": "系統管理",
@@ -715,7 +740,8 @@
     "pastDate": "日期不可早於今天。",
     "coordinates": "請使用「緯度, 經度」格式（例如 -22.85, -47.22）。",
     "duplicate": "此值已被使用。",
-    "volumeOrder": "最小容積不可大於最大容積。"
+    "volumeOrder": "最小容積不可大於最大容積。",
+    "scopeRequired": "請填寫工作範圍，或至少附上一份文件。"
   },
   "confirm": {
     "typeToConfirm": "請輸入以下文字以確認："
@@ -809,7 +835,8 @@
     "em_ferias": "休假中",
     "em_manutencao": "維修中",
     "divergente": "有差異",
-    "afastado": "留職停薪"
+    "afastado": "留職停薪",
+    "agendado": "已排程"
   },
   "dataTable": {
     "yes": "是",
@@ -1255,7 +1282,9 @@
     "geoUnavailable": "定位服務無法使用，請再試一次。",
     "cepNotFound": "找不到此郵遞區號 (CEP)。",
     "addressNotFound": "在地圖上找不到此地址。",
-    "cpfInUse": "已有司機使用此 CPF。"
+    "cpfInUse": "已有司機使用此 CPF。",
+    "noVehicles": "沒有可用於計算的啟用車輛。請在「車輛」新增或重新啟用。",
+    "scopeRequired": "請填寫工作範圍，或至少附上一份文件。"
   },
   "calendar": {
     "today": "今天",
@@ -1851,12 +1880,134 @@
     "inativoTitle": "車輛已停用",
     "inativoBody": "資料與歷程會保留。重新啟用即可再次使用。",
     "escolhaTipo": "選擇車型",
-    "pallets": "棧板"
+    "pallets": "棧板",
+    "unidadeVolumes": "件"
   },
   "cadastro": {
     "abas": {
       "dados": "資料",
       "historico": "歷程"
+    }
+  },
+  "ordens": {
+    "agendamento": {
+      "title": "排程",
+      "description": "安排收運。建立訂單後，批次會以「已排程」出現在 訂單 › 批次。",
+      "secoes": {
+        "local": "客戶與地點",
+        "coleta": "收運",
+        "rastreio": "追蹤",
+        "servicos": "服務",
+        "quantidades": "數量",
+        "anexos": "工單附件"
+      },
+      "secoesAjuda": {
+        "local": "選擇客戶後才會出現據點；選擇據點後才會出現碼頭。",
+        "rastreio": "追蹤收運時可填寫司機與車牌。",
+        "servicos": "III 與 IV 預設勾選：這兩項最常見。",
+        "anexos": "自由文字與文件。只有工作範圍為必填。"
+      },
+      "campos": {
+        "cliente": "客戶",
+        "site": "據點",
+        "doca": "碼頭",
+        "transportadora": "運輸公司",
+        "referenciaCliente": "客戶參考批號",
+        "dataColeta": "收運日期",
+        "coletaPrevista": "預計收運",
+        "dataChegada": "到達日期",
+        "rastrear": "追蹤收運",
+        "motorista": "司機",
+        "placa": "車牌",
+        "boxes": "箱",
+        "pallets": "棧板",
+        "gaylords": "Gaylord 箱",
+        "racks": "機櫃",
+        "placasPolicarbonato": "所需聚碳酸酯板",
+        "requerPalletsVazios": "需要空棧板",
+        "palletsVazios": "空棧板數量",
+        "itensMais25kg": "物品會超過 25 公斤嗎？",
+        "fatorLimitante": "限制因素",
+        "escopo": "工作範圍",
+        "observacoes": "備註與附件",
+        "texto": "文字",
+        "arquivos": "文件"
+      },
+      "ajuda": {
+        "escolhaCliente": "請先選擇客戶。",
+        "escolhaSite": "請先選擇據點。",
+        "semSites": "此客戶尚無據點，請在客戶的「物流」分頁新增。",
+        "semDocas": "此據點沒有碼頭。",
+        "buscarCliente": "搜尋客戶…",
+        "nenhumaTransportadora": "無運輸公司",
+        "nenhumMotorista": "無司機",
+        "coletaPrevista": "收運尚未確定日期時的預估日。",
+        "placas": "需攜帶多少板材以保護地面與通道。",
+        "fatorLimitante": "例如：樓梯、小型電梯、限制時段。",
+        "escopo": "必填：請填寫範圍或至少附上一份文件。",
+        "removerArquivo": "移除 {{name}}",
+        "doca": "碼頭 {{numero}}"
+      },
+      "servicos": {
+        "psm": "I. PSM（已粉碎的 gaylord）",
+        "onsiteShredding": "II. 現場銷毀（DBD）",
+        "recycleOnly": "III. 僅回收",
+        "valueRecoveryRacks": "IV. 價值回收（機櫃）",
+        "valueRecoveryItad": "V. 價值回收（ITAD）"
+      },
+      "criar": "建立訂單",
+      "preCalcular": "預先計算",
+      "recalcular": "重新計算",
+      "toast": {
+        "created": "批次 {{code}} 已排程。",
+        "failed": "無法建立訂單。"
+      },
+      "calculo": {
+        "titulo": "預先計算",
+        "vazio": "依所選的數量、服務與碼頭，計算卡車、趟數、人力與需攜帶的物品。不會儲存任何資料。",
+        "faltaDoca": "請選擇碼頭：計算取決於碼頭的限制。",
+        "desatualizado": "資料在上次計算後已變更，請重新計算。",
+        "erro": "無法計算。",
+        "totalVolumes": "總件數",
+        "boxesNaoContam": "箱不計入",
+        "caminhao": "卡車",
+        "capacidade": "卡車容量",
+        "viagens": "趟數",
+        "pessoas": "人力",
+        "plataforma": "附升降平台的卡車",
+        "shredder": "攜帶碎紙機",
+        "gaylord": "攜帶 Gaylord 箱",
+        "palletVazio": "攜帶空棧板",
+        "simQtd": "是（{{n}}）",
+        "volumesN": "{{n}} 件",
+        "avisos": {
+          "sem_servico": "未勾選任何服務。",
+          "nenhum_cabe": "沒有車輛符合碼頭限制；保留最小的（{{tipo}}）。請手動確認。",
+          "rebaixado": "理想卡車（{{desejado}}）不符合碼頭限制；改為 {{final}}。"
+        }
+      }
+    },
+    "lotes": {
+      "description": "已排程的批次。要新增請使用「排程」。",
+      "emptyTitle": "沒有已排程的批次",
+      "emptyBody": "請調整搜尋或篩選條件，或排程新的批次。",
+      "novo": "新增排程",
+      "cols": {
+        "codigo": "批次",
+        "cliente": "客戶",
+        "site": "據點",
+        "doca": "碼頭",
+        "referencia": "客戶參考",
+        "transportadora": "運輸公司",
+        "dataColeta": "收運日期",
+        "coletaPrevista": "預計收運",
+        "dataChegada": "到達日期",
+        "rastrear": "已追蹤",
+        "servicos": "服務",
+        "totalVolumes": "件數",
+        "status": "狀態",
+        "criadoEm": "排程時間"
+      }
     }
   }
 }
