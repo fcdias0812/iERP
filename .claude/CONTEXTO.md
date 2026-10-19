@@ -5,7 +5,8 @@ precisa saber para continuar este sistema do jeito que o usuário pediu. A memó
 (`~/.claude/projects/...`) **não** vai junto com o repositório — por isso tudo está nesta pasta.
 
 Leia também: [`FLUXO-DE-TRABALHO.md`](FLUXO-DE-TRABALHO.md) (como construir cada pedido, passo a
-passo, e as armadilhas do iERP) · [`ARMADILHAS-TEMPLATE.md`](ARMADILHAS-TEMPLATE.md) (decisões e
+passo, e as armadilhas do iERP) · [`INTEGRACOES.md`](INTEGRACOES.md) (**próxima etapa**: onde cada
+dado de outro sistema entra e o que perguntar) · [`ARMADILHAS-TEMPLATE.md`](ARMADILHAS-TEMPLATE.md) (decisões e
 armadilhas herdadas do template de frontend) · [`../CLAUDE.md`](../CLAUDE.md) (regras obrigatórias
 de código) · [`../DESIGN-SYSTEM.md`](../DESIGN-SYSTEM.md) · [`../README.md`](../README.md) (APIs).
 Para retomar: rode o skill **`/retomar`** (`.claude/skills/retomar/SKILL.md`).
@@ -79,18 +80,25 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `bdad159` | Sistema › Cadastros (materiais, pallets, caixotes, áreas, rastreadores GPS)              |
 | `0ccce04` | Administração › Perfis de acesso e Auditoria                                             |
 | `2fd305d` | Região do site em lista; mapa (cinza, cidade); coleta prevista obrigatória; Forecast     |
-| (local)   | Busca do topo (Ctrl+K) encontra todos os registros                                       |
+| `38d6264` | Busca do topo (Ctrl+K) encontra todos os registros                                       |
+| (última)  | Documentação para continuar em outro PC (integrações: `.claude/INTEGRACOES.md`)          |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
-formatação, build. Commits `2fd305d` e o da busca só **locais** (push só quando ele pedir).
+formatação, build. Tudo enviado ao GitHub (inclusive esta documentação).
 
-**Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
-clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
-de desenvolvimento deste PC (dados de teste do usuário) **não** vai junto — o outro PC começa com o
-seed fictício (inclui SLA fictício em alguns clientes). Não há cliente "Microsoft" no seed: para ver o
-mapa com pontos, cadastre um cliente com "Microsoft" no nome, com sites com localização. A chave da
-Esri (`VITE_ESRI_API_KEY`, em `.env.local`) ainda não existe — sem ela, só fundos Limpo e Cinza.
+**Troca de computador (19/10/2026, definitiva):** "acho que ele está pronto para fazer as
+integrações. Elas eu irei fazer em outro PC." No PC novo: clonar https://github.com/fcdias0812/iERP,
+abrir a pasta no Claude Code e rodar `/retomar`; a próxima etapa está em
+[`INTEGRACOES.md`](INTEGRACOES.md). O banco de desenvolvimento do PC antigo (`C:\Trabalho\01_Sistemas\iERP`,
+com os testes dele: cliente "Microsoft" com o site "teste" em Campinas, lotes LOT-00001 a LOT-00003,
+perfis e usuários de teste) **não** vai junto — o novo começa com o seed fictício (inclui SLA
+fictício em alguns clientes, **sem** cliente "Microsoft": para ver o mapa com pontos, cadastre um
+cliente com "Microsoft" no nome e sites com localização). Lá ficaram também as cópias
+`server/data/ierp.sqlite.antes-regioes` e `.antes-coleta-prevista` (de antes das migrations 09 e
+10). Para levar os dados de teste dele, copie a pasta `server/data/` inteira (com a API parada)
+para o mesmo lugar no PC novo. A chave da Esri (`VITE_ESRI_API_KEY`, em `.env.local`) ainda não existe — sem ela, só fundos
+Limpo e Cinza.
 
 ### Menu hoje
 
@@ -441,6 +449,9 @@ negócio (perguntar). Resumo:
 
 ## 6. Perguntas em aberto (fazer quando chegar a hora)
 
+As perguntas de **cada integração** (sistema de origem, quem chama quem, identificação do lote,
+autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. As demais:
+
 - **Clientes:** outros tipos de documento além de contrato/fiscal/licença/outro? O limite de 25 MB
   serve? Quais etapas do lote contam como "a chegar", "em operação" e "finalizado" na Visão geral?
   O que vai na aba Configurações?
@@ -465,11 +476,12 @@ negócio (perguntar). Resumo:
 - **Publicação:** nada foi publicado em servidor ainda (a empresa tem skills `reteck-skills:deploy`
   etc. — só com pedido dele).
 
-## 7. Próximo passo sugerido
+## 7. Próximo passo
 
-Ele escolhe. Opções já levantadas: Ordens › Viagens (ativas/aguardando + finalizadas com replay
-no mapa); as etapas
-depois da Inspeção (quem muda — integração ou tela); Operação ›
-Chamados internos (alimenta o Harvesting do dashboard); Operação › Histórico; Estoque. Ele também
-disse que vai mostrar as **exceções entre data de coleta e de recebimento** (afetam a previsão de
-chegada). Antes de construir qualquer uma, fazer as perguntas da §6 correspondentes.
+**Integrações** (pedido dele em 19/10/2026), no outro PC. Comece por
+[`INTEGRACOES.md`](INTEGRACOES.md): pergunte **qual integração primeiro** (recomendação: as etapas
+do lote, que acendem Dashboard, Progresso, Operação › Lotes e Histórico) e as perguntas daquela
+integração antes de construir. Outras frentes já levantadas, se ele preferir: Ordens › Viagens
+(ativas/aguardando + finalizadas com replay no mapa — depende do GPS), Operação › Chamados internos
+(alimenta o Harvesting do dashboard), Estoque, login. Ele também disse que vai mostrar as
+**exceções entre data de coleta e de recebimento** (afetam a previsão de chegada).

@@ -11,6 +11,8 @@ antigo (v1) nem de outro lugar.
 > [`.claude/ARMADILHAS-TEMPLATE.md`](.claude/ARMADILHAS-TEMPLATE.md) — herança do template.
 > Repositório: https://github.com/fcdias0812/iERP. Commit só com o "sim" do usuário; push só quando
 > ele pedir. Ao terminar uma entrega, atualize o `.claude/CONTEXTO.md`.
+> **Próxima etapa: integrações** — leia [`.claude/INTEGRACOES.md`](.claude/INTEGRACOES.md) (onde cada
+> dado de outro sistema entra e o que perguntar ao usuário antes).
 
 - **Frontend** (raiz): nasceu do template padrão (https://github.com/fcdias0812/template-padrao,
   na máquina original `C:\Systems\template-padrao`) — design e tecnologias são o padrão da empresa.
@@ -173,7 +175,7 @@ O layout não muda. Modelos completos para copiar:
   são **quantidade de volumes** (pallets + gaylords + racks; boxes não contam), não m².
 - **Lotes** (Ordens › Lotes = Operação › Lotes) — `src/features/lotes/`: a mesma lista e o mesmo
   detalhe nos dois módulos (`origem` = `ordens` | `operacao` decide rota, caminho e permissão
-  `<origem>.ver`/`<origem>.editar`). Detalhe com abas na URL (`?aba=`): **Informações** (padrão),
+  `<origem>.lotes.ver`/`<origem>.lotes.editar`). Detalhe com abas na URL (`?aba=`): **Informações** (padrão),
   **Progresso** (etapa, pallets, peso bruto, linha do tempo, recebimento), **Ocorrências** (painel
   `?ocorrencia=nova|<id>`, texto traduzível, fotos), **Documentos** (do agendamento + adicionados
   depois, com tipo e remoção) e **Histórico**. **Editar** (só enquanto agendado, cliente fixo,

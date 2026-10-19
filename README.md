@@ -10,16 +10,15 @@ Repositório: https://github.com/fcdias0812/iERP
 > decisões de cada módulo, o estado atual, as perguntas em aberto e o jeito de construir — está em
 > [`.claude/CONTEXTO.md`](.claude/CONTEXTO.md) e [`.claude/FLUXO-DE-TRABALHO.md`](.claude/FLUXO-DE-TRABALHO.md).
 
-> **Status:** menu **Relacionamento** com **Clientes** (cadastro com CNPJ e contatos; detalhe em
-> abas: visão geral com lotes, contatos, logística com sites/docas e mapa, documentos,
-> configurações, histórico em tabela), **Transportadoras** (contatos e motoristas), **Veículos**
-> (tipo, medidas e capacidade) e **Motoristas**; menu **Operação** com **Ordens › Lotes**
-> (lotes agendados) e **Ordens › Agendamento** (cria o lote, com pré-cálculo de caminhão, viagens
-> e pessoas), **Operação › Dashboard** (cards de SLA, previsão de chegada, mapa dos datacenters
-> Microsoft, situação por cliente, anomalias de prazo) — as demais telas de Operação e Estoque
-> estão "em construção"; e
-> **Administração › Usuários**. Pendentes: aba Configurações (a definir) e a integração
-> de lotes com os sistemas de produção. Login ainda não definido (sessão simulada).
+> **Status (19/10/2026):** **Relacionamento** — Clientes (detalhe em abas: visão geral, contatos,
+> logística com sites/docas e mapa, documentos, configurações, histórico), Transportadoras, Veículos
+> e Motoristas. **Operação** — Ordens › Lotes (detalhe do lote em 5 abas), Agendamento (com
+> pré-cálculo), Histórico; Operação › Dashboard (SLA, Forecast, mapa Microsoft, por cliente,
+> anomalias), Lotes, Recebimento e Histórico. **Sistema** — Cadastros (materiais, pallets, caixotes,
+> áreas do estoque, rastreadores GPS) e Administração (usuários, perfis de acesso, auditoria). Busca
+> global (Ctrl+K) em todos os registros. **Em construção:** Ordens › Viagens, Operação › Chamados
+> internos e Estoque. **Próxima etapa: integrações** com os sistemas de produção, GPS e login — ver
+> [`.claude/INTEGRACOES.md`](.claude/INTEGRACOES.md).
 
 ## Arquitetura
 
@@ -91,7 +90,9 @@ npm --prefix server run build
 - Frontend: arquivos estáticos em `dist/` (configure o _fallback_ para `index.html` e encaminhe
   `/api` para o backend).
 - Backend: `npm --prefix server start` (roda `server/dist/index.js`; aplica as migrations ao subir).
-  Variáveis: `PORT` (padrão 3001) e `DB_FILE` (padrão `server/data/ierp.sqlite`).
+  Variáveis: `PORT` (padrão 3001), `DB_FILE` (padrão `server/data/ierp.sqlite`), `ARQUIVOS_DIR`
+  (padrão `server/data/arquivos`) e `GEO_CONTATO` (e-mail no User-Agent do Nominatim). PostgreSQL:
+  trocar o dialeto em `server/src/db/database.ts` (`DATABASE_URL`, exemplo no comentário).
 
 ## Testes
 
@@ -323,6 +324,11 @@ Páginas aceitas: `server/src/shared/paginas.ts` (as outras são ignoradas). Nom
 `name_in_use`. Usuário só recebe perfil ativo (422).
 
 ## Pendências conhecidas
+
+- **Integrações** (próxima etapa): etapas do lote depois da Inspeção, pallets de outros sistemas,
+  resumo de lotes na Visão geral do cliente (`conectado: false`), rastreadores GPS e viagens,
+  processos de alto valor do Dashboard, Estoque. Detalhes e perguntas em
+  [`.claude/INTEGRACOES.md`](.claude/INTEGRACOES.md).
 
 - **Login/autenticação** não definido: a sessão do frontend é simulada e o histórico grava
   "Sistema" como autor (`server/src/shared/autor.ts`). As permissões por perfil só são

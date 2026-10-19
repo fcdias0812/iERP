@@ -1,15 +1,16 @@
 # Fluxo de trabalho — como construir o iERP do jeito combinado
 
 Complementa o [`CONTEXTO.md`](CONTEXTO.md) (o quê e por quê) com o **como**: o rito de cada pedido,
-os comandos, a validação no navegador e as armadilhas já encontradas neste projeto.
+os comandos, a validação no navegador e as armadilhas já encontradas neste projeto. Para a etapa de
+integrações, veja também [`INTEGRACOES.md`](INTEGRACOES.md).
 
 ## 1. Preparar a máquina (clone novo)
 
 ```bash
 git clone https://github.com/fcdias0812/iERP.git
 cd iERP
-npm install                     # frontend (Node >= 22.12; usado Node 24.19 / npm 11.17)
-npm --prefix server install     # backend
+npm install                     # frontend (Node >= 22.12; usado Node 24.21 / npm 11.19)
+npm --prefix server install --ignore-scripts  # backend (ver §5 "Instalação": better-sqlite3)
 npx playwright install chromium # só na primeira vez (testes e2e)
 npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍCIOS
 ```
@@ -22,6 +23,9 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
   - **`web`** → Vite na porta **5173** (encaminha `/api` para a 3001). O Vite escuta em `[::1]`
     (IPv6): use `http://localhost:5173`.
 - Demonstração sem backend: `VITE_USE_MOCKS=true npm run dev` (API simulada MSW em `src/mocks/`).
+- Variáveis (todas têm padrão para desenvolvimento): servidor `PORT`, `DB_FILE`, `ARQUIVOS_DIR`,
+  `GEO_CONTATO` (`server/src/config.ts`); frontend `.env.example` → `.env.local`
+  (`VITE_ESRI_API_KEY`, `VITE_USE_MOCKS`). Chave de integração nova: variável de ambiente, nunca no git.
 
 ## 2. Rito de cada pedido do usuário
 
