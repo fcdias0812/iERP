@@ -160,6 +160,6 @@ describe('usuarios', () => {
   it('busca global (Ctrl+K)', async () => {
     const r = await api(`/busca${qs({ q: 'albuquerque' })}`)
     assert.equal(r.body[0].tipo, 'usuario')
-    assert.equal(r.body[0].rota, `/admin/usuarios/${r.body[0].id}`)
+    assert.ok(r.body[0].id)
   })
 })

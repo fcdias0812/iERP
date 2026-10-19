@@ -623,7 +623,15 @@
       "customer": "客戶",
       "user": "使用者",
       "carrier": "運輸公司",
-      "driver": "司機"
+      "driver": "司機",
+      "site": "據點",
+      "lot": "批次",
+      "crate": "箱",
+      "pallet": "棧板",
+      "vehicle": "車輛",
+      "material": "物料",
+      "area": "倉儲區域",
+      "profile": "存取權限設定檔"
     },
     "actions": {
       "lightTheme": "切換為淺色主題",
@@ -1477,13 +1485,13 @@
     },
     "tipos": {
       "cliente": "客戶",
-      "transportadora": "貨運公司",
+      "transportadora": "運輸公司",
       "motorista": "司機",
       "veiculo": "車輛",
       "ordem": "批次",
       "material": "物料",
-      "recipiente": "木箱 / 棧板",
-      "area": "庫存區域",
+      "recipiente": "箱 / 棧板",
+      "area": "倉儲區域",
       "usuario": "使用者",
       "perfil": "存取權限設定檔"
     }

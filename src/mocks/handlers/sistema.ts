@@ -1,7 +1,11 @@
 import { http, HttpResponse } from 'msw/http'
+import type { LocalizedText } from '@/lib/localized-text'
 import type { ResultadoBusca } from '@/services/types'
 import { simulateNetwork } from '../config'
 import { getDb } from '../db'
+import { cadastrosMock } from './cadastros'
+import { ordensMock } from './ordens'
+import { perfisMock } from './perfis'
 import { getRelacionamento } from './relacionamento'
 
 /** Busca global (Ctrl+K) e notificações. */
@@ -20,51 +24,100 @@ export const sistemaHandlers = [
     const q = (new URL(request.url).searchParams.get('q') ?? '').trim()
     if (q.length < 2) return HttpResponse.json([])
     const db = getDb()
+    const rel = getRelacionamento()
+    const cad = cadastrosMock()
+    const nomes = (t: LocalizedText) => Object.values(t.textos).join(' ')
+    const recipientes = (tipo: 'caixote' | 'pallet') =>
+      cad.recipientes
+        .filter((r) => r.tipo === tipo && (contem(r.codigo, q) || contem(r.posicao, q)))
+        .slice(0, 5)
+        .map((r) => ({
+          tipo,
+          id: r.id,
+          codigo: r.codigo,
+          titulo: r.materialNome.textos['pt-BR'] ?? '',
+          tituloTraduzido: r.materialNome,
+          detalhe: r.posicao,
+        }))
     const out: ResultadoBusca[] = [
       ...db.clientes
         .filter((c) => contem(c.nome, q) || contem(c.codigo, q) || c.cnpj.includes(q.toUpperCase()))
         .slice(0, 5)
-        .map((c) => ({
-          tipo: 'cliente' as const,
-          id: c.id,
-          codigo: c.codigo,
-          titulo: c.nome,
-          rota: `/clientes/${c.id}`,
+        .map((c) => ({ tipo: 'cliente' as const, id: c.id, codigo: c.codigo, titulo: c.nome })),
+      ...Object.entries(db.sites)
+        .flatMap(([clienteId, sites]) => sites.map((s) => ({ clienteId, s })))
+        .filter(({ s }) => contem(s.codigo, q) || contem(s.endereco ?? '', q))
+        .slice(0, 5)
+        .map(({ clienteId, s }) => ({
+          tipo: 'site' as const,
+          id: s.id,
+          codigo: s.codigo,
+          titulo: db.clientes.find((c) => c.id === clienteId)?.nome ?? '',
+          detalhe: s.endereco?.match(/,\s*([^,]+?)\s*[–-]\s*[A-Z]{2}$/)?.[1] ?? null,
+          paiId: clienteId,
         })),
-      ...getRelacionamento()
-        .transportadoras.filter(
-          (t) => contem(t.nome, q) || contem(t.codigo, q) || t.cnpj.includes(q.toUpperCase()),
+      ...ordensMock()
+        .filter(
+          (o) =>
+            contem(o.codigo, q) || contem(o.referenciaCliente ?? '', q) || contem(o.clienteNome, q),
         )
+        .slice(0, 5)
+        .map((o) => ({
+          tipo: 'lote' as const,
+          id: o.id,
+          codigo: o.codigo,
+          titulo: o.clienteNome,
+          detalhe: o.siteCodigo,
+        })),
+      ...recipientes('caixote'),
+      ...recipientes('pallet'),
+      ...rel.transportadoras
+        .filter((t) => contem(t.nome, q) || contem(t.codigo, q) || t.cnpj.includes(q.toUpperCase()))
         .slice(0, 5)
         .map((t) => ({
           tipo: 'transportadora' as const,
           id: t.id,
           codigo: t.codigo,
           titulo: t.nome,
-          rota: `/transportadoras/${t.id}`,
         })),
-      ...getRelacionamento()
-        .motoristas.filter(
+      ...rel.motoristas
+        .filter(
           (m) =>
             contem(m.nome, q) || contem(m.codigo, q) || m.cpf.includes(q.replace(/\D/g, '') || '-'),
         )
         .slice(0, 5)
+        .map((m) => ({ tipo: 'motorista' as const, id: m.id, codigo: m.codigo, titulo: m.nome })),
+      ...rel.veiculos
+        .filter((v) => contem(v.codigo, q) || contem(v.tipo, q))
+        .slice(0, 5)
+        .map((v) => ({ tipo: 'veiculo' as const, id: v.id, codigo: v.codigo, titulo: v.tipo })),
+      ...cad.materiais
+        .filter((m) => contem(nomes(m.nome), q))
+        .slice(0, 5)
         .map((m) => ({
-          tipo: 'motorista' as const,
+          tipo: 'material' as const,
           id: m.id,
-          codigo: m.codigo,
-          titulo: m.nome,
-          rota: `/motoristas?aberto=${m.id}`,
+          codigo: '',
+          titulo: m.nome.textos['pt-BR'] ?? '',
+          tituloTraduzido: m.nome,
         })),
+      ...cad.areas
+        .filter((a) => contem(a.nome, q))
+        .slice(0, 5)
+        .map((a) => ({ tipo: 'area' as const, id: a.id, codigo: '', titulo: a.nome })),
       ...db.usuarios
         .filter((u) => contem(u.nome, q) || contem(u.email, q) || contem(u.codigo, q))
         .slice(0, 5)
-        .map((u) => ({
-          tipo: 'usuario' as const,
-          id: u.id,
-          codigo: u.codigo,
-          titulo: u.nome,
-          rota: `/admin/usuarios/${u.id}`,
+        .map((u) => ({ tipo: 'usuario' as const, id: u.id, codigo: u.codigo, titulo: u.nome })),
+      ...perfisMock()
+        .filter((p) => contem(nomes(p.nome), q))
+        .slice(0, 5)
+        .map((p) => ({
+          tipo: 'perfil' as const,
+          id: p.id,
+          codigo: '',
+          titulo: p.nome.textos['pt-BR'] ?? '',
+          tituloTraduzido: p.nome,
         })),
     ]
     return HttpResponse.json(out)

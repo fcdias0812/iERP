@@ -186,6 +186,6 @@ describe('clientes', () => {
     assert.equal((await api('/clientes/nao-existe')).status, 404)
     const busca = await api(`/busca${qs({ q: 'technova' })}`)
     assert.equal(busca.body[0].tipo, 'cliente')
-    assert.equal(busca.body[0].rota, `/clientes/${busca.body[0].id}`)
+    assert.match(busca.body[0].titulo, /TechNova/)
   })
 })

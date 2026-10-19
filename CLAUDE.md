@@ -217,6 +217,10 @@ O layout não muda. Modelos completos para copiar:
 - **Transportadoras** — detalhe em abas + cadastro no painel (`TransportadoraSheet`) com contatos
   opcionais e motoristas (da lista ou novos). Histórico genérico: tabela `historico` (`server/src/shared/historico.repositorio.ts`).
 
+**Busca global (Ctrl+K)**: registro novo que a pessoa procura pelo código ou nome? Inclua o tipo em
+`server/src/modules/sistema/busca.ts` (+ `TipoBusca` em `src/services/types.ts`) e o rótulo, ícone,
+permissão e link em `KINDS` (`src/components/layout/CommandPalette.tsx`).
+
 Peças compartilhadas em `src/features/comum/`: `ContatosEditor`/`ContatosTabela` (principal em
 primeiro e destacado), `HistoricoTabela` (auditoria em tabela), `CadastroSheet`, `basicos.ts`
 (inclusão rápida de motorista/transportadora). Inativar em vez de excluir.

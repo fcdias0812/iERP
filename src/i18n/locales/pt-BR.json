@@ -623,7 +623,15 @@
       "customer": "Cliente",
       "user": "Usuário",
       "carrier": "Transportadora",
-      "driver": "Motorista"
+      "driver": "Motorista",
+      "site": "Site",
+      "lot": "Lote",
+      "crate": "Caixote",
+      "pallet": "Pallet",
+      "vehicle": "Veículo",
+      "material": "Material",
+      "area": "Área do estoque",
+      "profile": "Perfil de acesso"
     },
     "actions": {
       "lightTheme": "Mudar para o tema claro",

@@ -45,6 +45,9 @@ interface Banco {
 }
 let banco: Banco | null = null
 
+/** Materiais, áreas e recipientes simulados (usado também pela busca global simulada). */
+export const cadastrosMock = () => db()
+
 function db(): Banco {
   banco ??= {
     materiais: [

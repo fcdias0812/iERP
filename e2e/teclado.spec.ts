@@ -32,6 +32,26 @@ test('Ctrl+K abre a busca, encontra usuários pela API e Esc fecha', async ({ pa
   await expect(dialogo).toBeHidden()
 })
 
+test('a busca encontra tudo: lotes, caixotes, materiais… e abre o registro', async ({ page }) => {
+  await abrir(page, '/')
+  await page.locator('main h1').click()
+  await page.keyboard.press('Control+k')
+  const dialogo = page.getByRole('dialog')
+  // Lote (código) → detalhe do lote.
+  await page.keyboard.type('LOT-0000')
+  await expect(dialogo.getByRole('option', { name: /^Lote LOT-00001/ })).toBeVisible()
+  // Caixote pelo código; material no idioma da tela.
+  await dialogo.getByRole('combobox').fill('CXT-2026')
+  await expect(dialogo.getByRole('option', { name: /^Caixote CXT-20260001 · Cobre/ })).toBeVisible()
+  await dialogo.getByRole('combobox').fill('aluminio')
+  await expect(dialogo.getByRole('option', { name: /^Material Alumínio/ })).toBeVisible()
+  // Perfil de acesso → abre o painel do perfil.
+  await dialogo.getByRole('combobox').fill('leitura')
+  await dialogo.getByRole('option', { name: /^Perfil de acesso Leitura/ }).click()
+  await expect(page).toHaveURL(/\/admin\/perfis\?aberto=leitura/)
+  await expect(page.getByRole('dialog')).toContainText('Leitura')
+})
+
 test('Ctrl+B recolhe e expande o menu lateral', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
   await abrir(page, '/')

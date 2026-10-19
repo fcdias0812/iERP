@@ -795,12 +795,33 @@ export interface DashboardOperacao {
 
 /* ------------------------------------------------------------ shell (busca e notificações) */
 
+/** Tipos de registro da busca global (Ctrl+K) — server/src/modules/sistema/busca.ts. */
+export type TipoBusca =
+  | 'cliente'
+  | 'site'
+  | 'transportadora'
+  | 'motorista'
+  | 'veiculo'
+  | 'lote'
+  | 'caixote'
+  | 'pallet'
+  | 'material'
+  | 'area'
+  | 'usuario'
+  | 'perfil'
+
 export interface ResultadoBusca {
-  tipo: 'cliente' | 'transportadora' | 'motorista' | 'usuario'
+  tipo: TipoBusca
   id: string
+  /** Vazio quando o registro não tem código (material, área, perfil). */
   codigo: string
   titulo: string
-  rota: string
+  /** Nome nos 3 idiomas (materiais e perfis). */
+  tituloTraduzido?: LocalizedText
+  /** Informação extra curta (cidade do site, site do lote, posição do caixote…). */
+  detalhe?: string | null
+  /** Registro "pai" (o cliente do site). */
+  paiId?: string
 }
 
 export interface Notificacao {

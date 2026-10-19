@@ -272,11 +272,6 @@ describe('busca global', () => {
     const r = await api(`/busca${qs({ q: 'translog' })}`)
     assert.ok(r.body.some((x: { tipo: string }) => x.tipo === 'transportadora'))
     const m = await api(`/busca${qs({ q: 'cláudio' })}`)
-    assert.ok(
-      m.body.some(
-        (x: { tipo: string; rota: string }) =>
-          x.tipo === 'motorista' && x.rota.startsWith('/motoristas'),
-      ),
-    )
+    assert.ok(m.body.some((x: { tipo: string }) => x.tipo === 'motorista'))
   })
 })

@@ -623,7 +623,15 @@
       "customer": "Customer",
       "user": "User",
       "carrier": "Carrier",
-      "driver": "Driver"
+      "driver": "Driver",
+      "site": "Site",
+      "lot": "Lot",
+      "crate": "Crate",
+      "pallet": "Pallet",
+      "vehicle": "Vehicle",
+      "material": "Material",
+      "area": "Stock area",
+      "profile": "Access profile"
     },
     "actions": {
       "lightTheme": "Switch to light theme",

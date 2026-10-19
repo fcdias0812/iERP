@@ -1,16 +1,26 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
+import type { ParseKeys } from 'i18next'
 import {
+  Box,
   Building2,
+  CarFront,
   IdCard,
   Keyboard,
+  Layers,
   LoaderCircle,
+  MapPin,
+  Package,
   PanelLeft,
+  Recycle,
+  ShieldUser,
   SunMoon,
   Truck,
   UserRound,
+  Warehouse,
+  type LucideIcon,
 } from 'lucide-react'
 import {
   CommandDialog,
@@ -28,7 +38,9 @@ import { usePermissoes } from '@/hooks/use-can'
 import { useCurrentContext } from '@/hooks/use-can'
 import { useDebounced } from '@/hooks/use-debounced'
 import { isMac, useHotkey } from '@/hooks/use-hotkey'
+import { textoEm } from '@/lib/localized-text'
 import { buscaGlobal, sistemaKeys } from '@/services/sistema'
+import type { ResultadoBusca, TipoBusca } from '@/services/types'
 import { useShellStore } from '@/stores/shell-store'
 import { useUiStore } from '@/stores/ui-store'
 
@@ -38,18 +50,94 @@ interface Screen {
   parent?: NavItem
 }
 
-/** Tipo do registro da busca global → rótulo e ícone. */
-const KINDS = {
-  cliente: { label: 'command.records.customer', icon: Building2 },
-  transportadora: { label: 'command.records.carrier', icon: Truck },
-  motorista: { label: 'command.records.driver', icon: IdCard },
-  usuario: { label: 'command.records.user', icon: UserRound },
-} as const
+/**
+ * Tipo do registro da busca global → rótulo, ícone, página que precisa poder ver e link. Busca
+ * "absolutamente tudo" (pedido do usuário, 19/10/2026); o que o perfil não vê não aparece.
+ */
+const KINDS: Record<
+  TipoBusca,
+  { label: ParseKeys; icon: LucideIcon; permissao: string; rota: (r: ResultadoBusca) => string }
+> = {
+  cliente: {
+    label: 'command.records.customer',
+    icon: Building2,
+    permissao: 'clientes.ver',
+    rota: (r) => `/clientes/${r.id}`,
+  },
+  site: {
+    label: 'command.records.site',
+    icon: MapPin,
+    permissao: 'clientes.ver',
+    rota: (r) => `/clientes/${r.paiId}?aba=logistica`,
+  },
+  lote: {
+    label: 'command.records.lot',
+    icon: Package,
+    permissao: 'ordens.lotes.ver',
+    rota: (r) => `/ordens/lotes/${r.id}`,
+  },
+  caixote: {
+    label: 'command.records.crate',
+    icon: Box,
+    permissao: 'cadastros.caixotes.ver',
+    rota: (r) => `/cadastros/caixotes?aberto=${r.id}`,
+  },
+  pallet: {
+    label: 'command.records.pallet',
+    icon: Layers,
+    permissao: 'cadastros.pallets.ver',
+    rota: (r) => `/cadastros/pallets?aberto=${r.id}`,
+  },
+  transportadora: {
+    label: 'command.records.carrier',
+    icon: Truck,
+    permissao: 'transportadoras.ver',
+    rota: (r) => `/transportadoras/${r.id}`,
+  },
+  motorista: {
+    label: 'command.records.driver',
+    icon: IdCard,
+    permissao: 'motoristas.ver',
+    rota: (r) => `/motoristas?aberto=${r.id}`,
+  },
+  veiculo: {
+    label: 'command.records.vehicle',
+    icon: CarFront,
+    permissao: 'veiculos.ver',
+    rota: (r) => `/veiculos?aberto=${r.id}`,
+  },
+  material: {
+    label: 'command.records.material',
+    icon: Recycle,
+    permissao: 'cadastros.materiais.ver',
+    rota: (r) => `/cadastros/materiais?aberto=${r.id}`,
+  },
+  area: {
+    label: 'command.records.area',
+    icon: Warehouse,
+    permissao: 'cadastros.areas.ver',
+    rota: (r) => `/cadastros/areas?aberto=${r.id}`,
+  },
+  usuario: {
+    label: 'command.records.user',
+    icon: UserRound,
+    permissao: 'admin.usuarios.ver',
+    rota: (r) => `/admin/usuarios/${r.id}`,
+  },
+  perfil: {
+    label: 'command.records.profile',
+    icon: ShieldUser,
+    permissao: 'admin.perfis.ver',
+    rota: (r) => `/admin/perfis?aberto=${r.id}`,
+  },
+}
 
 /** Paleta de comandos (Ctrl+K / ⌘K): telas, registros e ações. */
 export function CommandPalette() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const router = useRouter()
+  const idioma = useUiStore((s) => s.language)
   const ctx = useCurrentContext()
   const permissoes = usePermissoes()
   const open = useShellStore((s) => s.commandOpen)
@@ -66,7 +154,15 @@ export function CommandPalette() {
     enabled: open && termo.length >= 2,
     staleTime: 30_000,
   })
-  const registros = termo.length >= 2 ? (busca.data ?? []) : []
+  // Só o que o perfil pode ver. Lote: em Ordens ou, sem acesso a Ordens, em Operação.
+  const podeVer = (r: ResultadoBusca) =>
+    can(permissoes, KINDS[r.tipo].permissao) ||
+    (r.tipo === 'lote' && can(permissoes, 'operacao.lotes.ver'))
+  const rotaDe = (r: ResultadoBusca) =>
+    r.tipo === 'lote' && !can(permissoes, 'ordens.lotes.ver')
+      ? `/operacao/lotes/${r.id}`
+      : KINDS[r.tipo].rota(r)
+  const registros = termo.length >= 2 ? (busca.data ?? []).filter(podeVer) : []
   const buscando = search.trim().length >= 2 && (termo !== search.trim() || busca.isFetching)
 
   // Quando os registros chegam, o primeiro fica selecionado (Enter abre direto).
@@ -102,6 +198,8 @@ export function CommandPalette() {
   }
   const go = (to: string) =>
     run(() => void navigate({ to: '/$', params: { _splat: to.replace(/^\//, '') } }))
+  // Registro: o link pode ter parâmetros (`?aberto=`, `?aba=`) — vai direto pelo histórico.
+  const abrirRegistro = (to: string) => run(() => router.history.push(to))
 
   const isDark =
     theme === 'dark' ||
@@ -148,13 +246,14 @@ export function CommandPalette() {
                   key={`${r.tipo}-${r.id}`}
                   value={valorRegistro(r)}
                   forceMount
-                  onSelect={() => go(r.rota)}
+                  onSelect={() => abrirRegistro(rotaDe(r))}
                 >
                   <Icon aria-hidden />
                   <span className="min-w-0 truncate">
                     <span className="text-muted-foreground">{t(kind.label)} </span>
-                    <span className="font-mono num">{r.codigo}</span>
-                    <span className="text-muted-foreground"> · {r.titulo}</span>
+                    {r.codigo && <span className="font-mono num">{r.codigo} · </span>}
+                    <span>{r.tituloTraduzido ? textoEm(r.tituloTraduzido, idioma) : r.titulo}</span>
+                    {r.detalhe && <span className="text-muted-foreground"> · {r.detalhe}</span>}
                   </span>
                 </CommandItem>
               )

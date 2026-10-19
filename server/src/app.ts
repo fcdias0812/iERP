@@ -64,7 +64,7 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   api.use('/recipientes', rotasCadastro(cadastros.recipientes, 'tipo'))
   api.use('/perfis', rotasPerfis(criarServicoPerfis(db)))
   api.use('/auditoria', rotasAuditoria(criarServicoAuditoria(db)))
-  api.use(rotasSistema({ usuarios, clientes, transportadoras, motoristas }))
+  api.use(rotasSistema(db, { usuarios, clientes, transportadoras, motoristas }))
   api.use(rotaInexistente)
 
   const app = express()

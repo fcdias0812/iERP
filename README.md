@@ -295,15 +295,15 @@ Fundo **Satélite** do mapa: chave da Esri em `VITE_ESRI_API_KEY` (veja `.env.ex
 
 ## API de usuários
 
-| Método e caminho                   | O que faz                                                              |
-| ---------------------------------- | ---------------------------------------------------------------------- |
-| `GET /api/usuarios`                | lista com busca, filtros, ordenação e paginação do DataTable           |
-| `GET /api/usuarios/resumo`         | total, ativos, bloqueados, inativos                                    |
-| `GET /api/usuarios/:id`            | detalhe + histórico + ações permitidas                                 |
-| `POST /api/usuarios`               | cria (`nome`, `email`, `perfil`) — e-mail único (409)                  |
-| `PUT /api/usuarios/:id`            | edita; o histórico guarda antes → depois                               |
-| `POST /api/usuarios/:id/transicao` | `bloquear` (motivo obrigatório), `desbloquear`, `inativar`, `reativar` |
-| `GET /api/busca?q=`                | busca global (Ctrl+K)                                                  |
+| Método e caminho                   | O que faz                                                                                                                                                                                                       |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/usuarios`                | lista com busca, filtros, ordenação e paginação do DataTable                                                                                                                                                    |
+| `GET /api/usuarios/resumo`         | total, ativos, bloqueados, inativos                                                                                                                                                                             |
+| `GET /api/usuarios/:id`            | detalhe + histórico + ações permitidas                                                                                                                                                                          |
+| `POST /api/usuarios`               | cria (`nome`, `email`, `perfil`) — e-mail único (409)                                                                                                                                                           |
+| `PUT /api/usuarios/:id`            | edita; o histórico guarda antes → depois                                                                                                                                                                        |
+| `POST /api/usuarios/:id/transicao` | `bloquear` (motivo obrigatório), `desbloquear`, `inativar`, `reativar`                                                                                                                                          |
+| `GET /api/busca?q=`                | busca global (Ctrl+K): até 5 de cada tipo (`tipo`, `id`, `codigo`, `titulo`, `detalhe`) — clientes, sites, transportadoras, motoristas, veículos, lotes, caixotes, pallets, materiais, áreas, usuários e perfis |
 
 Erros seguem `{ code, message, details? }` (ex.: `validation` 422, `email_in_use` 409,
 `cnpj_in_use` 409, `invalid_transition` 409, `not_found` 404).

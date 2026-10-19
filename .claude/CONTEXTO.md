@@ -78,11 +78,12 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `159dd25` | Histórico de Ordens e de Operação; menu de Ordens com Viagens                            |
 | `bdad159` | Sistema › Cadastros (materiais, pallets, caixotes, áreas, rastreadores GPS)              |
 | `0ccce04` | Administração › Perfis de acesso e Auditoria                                             |
-| (local)   | Região do site em lista; mapa (cinza, cidade); coleta prevista obrigatória; Forecast     |
+| `2fd305d` | Região do site em lista; mapa (cinza, cidade); coleta prevista obrigatória; Forecast     |
+| (local)   | Busca do topo (Ctrl+K) encontra todos os registros                                       |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
-unitários, 87 testes do servidor, 242 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
-formatação, build. Commit **local** (push só quando ele pedir).
+unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
+formatação, build. Commits `2fd305d` e o da busca só **locais** (push só quando ele pedir).
 
 **Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
 clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
@@ -407,6 +408,17 @@ recomendadas):
   perfis), com coluna **Tipo** e o **registro** com link para ele. Mesmo período dos históricos de
   módulo (30/90/365 dias/tudo; padrão 90).
 - **Ainda não**: o servidor não confere a permissão (não há login); hoje vale nas telas.
+
+### 5.13 Busca da barra do topo (Ctrl+K) — 19/10/2026
+
+Pedido dele: "a barra de buscas tem que buscar absolutamente tudo… lotes, caixotes, pallets,
+viagens, etc". `GET /api/busca?q=` (`server/src/modules/sistema/busca.ts`) devolve até 5 de cada:
+clientes, **sites** (código ou endereço; mostra a cidade; abre o cliente na aba Logística),
+transportadoras, motoristas, **veículos**, **lotes** (código, referência do cliente, cliente, site),
+**caixotes** e **pallets** (código ou posição; mostra o material), **materiais**, **áreas do
+estoque**, usuários e **perfis de acesso**. A tela (`CommandPalette`) monta o link de cada tipo e
+esconde o que o perfil não pode ver (lote: Ordens ou, sem acesso, Operação). **Viagens** entram
+quando o módulo existir (ainda em construção).
 
 ### 5.6 Cálculo da OS (pré-cálculo)
 
