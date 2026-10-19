@@ -263,7 +263,7 @@ function gerar(): Db {
       {
         id: 'site00001',
         codigo: 'SPO-01',
-        regiao: 'Sudeste',
+        regiao: 'sudeste',
         horario: 'seg a sex, 8h às 18h',
         totalGaylords: 24,
         cep: '01001000',

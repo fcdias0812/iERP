@@ -855,7 +855,9 @@
     "registrada": "已登記",
     "inspecao_bom": "良好",
     "inspecao_avaria": "損壞",
-    "inspecao_outro": "其他"
+    "inspecao_outro": "其他",
+    "coleta_prevista": "預計日期",
+    "coleta_confirmada": "已確認日期"
   },
   "dataTable": {
     "yes": "是",
@@ -1674,6 +1676,14 @@
         "aproximado": "大約位置：地圖只找到城市。請將圖釘拖曳到站點大門。"
       },
       "semResponsavel": "無負責人",
+      "semRegiao": "無地區",
+      "regioes": {
+        "norte": "北部",
+        "nordeste": "東北部",
+        "centro_oeste": "中西部",
+        "sudeste": "東南部",
+        "sul": "南部"
+      },
       "novoContato": "新增聯絡人…",
       "novoContatoAjuda": "新聯絡人也會加入客戶的聯絡人清單。",
       "semDocas": "尚未登錄碼頭。",
@@ -2027,7 +2037,8 @@
         "buscarCliente": "搜尋客戶…",
         "nenhumaTransportadora": "無運輸公司",
         "nenhumMotorista": "無司機",
-        "coletaPrevista": "收運尚未確定日期時的預估日。",
+        "coletaPrevista": "預估收運日（必填）。日期確定後，請填寫收運日期。",
+        "dataColeta": "已確認的日期。未填寫時，批次在預測中以虛線框顯示（預計）。",
         "placas": "需攜帶多少板材以保護地面與通道。",
         "fatorLimitante": "例如：樓梯、小型電梯、限制時段。",
         "escopo": "必填：請填寫範圍或至少附上一份文件。",
@@ -2145,7 +2156,14 @@
         "racks": "{{n}} 機櫃",
         "boxes": "{{n}} 箱",
         "semVolume": "未填寫件數",
-        "diaRotulo": "{{dia}}：{{n}} 批"
+        "diaRotulo": "{{dia}}：{{n}} 批",
+        "legendaPrevista": "虛線框：收運為預計日期",
+        "legendaConfirmada": "實線框：收運日期已確認",
+        "detalhes": "收運詳情",
+        "abrirLote": "開啟批次",
+        "carregando": "正在載入收運…",
+        "erro": "無法載入收運。",
+        "servicosNenhum": "未選擇任何服務。"
       },
       "mapa": {
         "titulo": "Microsoft 資料中心",

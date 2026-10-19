@@ -53,12 +53,12 @@ async function buscarAgendados(busca: string) {
     ...EMPTY_QUERY,
     search: busca,
     filters: [{ id: 'status', kind: 'in', values: ['agendado'] }],
-    sort: [{ id: 'dataColeta', desc: false }],
+    sort: [{ id: 'coletaPrevista', desc: false }],
     pageSize: 20,
   })
   return page.rows.map((o) => ({
     value: o.id,
-    label: `${o.codigo} · ${o.clienteNome} · ${formatDate(o.dataColeta)}`,
+    label: `${o.codigo} · ${o.clienteNome} · ${formatDate(o.dataColeta ?? o.coletaPrevista)}`,
   }))
 }
 

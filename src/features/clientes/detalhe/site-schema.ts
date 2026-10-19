@@ -1,6 +1,6 @@
 import { isValidPhone } from '@/lib/validators/br'
 import { z } from '@/lib/zod-i18n'
-import type { Doca, SiteCliente, SiteInput } from '@/services/types'
+import type { Doca, RegiaoBrasil, SiteCliente, SiteInput } from '@/services/types'
 
 /*
  * Formulário do site (Clientes › Logística). Mesmas regras do servidor
@@ -46,7 +46,8 @@ const docaSchema = z.object({
 export const siteSchema = z
   .object({
     codigo: z.string().trim().min(1).max(30),
-    regiao: z.string().trim().max(60),
+    /** Código da região ou NENHUM. */
+    regiao: z.string(),
     horario: z.string().trim().max(120),
     totalGaylords: opcional(z.number().int().min(0).max(1_000_000)),
     cep: z.string().refine((v) => v === '' || v.replace(/\D/g, '').length === 8, 'validation.cep'),
@@ -112,7 +113,7 @@ export const docaVazia = (): DocaForm => ({
 
 export const novoSiteForm = (): SiteForm => ({
   codigo: '',
-  regiao: '',
+  regiao: NENHUM,
   horario: '',
   totalGaylords: null,
   cep: '',
@@ -127,7 +128,7 @@ export const novoSiteForm = (): SiteForm => ({
 
 export const siteParaForm = (s: SiteCliente): SiteForm => ({
   codigo: s.codigo,
-  regiao: s.regiao ?? '',
+  regiao: s.regiao ?? NENHUM,
   horario: s.horario ?? '',
   totalGaylords: s.totalGaylords,
   cep: s.cep ?? '',
@@ -157,7 +158,7 @@ export function formParaInput(v: z.output<typeof siteSchema>): SiteInput {
   const novo = v.responsavel === NOVO_CONTATO
   return {
     codigo: v.codigo.trim(),
-    regiao: v.regiao.trim() || null,
+    regiao: v.regiao === NENHUM ? null : (v.regiao as RegiaoBrasil),
     horario: v.horario.trim() || null,
     totalGaylords: v.totalGaylords,
     cep: v.cep.replace(/\D/g, '') || null,

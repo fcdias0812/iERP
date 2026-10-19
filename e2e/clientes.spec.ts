@@ -30,7 +30,19 @@ test('logística: cadastra site pelo CEP (endereço, região e mapa) com doca', 
   await painel.getByLabel(/^CEP/).fill('01001000')
   await painel.getByRole('button', { name: 'Buscar CEP' }).click()
   await expect(painel.getByLabel(/^Endereço/)).toHaveValue('Praça da Sé, Sé, São Paulo – SP')
-  await expect(painel.getByLabel(/^Região/)).toHaveValue('Sudeste')
+  // Região: lista das 5 regiões do Brasil; o CEP já escolhe a do endereço.
+  const regiao = painel.getByRole('combobox', { name: /^Região/ })
+  await expect(regiao).toHaveText('Sudeste')
+  await regiao.click()
+  await expect(page.getByRole('option')).toHaveText([
+    'Sem região',
+    'Norte',
+    'Nordeste',
+    'Centro-Oeste',
+    'Sudeste',
+    'Sul',
+  ])
+  await page.keyboard.press('Escape')
   await expect(painel.getByLabel(/^Latitude, longitude/)).toHaveValue('-23.550390, -46.633081')
   await painel.getByRole('button', { name: 'Adicionar doca' }).click()
   await painel.getByLabel(/^Número da doca/).fill('A1')
@@ -38,7 +50,7 @@ test('logística: cadastra site pelo CEP (endereço, região e mapa) com doca', 
   expect(await violacoes(page)).toEqual([])
   await painel.getByRole('button', { name: 'Salvar' }).click()
   await expect(page.getByText('Site RJ-01 cadastrado.')).toBeVisible()
-  await expect(page.locator('main tbody').getByText('RJ-01')).toBeVisible()
+  await expect(page.locator('main tbody tr', { hasText: 'RJ-01' })).toContainText('Sudeste')
 })
 
 test('logística: código de site repetido mostra erro no campo', async ({ page }) => {

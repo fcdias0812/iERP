@@ -261,7 +261,7 @@ export const clientesAbasHandlers = [
       bairro: 'Sé',
       cidade: 'São Paulo',
       uf: 'SP',
-      regiao: 'Sudeste',
+      regiao: 'sudeste',
       endereco: 'Praça da Sé, Sé, São Paulo – SP',
     })
   }),

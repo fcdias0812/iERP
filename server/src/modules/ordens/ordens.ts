@@ -110,8 +110,9 @@ export interface OrdemResumo {
   docaNumero: string
   transportadoraNome: string | null
   referenciaCliente: string | null
-  dataColeta: string
-  coletaPrevista: string | null
+  /** Data de coleta confirmada (null = só a prevista). */
+  dataColeta: string | null
+  coletaPrevista: string
   dataChegada: string | null
   rastrear: boolean
   motoristaNome: string | null
@@ -214,10 +215,11 @@ export const ordemInputSchema = z
     docaId: z.string().min(1, 'Escolha a doca.'),
     transportadoraId: textoOpcional(60),
     referenciaCliente: textoOpcional(60),
-    dataColeta: z
-      .string({ error: 'Informe a data de coleta.' })
-      .refine(ehDia, 'Informe a data de coleta (AAAA-MM-DD).'),
-    coletaPrevista: dia,
+    // Prevista obrigatória; a data de coleta é a confirmada (opcional) — pedido de 19/10/2026.
+    coletaPrevista: z
+      .string({ error: 'Informe a coleta prevista.' })
+      .refine(ehDia, 'Informe a coleta prevista (AAAA-MM-DD).'),
+    dataColeta: dia,
     dataChegada: dia,
     rastrear: z.boolean().default(false),
     motoristaId: textoOpcional(60),
@@ -582,8 +584,8 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
               docaId: v.docaId,
               transportadoraId: v.transportadoraId,
               referenciaCliente: v.referenciaCliente,
-              dataColeta: inicioDoDia(v.dataColeta),
-              coletaPrevista: v.coletaPrevista && inicioDoDia(v.coletaPrevista),
+              dataColeta: v.dataColeta && inicioDoDia(v.dataColeta),
+              coletaPrevista: inicioDoDia(v.coletaPrevista),
               dataChegada: v.dataChegada && inicioDoDia(v.dataChegada),
               rastrear: v.rastrear ? 1 : 0,
               motoristaId: v.rastrear ? v.motoristaId : null,
@@ -901,8 +903,8 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
             docaId: v.docaId,
             transportadoraId: v.transportadoraId,
             referenciaCliente: v.referenciaCliente,
-            dataColeta: inicioDoDia(v.dataColeta),
-            coletaPrevista: v.coletaPrevista && inicioDoDia(v.coletaPrevista),
+            dataColeta: v.dataColeta && inicioDoDia(v.dataColeta),
+            coletaPrevista: inicioDoDia(v.coletaPrevista),
             dataChegada: v.dataChegada && inicioDoDia(v.dataChegada),
             rastrear: v.rastrear ? 1 : 0,
             motoristaId: v.rastrear ? v.motoristaId : null,

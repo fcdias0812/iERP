@@ -122,12 +122,15 @@ export const dashboardHandlers = [
     const forecast = Array.from({ length: 7 }, (_, i) => somar(hoje, i)).map((dia) => ({
       dia,
       lotes: ordensMock()
-        .filter((o) => o.status === 'agendado' && o.dataColeta.slice(0, 10) === dia)
+        .filter(
+          (o) => o.status === 'agendado' && (o.dataColeta ?? o.coletaPrevista).slice(0, 10) === dia,
+        )
         .map((o) => ({
           id: o.id,
           codigo: o.codigo,
           clienteNome: o.clienteNome,
           siteCodigo: o.siteCodigo,
+          confirmada: o.dataColeta !== null,
           pallets: o.quantidades.pallets ?? 0,
           gaylords: o.quantidades.gaylords ?? 0,
           racks: o.quantidades.racks ?? 0,
@@ -159,6 +162,7 @@ export const dashboardHandlers = [
             siteId: s.id,
             clienteId: microsoft[0]!.id,
             siteCodigo: s.codigo,
+            cidade: s.endereco?.match(/,\s*([^,]+?)\s*[–-]\s*[A-Z]{2}$/)?.[1] ?? null,
             endereco: s.endereco,
             latitude: s.latitude!,
             longitude: s.longitude!,

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { limparTelefone, telefoneValido } from '../../shared/documentos.js'
+import { REGIOES } from '../../shared/regioes.js'
 
 /* Regras de Clientes › Logística: validação de sites e docas. */
 
@@ -35,7 +36,12 @@ const docaSchema = z.object({
 export const siteInputSchema = z
   .object({
     codigo: z.string().trim().min(1, 'Informe o código do site.').max(30),
-    regiao: textoOpcional(60),
+    // Lista fechada (código); vazio = sem região.
+    regiao: z
+      .enum(REGIOES, 'Escolha uma região do Brasil.')
+      .or(z.literal(''))
+      .nullish()
+      .transform((v) => v || null),
     horario: textoOpcional(120),
     totalGaylords: numeroOpcional(z.number().int().min(0).max(1_000_000)),
     cep: z

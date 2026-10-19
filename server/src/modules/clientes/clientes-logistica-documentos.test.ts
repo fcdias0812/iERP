@@ -30,7 +30,7 @@ const fetchFalso: typeof fetch = async (entrada) => {
       bairro: 'Sé',
       localidade: 'São Paulo',
       uf: 'SP',
-      regiao: 'Sudeste',
+      regiao: 'sudeste',
     })
   if (url.includes('viacep.com.br')) return Response.json({ erro: 'true' })
   const q = new URL(url).searchParams.get('q') ?? ''
@@ -96,7 +96,7 @@ const doca = (numero: string, extra: Record<string, unknown> = {}) => ({
 
 const site = (extra: Record<string, unknown> = {}) => ({
   codigo: 'SPO-01',
-  regiao: 'Sudeste',
+  regiao: 'sudeste',
   horario: 'seg a sex, 8h às 18h',
   totalGaylords: 20,
   cep: '01001-000',
@@ -162,12 +162,32 @@ describe('clientes › logística', () => {
     assert.equal(outro.status, 422)
   })
 
+  it('região é a lista das 5 regiões do Brasil (código); vazio = sem região', async () => {
+    const invalida = await api(`/clientes/${clienteId}/sites`, {
+      method: 'POST',
+      body: site({ codigo: 'R1', regiao: 'São Paulo' }),
+    })
+    assert.equal(invalida.status, 422)
+    const vazia = await api(`/clientes/${clienteId}/sites`, {
+      method: 'POST',
+      body: site({ codigo: 'R2', regiao: '' }),
+    })
+    assert.equal(vazia.status, 201)
+    assert.equal(vazia.body.regiao, null)
+    const centro = await api(`/clientes/${clienteId}/sites/${vazia.body.id}`, {
+      method: 'PUT',
+      body: site({ codigo: 'R2', regiao: 'centro_oeste' }),
+    })
+    assert.equal(centro.body.regiao, 'centro_oeste')
+    await api(`/clientes/${clienteId}/sites/${vazia.body.id}`, { method: 'DELETE' })
+  })
+
   it('edita site e docas com antes → depois no histórico; responsável sobrevive à edição de contatos', async () => {
     const [atual] = (await api(`/clientes/${clienteId}/sites`)).body
     const editado = await api(`/clientes/${clienteId}/sites/${atual.id}`, {
       method: 'PUT',
       body: site({
-        regiao: 'Sul',
+        regiao: 'sul',
         contatoId: atual.responsavel.id,
         docas: [doca('D1'), doca('D2', { tailLift: true })],
       }),
@@ -262,7 +282,8 @@ describe('clientes › visão geral e geolocalização', () => {
 
   it('CEP → endereço (com região) e endereço → coordenadas, com cache', async () => {
     const cep = await api('/geo/cep/01001-000')
-    assert.equal(cep.body.regiao, 'Sudeste')
+    // O ViaCEP devolve "Sudeste"; a API devolve o código da região.
+    assert.equal(cep.body.regiao, 'sudeste')
     assert.equal(cep.body.endereco, 'Praça da Sé, Sé, São Paulo – SP')
     assert.equal((await api('/geo/cep/99999999')).status, 404)
 

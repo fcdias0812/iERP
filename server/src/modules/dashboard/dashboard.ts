@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import type { Db } from '../../db/database.js'
 import { diaNoFuso, ehDia, inicioDoDia, somarDias } from '../../shared/datas.js'
+import { cidadeDoEndereco } from '../../shared/endereco.js'
 import { normalizar } from '../../shared/texto.js'
 import type { StatusOrdem } from '../ordens/ordens.js'
 
@@ -13,8 +14,10 @@ import type { StatusOrdem } from '../ordens/ordens.js'
  *  - "em processo" = etapas inspecao, processo e aguardando_cod;
  *  - vencido: dias decorridos > SLA; em risco: ≥ 80% do SLA usado e ainda no prazo;
  *  - cumprimento (30 dias): lotes com COD nos últimos 30 dias que fecharam dentro do SLA;
- *  - previsão de chegada: lotes agendados pela data de coleta (próximos 7 dias);
- *  - mapa: sites dos clientes "Microsoft" (pelo nome) com as coletas do período escolhido.
+ *  - previsão de chegada: lotes agendados pela data da coleta (próximos 7 dias) — a data de coleta
+ *    confirmada ou, sem ela, a coleta prevista (`confirmada` diz qual);
+ *  - mapa: sites dos clientes "Microsoft" (pelo nome) com as coletas do período escolhido (mesma
+ *    data), rotulados pela cidade do endereço.
  * Hoje as etapas depois de "agendado" ainda não são preenchidas (virão da integração com os
  * sistemas de produção): a maioria dos números fica zerada até lá.
  */
@@ -42,7 +45,7 @@ export interface DashboardOperacao {
     cumprimentoSla30d: number | null
     codPendente: number
   }
-  /** Próximos 7 dias (a partir de hoje), com os lotes agendados pela data de coleta. */
+  /** Próximos 7 dias (a partir de hoje), com os lotes agendados pela data da coleta. */
   forecast: {
     dia: string
     lotes: {
@@ -50,6 +53,8 @@ export interface DashboardOperacao {
       codigo: string
       clienteNome: string
       siteCodigo: string
+      /** Data de coleta confirmada? (senão, é a prevista — borda tracejada na tela) */
+      confirmada: boolean
       pallets: number
       gaylords: number
       racks: number
@@ -65,6 +70,8 @@ export interface DashboardOperacao {
       siteId: string
       clienteId: string
       siteCodigo: string
+      /** Cidade do endereço (null = endereço sem "– UF" no fim; a tela mostra o código). */
+      cidade: string | null
       endereco: string | null
       latitude: number
       longitude: number
@@ -135,6 +142,7 @@ export function criarServicoDashboard(db: Db) {
             'clienteSlaDias',
             'siteCodigo',
             'dataColeta',
+            'coletaPrevista',
             'recebidoEm',
             'etapaDesde',
             'codEmitidoEm',
@@ -208,6 +216,10 @@ export function criarServicoDashboard(db: Db) {
       const cumprimento = (l: typeof fechados) =>
         l.length ? l.filter(noPrazo).length / l.length : null
 
+      /** Dia da coleta: a confirmada ou, sem ela, a prevista. */
+      const diaDaColeta = (l: { dataColeta: string | null; coletaPrevista: string }) =>
+        l.dataColeta ?? l.coletaPrevista
+
       /* ---------------- previsão de chegada (próximos 7 dias) */
       const forecast = Array.from({ length: 7 }, (_, i) => somarDias(hoje, i)).map((dia) => {
         const de = inicioDoDia(dia)
@@ -215,12 +227,13 @@ export function criarServicoDashboard(db: Db) {
         return {
           dia,
           lotes: lotes
-            .filter((l) => l.status === 'agendado' && l.dataColeta >= de && l.dataColeta < ate)
+            .filter((l) => l.status === 'agendado' && diaDaColeta(l) >= de && diaDaColeta(l) < ate)
             .map((l) => ({
               id: l.id,
               codigo: l.codigo,
               clienteNome: l.clienteNome,
               siteCodigo: l.siteCodigo,
+              confirmada: l.dataColeta !== null,
               pallets: l.qtdPallets ?? 0,
               gaylords: l.qtdGaylords ?? 0,
               racks: l.qtdRacks ?? 0,
@@ -242,15 +255,16 @@ export function criarServicoDashboard(db: Db) {
               .execute(),
             db
               .selectFrom('ordens')
-              .select('siteId')
+              .select(['siteId', 'dataColeta', 'coletaPrevista'])
               .where('clienteId', 'in', ids)
-              .where('dataColeta', '>=', inicioDoDia(mapaDe))
-              .where('dataColeta', '<', inicioDoDia(somarDias(mapaAte, 1)))
               .execute(),
           ])
         : [[], []]
       const coletasPorSite = new Map<string, number>()
-      for (const c of coletas) coletasPorSite.set(c.siteId, (coletasPorSite.get(c.siteId) ?? 0) + 1)
+      const [mapaInicio, mapaFim] = [inicioDoDia(mapaDe), inicioDoDia(somarDias(mapaAte, 1))]
+      for (const c of coletas)
+        if (diaDaColeta(c) >= mapaInicio && diaDaColeta(c) < mapaFim)
+          coletasPorSite.set(c.siteId, (coletasPorSite.get(c.siteId) ?? 0) + 1)
 
       /* ---------------- por cliente */
       const porCliente = clientes.map((c) => {
@@ -300,6 +314,7 @@ export function criarServicoDashboard(db: Db) {
               siteId: s.id,
               clienteId: s.clienteId,
               siteCodigo: s.codigo,
+              cidade: cidadeDoEndereco(s.endereco),
               endereco: s.endereco,
               latitude: s.latitude!,
               longitude: s.longitude!,

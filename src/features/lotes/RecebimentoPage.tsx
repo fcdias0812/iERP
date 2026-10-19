@@ -59,7 +59,7 @@ function Recebimento() {
       ...query,
       sort: query.sort.length
         ? query.sort
-        : [{ id: recebidos ? 'recebidoEm' : 'dataColeta', desc: recebidos }],
+        : [{ id: recebidos ? 'recebidoEm' : 'coletaPrevista', desc: recebidos }],
       filters: [
         ...query.filters.filter((f) => f.id !== 'status' || recebidos),
         { id: 'status', kind: 'in', values: recebidos ? RECEBIDOS : A_RECEBER },

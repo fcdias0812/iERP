@@ -1,4 +1,5 @@
 import { ErroApi } from '../../shared/erros.js'
+import { regiaoDaUf, regiaoDoTexto, type RegiaoBrasil } from '../../shared/regioes.js'
 
 /*
  * Geolocalização para o cadastro de sites:
@@ -17,7 +18,8 @@ export interface EnderecoCep {
   bairro: string
   cidade: string
   uf: string
-  regiao: string
+  /** Código da região (pelo nome que o ViaCEP devolve ou pela UF). */
+  regiao: RegiaoBrasil | null
   /** "Rua, bairro, cidade – UF". */
   endereco: string
 }
@@ -142,7 +144,7 @@ export function criarServicoGeo(opcoes: { contato: string; fetch?: typeof fetch 
             bairro: j.bairro ?? '',
             cidade: j.localidade ?? '',
             uf: j.uf ?? '',
-            regiao: j.regiao ?? '',
+            regiao: regiaoDoTexto(j.regiao) ?? regiaoDaUf(j.uf),
             endereco: j.uf ? `${partes} – ${j.uf}` : partes,
           })
         }

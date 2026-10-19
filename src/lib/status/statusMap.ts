@@ -1,6 +1,7 @@
 import {
   AlarmClock,
   Ban,
+  CalendarCheck,
   CalendarClock,
   Cog,
   CircleDashed,
@@ -69,6 +70,9 @@ export const STATUS_MAP = {
   em_revisao: { tone: 'warning', icon: Eye, flowOrder: 50 },
   aprovado: { tone: 'success', icon: CircleCheck, flowOrder: 60 },
   agendado: { tone: 'info', icon: CalendarClock, flowOrder: 65 },
+  // Data da coleta do lote: só a prevista ou já confirmada (Forecast do dashboard).
+  coleta_prevista: { tone: 'info', icon: CalendarClock, flowOrder: 63 },
+  coleta_confirmada: { tone: 'success', icon: CalendarCheck, flowOrder: 64 },
   inspecao: { tone: 'info', icon: ScanSearch, flowOrder: 66 },
   processo: { tone: 'info', icon: Cog, flowOrder: 67 },
   aguardando_cod: { tone: 'warning', icon: FileClock, flowOrder: 68 },

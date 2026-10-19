@@ -40,11 +40,12 @@ export const criarAgendamentoSchema = ({ temEscopoArquivado = false } = {}) =>
       docaId: z.string().min(1, 'validation.required'),
       transportadoraId: z.string(),
       referenciaCliente: z.string().trim().max(60),
-      dataColeta: z
+      // Prevista obrigatória; data de coleta = a confirmada (opcional) — pedido de 19/10/2026.
+      coletaPrevista: z
         .date()
         .optional()
         .refine((d) => d !== undefined, 'validation.required'),
-      coletaPrevista: z.date().optional(),
+      dataColeta: z.date().optional(),
       dataChegada: z.date().optional(),
       rastrear: z.boolean(),
       motoristaId: z.string(),
@@ -159,8 +160,8 @@ export function formParaInput(v: AgendamentoForm): OrdemInput {
     docaId: v.docaId,
     transportadoraId: opcional(v.transportadoraId),
     referenciaCliente: v.referenciaCliente.trim() || null,
-    dataColeta: dia(v.dataColeta)!,
-    coletaPrevista: dia(v.coletaPrevista),
+    dataColeta: dia(v.dataColeta),
+    coletaPrevista: dia(v.coletaPrevista)!,
     dataChegada: dia(v.dataChegada),
     rastrear: v.rastrear,
     motoristaId: v.rastrear ? opcional(v.motoristaId) : null,

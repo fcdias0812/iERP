@@ -97,7 +97,8 @@ export default function MapaColetas({
     camada.current = L.tileLayer(f.url, { attribution: f.atribuicao, maxZoom: 19 }).addTo(m)
   }, [fundo])
 
-  // Pontos (balões com o número de coletas e o código do site).
+  // Pontos (balões com o número de coletas e o nome da cidade — pedido do usuário; sem cidade no
+  // endereço, o código do site).
   useEffect(() => {
     const m = mapa.current
     const grupo = marcadores.current
@@ -105,7 +106,11 @@ export default function MapaColetas({
     grupo.clearLayers()
     for (const p of pontos)
       L.marker([p.latitude, p.longitude], { icon: balao(p.coletas), keyboard: false })
-        .bindTooltip(p.siteCodigo, { permanent: true, direction: 'bottom', offset: [0, 14] })
+        .bindTooltip(p.cidade ?? p.siteCodigo, {
+          permanent: true,
+          direction: 'bottom',
+          offset: [0, 14],
+        })
         .addTo(grupo)
     // Enquadra uma vez (depois, quem manda no zoom é a pessoa).
     if (pontos.length && !enquadrado.current) {
@@ -117,15 +122,16 @@ export default function MapaColetas({
     }
   }, [pontos])
 
+  // O filtro cinza fica na moldura: a classe do elemento do Leaflet não pode mudar depois de
+  // criado (o React reescreveria o `class` e apagaria o `leaflet-container` — mapa em branco).
   return (
-    <div
-      ref={elemento}
-      role="region"
-      aria-label={rotulo}
-      className={cn(
-        'relative z-0 h-96 w-full overflow-hidden rounded-md border',
-        fundo === 'cinza' && '[&_.leaflet-tile-pane]:grayscale',
-      )}
-    />
+    <div className={cn('w-full', fundo === 'cinza' && '[&_.leaflet-tile-pane]:grayscale')}>
+      <div
+        ref={elemento}
+        role="region"
+        aria-label={rotulo}
+        className="relative z-0 h-96 w-full overflow-hidden rounded-md border"
+      />
+    </div>
   )
 }

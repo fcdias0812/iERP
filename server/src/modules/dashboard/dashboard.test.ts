@@ -34,7 +34,8 @@ async function api(caminho: string, init?: { method?: string; body?: unknown }) 
   return { status: res.status, body: texto ? JSON.parse(texto) : undefined }
 }
 
-async function criarLote(docaId: string, dataColeta: string, pallets = 2) {
+/** Lote com a coleta PREVISTA no dia; `confirmada` também preenche a data de coleta. */
+async function criarLote(docaId: string, dia: string, pallets = 2, confirmada = false) {
   const form = new FormData()
   form.append(
     'dados',
@@ -42,7 +43,8 @@ async function criarLote(docaId: string, dataColeta: string, pallets = 2) {
       clienteId: microsoftId,
       siteId,
       docaId,
-      dataColeta,
+      coletaPrevista: dia,
+      dataColeta: confirmada ? dia : null,
       rastrear: false,
       servicos: { recycleOnly: true },
       quantidades: { pallets, racks: 1 },
@@ -126,7 +128,13 @@ before(async () => {
   }
   const site = await api(`/clientes/${microsoftId}/sites`, {
     method: 'POST',
-    body: { ...base2, codigo: 'CPQ01', latitude: -22.82, longitude: -47.27 },
+    body: {
+      ...base2,
+      codigo: 'CPQ01',
+      endereco: 'Rodovia Anhanguera, Distrito Industrial, Sumaré – SP',
+      latitude: -22.82,
+      longitude: -47.27,
+    },
   })
   assert.equal(site.status, 201)
   siteId = site.body.id
@@ -147,7 +155,8 @@ before(async () => {
   await mover(fechadoNoPrazo, 'concluido', 12, 10) // COD em 10 dias ≤ 15
   const fechadoAtrasado = await criarLote(docaId, somarDias(hoje, -25))
   await mover(fechadoAtrasado, 'concluido', 25, 20) // COD em 20 dias > 15
-  await criarLote(docaId, somarDias(hoje, 1), 3) // chega amanhã
+  await criarLote(docaId, somarDias(hoje, 1), 3) // chega amanhã (só prevista)
+  await criarLote(docaId, somarDias(hoje, 2), 2, true) // depois de amanhã, data confirmada
   await criarLote(docaId, somarDias(hoje, 10)) // fora dos 7 dias
 })
 
@@ -171,7 +180,7 @@ describe('dashboard › operação', () => {
     assert.equal(body.cards.slaEmRisco, 1)
     assert.equal(body.cards.cumprimentoSla30d, 0.5) // 1 de 2 fechados no prazo
     assert.equal(body.cards.codPendente, 1)
-    assert.equal(body.cards.chegadasPrevistas7d, 1)
+    assert.equal(body.cards.chegadasPrevistas7d, 2) // amanhã (prevista) + depois (confirmada)
   })
 
   it('previsão: os 7 dias a partir de hoje, com os lotes agendados pela data de coleta', async () => {
@@ -182,6 +191,9 @@ describe('dashboard › operação', () => {
     assert.equal(amanha.lotes.length, 1)
     assert.equal(amanha.lotes[0].pallets, 3)
     assert.equal(amanha.lotes[0].siteCodigo, 'CPQ01')
+    // Prevista (tela: borda tracejada) × confirmada (contínua).
+    assert.equal(amanha.lotes[0].confirmada, false)
+    assert.equal(body.forecast[2].lotes[0].confirmada, true)
   })
 
   it('por cliente e anomalias de prazo', async () => {
@@ -208,7 +220,9 @@ describe('dashboard › operação', () => {
     )
     assert.equal(semana.body.mapa.clienteEncontrado, true)
     assert.equal(semana.body.mapa.pontos.length, 1)
-    assert.equal(semana.body.mapa.pontos[0].coletas, 7)
+    assert.equal(semana.body.mapa.pontos[0].coletas, 8)
+    // Rótulo do ponto: a cidade do endereço.
+    assert.equal(semana.body.mapa.pontos[0].cidade, 'Sumaré')
     assert.deepEqual(
       semana.body.mapa.semLocalizacao.map((s: { siteCodigo: string }) => s.siteCodigo),
       ['CPQ02'],

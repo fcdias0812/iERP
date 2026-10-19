@@ -1,6 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { addDays, addMonths, endOfMonth, format, startOfMonth, startOfWeek } from 'date-fns'
 import { ChevronLeft, ChevronRight, Hourglass, MapPinOff, RefreshCw } from 'lucide-react'
@@ -27,6 +26,7 @@ import { cn } from '@/lib/utils'
 import { dashboardKeys, obterDashboardOperacao } from '@/services/dashboard'
 import type { DashboardOperacao } from '@/services/types'
 import { AnomaliasPrazo } from './AnomaliasPrazo'
+import { CardColeta } from './CardColeta'
 import { TEM_SATELITE, type FundoMapa } from './mapa-config'
 import { SituacaoPorCliente } from './SituacaoPorCliente'
 
@@ -269,27 +269,26 @@ function Forecast({ d }: { d?: DashboardOperacao }) {
                       {t('operacao.dashboard.forecast.vazio')}
                     </p>
                   ) : (
-                    f.lotes.map((l) => (
-                      <Link
-                        key={l.id}
-                        to="/ordens/lotes"
-                        search={{ q: l.codigo }}
-                        className="flex flex-col rounded-md border bg-card p-2 hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring"
-                      >
-                        <span className="truncate type-label">{l.clienteNome}</span>
-                        <span className="truncate type-caption text-muted-foreground">
-                          <span className="font-mono">{l.siteCodigo}</span> ·{' '}
-                          <span className="font-mono">{l.codigo}</span>
-                        </span>
-                        <span className="type-caption num">{volumes(l)}</span>
-                      </Link>
-                    ))
+                    f.lotes.map((l) => <CardColeta key={l.id} lote={l} volumes={volumes(l)} />)
                   )}
                 </li>
               )
             })}
           </ol>
         )}
+        <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1 type-caption text-muted-foreground">
+          <li className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="h-3 w-5 rounded-sm border-2 border-dashed border-border-strong"
+            />
+            {t('operacao.dashboard.forecast.legendaPrevista')}
+          </li>
+          <li className="flex items-center gap-2">
+            <span aria-hidden className="h-3 w-5 rounded-sm border-2 border-border-strong" />
+            {t('operacao.dashboard.forecast.legendaConfirmada')}
+          </li>
+        </ul>
       </CardContent>
     </Card>
   )
@@ -400,7 +399,7 @@ function Mapa({
             {pontos.map((p) => (
               <li key={p.siteId} className="rounded-md border px-2 py-1 type-caption num">
                 {t('operacao.dashboard.mapa.coletasSite', {
-                  site: p.siteCodigo,
+                  site: p.cidade ?? p.siteCodigo,
                   n: formatNumber(p.coletas),
                 })}
               </li>

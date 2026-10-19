@@ -70,8 +70,8 @@ const ordem = (extra: Record<string, unknown> = {}) => ({
   docaId,
   transportadoraId: null,
   referenciaCliente: 'PO-123',
-  dataColeta: '2026-10-25',
-  coletaPrevista: null,
+  coletaPrevista: '2026-10-25',
+  dataColeta: null,
   dataChegada: null,
   rastrear: false,
   motoristaId: null,
@@ -181,7 +181,8 @@ describe('ordens › agendamento', () => {
     assert.equal(r.body.siteCodigo, 'DC-01')
     assert.equal(r.body.totalVolumes, 11)
     // Data por dia no fuso de SP (início do dia em UTC).
-    assert.equal(r.body.dataColeta, '2026-10-25T03:00:00.000Z')
+    assert.equal(r.body.coletaPrevista, '2026-10-25T03:00:00.000Z')
+    assert.equal(r.body.dataColeta, null)
     assert.equal(r.body.anexos.length, 2)
     assert.equal(r.body.anexos[0].nome, 'Escopo técnico.pdf')
     assert.equal(r.body.calculo.veiculo.tipo, 'truck')
@@ -230,11 +231,14 @@ describe('ordens › agendamento', () => {
     assert.equal(semQtdVazios.status, 422)
   })
 
-  it('data de coleta é obrigatória', async () => {
-    const sem = await criarOrdem(ordem({ dataColeta: null }))
+  it('coleta prevista é obrigatória; a data de coleta (confirmada) é opcional', async () => {
+    const sem = await criarOrdem(ordem({ coletaPrevista: null }))
     assert.equal(sem.status, 422)
-    const invalida = await criarOrdem(ordem({ dataColeta: '25/10/2026' }))
+    const invalida = await criarOrdem(ordem({ coletaPrevista: '25/10/2026' }))
     assert.equal(invalida.status, 422)
+    const confirmada = await criarOrdem(ordem({ dataColeta: '2026-10-26' }))
+    assert.equal(confirmada.status, 201)
+    assert.equal(confirmada.body.dataColeta, '2026-10-26T03:00:00.000Z')
   })
 
   it('site de outro cliente e doca de outro site são recusados', async () => {
@@ -516,7 +520,7 @@ describe('ordens › editar lote', () => {
         quantidades: { ...ordem().quantidades, pallets: 30 },
       }),
     })
-    assert.equal(r.status, 200)
+    assert.equal(r.status, 200, JSON.stringify(r.body))
     assert.equal(r.body.docaNumero, 'D2')
     assert.equal(r.body.totalVolumes, 35)
     assert.notDeepEqual(r.body.calculo, lote.calculo)
@@ -529,7 +533,7 @@ describe('ordens › editar lote', () => {
       ]),
     )
     assert.deepEqual(campos.doca, ['D1', 'D2'])
-    assert.deepEqual(campos.dataColeta, ['2026-10-25', '2026-11-03'])
+    assert.deepEqual(campos.dataColeta, [null, '2026-11-03'])
     assert.deepEqual(campos.pallets, [6, 30])
 
     // Sem mudança: não grava histórico.

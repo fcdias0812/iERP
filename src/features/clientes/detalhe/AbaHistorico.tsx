@@ -51,6 +51,8 @@ export function AbaHistorico({ c }: { c: Cliente }) {
   const formatar = useCallback(
     (campo: string, v: Mudanca['antes']) => {
       if (campo === 'cep') return String(v).replace(/^(\d{5})(\d{3})$/, '$1-$2')
+      if (campo === 'regiao')
+        return t(`clientes.sites.regioes.${v as 'sul'}`, { defaultValue: String(v) })
       if (campo === 'tipoDocumento') return t(`clientes.documentos.tipos.${v as TipoDocumento}`)
       return undefined
     },

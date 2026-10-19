@@ -204,7 +204,9 @@ O layout não muda. Modelos completos para copiar:
   chamados)? Inclua a ação no módulo certo nos dois lados.
 - **Operação › Dashboard** — `server/src/modules/dashboard/dashboard.ts` (um endpoint calcula
   tudo: cards de SLA, previsão, mapa, por cliente, anomalias) e `src/features/operacao/` (mapa Leaflet
-  carregado sob demanda; config leve em `mapa-config.ts` para não puxar o Leaflet). SLA = `slaDias`
+  carregado sob demanda; config leve em `mapa-config.ts` para não puxar o Leaflet; `CardColeta` =
+  card do Forecast com a janela de detalhes — `features/lotes/informacoes-lote.tsx`, a mesma lista
+  da aba Informações). Data da coleta = `dataColeta` (confirmada) ou `coletaPrevista` (obrigatória). SLA = `slaDias`
   do cliente; etapas do lote no `status` da ordem (`inspecao`, `processo`, `aguardando_cod`,
   `concluido`).
 - **Perfis de acesso e Auditoria** (Administração) — `server/src/modules/perfis/perfis.ts`

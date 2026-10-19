@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from '@/components/ui/sonner'
 import { Switch } from '@/components/ui/switch'
 import { apiErrorMessage } from '@/lib/api-errors'
+import { REGIOES } from '@/lib/regioes'
 import { buscarCep, localizarEndereco } from '@/services/geo'
 import type { ContatoCliente, SiteCliente } from '@/services/types'
 import { isCodigoSiteEmUso, useSalvarSite } from '../use-clientes'
@@ -131,7 +132,21 @@ export function SiteSheet({
                 name="regiao"
                 label={t('clientes.sites.campos.regiao')}
               >
-                {({ field, control }) => <Input {...control} {...field} autoComplete="off" />}
+                {({ field, control }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger {...control}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NENHUM}>{t('clientes.sites.semRegiao')}</SelectItem>
+                      {REGIOES.map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {t(`clientes.sites.regioes.${r}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </RhfField>
               <RhfField
                 control={form.control}
@@ -311,7 +326,8 @@ function Localizacao({ form }: { form: Form }) {
     try {
       const r = await buscarCep(cep)
       form.setValue('endereco', r.endereco, { shouldDirty: true })
-      if (!form.getValues('regiao') && r.regiao)
+      // O CEP preenche a região (se ainda não escolhida).
+      if (form.getValues('regiao') === NENHUM && r.regiao)
         form.setValue('regiao', r.regiao, { shouldDirty: true })
       setBuscando(null)
       await localizar(r.endereco)

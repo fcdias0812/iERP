@@ -1,7 +1,6 @@
 import { useContext, useId, useMemo, type ReactNode } from 'react'
 import { Controller, useWatch, type FieldPath, type UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { FormSection } from '@/components/patterns/FormPage'
 import { AsyncCombobox } from '@/components/ui/async-combobox'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -24,6 +23,7 @@ import { CadastroSecao } from '@/features/comum/CadastroSheet'
 import { useOpcoesTransportadoras } from '@/features/motoristas/use-motoristas'
 import { useOpcoesMotoristas } from '@/features/transportadoras/use-transportadoras'
 import { formatCnpj } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { NENHUM, QUANTIDADES, SERVICOS, type AgendamentoForm } from './agendamento-schema'
 import { SecaoContexto } from './secao-contexto'
 import { buscarClientesAtivos, useSitesDoCliente } from './use-ordens'
@@ -50,10 +50,27 @@ function Secao({ titulo, descricao, colunas = 2, children }: SecaoProps) {
         {children}
       </CadastroSecao>
     )
+  // Página: o mesmo visual do FormSection, mas pelo espaço da PRÓPRIA seção (container query) —
+  // com o card de pré-cálculo ao lado, a largura da tela não diz quanto sobra (ficava espremido).
   return (
-    <FormSection title={titulo} description={descricao} columns={colunas}>
-      {children}
-    </FormSection>
+    <div className="@container">
+      <section className="grid grid-cols-1 gap-4 rounded-lg border bg-card p-4 shadow-card @3xl:grid-cols-[16rem_minmax(0,1fr)] @3xl:gap-8 @3xl:p-6">
+        <div className="space-y-1">
+          <h2 className="type-card-title">{titulo}</h2>
+          {descricao && <p className="type-body text-muted-foreground">{descricao}</p>}
+        </div>
+        <div className="@container/campos min-w-0">
+          <div
+            className={cn(
+              'grid grid-cols-1 content-start gap-x-4 gap-y-5',
+              colunas === 2 && '@md/campos:grid-cols-2',
+            )}
+          >
+            {children}
+          </div>
+        </div>
+      </section>
+    </div>
   )
 }
 
@@ -80,7 +97,7 @@ export function Local({ form, clienteFixo }: { form: Form; clienteFixo?: boolean
         label={t('ordens.agendamento.campos.cliente')}
         required
         help={clienteFixo ? t('lotes.editar.clienteFixo') : undefined}
-        className="sm:col-span-2"
+        className="col-span-full"
       >
         {({ field, control }) =>
           clienteFixo ? (
@@ -231,8 +248,11 @@ export function Coleta({ form }: { form: Form }) {
           <Input {...control} {...field} autoComplete="off" className="font-mono" />
         )}
       </RhfField>
-      {data('dataColeta', { required: true })}
-      {data('coletaPrevista', { help: t('ordens.agendamento.ajuda.coletaPrevista') })}
+      {data('coletaPrevista', {
+        required: true,
+        help: t('ordens.agendamento.ajuda.coletaPrevista'),
+      })}
+      {data('dataColeta', { help: t('ordens.agendamento.ajuda.dataColeta') })}
       {data('dataChegada')}
     </Secao>
   )
@@ -257,7 +277,7 @@ export function Rastreio({ form }: { form: Form }) {
             control={form.control}
             name="motoristaId"
             label={t('ordens.agendamento.campos.motorista')}
-            className="sm:col-start-1"
+            className="col-start-1"
           >
             {({ field, control }) => (
               <Select value={field.value} onValueChange={field.onChange}>
@@ -372,7 +392,7 @@ export function Quantidades({ form }: { form: Form }) {
         <div key={q}>{numero(`quantidades.${q}`, t(`ordens.agendamento.campos.${q}`))}</div>
       ))}
       {racks && (
-        <div className="sm:col-span-2">
+        <div className="col-span-full">
           {numero(
             'quantidades.placasPolicarbonato',
             t('ordens.agendamento.campos.placasPolicarbonato'),
@@ -385,17 +405,15 @@ export function Quantidades({ form }: { form: Form }) {
         name="quantidades.requerPalletsVazios"
         label={t('ordens.agendamento.campos.requerPalletsVazios')}
       />
-      {requerVazios ? (
+      {requerVazios &&
         numero('quantidades.palletsVazios', t('ordens.agendamento.campos.palletsVazios'), {
           required: true,
-        })
-      ) : (
-        <span aria-hidden className="hidden sm:block" />
-      )}
+        })}
       <SimNao
         form={form}
         name="quantidades.itensMais25kg"
         label={t('ordens.agendamento.campos.itensMais25kg')}
+        className="col-start-1"
       />
       <RhfField
         control={form.control}
@@ -403,7 +421,7 @@ export function Quantidades({ form }: { form: Form }) {
         label={t('ordens.agendamento.campos.fatorLimitante')}
         help={t('ordens.agendamento.ajuda.fatorLimitante')}
         maxLength={1000}
-        className="sm:col-span-2"
+        className="col-span-full"
       >
         {({ field, control }) => <Textarea {...control} {...field} rows={2} />}
       </RhfField>
@@ -514,6 +532,7 @@ function SimNao({
   form,
   name,
   label,
+  className,
 }: {
   form: Form
   name: Extract<
@@ -521,10 +540,11 @@ function SimNao({
     'rastrear' | 'quantidades.requerPalletsVazios' | 'quantidades.itensMais25kg'
   >
   label: string
+  className?: string
 }) {
   const { t } = useTranslation()
   return (
-    <RhfField control={form.control} name={name} label={label}>
+    <RhfField control={form.control} name={name} label={label} className={className}>
       {({ field, control }) => (
         <div className="flex h-control items-center gap-2">
           <Switch

@@ -41,8 +41,8 @@ test('agendamento: pré-calcula e cria o lote agendado', async ({ page }) => {
   await page.getByRole('option', { name: 'SPO-01' }).click()
   await page.getByRole('combobox', { name: /^Doca/ }).click()
   await page.getByRole('option', { name: 'Doca D1' }).click()
-  // Data de coleta (obrigatória): hoje, no calendário.
-  await page.getByLabel(/^Data de coleta/).click()
+  // Coleta prevista (obrigatória): hoje, no calendário. A data de coleta (confirmada) é opcional.
+  await page.getByLabel(/^Coleta prevista/).click()
   await page.locator('[data-today] button').click()
   await page.getByLabel(/^Pallets$/).fill('6')
   await page.getByLabel(/^Gaylords$/).fill('2')
@@ -80,11 +80,11 @@ test('agendamento: pré-calcula e cria o lote agendado', async ({ page }) => {
   await expect(linha).toContainText('III · IV')
 })
 
-test('data de coleta é obrigatória', async ({ page }) => {
+test('coleta prevista é obrigatória; a data de coleta não', async ({ page }) => {
   await abrir(page, '/ordens/agendamento')
   await page.getByRole('button', { name: 'Criar ordem' }).click()
-  const campo = page.getByLabel(/^Data de coleta/)
-  await expect(campo).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByLabel(/^Coleta prevista/)).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByLabel(/^Data de coleta/)).not.toHaveAttribute('aria-invalid', 'true')
 })
 
 test('desmarcar o serviço IV esconde as placas de policarbonato', async ({ page }) => {

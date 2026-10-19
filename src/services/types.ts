@@ -183,10 +183,13 @@ export interface Doca {
 }
 
 /** Site do cliente (Logística). CEP só com dígitos. */
+/** Região do Brasil (código; a tela traduz em `clientes.sites.regioes.*`). */
+export type RegiaoBrasil = 'norte' | 'nordeste' | 'centro_oeste' | 'sudeste' | 'sul'
+
 export interface SiteCliente {
   id: string
   codigo: string
-  regiao: string | null
+  regiao: RegiaoBrasil | null
   horario: string | null
   totalGaylords: number | null
   cep: string | null
@@ -208,7 +211,7 @@ export interface SiteCliente {
  */
 export interface SiteInput {
   codigo: string
-  regiao: string | null
+  regiao: RegiaoBrasil | null
   horario: string | null
   totalGaylords: number | null
   cep: string | null
@@ -255,7 +258,8 @@ export interface EnderecoCep {
   bairro: string
   cidade: string
   uf: string
-  regiao: string
+  /** Código da região (pelo nome do ViaCEP ou pela UF). */
+  regiao: RegiaoBrasil | null
   endereco: string
 }
 
@@ -510,8 +514,9 @@ export interface OrdemResumo {
   docaNumero: string
   transportadoraNome: string | null
   referenciaCliente: string | null
-  dataColeta: string
-  coletaPrevista: string | null
+  /** Data de coleta CONFIRMADA (null = só a prevista). */
+  dataColeta: string | null
+  coletaPrevista: string
   dataChegada: string | null
   rastrear: boolean
   motoristaNome: string | null
@@ -684,9 +689,10 @@ export interface OrdemInput {
   docaId: string
   transportadoraId: string | null
   referenciaCliente: string | null
+  /** yyyy-mm-dd — a confirmada (opcional) */
+  dataColeta: string | null
   /** yyyy-mm-dd (obrigatória) */
-  dataColeta: string
-  coletaPrevista: string | null
+  coletaPrevista: string
   dataChegada: string | null
   rastrear: boolean
   motoristaId: string | null
@@ -734,6 +740,8 @@ export interface DashboardOperacao {
       codigo: string
       clienteNome: string
       siteCodigo: string
+      /** Data de coleta confirmada? (senão, só prevista: borda tracejada) */
+      confirmada: boolean
       pallets: number
       gaylords: number
       racks: number
@@ -748,6 +756,8 @@ export interface DashboardOperacao {
       siteId: string
       clienteId: string
       siteCodigo: string
+      /** Cidade do endereço (null = a tela mostra o código do site). */
+      cidade: string | null
       endereco: string | null
       latitude: number
       longitude: number

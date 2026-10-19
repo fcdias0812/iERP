@@ -77,7 +77,11 @@ export function FileDropzone({
         </span>
         {(accept || maxSize) && (
           <span className="type-caption text-muted-foreground">
-            {[accept, maxSize ? t('upload.maxSize', { size: formatBytes(maxSize) }) : null]
+            {/* Espaço após a vírgula: a lista de extensões quebra linha em coluna estreita. */}
+            {[
+              accept?.split(',').join(', '),
+              maxSize ? t('upload.maxSize', { size: formatBytes(maxSize) }) : null,
+            ]
               .filter(Boolean)
               .join(' · ')}
           </span>

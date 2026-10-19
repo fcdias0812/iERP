@@ -3,7 +3,7 @@ import type { Selectable, Transaction } from 'kysely'
 import type { Db } from '../../db/database.js'
 import type { ClientesDocasTable, ClientesSitesTable, Database } from '../../db/schema.js'
 import type { SiteDados } from './clientes-sites.regras.js'
-import type { ContatoCliente, Doca, SiteCliente } from './clientes.types.js'
+import type { ContatoCliente, Doca, RegiaoBrasil, SiteCliente } from './clientes.types.js'
 
 /* Acesso ao banco: `clientes_sites` e `clientes_docas`. Sem regra de negócio. */
 
@@ -72,7 +72,7 @@ export function criarRepositorioSites(db: Db) {
     return sites.map((s: Selectable<ClientesSitesTable>) => ({
       id: s.id,
       codigo: s.codigo,
-      regiao: s.regiao,
+      regiao: s.regiao as RegiaoBrasil | null,
       horario: s.horario,
       totalGaylords: s.totalGaylords,
       cep: s.cep,

@@ -855,7 +855,9 @@
     "registrada": "Logged",
     "inspecao_bom": "Good",
     "inspecao_avaria": "Damaged",
-    "inspecao_outro": "Other"
+    "inspecao_outro": "Other",
+    "coleta_prevista": "Expected date",
+    "coleta_confirmada": "Confirmed date"
   },
   "dataTable": {
     "yes": "Yes",
@@ -1674,6 +1676,14 @@
         "aproximado": "Approximate point: the map only found the city. Drag the pin to the site gate."
       },
       "semResponsavel": "No contact person",
+      "semRegiao": "No region",
+      "regioes": {
+        "norte": "North",
+        "nordeste": "Northeast",
+        "centro_oeste": "Central-West",
+        "sudeste": "Southeast",
+        "sul": "South"
+      },
       "novoContato": "Add a new contact…",
       "novoContatoAjuda": "The new contact is also added to the customer’s contact list.",
       "semDocas": "No docks registered.",
@@ -2027,7 +2037,8 @@
         "buscarCliente": "Search customer…",
         "nenhumaTransportadora": "No carrier",
         "nenhumMotorista": "No driver",
-        "coletaPrevista": "Estimated day, while the pickup has no set date.",
+        "coletaPrevista": "Estimated pickup day (required). Once the date is certain, fill in the Pickup date.",
+        "dataColeta": "The confirmed date. While empty, the lot shows in the Forecast with a dashed border (expected).",
         "placas": "How many sheets to bring to protect floors and passages.",
         "fatorLimitante": "E.g.: stairs, small elevator, restricted hours.",
         "escopo": "Required: write the scope or attach at least one document.",
@@ -2145,7 +2156,14 @@
         "racks": "{{n}} racks",
         "boxes": "{{n}} boxes",
         "semVolume": "no volumes given",
-        "diaRotulo": "{{dia}}: {{n}} lots"
+        "diaRotulo": "{{dia}}: {{n}} lots",
+        "legendaPrevista": "Dashed border: pickup with an expected date",
+        "legendaConfirmada": "Solid border: confirmed pickup date",
+        "detalhes": "Pickup details",
+        "abrirLote": "Open the lot",
+        "carregando": "Loading the pickup…",
+        "erro": "Could not load the pickup.",
+        "servicosNenhum": "No services selected."
       },
       "mapa": {
         "titulo": "Microsoft datacenters",

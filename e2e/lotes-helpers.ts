@@ -18,54 +18,65 @@ export const PNG = Buffer.from(
   'base64',
 )
 
-/** Cria um lote AGENDADO na API simulada (como o Agendamento faz) e devolve o id. */
-export async function loteAgendado(page: Page) {
-  await abrir(page, '/ordens/lotes')
-  return page.evaluate(async () => {
-    const sites = (await (await fetch('/api/clientes/cli00001/sites')).json()) as {
-      id: string
-      docas: { id: string }[]
-    }[]
-    const form = new FormData()
-    form.set(
-      'dados',
-      JSON.stringify({
-        clienteId: 'cli00001',
-        siteId: sites[0]!.id,
-        docaId: sites[0]!.docas[0]!.id,
-        transportadoraId: null,
-        referenciaCliente: 'PO-1',
-        dataColeta: '2026-11-10',
-        coletaPrevista: null,
-        dataChegada: null,
-        rastrear: false,
-        motoristaId: null,
-        placa: null,
-        servicos: {
-          psm: false,
-          onsiteShredding: false,
-          recycleOnly: true,
-          valueRecoveryRacks: false,
-          valueRecoveryItad: false,
-        },
-        quantidades: {
-          boxes: null,
-          pallets: 4,
-          gaylords: null,
-          racks: null,
-          placasPolicarbonato: null,
-          requerPalletsVazios: false,
-          palletsVazios: null,
-          itensMais25kg: false,
-          fatorLimitante: null,
-        },
-        escopo: 'Coleta de pallets.',
-        observacoes: null,
-      }),
-    )
-    const r = await fetch('/api/ordens', { method: 'POST', body: form })
-    return ((await r.json()) as { id: string }).id
-  })
+/**
+ * Cria um lote AGENDADO na API simulada (como o Agendamento faz) e devolve o id. Datas
+ * AAAA-MM-DD: coleta prevista (obrigatória) e data de coleta confirmada (opcional).
+ */
+export async function loteAgendado(
+  page: Page,
+  datas: { coletaPrevista?: string; dataColeta?: string | null } = {},
+) {
+  // Só abre o sistema se ainda não abriu: recarregar zera a API simulada (sumiriam os lotes
+  // criados antes).
+  if (!page.url().startsWith('http')) await abrir(page, '/ordens/lotes')
+  return page.evaluate(
+    async ({ coletaPrevista, dataColeta }) => {
+      const sites = (await (await fetch('/api/clientes/cli00001/sites')).json()) as {
+        id: string
+        docas: { id: string }[]
+      }[]
+      const form = new FormData()
+      form.set(
+        'dados',
+        JSON.stringify({
+          clienteId: 'cli00001',
+          siteId: sites[0]!.id,
+          docaId: sites[0]!.docas[0]!.id,
+          transportadoraId: null,
+          referenciaCliente: 'PO-1',
+          coletaPrevista,
+          dataColeta,
+          dataChegada: null,
+          rastrear: false,
+          motoristaId: null,
+          placa: null,
+          servicos: {
+            psm: false,
+            onsiteShredding: false,
+            recycleOnly: true,
+            valueRecoveryRacks: false,
+            valueRecoveryItad: false,
+          },
+          quantidades: {
+            boxes: null,
+            pallets: 4,
+            gaylords: null,
+            racks: null,
+            placasPolicarbonato: null,
+            requerPalletsVazios: false,
+            palletsVazios: null,
+            itensMais25kg: false,
+            fatorLimitante: null,
+          },
+          escopo: 'Coleta de pallets.',
+          observacoes: null,
+        }),
+      )
+      const r = await fetch('/api/ordens', { method: 'POST', body: form })
+      return ((await r.json()) as { id: string }).id
+    },
+    { coletaPrevista: datas.coletaPrevista ?? '2026-11-10', dataColeta: datas.dataColeta ?? null },
+  )
 }
 
 /**

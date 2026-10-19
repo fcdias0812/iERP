@@ -161,22 +161,22 @@ server/                     BACKEND
 
 ## API de clientes
 
-| Método e caminho                                  | O que faz                                                                                                |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `GET /api/clientes`                               | lista (com o contato principal) — busca, filtros, ordenação, paginação                                   |
-| `GET /api/clientes/resumo`                        | total, ativos, inativos                                                                                  |
-| `GET /api/clientes/:id`                           | detalhe + contatos + histórico + ações permitidas                                                        |
-| `POST /api/clientes`                              | cria (`nome`, `cnpj`, `contatos[]`) — CNPJ único (409)                                                   |
-| `PUT /api/clientes/:id`                           | edita; contato com `id` é mantido (vínculo com sites); histórico antes → depois                          |
-| `POST /api/clientes/:id/transicao`                | `inativar`, `reativar`                                                                                   |
-| `GET /api/clientes/:id/lotes/resumo`              | lotes a chegar / em operação / finalizados + últimos 5 (integração ainda não ligada: `conectado: false`) |
-| `GET/POST /api/clientes/:id/sites`                | sites (com docas e responsável); responsável existente ou contato novo                                   |
-| `PUT/DELETE /api/clientes/:id/sites/:siteId`      | edita / remove site (docas juntas)                                                                       |
-| `GET/POST /api/clientes/:id/documentos`           | lista / envia (multipart `arquivo` + `tipo`), até 25 MB                                                  |
-| `GET /api/clientes/:id/documentos/:docId/arquivo` | baixa (sempre como anexo)                                                                                |
-| `DELETE /api/clientes/:id/documentos/:docId`      | remove                                                                                                   |
-| `GET /api/geo/cep/:cep`                           | CEP → endereço e região (ViaCEP)                                                                         |
-| `GET /api/geo/endereco?q=`                        | endereço → latitude/longitude (Nominatim/OpenStreetMap, 1 consulta/s, com cache)                         |
+| Método e caminho                                  | O que faz                                                                                                 |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `GET /api/clientes`                               | lista (com o contato principal) — busca, filtros, ordenação, paginação                                    |
+| `GET /api/clientes/resumo`                        | total, ativos, inativos                                                                                   |
+| `GET /api/clientes/:id`                           | detalhe + contatos + histórico + ações permitidas                                                         |
+| `POST /api/clientes`                              | cria (`nome`, `cnpj`, `contatos[]`) — CNPJ único (409)                                                    |
+| `PUT /api/clientes/:id`                           | edita; contato com `id` é mantido (vínculo com sites); histórico antes → depois                           |
+| `POST /api/clientes/:id/transicao`                | `inativar`, `reativar`                                                                                    |
+| `GET /api/clientes/:id/lotes/resumo`              | lotes a chegar / em operação / finalizados + últimos 5 (integração ainda não ligada: `conectado: false`)  |
+| `GET/POST /api/clientes/:id/sites`                | sites (com docas e responsável); responsável existente ou contato novo                                    |
+| `PUT/DELETE /api/clientes/:id/sites/:siteId`      | edita / remove site (docas juntas)                                                                        |
+| `GET/POST /api/clientes/:id/documentos`           | lista / envia (multipart `arquivo` + `tipo`), até 25 MB                                                   |
+| `GET /api/clientes/:id/documentos/:docId/arquivo` | baixa (sempre como anexo)                                                                                 |
+| `DELETE /api/clientes/:id/documentos/:docId`      | remove                                                                                                    |
+| `GET /api/geo/cep/:cep`                           | CEP → endereço e região (ViaCEP; região em código: `norte`, `nordeste`, `centro_oeste`, `sudeste`, `sul`) |
+| `GET /api/geo/endereco?q=`                        | endereço → latitude/longitude (Nominatim/OpenStreetMap, 1 consulta/s, com cache)                          |
 
 CNPJ (numérico ou alfanumérico) e telefone são guardados **sem pontuação** e validados no
 servidor; cada cliente tem **um** contato principal. Cliente não é excluído: é inativado.
@@ -265,7 +265,8 @@ Tipos de documento do lote: `escopo`, `nota_fiscal`, `mtr`, `cdf`, `foto`, `outr
 Pallets (`ordens_pallets`) e a etapa Inspeção vêm de Operação › Recebimento; as etapas seguintes
 (`ordens_etapas`) virão da integração com os sistemas de produção.
 
-Obrigatórios: cliente, site (do cliente), doca (do site), data de coleta e o escopo de trabalho (texto **ou**
+Obrigatórios: cliente, site (do cliente), doca (do site), **coleta prevista** (`coletaPrevista`; a
+`dataColeta` é a data confirmada, opcional) e o escopo de trabalho (texto **ou**
 arquivo — 422 `scope_required`). Placas de policarbonato só com o serviço IV (Value Recovery –
 Racks); quantidade de pallets vazios quando "requer pallets vazios"; motorista e placa só com
 rastreio. Datas de coleta/chegada são gravadas como o início do dia em São Paulo.
@@ -282,8 +283,9 @@ de volumes do cadastro de Veículos (só os ativos) e é rebaixado se não coube
 
 `GET /api/dashboard/operacao?mapaDe=AAAA-MM-DD&mapaAte=AAAA-MM-DD` devolve, num só JSON: cards
 (chegadas previstas em 7 dias, lotes em processo por etapa, SLA vencido, SLA em risco ≥ 80%,
-cumprimento de SLA em 30 dias, COD pendente), previsão de chegada (7 dias, pela data de coleta),
-mapa (sites dos clientes com "Microsoft" no nome e as coletas do período), situação por cliente e
+cumprimento de SLA em 30 dias, COD pendente), previsão de chegada (7 dias, pela data da coleta =
+`dataColeta` ou, sem ela, `coletaPrevista`; cada lote com `confirmada`), mapa (sites dos clientes com
+"Microsoft" no nome, com `cidade` tirada do endereço, e as coletas do período), situação por cliente e
 lotes em processo com as anomalias de prazo. **SLA** = `slaDias` do cliente (cadastro), contado da
 chegada (`recebidoEm`) até o COD. Etapas do lote: `agendado` → `inspecao` → `processo` →
 `aguardando_cod` → `concluido` (as quatro últimas virão da integração).

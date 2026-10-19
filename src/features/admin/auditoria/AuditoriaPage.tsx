@@ -137,6 +137,8 @@ function Auditoria() {
       if (tipo === 'perfil') return perfil.formatar(campo, v)
       if (tipo === 'cliente' && campo === 'tipoDocumento')
         return t(`clientes.documentos.tipos.${v as TipoDocumento}`)
+      if (tipo === 'cliente' && campo === 'regiao')
+        return t(`clientes.sites.regioes.${v as 'sul'}`, { defaultValue: String(v) })
       if (tipo === 'cliente' && campo === 'cep')
         return String(v).replace(/^(\d{5})(\d{3})$/, '$1-$2')
       if (tipo === 'veiculo' && campo === 'tipo')

@@ -62,7 +62,7 @@ function semente(): Ordem {
     transportadoraNome: null,
     referenciaCliente: 'PO-7781',
     dataColeta: dia(6),
-    coletaPrevista: null,
+    coletaPrevista: dia(6),
     dataChegada: dia(5),
     rastrear: false,
     motoristaId: null,
@@ -349,7 +349,7 @@ export const ordensHandlers = [
     const achou = acharDoca(d.docaId)
     if (!achou || achou.siteId !== d.siteId || achou.clienteId !== d.clienteId)
       return apiError(422, 'validation', 'A doca não é deste site.')
-    if (!d.dataColeta) return apiError(422, 'validation', 'Informe a data de coleta.')
+    if (!d.coletaPrevista) return apiError(422, 'validation', 'Informe a coleta prevista.')
     if (!d.escopo && !escopo.length)
       return apiError(422, 'scope_required', 'Escreva o escopo ou anexe um documento.')
     const cliente = getDb().clientes.find((c) => c.id === d.clienteId)!
@@ -386,8 +386,8 @@ export const ordensHandlers = [
       transportadoraNome:
         rel.transportadoras.find((t) => t.id === d.transportadoraId)?.nome ?? null,
       referenciaCliente: d.referenciaCliente,
-      dataColeta: inicioDoDia(d.dataColeta)!,
-      coletaPrevista: inicioDoDia(d.coletaPrevista),
+      dataColeta: inicioDoDia(d.dataColeta),
+      coletaPrevista: inicioDoDia(d.coletaPrevista)!,
       dataChegada: inicioDoDia(d.dataChegada),
       rastrear: d.rastrear,
       motoristaId: d.rastrear ? d.motoristaId : null,
@@ -652,8 +652,8 @@ export const ordensHandlers = [
       transportadoraNome:
         rel.transportadoras.find((t) => t.id === d.transportadoraId)?.nome ?? null,
       referenciaCliente: d.referenciaCliente,
-      dataColeta: inicioDoDia(d.dataColeta)!,
-      coletaPrevista: inicioDoDia(d.coletaPrevista),
+      dataColeta: inicioDoDia(d.dataColeta),
+      coletaPrevista: inicioDoDia(d.coletaPrevista)!,
       dataChegada: inicioDoDia(d.dataChegada),
       rastrear: d.rastrear,
       motoristaId: d.rastrear ? d.motoristaId : null,
@@ -674,7 +674,8 @@ export const ordensHandlers = [
         ['site', o.siteCodigo, depois.siteCodigo],
         ['doca', o.docaNumero, depois.docaNumero],
         ['referenciaCliente', o.referenciaCliente, depois.referenciaCliente],
-        ['dataColeta', o.dataColeta.slice(0, 10), depois.dataColeta!.slice(0, 10)],
+        ['coletaPrevista', o.coletaPrevista.slice(0, 10), depois.coletaPrevista!.slice(0, 10)],
+        ['dataColeta', o.dataColeta?.slice(0, 10) ?? null, depois.dataColeta?.slice(0, 10) ?? null],
         ['pallets', o.quantidades.pallets, q.pallets],
         ['escopo', o.escopo, d.escopo],
       ] as [string, string | number | null, string | number | null][]

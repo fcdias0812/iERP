@@ -148,6 +148,18 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
 - axe `target-size` (24 px) reprova coluna estreita com botão — alargue a coluna.
 - Rotas novas: rodar o build (`npx vite build`) ou o dev para regenerar `src/routeTree.gen.ts`
   (versionado) antes do `tsc`.
+- **Leaflet**: o `className` do elemento onde o mapa é criado não pode mudar depois (o React
+  reescreve o `class` e apaga o `leaflet-container` → mapa em branco e travado). Classe que muda
+  (ex.: filtro cinza) vai numa moldura por fora (bug achado no mapa do Dashboard).
+- **Tirar o NOT NULL de uma coluna**: SQLite e Kysely não fazem de forma portável. Se houver outra
+  coluna para trocar de papel, troque os NOMES (`renameColumn`, nos dois bancos) com a view que usa a
+  tabela derrubada e recriada em volta (ver migration `2026-10-19-10`); senão, recrie a tabela.
+- Antes de registrar uma migration com a API rodando: **pare a API e copie o banco**
+  (`db.backup('data/ierp.sqlite.antes-<assunto>')` — o nome cai no `.gitignore`).
+- **Janela ao passar o mouse**: `components/ui/hover-card.tsx` (Radix HoverCard; Esc fecha; o
+  conteúdo fica fora do teclado/leitor de tela — o gatilho precisa ser um link para as mesmas
+  informações). Use `side="bottom"` e `max-h` com `--radix-hover-card-content-available-height`.
+- e2e: `loteAgendado` só abre o sistema na primeira vez (recarregar zera a API simulada).
 
 ## 6. Commits e GitHub
 

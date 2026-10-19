@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { useCan } from '@/hooks/use-can'
 import { formatNumber } from '@/lib/format'
+import { REGIOES } from '@/lib/regioes'
 import type { Cliente, Doca, SiteCliente } from '@/services/types'
 import { useRemoverSite, useSites } from '../use-clientes'
 import { SiteSheet } from './SiteSheet'
@@ -52,9 +53,10 @@ export function AbaLogistica({ c }: { c: Cliente }) {
       {
         id: 'regiao',
         header: t('clientes.sites.campos.regiao'),
-        type: 'unique-text',
+        type: 'enum',
         accessor: (r) => r.regiao,
-        size: 130,
+        size: 140,
+        options: REGIOES.map((r) => ({ value: r, label: t(`clientes.sites.regioes.${r}`) })),
       },
       {
         id: 'endereco',

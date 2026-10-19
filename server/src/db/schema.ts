@@ -226,8 +226,10 @@ export interface OrdensTable extends Controle {
   docaId: string
   transportadoraId: string | null
   referenciaCliente: string | null
-  dataColeta: string
-  coletaPrevista: string | null
+  /** Data de coleta CONFIRMADA (opcional). */
+  dataColeta: string | null
+  /** Coleta prevista (obrigatória). */
+  coletaPrevista: string
   dataChegada: string | null
   rastrear: number
   motoristaId: string | null

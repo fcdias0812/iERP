@@ -855,7 +855,9 @@
     "registrada": "Registrada",
     "inspecao_bom": "Bom",
     "inspecao_avaria": "Avaria",
-    "inspecao_outro": "Outro"
+    "inspecao_outro": "Outro",
+    "coleta_prevista": "Data prevista",
+    "coleta_confirmada": "Data confirmada"
   },
   "dataTable": {
     "yes": "Sim",
@@ -1674,6 +1676,14 @@
         "aproximado": "Ponto aproximado: o mapa só encontrou a cidade. Arraste o pino até o portão do site."
       },
       "semResponsavel": "Sem responsável",
+      "semRegiao": "Sem região",
+      "regioes": {
+        "norte": "Norte",
+        "nordeste": "Nordeste",
+        "centro_oeste": "Centro-Oeste",
+        "sudeste": "Sudeste",
+        "sul": "Sul"
+      },
       "novoContato": "Cadastrar novo contato…",
       "novoContatoAjuda": "O contato novo também entra na lista de contatos do cliente.",
       "semDocas": "Nenhuma doca cadastrada.",
@@ -2027,7 +2037,8 @@
         "buscarCliente": "Buscar cliente…",
         "nenhumaTransportadora": "Sem transportadora",
         "nenhumMotorista": "Sem motorista",
-        "coletaPrevista": "Dia estimado, enquanto a coleta não tem data marcada.",
+        "coletaPrevista": "Dia estimado da coleta (obrigatório). Quando a data estiver certa, preencha a Data de coleta.",
+        "dataColeta": "A data confirmada. Enquanto vazia, o lote aparece no Forecast com borda tracejada (prevista).",
         "placas": "Quantas placas levar para proteger piso e passagens.",
         "fatorLimitante": "Ex.: escada, elevador pequeno, horário restrito.",
         "escopo": "Obrigatório: escreva o escopo ou anexe pelo menos um documento.",
@@ -2145,7 +2156,14 @@
         "racks": "{{n}} racks",
         "boxes": "{{n}} boxes",
         "semVolume": "sem volumes informados",
-        "diaRotulo": "{{dia}}: {{n}} lotes"
+        "diaRotulo": "{{dia}}: {{n}} lotes",
+        "legendaPrevista": "Borda tracejada: coleta com data prevista",
+        "legendaConfirmada": "Borda contínua: data de coleta confirmada",
+        "detalhes": "Detalhes da coleta",
+        "abrirLote": "Abrir o lote",
+        "carregando": "Carregando a coleta…",
+        "erro": "Não foi possível carregar a coleta.",
+        "servicosNenhum": "Nenhum serviço marcado."
       },
       "mapa": {
         "titulo": "Datacenters Microsoft",

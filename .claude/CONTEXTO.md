@@ -77,11 +77,12 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `17f9602` | Operação › Recebimento (lacres, notas, inspeção, pallets, fotos; corrigir em Inspeção)   |
 | `159dd25` | Histórico de Ordens e de Operação; menu de Ordens com Viagens                            |
 | `bdad159` | Sistema › Cadastros (materiais, pallets, caixotes, áreas, rastreadores GPS)              |
-| (local)   | Administração › Perfis de acesso e Auditoria                                             |
+| `0ccce04` | Administração › Perfis de acesso e Auditoria                                             |
+| (local)   | Região do site em lista; mapa (cinza, cidade); coleta prevista obrigatória; Forecast     |
 
-Portão de qualidade verde em Perfis de acesso/Auditoria: lint, typecheck (front e servidor), 62
-testes unitários, 84 testes do servidor, e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
-formatação, build, 241 e2e. Commit **local**, testado por ele (push só quando ele pedir).
+Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
+unitários, 87 testes do servidor, 242 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
+formatação, build. Commit **local** (push só quando ele pedir).
 
 **Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
 clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
@@ -174,6 +175,10 @@ simulada no front; o histórico grava "Sistema" como autor (`server/src/shared/a
     (m), dock leveler, tail lift, área do lift (m²), espaço (m²), altura (m), voltagem do shredder,
     proteção do piso obrigatória. CEP → endereço via ViaCEP; endereço → coordenadas via Nominatim
     pelo servidor, em cascata (endereço completo → sem bairro → cidade, com `precisao: 'cidade'`).
+    **Região** (19/10/2026, pedido dele: "as principais do Brasil"): lista fechada **Norte, Nordeste,
+    Centro-Oeste, Sudeste, Sul** (opcional, "Sem região"); guarda o código (`centro_oeste`…). O CEP
+    escolhe a região (nome do ViaCEP ou UF). Migration `2026-10-19-09` converteu o texto livre
+    antigo (nome da região ou UF do fim do endereço; senão, vazio).
   - **Documentos:** vários tipos (hoje `contrato`, `fiscal`, `licenca`, `outro`) em várias extensões
     (PDF, DOC/X, XLS/X, CSV, TXT, XML, JPG/PNG/WEBP, ZIP), até 25 MB, guardados em
     `server/data/arquivos`.
@@ -211,8 +216,10 @@ página de detalhe, abre o detalhe.
   Agendamento é um lote `LOT-00001` com status **Agendado**.
 - **Agendamento** — "único cadastro com página própria". Campos (regra do "op"):
   - **Cliente** → **site** (só depois do cliente) → **doca** (só depois do site): obrigatórios.
-  - Transportadora (op) · Nº do lote de referência do cliente (op) · **Data de coleta (obrigatória —
-    pedido de 19/10)** · Coleta prevista (op) · Data de chegada (op).
+  - Transportadora (op) · Nº do lote de referência do cliente (op) · **Coleta prevista
+    (obrigatória)** · Data de coleta (op = a data **confirmada**) · Data de chegada (op). Mudou em
+    19/10/2026 (antes a data de coleta era a obrigatória): migration `2026-10-19-10` troca os nomes das
+    colunas (o SQLite não tira NOT NULL) — lotes antigos ficaram com prevista = data de coleta.
   - **Rastrear a coleta** (sim/não). Se sim: motorista (op, da lista cadastrada) e placa do caminhão (op).
   - **Serviços:** I. PSM (gaylords triturados); II. Onsite Shredding (DBD); III. Recycle Only;
     IV. Value Recovery (Racks); V. Value Recovery (ITAD). **III e IV já vêm marcados** (os mais comuns).
@@ -226,6 +233,8 @@ página de detalhe, abre o detalhe.
   - Botões **Criar ordem** e **Pré-calcular**. O pré-cálculo mostra num card ao lado: total de
     volumes, caminhão, capacidade do caminhão, número de viagens, pessoas, caminhão com plataforma,
     levar shredder, levar gaylord, levar pallet vazio (+ avisos).
+  - Tela menor (19/10/2026, "fica espremido por conta do card"): as seções do Agendamento se
+    ajustam ao espaço da própria seção (container query), não à largura da tela.
 
 ### 5.7 Operação › Dashboard (19/10/2026)
 
@@ -233,8 +242,12 @@ Pedido dele (mostrou prints do dashboard da v1 como referência): **6 cards** �
 (qtd. de lotes); lotes em processo (+ quantos em **inspeção** = recebimento, **processo** =
 pós-recebimento, **aguardando COD** = pós-processo); SLA vencido; SLA em risco (≥ 80%); cumprimento
 de SLA em 30 dias (meta ≥ 95%); COD pendente — **previsão de chegada** (semana visual com os lotes
-pela **data de coleta**; "geralmente a data de coleta é a de recebimento, mas haverá exceções que ele
-vai mostrar depois") — **Datacenters Microsoft** (mapa com filtro dia/semana/mês e fundo cinza ou
+pela **data da coleta**; "geralmente a data de coleta é a de recebimento, mas haverá exceções que ele
+vai mostrar depois"). Desde 19/10/2026: data da coleta = a confirmada ou, sem ela, a prevista; card
+com **borda tracejada = prevista**, **contínua = confirmada** (legenda embaixo); com o mouse em cima
+abre uma **janela com todos os detalhes** (local, datas, transporte, serviços, quantidades,
+pré-cálculo — os mesmos da aba Informações do lote; dá para selecionar o texto; Esc fecha); o card
+abre o lote em Operação › Lotes — **Datacenters Microsoft** (mapa com filtro dia/semana/mês e fundo cinza ou
 satélite) — **situação dos pedidos por cliente** (SLA, em processo, barra colorida das etapas, dias
 decorridos após o recebimento, em risco, atrasados, SLA cumprido 30 dias, status) — **pedidos com
 anomalia de prazo** — **processos de alto valor** (Harvesting, Refurbish, Value Recovery). Ele sabia
@@ -249,10 +262,15 @@ Respostas dele:
   Datas: `recebido_em` (início do SLA), `etapa_desde`, `cod_emitido_em`.
 - **Mapa Microsoft:** "ao criar uma coleta com o cliente Microsoft escolhemos site e doca; pega daí,
   do endereço do site" → pontos = sites (com latitude/longitude) dos clientes com "Microsoft" no
-  nome; número no balão = coletas (data de coleta) no período; sites sem pino listados embaixo.
+  nome; número no balão = coletas (data da coleta) no período; sites sem pino listados embaixo.
+  Rótulo do ponto = **cidade** do endereço (pedido de 19/10/2026: "nunca vai ter mais de um site na
+  mesma cidade"); sem "– UF" no fim do endereço, o código do site.
 - **Satélite:** conta e chave da Esri (ArcGIS Location Platform, gratuita até 2 milhões de
   tiles/mês) em `VITE_ESRI_API_KEY` (ver `.env.example`). **Pendente:** o TI criar a conta e passar a
   chave — sem ela o botão Satélite fica oculto. "Cinza" = OpenStreetMap em escala de cinza.
+  Corrigido (19/10/2026): trocar para Cinza deixava o mapa branco e travado (classe do Leaflet
+  apagada pelo React). Os pontos só aparecem com um cliente **ativo** com "Microsoft" no nome e
+  sites com localização (ele cadastrou "Microsoft" com o site "teste" em Campinas).
 
 Regras de cálculo (`server/src/modules/dashboard/dashboard.ts`): vencido = dias desde a chegada >
 SLA; risco = ≥ 80% do SLA e ainda no prazo; cumprimento = lotes com COD nos últimos 30 dias que

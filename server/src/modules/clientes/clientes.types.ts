@@ -97,10 +97,13 @@ export interface Doca {
   pisoProtecaoObrigatorio: boolean
 }
 
+/** Região do Brasil (código; a tela traduz). */
+export type RegiaoBrasil = 'norte' | 'nordeste' | 'centro_oeste' | 'sudeste' | 'sul'
+
 export interface SiteCliente {
   id: string
   codigo: string
-  regiao: string | null
+  regiao: RegiaoBrasil | null
   horario: string | null
   totalGaylords: number | null
   /** Só dígitos. */
@@ -123,7 +126,7 @@ export interface SiteCliente {
  */
 export interface SiteInput {
   codigo: string
-  regiao?: string | null
+  regiao?: RegiaoBrasil | null
   horario?: string | null
   totalGaylords?: number | null
   cep?: string | null
