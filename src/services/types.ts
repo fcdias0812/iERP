@@ -802,3 +802,14 @@ export interface Notificacao {
   lida: boolean
   rota?: string
 }
+
+/* ---------------- Histórico do módulo (server/src/modules/historico/historico.ts) */
+
+export type ModuloHistorico = 'ordens' | 'operacao'
+
+/** Evento do histórico do módulo: o evento + o registro (lote) e o cliente. */
+export interface EventoHistoricoModulo extends EventoHistorico {
+  registroId: string
+  registroCodigo: string
+  clienteNome: string
+}

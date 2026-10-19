@@ -20,8 +20,10 @@ import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
 import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
 import { Route as AppMotoristasIndexRouteImport } from './routes/_app/motoristas/index'
 import { Route as AppOperacaoDashboardRouteImport } from './routes/_app/operacao/dashboard'
+import { Route as AppOperacaoHistoricoRouteImport } from './routes/_app/operacao/historico'
 import { Route as AppOperacaoRecebimentoRouteImport } from './routes/_app/operacao/recebimento'
 import { Route as AppOrdensAgendamentoRouteImport } from './routes/_app/ordens/agendamento'
+import { Route as AppOrdensHistoricoRouteImport } from './routes/_app/ordens/historico'
 import { Route as AppTransportadorasIndexRouteImport } from './routes/_app/transportadoras/index'
 import { Route as AppVeiculosIndexRouteImport } from './routes/_app/veiculos/index'
 import { Route as AppAdminUsuariosIndexRouteImport } from './routes/_app/admin/usuarios/index'
@@ -87,6 +89,11 @@ const AppOperacaoDashboardRoute = AppOperacaoDashboardRouteImport.update({
   path: '/operacao/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOperacaoHistoricoRoute = AppOperacaoHistoricoRouteImport.update({
+  id: '/operacao/historico',
+  path: '/operacao/historico',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOperacaoRecebimentoRoute = AppOperacaoRecebimentoRouteImport.update({
   id: '/operacao/recebimento',
   path: '/operacao/recebimento',
@@ -95,6 +102,11 @@ const AppOperacaoRecebimentoRoute = AppOperacaoRecebimentoRouteImport.update({
 const AppOrdensAgendamentoRoute = AppOrdensAgendamentoRouteImport.update({
   id: '/ordens/agendamento',
   path: '/ordens/agendamento',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrdensHistoricoRoute = AppOrdensHistoricoRouteImport.update({
+  id: '/ordens/historico',
+  path: '/ordens/historico',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTransportadorasIndexRoute = AppTransportadorasIndexRouteImport.update({
@@ -158,8 +170,10 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
+  '/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
+  '/ordens/historico': typeof AppOrdensHistoricoRoute
   '/clientes/': typeof AppClientesIndexRoute
   '/motoristas/': typeof AppMotoristasIndexRoute
   '/transportadoras/': typeof AppTransportadorasIndexRoute
@@ -182,8 +196,10 @@ export interface FileRoutesByTo {
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
+  '/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
+  '/ordens/historico': typeof AppOrdensHistoricoRoute
   '/clientes': typeof AppClientesIndexRoute
   '/motoristas': typeof AppMotoristasIndexRoute
   '/transportadoras': typeof AppTransportadorasIndexRoute
@@ -208,8 +224,10 @@ export interface FileRoutesById {
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
   '/_app/operacao/dashboard': typeof AppOperacaoDashboardRoute
+  '/_app/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/_app/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/_app/ordens/agendamento': typeof AppOrdensAgendamentoRoute
+  '/_app/ordens/historico': typeof AppOrdensHistoricoRoute
   '/_app/clientes/': typeof AppClientesIndexRoute
   '/_app/motoristas/': typeof AppMotoristasIndexRoute
   '/_app/transportadoras/': typeof AppTransportadorasIndexRoute
@@ -234,8 +252,10 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/perfil'
     | '/operacao/dashboard'
+    | '/operacao/historico'
     | '/operacao/recebimento'
     | '/ordens/agendamento'
+    | '/ordens/historico'
     | '/clientes/'
     | '/motoristas/'
     | '/transportadoras/'
@@ -258,8 +278,10 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/'
     | '/operacao/dashboard'
+    | '/operacao/historico'
     | '/operacao/recebimento'
     | '/ordens/agendamento'
+    | '/ordens/historico'
     | '/clientes'
     | '/motoristas'
     | '/transportadoras'
@@ -283,8 +305,10 @@ export interface FileRouteTypes {
     | '/_app/perfil'
     | '/_app/'
     | '/_app/operacao/dashboard'
+    | '/_app/operacao/historico'
     | '/_app/operacao/recebimento'
     | '/_app/ordens/agendamento'
+    | '/_app/ordens/historico'
     | '/_app/clientes/'
     | '/_app/motoristas/'
     | '/_app/transportadoras/'
@@ -385,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOperacaoDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/operacao/historico': {
+      id: '/_app/operacao/historico'
+      path: '/operacao/historico'
+      fullPath: '/operacao/historico'
+      preLoaderRoute: typeof AppOperacaoHistoricoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/operacao/recebimento': {
       id: '/_app/operacao/recebimento'
       path: '/operacao/recebimento'
@@ -397,6 +428,13 @@ declare module '@tanstack/react-router' {
       path: '/ordens/agendamento'
       fullPath: '/ordens/agendamento'
       preLoaderRoute: typeof AppOrdensAgendamentoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ordens/historico': {
+      id: '/_app/ordens/historico'
+      path: '/ordens/historico'
+      fullPath: '/ordens/historico'
+      preLoaderRoute: typeof AppOrdensHistoricoRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/transportadoras/': {
@@ -478,8 +516,10 @@ interface AppRouteChildren {
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
   AppOperacaoDashboardRoute: typeof AppOperacaoDashboardRoute
+  AppOperacaoHistoricoRoute: typeof AppOperacaoHistoricoRoute
   AppOperacaoRecebimentoRoute: typeof AppOperacaoRecebimentoRoute
   AppOrdensAgendamentoRoute: typeof AppOrdensAgendamentoRoute
+  AppOrdensHistoricoRoute: typeof AppOrdensHistoricoRoute
   AppClientesIndexRoute: typeof AppClientesIndexRoute
   AppMotoristasIndexRoute: typeof AppMotoristasIndexRoute
   AppTransportadorasIndexRoute: typeof AppTransportadorasIndexRoute
@@ -500,8 +540,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
   AppOperacaoDashboardRoute: AppOperacaoDashboardRoute,
+  AppOperacaoHistoricoRoute: AppOperacaoHistoricoRoute,
   AppOperacaoRecebimentoRoute: AppOperacaoRecebimentoRoute,
   AppOrdensAgendamentoRoute: AppOrdensAgendamentoRoute,
+  AppOrdensHistoricoRoute: AppOrdensHistoricoRoute,
   AppClientesIndexRoute: AppClientesIndexRoute,
   AppMotoristasIndexRoute: AppMotoristasIndexRoute,
   AppTransportadorasIndexRoute: AppTransportadorasIndexRoute,

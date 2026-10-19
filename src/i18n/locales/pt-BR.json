@@ -671,8 +671,8 @@
       "title": "Ordens",
       "lotes": "Lotes",
       "agendamento": "Agendamento",
-      "viagensAtivas": "Viagens ativas",
-      "historico": "Histórico de viagens"
+      "viagens": "Viagens",
+      "historico": "Histórico"
     },
     "operacao": {
       "title": "Operação",
@@ -1667,7 +1667,9 @@
       "campo": "Campo",
       "antes": "Antes",
       "depois": "Depois",
-      "nota": "Referência"
+      "nota": "Referência",
+      "cliente": "Cliente",
+      "lote": "Lote"
     },
     "vazio": "Nenhum registro no histórico.",
     "acoes": {
@@ -2446,5 +2448,17 @@
       "corrigido": "Recebimento do lote {{code}} corrigido.",
       "falhou": "Não foi possível salvar o recebimento."
     }
+  },
+  "historicoModulo": {
+    "ordens": "Tudo o que aconteceu nas ordens: agendamentos, edições dos lotes, documentos e ocorrências de coleta e trajeto.",
+    "operacao": "Tudo o que aconteceu na operação: lotes criados, recebimentos e correções, mudanças de etapa e ocorrências de recebimento.",
+    "periodo": "Período",
+    "periodos": {
+      "30": "Últimos 30 dias",
+      "90": "Últimos 90 dias",
+      "365": "Últimos 12 meses",
+      "tudo": "Tudo"
+    },
+    "erro": "Não foi possível carregar o histórico."
   }
 }

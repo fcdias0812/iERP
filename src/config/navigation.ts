@@ -112,7 +112,8 @@ export const MODULES = {
     children: [
       leaf('ordens', 'lotes', 'nav.ordens.lotes', '/ordens/lotes'),
       leaf('ordens', 'agendamento', 'nav.ordens.agendamento', '/ordens/agendamento'),
-      leaf('ordens', 'viagensAtivas', 'nav.ordens.viagensAtivas', '/ordens/viagens-ativas'),
+      // Viagens: ativas/aguardando e finalizadas (replay no mapa) — pedido do usuário.
+      leaf('ordens', 'viagens', 'nav.ordens.viagens', '/ordens/viagens'),
       leaf('ordens', 'historico', 'nav.ordens.historico', '/ordens/historico'),
     ],
   },

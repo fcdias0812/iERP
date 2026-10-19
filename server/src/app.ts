@@ -8,6 +8,7 @@ import { rotasGeo } from './modules/geo/geo.rotas.js'
 import { criarServicoMotoristas, rotasMotoristas } from './modules/motoristas/motoristas.js'
 import { criarServicoOrdens, rotasOrdens } from './modules/ordens/ordens.js'
 import { criarServicoDashboard, rotasDashboard } from './modules/dashboard/dashboard.js'
+import { criarServicoHistorico, rotasHistorico } from './modules/historico/historico.js'
 import {
   criarServicoTransportadoras,
   rotasTransportadoras,
@@ -53,6 +54,7 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   api.use('/veiculos', rotasVeiculos(veiculos))
   api.use('/ordens', rotasOrdens(ordens))
   api.use('/dashboard', rotasDashboard(criarServicoDashboard(db)))
+  api.use('/historico', rotasHistorico(criarServicoHistorico(db)))
   api.use(rotasSistema({ usuarios, clientes, transportadoras, motoristas }))
   api.use(rotaInexistente)
 

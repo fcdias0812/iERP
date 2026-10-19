@@ -111,6 +111,17 @@ function semente(): Ordem {
           { campo: 'texto', antes: null, depois: 'Caminhão chegou 2 horas depois do combinado.' },
         ],
       },
+      {
+        id: 'h-ord00001-rec',
+        autor: 'Sistema',
+        em: quando(5, 13),
+        acao: 'recebido',
+        mudancas: [
+          { campo: 'status', antes: 'agendado', depois: 'inspecao' },
+          { campo: 'inspecao', antes: null, depois: 'bom' },
+          { campo: 'palletsRecebidos', antes: null, depois: 2 },
+        ],
+      },
       { id: 'h-ord00001', autor: 'Sistema', em: quando(8, 12), acao: 'criado' },
     ],
     etapas: [
@@ -693,6 +704,40 @@ export const ordensHandlers = [
     return f
       ? new HttpResponse(f, { headers: { 'Content-Type': f.type || 'image/jpeg' } })
       : apiError(404, 'not_found', 'Foto não encontrada.')
+  }),
+
+  /* ---------------- histórico do módulo (Ordens › Histórico, Operação › Histórico) */
+
+  http.get('*/api/historico/:modulo', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    const modulo = String(params.modulo)
+    if (modulo !== 'ordens' && modulo !== 'operacao')
+      return apiError(422, 'validation', 'Módulo de histórico desconhecido.')
+    const desde = new URL(request.url).searchParams.get('desde')
+    const acoes =
+      modulo === 'ordens'
+        ? ['criado', 'editado', 'documento_adicionado', 'documento_removido']
+        : ['criado', 'recebido', 'recebimento_editado', 'status']
+    const momentos = modulo === 'ordens' ? ['coleta', 'trajeto'] : ['recebimento']
+    const eventos = lotes().flatMap((o) =>
+      o.historico
+        .filter((h) => {
+          if (desde && h.em < desde) return false
+          if (acoes.includes(h.acao)) return true
+          if (!h.acao.startsWith('ocorrencia_')) return false
+          const oc = o.ocorrencias.find((x) => `#${x.numero}` === h.nota)
+          return Boolean(oc && momentos.includes(oc.momento))
+        })
+        .map((h) => ({
+          ...h,
+          registroId: o.id,
+          registroCodigo: o.codigo,
+          clienteNome: o.clienteNome,
+        })),
+    )
+    eventos.sort((a, b) => b.em.localeCompare(a.em))
+    return HttpResponse.json(eventos)
   }),
 ]
 

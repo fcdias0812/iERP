@@ -765,3 +765,56 @@ describe('ordens › recebimento', () => {
     assert.equal(travado.status, 409)
   })
 })
+
+/* ------------------------------------------------------------ histórico do módulo */
+
+describe('histórico do módulo (Ordens e Operação)', () => {
+  it('cada módulo recebe os seus eventos, com o lote e o cliente', async () => {
+    const lote = (await criarOrdem(ordem())).body
+    // Ordens: edição + ocorrência de trajeto. Operação: recebimento (avaria → ocorrência).
+    await api(`/ordens/${lote.id}`, { method: 'PUT', body: ordem({ referenciaCliente: 'PO-999' }) })
+    await enviarOcorrencia(`/ordens/${lote.id}/ocorrencias`, {
+      momento: 'trajeto',
+      categoria: 'atraso',
+      texto: texto('Trânsito na rodovia.'),
+    })
+    await enviarRecebimento(
+      lote.id,
+      recebimento({ inspecao: 'avaria', inspecaoDescricao: texto('Base quebrada.') }),
+      FOTOS_OK,
+    )
+
+    type Ev = {
+      registroId: string
+      acao: string
+      registroCodigo: string
+      clienteNome: string
+      mudancas?: { campo: string; depois: unknown }[]
+    }
+    const doLote = (eventos: Ev[]) => eventos.filter((e) => e.registroId === lote.id)
+    const ordens = await api('/historico/ordens')
+    assert.equal(ordens.status, 200)
+    const acoesOrdens = doLote(ordens.body).map((e) => e.acao)
+    assert.deepEqual(acoesOrdens.sort(), ['criado', 'editado', 'ocorrencia_registrada'].sort())
+    const ev = doLote(ordens.body)[0]!
+    assert.equal(ev.registroCodigo, lote.codigo)
+    assert.equal(ev.clienteNome, lote.clienteNome)
+
+    const operacao = await api('/historico/operacao')
+    const acoesOperacao = doLote(operacao.body).map((e) => e.acao)
+    assert.deepEqual(acoesOperacao.sort(), ['criado', 'ocorrencia_registrada', 'recebido'].sort())
+    // A ocorrência da Operação é a do recebimento (não a do trajeto).
+    const oc = doLote(operacao.body).find((e) => e.acao === 'ocorrencia_registrada')!
+    assert.equal(oc.mudancas?.find((m) => m.campo === 'momento')?.depois, 'recebimento')
+  })
+
+  it('período (desde) e módulo inválido', async () => {
+    const futuro = await api(
+      `/historico/ordens?desde=${encodeURIComponent('2999-01-01T00:00:00Z')}`,
+    )
+    assert.equal(futuro.status, 200)
+    assert.deepEqual(futuro.body, [])
+    const invalido = await api('/historico/estoque')
+    assert.equal(invalido.status, 422)
+  })
+})

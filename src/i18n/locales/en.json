@@ -671,8 +671,8 @@
       "title": "Orders",
       "lotes": "Lots",
       "agendamento": "Scheduling",
-      "viagensAtivas": "Active trips",
-      "historico": "Trip history"
+      "viagens": "Trips",
+      "historico": "History"
     },
     "operacao": {
       "title": "Operations",
@@ -1667,7 +1667,9 @@
       "campo": "Field",
       "antes": "Before",
       "depois": "After",
-      "nota": "Reference"
+      "nota": "Reference",
+      "cliente": "Customer",
+      "lote": "Lot"
     },
     "vazio": "No history records.",
     "acoes": {
@@ -2446,5 +2448,17 @@
       "corrigido": "Receiving of lot {{code}} corrected.",
       "falhou": "Could not save the receiving."
     }
+  },
+  "historicoModulo": {
+    "ordens": "Everything that happened in orders: scheduling, lot edits, documents and pickup/transit incidents.",
+    "operacao": "Everything that happened in operations: lots created, receiving and corrections, stage changes and receiving incidents.",
+    "periodo": "Period",
+    "periodos": {
+      "30": "Last 30 days",
+      "90": "Last 90 days",
+      "365": "Last 12 months",
+      "tudo": "All"
+    },
+    "erro": "Could not load the history."
   }
 }

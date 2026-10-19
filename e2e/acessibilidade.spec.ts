@@ -35,6 +35,9 @@ const TODAS = [
   '/operacao/dashboard',
   '/operacao/lotes',
   '/operacao/recebimento',
+  '/ordens/historico',
+  '/operacao/historico',
+  '/ordens/viagens',
   '/operacao/recebimento?aberto=novo',
   '/operacao/recebimento?visao=recebidos',
   '/operacao/lotes/ord00001?receber=true',
@@ -68,6 +71,7 @@ const AMOSTRA = [
   '/operacao/lotes/ord00001',
   '/operacao/lotes/ord00001?aba=progresso',
   '/operacao/recebimento?aberto=novo',
+  '/operacao/historico',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
 ]

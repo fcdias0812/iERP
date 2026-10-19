@@ -192,6 +192,13 @@ pesado — [política](https://operations.osmfoundation.org/policies/tiles/)); p
 que respeita a [política do Nominatim](https://operations.osmfoundation.org/policies/nominatim/)
 (1 consulta/s no total, cache, sem autocompletar); `GEO_CONTATO` vai no User-Agent.
 
+## API de histórico de módulo
+
+`GET /api/historico/:modulo?desde=<ISO>` (`ordens` ou `operacao`) — eventos do histórico dos
+lotes, mais recente primeiro, cada um com `registroId`, `registroCodigo` (lote) e `clienteNome`.
+Ordens: criado, editado, documentos e ocorrências de coleta/trajeto. Operação: criado, recebido,
+recebimento_editado, status e ocorrências de recebimento.
+
 ## API de Relacionamento (transportadoras, motoristas, veículos)
 
 Os três seguem o mesmo molde: `GET /api/<modulo>` (lista do DataTable), `GET /resumo`,

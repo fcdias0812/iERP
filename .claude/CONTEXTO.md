@@ -74,11 +74,12 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `5a6a734` | Contexto completo em `.claude/` (primeiro push no GitHub)                                |
 | `33519cd` | Operação › Dashboard; SLA no cliente; etapas do lote                                     |
 | `2a872a1` | Detalhe do lote (5 abas), editar lote, tipos de documento e Operação › Lotes             |
-| (local)   | Operação › Recebimento (lacres, notas, inspeção, pallets, fotos; corrigir em Inspeção)   |
+| `17f9602` | Operação › Recebimento (lacres, notas, inspeção, pallets, fotos; corrigir em Inspeção)   |
+| (local)   | Histórico de Ordens e de Operação; menu de Ordens com Viagens                            |
 
-Portão de qualidade verde no commit do Recebimento: lint, typecheck (front e servidor), 60 testes
-unitários, 74 testes do servidor, 185 e2e (Playwright + axe WCAG 2.2 AA), contraste 158/158,
-cores, formatação, build. Commit **local** (push só quando ele pedir).
+Portão de qualidade verde no commit dos históricos de módulo: lint, typecheck (front e servidor),
+60 testes unitários, 76 testes do servidor, 196 e2e (Playwright + axe WCAG 2.2 AA), contraste
+158/158, cores, formatação, build. Commit **local** (push só quando ele pedir).
 
 **Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
 clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
@@ -98,11 +99,13 @@ Esri (`VITE_ESRI_API_KEY`, em `.env.local`) ainda não existe — sem ela, só f
 |                | Motoristas (item direto)                                                   | **pronto** (lista + painel)                   |
 | Operação       | Ordens › **Lotes**                                                         | **pronto** (lista + detalhe do lote, 5 abas)  |
 |                | Ordens › **Agendamento**                                                   | **pronto** (página própria + pré-cálculo)     |
-|                | Ordens › Viagens ativas · Histórico de viagens                             | em construção (rota coringa)                  |
+|                | Ordens › **Histórico**                                                     | **pronto** (auditoria do módulo)              |
+|                | Ordens › Viagens                                                           | em construção (rota coringa)                  |
 |                | Operação › **Dashboard**                                                   | **pronto** (quase tudo zerado sem integração) |
 |                | Operação › **Lotes**                                                       | **pronto** (mesma lista e detalhe de Ordens)  |
 |                | Operação › **Recebimento**                                                 | **pronto** (A receber / Recebidos + painel)   |
-|                | Operação › Chamados internos · Histórico                                   | em construção                                 |
+|                | Operação › **Histórico**                                                   | **pronto** (auditoria do módulo)              |
+|                | Operação › Chamados internos                                               | em construção                                 |
 |                | Estoque › Materiais · Assets · Servidores · E-commerce · Peças · Histórico | em construção                                 |
 | Sistema        | Administração › Usuários                                                   | **pronto**                                    |
 
@@ -318,6 +321,23 @@ celular; no computador abre a escolha de arquivo — confirmado no MDN); até 5 
 lacre/nota/pallet e 20 gerais; data não pode ser futura; campo opcional **Conteúdo** no pallet
 (a tabela do Progresso já tinha a coluna); descrição traduzível (como as ocorrências).
 
+### 5.10 Histórico de Ordens e de Operação; menu de Ordens (19/10/2026)
+
+Pedido dele: o submódulo **Histórico** de Operação "basicamente igual às outras telas de
+histórico, mas focado no módulo" (lotes criados, recebidos, chamados internos no futuro…) e um
+igual em Ordens (criação dos lotes/agendamento, viagens ativadas/canceladas no futuro…).
+
+- **Menu de Ordens** (proposta dele, aceita): "Viagens ativas" + "Histórico de viagens" viram
+  **Viagens** (`/ordens/viagens`, ainda em construção — lá ficarão as ativas/aguardando e as
+  finalizadas com o **replay no mapa** e as paradas do caminhão); **Histórico** (`/ordens/historico`)
+  passa a ser a auditoria do módulo inteiro. Menu: Lotes · Agendamento · Viagens · Histórico.
+- **Divisão dos eventos** (aprovada): Ordens = lote criado, edições, documentos e ocorrências de
+  coleta/trajeto (+ viagens); Operação = lote criado, recebimento e correções, mudanças de etapa e
+  ocorrências de recebimento (+ chamados internos).
+- Tela: a mesma `HistoricoTabela` dos registros, com as colunas **Lote** (link para o lote, na aba
+  Histórico) e **Cliente**. Decisão minha: período carregado 30 dias / **90 dias (padrão)** / 12
+  meses / tudo, para a tela continuar leve com o tempo.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -362,7 +382,8 @@ negócio (perguntar). Resumo:
 
 ## 7. Próximo passo sugerido
 
-Ele escolhe. Opções já levantadas: Ordens › Viagens ativas / Histórico de viagens; as etapas
+Ele escolhe. Opções já levantadas: Ordens › Viagens (ativas/aguardando + finalizadas com replay
+no mapa); as etapas
 depois da Inspeção (quem muda — integração ou tela); Operação ›
 Chamados internos (alimenta o Harvesting do dashboard); Operação › Histórico; Estoque. Ele também
 disse que vai mostrar as **exceções entre data de coleta e de recebimento** (afetam a previsão de

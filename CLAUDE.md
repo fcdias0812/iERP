@@ -21,9 +21,9 @@ antigo (v1) nem de outro lugar.
 - Módulos hoje: seção **Relacionamento** — **Clientes** (tudo do cliente fica em **abas** do
   detalhe — contatos, logística, documentos, configurações), **Transportadoras** (detalhe em abas:
   dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral);
-  seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento; Viagens ativas e
-  Histórico de viagens em construção), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo
-  detalhe de Ordens › Lotes — e Recebimento; demais em construção) e **Estoque** (em construção); e
+  seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento, Histórico; Viagens em
+  construção), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo detalhe de Ordens › Lotes
+  —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (em construção); e
   **Administração › Usuários**.
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
   cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
@@ -185,6 +185,12 @@ O layout não muda. Modelos completos para copiar:
 /api/ordens/:id/recebimento` (multipart `dados` + fotos em `lacres.<i>`, `notas.<i>`,
   `pallets.<i>`, `gerais`), tabelas `ordens_recebimentos`, `ordens_lacres`, `ordens_notas_fiscais`,
   `ordens_recebimento_fotos`; receber = agendado → Inspeção; avaria/outro viram ocorrência.
+- **Histórico de módulo** (Ordens › Histórico, Operação › Histórico) —
+  `src/features/historico/HistoricoModuloPage.tsx` (a mesma `HistoricoTabela`, com `registro` =
+  colunas Lote e Cliente; período 30/90/365 dias ou tudo) e `server/src/modules/historico/historico.ts`
+  (`GET /api/historico/:modulo?desde=`; cada módulo filtra as ações e o momento das ocorrências).
+  Rótulos do histórico do lote em `features/lotes/historico-lote.ts`. Evento novo de lote (viagens,
+  chamados)? Inclua a ação no módulo certo nos dois lados.
 - **Operação › Dashboard** — `server/src/modules/dashboard/dashboard.ts` (um endpoint calcula
   tudo: cards de SLA, previsão, mapa, por cliente, anomalias) e `src/features/operacao/` (mapa Leaflet
   carregado sob demanda; config leve em `mapa-config.ts` para não puxar o Leaflet). SLA = `slaDias`

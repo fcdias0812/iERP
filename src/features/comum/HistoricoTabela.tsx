@@ -1,15 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DataTable, type DataTableColumn } from '@/components/data-table'
 import { EMPTY_QUERY, type TableQuery } from '@/components/data-table/types'
 import { formatCnpj, formatCpf, formatDateTime, formatPhone } from '@/lib/format'
 import type { StatusId } from '@/lib/status/statusMap'
-import type { EventoHistorico, Mudanca } from '@/services/types'
+import type { EventoHistorico, EventoHistoricoModulo, Mudanca } from '@/services/types'
 
 /*
  * Histórico como AUDITORIA (todos os cadastros): uma linha por campo alterado — data, quem,
  * ação, referência, campo, antes, depois — com filtros e exportação. Evento sem campo
  * (ex.: cadastro) vira uma linha só. Cada tela informa os rótulos de ações e campos.
+ * Histórico de MÓDULO (vários registros): `registro` acrescenta as colunas do registro (ex.: Lote,
+ * com link) e do cliente.
  */
 
 /** Ordem inicial: do mais recente para o mais antigo. */
@@ -17,6 +19,9 @@ const ORDEM_INICIAL: TableQuery = { ...EMPTY_QUERY, sort: [{ id: 'em', desc: tru
 
 interface Linha {
   id: string
+  registroId: string | null
+  registroCodigo: string | null
+  clienteNome: string | null
   em: string
   autor: string
   acao: string
@@ -34,10 +39,11 @@ export function HistoricoTabela({
   acoes,
   campos,
   formatar,
+  registro,
 }: {
   id: string
   titulo: string
-  historico: EventoHistorico[]
+  historico: (EventoHistorico | EventoHistoricoModulo)[]
   exportName: string
   /** Ações possíveis → rótulo. */
   acoes: Record<string, string>
@@ -45,6 +51,8 @@ export function HistoricoTabela({
   campos: Record<string, string>
   /** Formatação especial de um campo (o resto: sim/não, status, CNPJ, CPF, telefone, texto). */
   formatar?: (campo: string, valor: Mudanca['antes']) => string | undefined
+  /** Histórico de módulo: título da coluna do registro e o link para ele. */
+  registro?: { titulo: string; link: (registroId: string, codigo: string) => ReactNode }
 }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState<TableQuery>(ORDEM_INICIAL)
@@ -62,7 +70,16 @@ export function HistoricoTabela({
       return String(v)
     }
     return historico.flatMap((e) => {
-      const base = { em: e.em, autor: e.autor, acao: e.acao as string, nota: e.nota ?? null }
+      const doModulo = 'registroId' in e ? e : null
+      const base = {
+        em: e.em,
+        autor: e.autor,
+        acao: e.acao as string,
+        nota: e.nota ?? null,
+        registroId: doModulo?.registroId ?? null,
+        registroCodigo: doModulo?.registroCodigo ?? null,
+        clienteNome: doModulo?.clienteNome ?? null,
+      }
       if (!e.mudancas?.length)
         return [{ ...base, id: e.id, campo: null, antes: null, depois: null }]
       return e.mudancas.map((m, i) => ({
@@ -76,6 +93,10 @@ export function HistoricoTabela({
   }, [historico, campos, formatar, t])
 
   const autores = useMemo(() => [...new Set(linhas.map((l) => l.autor))].sort(), [linhas])
+  const clientes = useMemo(
+    () => [...new Set(linhas.map((l) => l.clienteNome).filter(Boolean))].sort() as string[],
+    [linhas],
+  )
 
   const colunas = useMemo<DataTableColumn<Linha>[]>(
     () => [
@@ -88,6 +109,29 @@ export function HistoricoTabela({
         cell: (r) => <span className="num">{formatDateTime(r.em)}</span>,
         exportValue: (r) => formatDateTime(r.em),
       },
+      ...(registro
+        ? ([
+            {
+              id: 'registro',
+              header: registro.titulo,
+              type: 'unique-text',
+              accessor: (r) => r.registroCodigo,
+              size: 130,
+              cell: (r) =>
+                r.registroId && r.registroCodigo
+                  ? registro.link(r.registroId, r.registroCodigo)
+                  : '—',
+            },
+            {
+              id: 'cliente',
+              header: t('historico.cols.cliente'),
+              type: 'enum',
+              accessor: (r) => r.clienteNome,
+              size: 200,
+              options: clientes.map((c) => ({ value: c, label: c })),
+            },
+          ] satisfies DataTableColumn<Linha>[])
+        : []),
       {
         id: 'autor',
         header: t('historico.cols.autor'),
@@ -144,7 +188,7 @@ export function HistoricoTabela({
         cell: (r) => (r.depois === null ? '—' : <span title={r.depois}>{r.depois}</span>),
       },
     ],
-    [t, autores, acoes, campos],
+    [t, autores, acoes, campos, registro, clientes],
   )
 
   return (

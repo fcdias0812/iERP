@@ -671,8 +671,8 @@
       "title": "訂單",
       "lotes": "批次",
       "agendamento": "排程",
-      "viagensAtivas": "進行中的運輸",
-      "historico": "運輸歷程"
+      "viagens": "運輸",
+      "historico": "歷程"
     },
     "operacao": {
       "title": "營運",
@@ -1667,7 +1667,9 @@
       "campo": "欄位",
       "antes": "變更前",
       "depois": "變更後",
-      "nota": "參考"
+      "nota": "參考",
+      "cliente": "客戶",
+      "lote": "批次"
     },
     "vazio": "沒有歷程紀錄。",
     "acoes": {
@@ -2446,5 +2448,17 @@
       "corrigido": "已更正批次 {{code}} 的收貨。",
       "falhou": "無法儲存收貨。"
     }
+  },
+  "historicoModulo": {
+    "ordens": "訂單中發生的所有事項：排程、批次編輯、文件，以及取貨與運送途中的異常事件。",
+    "operacao": "營運中發生的所有事項：建立的批次、收貨與更正、階段變更，以及收貨異常事件。",
+    "periodo": "期間",
+    "periodos": {
+      "30": "最近 30 天",
+      "90": "最近 90 天",
+      "365": "最近 12 個月",
+      "tudo": "全部"
+    },
+    "erro": "無法載入歷程。"
   }
 }
