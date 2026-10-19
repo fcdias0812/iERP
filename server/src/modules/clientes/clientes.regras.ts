@@ -23,6 +23,7 @@ export const acoesDe = (status: ClienteStatus) => Object.keys(TRANSICOES[status]
 export const MAX_CONTATOS = 20
 
 const contatoSchema = z.object({
+  id: z.string().nullish(),
   nome: z
     .string()
     .trim()

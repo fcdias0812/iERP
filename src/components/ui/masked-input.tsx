@@ -127,7 +127,11 @@ export function NumberInput({
       className={cn(
         fieldBase,
         'items-center gap-2 px-0 focus-within:border-ring has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-ring has-[input[aria-invalid=true]]:border-danger-border',
-        (disabled || readOnly) && 'bg-muted',
+        // A caixa é uma <div>, que o CSS sempre trata como `:read-only`: sem isto, o
+        // `read-only:bg-muted` do fieldBase pintava todo campo numérico de cinza (parecia desabilitado).
+        disabled || readOnly
+          ? 'bg-muted'
+          : 'read-only:bg-card read-only:hover:border-border-strong',
         className,
       )}
     >

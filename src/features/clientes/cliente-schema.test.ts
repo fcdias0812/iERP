@@ -37,7 +37,7 @@ describe('formulário do cliente', () => {
     expect(
       clienteSchema.safeParse({
         ...base,
-        contatos: [{ nome: '', email: 'a@b.com.br', telefone: '1234' }],
+        contatos: [{ id: null, nome: '', email: 'a@b.com.br', telefone: '1234' }],
       }).success,
     ).toBe(false)
     expect(clienteSchema.safeParse({ ...base, contatos: [] }).success).toBe(false)

@@ -47,11 +47,20 @@ export interface Cliente {
   acoesPermitidas: AcaoCliente[]
 }
 
-/** Dados enviados ao criar/editar. Exatamente um contato com `principal: true`. */
+/**
+ * Dados enviados ao criar/editar. Exatamente um contato com `principal: true`.
+ * Contato com `id` = já existente (mantém o vínculo, ex.: responsável por um site).
+ */
 export interface ClienteInput {
   nome: string
   cnpj: string
-  contatos: { nome?: string | null; email: string; telefone: string; principal: boolean }[]
+  contatos: {
+    id?: string | null
+    nome?: string | null
+    email: string
+    telefone: string
+    principal: boolean
+  }[]
 }
 
 export interface ClientesResumo {
@@ -65,4 +74,91 @@ export interface PaginaClientes {
   total: number
   totals: Record<string, number>
   facets: Record<string, Record<string, number>>
+}
+
+/* ------------------------------------------------------------ logística: sites e docas */
+
+/** Doca de um site. Medidas em metros (m) e metros quadrados (m²). */
+export interface Doca {
+  id: string
+  numero: string
+  alturaMaxCaminhao: number
+  comprimentoMaxCaminhao: number | null
+  dockLeveler: boolean
+  tailLift: boolean
+  areaLift: number | null
+  espaco: number | null
+  altura: number | null
+  voltagemShredder: number | null
+  pisoProtecaoObrigatorio: boolean
+}
+
+export interface SiteCliente {
+  id: string
+  codigo: string
+  regiao: string | null
+  horario: string | null
+  totalGaylords: number | null
+  /** Só dígitos. */
+  cep: string | null
+  endereco: string | null
+  latitude: number | null
+  longitude: number | null
+  shredderProprio: boolean
+  edgeSite: boolean
+  /** Contato do cliente responsável pelo site (null = sem responsável). */
+  responsavel: ContatoCliente | null
+  docas: Doca[]
+  criadoEm: string
+  alteradoEm: string
+}
+
+/**
+ * Criar/editar site. Responsável: um contato existente (`contatoId`) OU um contato novo
+ * (`novoContato`, que entra também na lista de contatos do cliente) OU nenhum.
+ */
+export interface SiteInput {
+  codigo: string
+  regiao?: string | null
+  horario?: string | null
+  totalGaylords?: number | null
+  cep?: string | null
+  endereco?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  shredderProprio: boolean
+  edgeSite: boolean
+  contatoId?: string | null
+  novoContato?: { nome?: string | null; email: string; telefone: string } | null
+  docas: Omit<Doca, 'id'>[]
+}
+
+/* ------------------------------------------------------------ documentos */
+
+export type TipoDocumento = 'contrato' | 'fiscal' | 'licenca' | 'outro'
+
+export interface DocumentoCliente {
+  id: string
+  tipo: TipoDocumento
+  nome: string
+  extensao: string
+  /** Bytes. */
+  tamanho: number
+  enviadoEm: string
+  enviadoPor: string
+}
+
+/* ------------------------------------------------------------ lotes (visão geral) */
+
+/**
+ * Resumo dos lotes do cliente. Os lotes vêm dos sistemas de produção (integração ainda não
+ * ligada): enquanto `conectado` for false, a tela mostra "sem dados".
+ */
+export interface LotesResumoCliente {
+  conectado: boolean
+  aChegar: number
+  emOperacao: number
+  finalizados: number
+  /** Últimos lotes com atualização (até 5). */
+  ultimos: { id: string; codigo: string; status: string; atualizadoEm: string }[]
 }

@@ -11,7 +11,15 @@ export interface EventoHistorico {
   id: string
   autor: string
   em: string
-  acao: 'criado' | 'editado' | 'status'
+  acao:
+    | 'criado'
+    | 'editado'
+    | 'status'
+    | 'site_criado'
+    | 'site_editado'
+    | 'site_removido'
+    | 'documento_adicionado'
+    | 'documento_removido'
   mudancas?: Mudanca[]
   nota?: string
 }

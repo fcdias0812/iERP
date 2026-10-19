@@ -80,6 +80,65 @@ export interface ClientesListaView extends ClientesTable {
   contatos: number
 }
 
+export interface ClientesSitesTable {
+  id: string
+  clienteId: string
+  codigo: string
+  regiao: string | null
+  horario: string | null
+  totalGaylords: number | null
+  /** Só dígitos. */
+  cep: string | null
+  endereco: string | null
+  latitude: number | null
+  longitude: number | null
+  /** 0/1 */
+  shredderProprio: number
+  /** 0/1 */
+  edgeSite: number
+  contatoResponsavelId: string | null
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+export interface ClientesDocasTable {
+  id: string
+  siteId: string
+  numero: string
+  /** Metros. */
+  alturaMaxCaminhao: number
+  comprimentoMaxCaminhao: number | null
+  /** 0/1 */
+  dockLeveler: number
+  /** 0/1 */
+  tailLift: number
+  /** m² */
+  areaLift: number | null
+  /** m² */
+  espaco: number | null
+  /** Metros. */
+  altura: number | null
+  /** Volts. */
+  voltagemShredder: number | null
+  /** 0/1 */
+  pisoProtecaoObrigatorio: number
+  ordem: number
+}
+
+export interface ClientesDocumentosTable {
+  id: string
+  clienteId: string
+  tipo: string
+  /** Nome original (exibido). O arquivo em disco usa o id. */
+  nome: string
+  extensao: string
+  tamanho: number
+  enviadoEm: string
+  enviadoPor: string
+}
+
 export interface Database {
   usuarios: UsuariosTable
   usuariosHistorico: UsuariosHistoricoTable
@@ -87,4 +146,7 @@ export interface Database {
   clientesContatos: ClientesContatosTable
   clientesHistorico: ClientesHistoricoTable
   clientesLista: ClientesListaView
+  clientesSites: ClientesSitesTable
+  clientesDocas: ClientesDocasTable
+  clientesDocumentos: ClientesDocumentosTable
 }

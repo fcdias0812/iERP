@@ -1,4 +1,5 @@
 import type { ErrorRequestHandler, RequestHandler } from 'express'
+import { MulterError } from 'multer'
 import { ZodError } from 'zod'
 
 /*
@@ -40,6 +41,15 @@ export const tratarErros: ErrorRequestHandler = (err, _req, res, _next) => {
       code: 'validation',
       message: campo ? `${campo}: ${primeiro?.message}` : (primeiro?.message ?? 'Dados inválidos.'),
       details: err.issues,
+    })
+    return
+  }
+  // Envio de arquivo (multer): arquivo grande demais ou campo inesperado.
+  if (err instanceof MulterError) {
+    const grande = err.code === 'LIMIT_FILE_SIZE'
+    res.status(grande ? 413 : 422).json({
+      code: grande ? 'file_too_large' : 'validation',
+      message: grande ? 'Arquivo maior que o permitido.' : `Envio inválido (${err.code}).`,
     })
     return
   }

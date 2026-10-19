@@ -62,8 +62,12 @@ export async function api<T>(path: string, options: RequestOptions = {}): Promis
     response = await fetch(buildUrl(path, query), {
       method,
       signal,
-      headers: body === undefined ? undefined : { 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      // FormData (envio de arquivo): o navegador monta o multipart e o cabeçalho sozinho.
+      headers:
+        body === undefined || body instanceof FormData
+          ? undefined
+          : { 'content-type': 'application/json' },
+      body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
     })
   } catch (error) {
     if ((error as Error).name === 'AbortError') throw error

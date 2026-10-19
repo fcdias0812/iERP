@@ -123,15 +123,23 @@ Regras:
 
 O layout não muda. Modelos completos para copiar:
 
-- **Clientes** — item direto no menu (sem submenu); detalhe com abas na URL (`?aba=`); formulário
-  com lista de contatos (`useFieldArray`). Frontend `src/features/clientes/`, rotas
-  `src/routes/_app/clientes/`, backend `server/src/modules/clientes/` (com view
-  `clientes_lista` para filtrar pelo contato principal).
+- **Clientes** — item direto no menu (sem submenu); detalhe com abas na URL (`?aba=`), uma por
+  arquivo em `src/features/clientes/detalhe/` (Visão geral, Contatos, Logística com painel lateral
+  - mapa Leaflet carregado sob demanda, Documentos com envio de arquivo, Histórico como tabela de
+    auditoria); formulário com lista de contatos (`useFieldArray`). Rotas `src/routes/_app/clientes/`,
+    backend `server/src/modules/clientes/` (view `clientes_lista`; sites/docas, documentos em disco)
+    e `server/src/modules/geo/` (CEP e endereço → coordenadas).
 - **Administração › Usuários** — módulo com submenu. Frontend `src/features/admin/usuarios/`,
   rotas `src/routes/_app/admin/usuarios/`, backend `server/src/modules/usuarios/`.
 
 Coisas que pertencem a um registro (contatos, locais, documentos do cliente) viram **abas** do
-detalhe dele, não itens de menu.
+detalhe dele, não itens de menu. Pedido da diretoria: **agilidade** — a informação aparece já
+filtrada onde a pessoa está (auditoria/histórico dentro do registro e de cada módulo), cadastro de
+itens do registro em painel lateral sem sair da aba, e nada de "ir a outro módulo e filtrar".
+
+Tabelas: `DataTable` em modo cliente precisa de **ordem inicial** (`sort`) — sem ela, desempata
+pelo id interno e a ordem parece aleatória — e de **lista estável** (constante para vazio, nunca
+`data ?? []` no render). `pinTop`/`highlightRow` fixam e destacam linhas (ex.: contato principal).
 
 1. **Rótulos**: crie as chaves `nav.<modulo>.title` e `nav.<modulo>.<tela>` nos 3 arquivos de idioma.
    Não use `_` como nome de chave nem `context`/`count` como nome de variável: são reservados do i18next.

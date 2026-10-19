@@ -707,7 +707,9 @@
     "dateOrder": "結束日期必須晚於開始日期。",
     "acceptTerms": "必須同意才能繼續。",
     "passwordMatch": "兩次輸入的密碼不一致。",
-    "pastDate": "日期不可早於今天。"
+    "pastDate": "日期不可早於今天。",
+    "coordinates": "請使用「緯度, 經度」格式（例如 -22.85, -47.22）。",
+    "duplicate": "此值已被使用。"
   },
   "confirm": {
     "typeToConfirm": "請輸入以下文字以確認："
@@ -1240,7 +1242,13 @@
     "forbidden": "您的角色沒有執行此操作的權限。",
     "server": "伺服器發生錯誤，請稍後再試。",
     "emailInUse": "已有使用者使用此電子郵件。",
-    "cnpjInUse": "已有客戶使用此 CNPJ。"
+    "cnpjInUse": "已有客戶使用此 CNPJ。",
+    "siteCodeInUse": "此客戶已有相同代碼的站點。",
+    "fileTooLarge": "檔案超過允許的大小。",
+    "fileTypeNotAllowed": "不允許的檔案類型。",
+    "geoUnavailable": "定位服務無法使用，請再試一次。",
+    "cepNotFound": "找不到此郵遞區號 (CEP)。",
+    "addressNotFound": "在地圖上找不到此地址。"
   },
   "calendar": {
     "today": "今天",
@@ -1412,8 +1420,6 @@
       "configuracoes": "設定",
       "historico": "歷程",
       "emDefinicao": "待定義",
-      "logisticaHelp": "此處將顯示客戶的物流資料，例如收件地點。",
-      "documentosHelp": "此處將顯示客戶的文件。",
       "configuracoesHelp": "此處將顯示此客戶專屬的設定。"
     },
     "detail": {
@@ -1427,7 +1433,12 @@
     "history": {
       "criado": "建立了客戶",
       "editado": "變更了資料",
-      "status": "變更了狀態"
+      "status": "變更了狀態",
+      "site_criado": "建立了站點",
+      "site_editado": "變更了站點",
+      "site_removido": "移除了站點",
+      "documento_adicionado": "新增了文件",
+      "documento_removido": "移除了文件"
     },
     "acoes": {
       "inativar": "停用",
@@ -1451,6 +1462,146 @@
       "acao": {
         "inativar": "已停用 {{name}}。",
         "reativar": "已重新啟用 {{name}}。"
+      }
+    },
+    "visaoGeral": {
+      "lotesTitle": "客戶批次",
+      "kpis": {
+        "aChegar": "即將到貨的批次",
+        "emOperacao": "作業中的批次",
+        "finalizados": "已完成的批次"
+      },
+      "ultimosTitle": "最近更新的批次",
+      "semIntegracaoTitle": "等待整合",
+      "semIntegracaoBody": "與生產系統的整合啟用後，批次會顯示在這裡。",
+      "semLotes": "此客戶尚無批次。"
+    },
+    "historico": {
+      "cols": {
+        "em": "日期時間",
+        "autor": "使用者",
+        "acao": "動作",
+        "campo": "欄位",
+        "antes": "變更前",
+        "depois": "變更後",
+        "nota": "參考"
+      },
+      "vazio": "沒有歷程紀錄。",
+      "campos": {
+        "nome": "名稱",
+        "cnpj": "CNPJ",
+        "contatos": "聯絡人",
+        "status": "狀態",
+        "codigo": "站點代碼",
+        "regiao": "地區",
+        "horario": "營業時間",
+        "totalGaylords": "Gaylord 總數",
+        "cep": "郵遞區號 (CEP)",
+        "endereco": "地址",
+        "latitude": "緯度",
+        "longitude": "經度",
+        "shredderProprio": "自有碎紙機",
+        "edgeSite": "Edge 站點",
+        "responsavel": "負責人",
+        "contatoNovo": "新聯絡人",
+        "docas": "碼頭",
+        "tipoDocumento": "文件類型"
+      }
+    },
+    "documentos": {
+      "cols": {
+        "nome": "檔案",
+        "tipo": "類型",
+        "extensao": "副檔名",
+        "tamanho": "大小",
+        "enviadoEm": "上傳日期",
+        "enviadoPor": "上傳者"
+      },
+      "tipos": {
+        "contrato": "合約",
+        "fiscal": "稅務",
+        "licenca": "執照",
+        "outro": "其他"
+      },
+      "enviarTitle": "上傳文件",
+      "escolhaTipo": "選擇類型",
+      "arquivos": "檔案",
+      "ajuda": "接受：{{exts}}。每個檔案最多 {{max}}。",
+      "escolhaTipoAntes": "請先選擇文件類型才能上傳。",
+      "vazioTitle": "沒有文件",
+      "vazioBody": "上傳客戶的合約、稅務文件、執照及其他檔案。",
+      "baixar": "下載",
+      "apagarTitle": "要刪除 {{name}} 嗎？",
+      "apagarBody": "檔案將從系統中刪除，此動作無法復原。",
+      "toast": {
+        "sent": "已上傳 {{name}}。",
+        "sendFailed": "無法上傳 {{name}}。",
+        "removed": "已刪除 {{name}}。"
+      }
+    },
+    "sites": {
+      "newTitle": "新增站點",
+      "editTitle": "編輯站點 {{code}}",
+      "formDescription": "站點資料、地圖位置、負責人與碼頭。",
+      "secoes": {
+        "identificacao": "站點",
+        "localizacao": "地址與位置",
+        "estrutura": "設施",
+        "responsavel": "負責人",
+        "docas": "碼頭"
+      },
+      "horarioExemplo": "例如：週一至週五 8:00–18:00",
+      "enderecoExemplo": "街道、號碼、區、城市 – 州",
+      "buscarCep": "查詢郵遞區號",
+      "localizar": "依地址定位",
+      "coordenadasAjuda": "同一棟建築內的其他站點？從這裡複製並貼到另一個站點。",
+      "mapa": {
+        "rotulo": "站點地圖",
+        "ajuda": "將圖釘拖曳到站點大門，或點擊地圖。",
+        "zoomIn": "放大",
+        "zoomOut": "縮小",
+        "naoAchou": "無法在地圖上找到此地址。",
+        "cepNaoAchou": "無法查詢郵遞區號。",
+        "aproximado": "大約位置：地圖只找到城市。請將圖釘拖曳到站點大門。"
+      },
+      "semResponsavel": "無負責人",
+      "novoContato": "新增聯絡人…",
+      "novoContatoAjuda": "新聯絡人也會加入客戶的聯絡人清單。",
+      "semDocas": "尚未登錄碼頭。",
+      "docaN": "碼頭 {{n}}",
+      "removerDoca": "移除碼頭 {{n}}",
+      "adicionarDoca": "新增碼頭",
+      "vazioTitle": "尚未登錄站點",
+      "vazioBody": "登錄客戶的站點，包含地址、地圖與碼頭。",
+      "apagarTitle": "要刪除站點 {{code}} 嗎？",
+      "apagarBody": "站點及其碼頭將被刪除，此動作無法復原。",
+      "toast": {
+        "created": "已建立站點 {{code}}。",
+        "saved": "已儲存站點 {{code}}。",
+        "saveFailed": "無法儲存站點。",
+        "removed": "已刪除站點 {{code}}。"
+      },
+      "campos": {
+        "codigo": "站點代碼",
+        "regiao": "地區",
+        "horario": "營業時間",
+        "totalGaylords": "Gaylord 總數",
+        "cep": "郵遞區號 (CEP)",
+        "endereco": "地址",
+        "coordenadas": "緯度, 經度",
+        "shredderProprio": "自有碎紙機",
+        "edgeSite": "Edge 站點",
+        "responsavel": "站點負責聯絡人",
+        "numeroDoca": "碼頭編號",
+        "alturaMaxCaminhao": "卡車最大高度",
+        "comprimentoMaxCaminhao": "卡車最大長度",
+        "dockLeveler": "碼頭調節板",
+        "tailLift": "尾門升降機",
+        "areaLift": "升降區面積",
+        "espaco": "空間",
+        "altura": "高度",
+        "voltagemShredder": "碎紙機電壓",
+        "pisoProtecaoObrigatorio": "必須保護地板"
       }
     }
   }

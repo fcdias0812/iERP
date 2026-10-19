@@ -1,5 +1,11 @@
 import express from 'express'
+import { config } from './config.js'
 import type { Db } from './db/database.js'
+import { criarServicoDocumentos } from './modules/clientes/clientes-documentos.servico.js'
+import { criarRepositorioSites } from './modules/clientes/clientes-sites.repositorio.js'
+import { criarServicoSites } from './modules/clientes/clientes-sites.servico.js'
+import { rotasGeo } from './modules/geo/geo.rotas.js'
+import { criarServicoGeo, type ServicoGeo } from './modules/geo/geo.servico.js'
 import { criarRepositorioClientes } from './modules/clientes/clientes.repositorio.js'
 import { rotasClientes } from './modules/clientes/clientes.rotas.js'
 import { criarServicoClientes } from './modules/clientes/clientes.servico.js'
@@ -13,16 +19,23 @@ import { rotaInexistente, tratarErros } from './shared/erros.js'
  * Aplicação Express (sem abrir porta — usada pelo index.ts e pelos testes).
  * Cada módulo: repositório (banco) → serviço (regras) → rotas (HTTP).
  */
-export function criarApp(db: Db) {
+export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGeo } = {}) {
   const usuarios = criarServicoUsuarios(criarRepositorioUsuarios(db))
-  const clientes = criarServicoClientes(criarRepositorioClientes(db))
+  const repoClientes = criarRepositorioClientes(db)
+  const clientes = criarServicoClientes(repoClientes)
+  const sites = criarServicoSites(criarRepositorioSites(db), repoClientes)
+  const documentos = criarServicoDocumentos(db, repoClientes, {
+    pasta: opcoes.arquivosDir ?? config.arquivosDir,
+  })
+  const geo = opcoes.geo ?? criarServicoGeo({ contato: config.geoContato })
 
   const api = express.Router()
   api.get('/saude', (_req, res) => {
     res.json({ ok: true })
   })
   api.use('/usuarios', rotasUsuarios(usuarios))
-  api.use('/clientes', rotasClientes(clientes))
+  api.use('/clientes', rotasClientes(clientes, sites, documentos))
+  api.use('/geo', rotasGeo(geo))
   api.use(rotasSistema({ usuarios, clientes }))
   api.use(rotaInexistente)
 

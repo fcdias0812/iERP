@@ -23,6 +23,8 @@ import type {
 
 type Conexao = Db | Transaction<Database>
 type ContatoNovo = Omit<ContatoCliente, 'id'>
+/** Contato vindo do formulário: com `id` = já existe. */
+type ContatoEntrada = ContatoNovo & { id?: string | null }
 
 /** Texto da busca geral: nome, CNPJ (com e sem pontuação), código e contatos. */
 const textoBusca = (c: Pick<ClientesTable, 'nome' | 'cnpj' | 'codigo'>, contatos: ContatoNovo[]) =>
@@ -153,30 +155,68 @@ export function criarRepositorioClientes(db: Db) {
     return Boolean(await q.executeTakeFirst())
   }
 
-  /** Substitui os contatos do cliente (a ordem da lista é a ordem de exibição). */
-  async function gravarContatos(cx: Conexao, clienteId: string, contatos: ContatoNovo[]) {
-    await cx.deleteFrom('clientesContatos').where('clienteId', '=', clienteId).execute()
-    if (!contatos.length) return
+  /**
+   * Grava a lista de contatos do cliente (a ordem da lista é a ordem de exibição).
+   * Contato com `id` existente é ATUALIZADO (mantém o vínculo com sites); sem `id`, é criado;
+   * os que não vieram são removidos (o site que tinha esse responsável fica sem responsável).
+   */
+  async function gravarContatos(cx: Conexao, clienteId: string, contatos: ContatoEntrada[]) {
+    const existentes = new Set(
+      (
+        await cx
+          .selectFrom('clientesContatos')
+          .select('id')
+          .where('clienteId', '=', clienteId)
+          .execute()
+      ).map((r) => r.id),
+    )
+    const mantidos = new Set<string>()
+    for (const [i, k] of contatos.entries()) {
+      const valores = {
+        nome: k.nome,
+        email: k.email,
+        telefone: k.telefone,
+        principal: k.principal ? 1 : 0,
+        ordem: i,
+      }
+      if (k.id && existentes.has(k.id)) {
+        mantidos.add(k.id)
+        await cx.updateTable('clientesContatos').set(valores).where('id', '=', k.id).execute()
+      } else
+        await cx
+          .insertInto('clientesContatos')
+          .values({ ...valores, id: randomUUID(), clienteId })
+          .execute()
+    }
+    const remover = [...existentes].filter((id) => !mantidos.has(id))
+    if (remover.length) await cx.deleteFrom('clientesContatos').where('id', 'in', remover).execute()
+  }
+
+  /** Acrescenta um contato (não principal) no fim da lista. Devolve o id. */
+  async function adicionarContato(
+    cx: Conexao,
+    clienteId: string,
+    contato: { nome: string | null; email: string; telefone: string },
+  ): Promise<string> {
+    const r = await cx
+      .selectFrom('clientesContatos')
+      .select(sql<number | null>`max(ordem)`.as('n'))
+      .where('clienteId', '=', clienteId)
+      .executeTakeFirstOrThrow()
+    const id = randomUUID()
     await cx
       .insertInto('clientesContatos')
-      .values(
-        contatos.map((k, i) => ({
-          id: randomUUID(),
-          clienteId,
-          nome: k.nome,
-          email: k.email,
-          telefone: k.telefone,
-          principal: k.principal ? 1 : 0,
-          ordem: i,
-        })),
-      )
+      .values({ ...contato, id, clienteId, principal: 0, ordem: Number(r.n ?? -1) + 1 })
       .execute()
+    // Atualiza a busca geral com o contato novo.
+    await atualizar(cx, clienteId, {})
+    return id
   }
 
   async function inserir(
     cx: Conexao,
     dados: Omit<ClientesTable, 'id' | 'busca' | 'numero' | 'codigo'>,
-    contatos: ContatoNovo[],
+    contatos: ContatoEntrada[],
     codigoDe: (numero: number) => string,
   ): Promise<string> {
     const r = await cx
@@ -198,7 +238,7 @@ export function criarRepositorioClientes(db: Db) {
     cx: Conexao,
     id: string,
     dados: Partial<Omit<ClientesTable, 'id' | 'busca' | 'numero' | 'codigo'>>,
-    contatos?: ContatoNovo[],
+    contatos?: ContatoEntrada[],
   ) {
     const atual = await obter(id, cx)
     if (!atual) return
@@ -263,6 +303,7 @@ export function criarRepositorioClientes(db: Db) {
     inserir,
     atualizar,
     registrarHistorico,
+    adicionarContato,
     buscar,
     transacao: <T>(fn: (trx: Transaction<Database>) => Promise<T>) => db.transaction().execute(fn),
   }

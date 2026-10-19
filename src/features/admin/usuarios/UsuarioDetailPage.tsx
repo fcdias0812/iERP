@@ -94,7 +94,7 @@ function Detalhe({ u }: { u: Usuario }) {
     id: e.id,
     actor: e.autor,
     at: e.em,
-    action: t(`usuarios.history.${e.acao}`),
+    action: t(`usuarios.history.${e.acao as 'criado' | 'editado' | 'status'}`),
     tone: e.acao === 'status' ? toneFor(e.mudancas?.[0]?.depois ?? null) : undefined,
     icon: e.acao === 'criado' ? UserPlus : undefined,
     changes: e.mudancas?.map((m) => ({

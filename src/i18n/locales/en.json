@@ -707,7 +707,9 @@
     "dateOrder": "The end date must be after the start date.",
     "acceptTerms": "You must accept to continue.",
     "passwordMatch": "Passwords don't match.",
-    "pastDate": "The date can’t be earlier than today."
+    "pastDate": "The date can’t be earlier than today.",
+    "coordinates": "Use the \"latitude, longitude\" format (e.g. -22.85, -47.22).",
+    "duplicate": "This value is already in use."
   },
   "confirm": {
     "typeToConfirm": "To confirm, type"
@@ -1240,7 +1242,13 @@
     "forbidden": "Your role isn’t allowed to do this.",
     "server": "The server ran into an error. Try again in a moment.",
     "emailInUse": "A user with this email already exists.",
-    "cnpjInUse": "A customer with this CNPJ already exists."
+    "cnpjInUse": "A customer with this CNPJ already exists.",
+    "siteCodeInUse": "This customer already has a site with this code.",
+    "fileTooLarge": "File is larger than allowed.",
+    "fileTypeNotAllowed": "File type not allowed.",
+    "geoUnavailable": "Location service unavailable. Try again.",
+    "cepNotFound": "ZIP code (CEP) not found.",
+    "addressNotFound": "Address not found on the map."
   },
   "calendar": {
     "today": "Today",
@@ -1412,8 +1420,6 @@
       "configuracoes": "Settings",
       "historico": "History",
       "emDefinicao": "To be defined",
-      "logisticaHelp": "The customer’s logistics data, such as pickup locations, will be here.",
-      "documentosHelp": "The customer’s documents will be here.",
       "configuracoesHelp": "Settings specific to this customer will be here."
     },
     "detail": {
@@ -1427,7 +1433,12 @@
     "history": {
       "criado": "Created the customer",
       "editado": "Changed the details",
-      "status": "Changed the status"
+      "status": "Changed the status",
+      "site_criado": "Created site",
+      "site_editado": "Changed site",
+      "site_removido": "Removed site",
+      "documento_adicionado": "Added document",
+      "documento_removido": "Removed document"
     },
     "acoes": {
       "inativar": "Deactivate",
@@ -1451,6 +1462,146 @@
       "acao": {
         "inativar": "{{name}} was deactivated.",
         "reativar": "{{name}} was reactivated."
+      }
+    },
+    "visaoGeral": {
+      "lotesTitle": "Customer lots",
+      "kpis": {
+        "aChegar": "Lots arriving",
+        "emOperacao": "Lots in operation",
+        "finalizados": "Lots finished"
+      },
+      "ultimosTitle": "Recently updated lots",
+      "semIntegracaoTitle": "Waiting for integration",
+      "semIntegracaoBody": "Lots show up here once the integration with the production systems is on.",
+      "semLotes": "No lots for this customer yet."
+    },
+    "historico": {
+      "cols": {
+        "em": "Date and time",
+        "autor": "User",
+        "acao": "Action",
+        "campo": "Field",
+        "antes": "Before",
+        "depois": "After",
+        "nota": "Reference"
+      },
+      "vazio": "No history records.",
+      "campos": {
+        "nome": "Name",
+        "cnpj": "CNPJ",
+        "contatos": "Contacts",
+        "status": "Status",
+        "codigo": "Site code",
+        "regiao": "Region",
+        "horario": "Opening hours",
+        "totalGaylords": "Total gaylords",
+        "cep": "ZIP code (CEP)",
+        "endereco": "Address",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "shredderProprio": "Own shredder",
+        "edgeSite": "Edge site",
+        "responsavel": "Person in charge",
+        "contatoNovo": "New contact",
+        "docas": "Docks",
+        "tipoDocumento": "Document type"
+      }
+    },
+    "documentos": {
+      "cols": {
+        "nome": "File",
+        "tipo": "Type",
+        "extensao": "Extension",
+        "tamanho": "Size",
+        "enviadoEm": "Uploaded on",
+        "enviadoPor": "Uploaded by"
+      },
+      "tipos": {
+        "contrato": "Contract",
+        "fiscal": "Tax",
+        "licenca": "License",
+        "outro": "Other"
+      },
+      "enviarTitle": "Upload documents",
+      "escolhaTipo": "Choose the type",
+      "arquivos": "Files",
+      "ajuda": "Accepts: {{exts}}. Up to {{max}} per file.",
+      "escolhaTipoAntes": "Choose the document type to enable uploading.",
+      "vazioTitle": "No documents",
+      "vazioBody": "Upload contracts, tax documents, licenses and other customer files.",
+      "baixar": "Download",
+      "apagarTitle": "Delete {{name}}?",
+      "apagarBody": "The file will be removed from the system. This can’t be undone.",
+      "toast": {
+        "sent": "{{name}} uploaded.",
+        "sendFailed": "Couldn’t upload {{name}}.",
+        "removed": "{{name}} deleted."
+      }
+    },
+    "sites": {
+      "newTitle": "New site",
+      "editTitle": "Edit site {{code}}",
+      "formDescription": "Site details, map location, contact person and docks.",
+      "secoes": {
+        "identificacao": "Site",
+        "localizacao": "Address and location",
+        "estrutura": "Facilities",
+        "responsavel": "Contact person",
+        "docas": "Docks"
+      },
+      "horarioExemplo": "E.g. Mon–Fri, 8am to 6pm",
+      "enderecoExemplo": "Street, number, district, city – state",
+      "buscarCep": "Look up ZIP",
+      "localizar": "Locate by address",
+      "coordenadasAjuda": "Another site in the same building? Copy from here and paste in the other site.",
+      "mapa": {
+        "rotulo": "Site map",
+        "ajuda": "Drag the pin to the site gate or click on the map.",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "naoAchou": "Couldn’t find the address on the map.",
+        "cepNaoAchou": "Couldn’t look up the ZIP code.",
+        "aproximado": "Approximate point: the map only found the city. Drag the pin to the site gate."
+      },
+      "semResponsavel": "No contact person",
+      "novoContato": "Add a new contact…",
+      "novoContatoAjuda": "The new contact is also added to the customer’s contact list.",
+      "semDocas": "No docks registered.",
+      "docaN": "Dock {{n}}",
+      "removerDoca": "Remove dock {{n}}",
+      "adicionarDoca": "Add dock",
+      "vazioTitle": "No sites registered",
+      "vazioBody": "Register the customer’s sites with address, map and docks.",
+      "apagarTitle": "Delete site {{code}}?",
+      "apagarBody": "The site and its docks will be deleted. This can’t be undone.",
+      "toast": {
+        "created": "Site {{code}} created.",
+        "saved": "Site {{code}} saved.",
+        "saveFailed": "Couldn’t save the site.",
+        "removed": "Site {{code}} deleted."
+      },
+      "campos": {
+        "codigo": "Site code",
+        "regiao": "Region",
+        "horario": "Opening hours",
+        "totalGaylords": "Total gaylords",
+        "cep": "ZIP code (CEP)",
+        "endereco": "Address",
+        "coordenadas": "Latitude, longitude",
+        "shredderProprio": "Own shredder",
+        "edgeSite": "Edge site",
+        "responsavel": "Site contact person",
+        "numeroDoca": "Dock number",
+        "alturaMaxCaminhao": "Max truck height",
+        "comprimentoMaxCaminhao": "Max truck length",
+        "dockLeveler": "Dock leveler",
+        "tailLift": "Tail lift",
+        "areaLift": "Lift area",
+        "espaco": "Space",
+        "altura": "Height",
+        "voltagemShredder": "Shredder voltage",
+        "pisoProtecaoObrigatorio": "Floor protection required"
       }
     }
   }

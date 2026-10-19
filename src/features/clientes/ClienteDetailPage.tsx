@@ -1,30 +1,30 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { FileText, History, LayoutDashboard, Pencil, Settings, Truck, Users } from 'lucide-react'
-import { DataTable, type DataTableColumn } from '@/components/data-table'
-import { EMPTY_QUERY, type TableQuery } from '@/components/data-table/types'
 import { Can } from '@/components/layout/Can'
 import { RequirePermission } from '@/components/layout/RequirePermission'
 import { DetailPage } from '@/components/patterns/DetailPage'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { EmptyState } from '@/components/ui/empty-state'
-import { AuditInfo, CopyableId, KeyValueList } from '@/components/ui/metadata'
+import { AuditInfo, CopyableId } from '@/components/ui/metadata'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatusBadge } from '@/components/ui/status-badge'
-import { Timeline, type TimelineEvent } from '@/components/ui/timeline'
 import { AppError, NotFoundContent } from '@/features/system/ErrorPages'
-import { formatCnpj, formatDate, formatPhone } from '@/lib/format'
-import type { StatusId } from '@/lib/status/statusMap'
+import { formatCnpj } from '@/lib/format'
 import { ApiError } from '@/services/http'
-import type { AcaoCliente, Cliente, ContatoCliente, Mudanca } from '@/services/types'
+import type { AcaoCliente, Cliente } from '@/services/types'
 import { useBreadcrumb } from '@/stores/breadcrumb-store'
 import type { AbaCliente } from './abas'
+import { AbaContatos } from './detalhe/AbaContatos'
+import { AbaDocumentos } from './detalhe/AbaDocumentos'
+import { AbaHistorico } from './detalhe/AbaHistorico'
+import { AbaLogistica } from './detalhe/AbaLogistica'
+import { AbaVisaoGeral } from './detalhe/AbaVisaoGeral'
+import { AbaEmDefinicao } from './detalhe/comum'
 import { ACOES } from './fluxo'
-import { useCliente, useTransicaoCliente } from './use-clientes'
+import { useCliente, useDocumentos, useSites, useTransicaoCliente } from './use-clientes'
 
 /** Clientes › detalhe (padrão Detalhe) com uma aba para cada assunto do cliente. */
 export function ClienteDetailPage() {
@@ -59,21 +59,15 @@ function DetailSkeleton() {
   )
 }
 
-const CAMPO_KEYS = {
-  status: 'clientes.cols.status',
-  nome: 'clientes.cols.nome',
-  cnpj: 'clientes.cols.cnpj',
-  contatos: 'clientes.tabs.contatos',
-} as const
-
 function Detalhe({ c }: { c: Cliente }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { aba = 'visao-geral' } = useSearch({ from: '/_app/clientes/$id/' })
   const transicao = useTransicaoCliente()
   const [confirm, setConfirm] = useState<AcaoCliente | null>(null)
-  const [contatosQuery, setContatosQuery] = useState<TableQuery>(EMPTY_QUERY)
-  const principal = c.contatos.find((k) => k.principal) ?? c.contatos[0]
+  // Contadores nas abas (a lista é pequena; as abas usam o mesmo cache).
+  const sites = useSites(c.id)
+  const docs = useDocumentos(c.id)
 
   const trocarAba = (nova: string) =>
     void navigate({
@@ -82,70 +76,6 @@ function Detalhe({ c }: { c: Cliente }) {
       search: { aba: nova === 'visao-geral' ? undefined : (nova as AbaCliente) },
       replace: true,
     })
-
-  /** Valor legível de um campo do histórico. */
-  const valor = (campo: string, v: Mudanca['antes']) => {
-    if (v === null || v === '') return '—'
-    if (campo === 'status') return t(`status.${v as StatusId}`)
-    if (campo === 'cnpj') return formatCnpj(String(v))
-    return String(v)
-  }
-  const eventos: TimelineEvent[] = c.historico.map((e) => ({
-    id: e.id,
-    actor: e.autor,
-    at: e.em,
-    action: t(`clientes.history.${e.acao}`),
-    tone:
-      e.acao === 'status'
-        ? e.mudancas?.[0]?.depois === 'ativo'
-          ? 'success'
-          : 'inactive'
-        : undefined,
-    changes: e.mudancas?.map((m) => ({
-      field: t(CAMPO_KEYS[m.campo as keyof typeof CAMPO_KEYS] ?? 'clientes.cols.status'),
-      before: valor(m.campo, m.antes),
-      after: valor(m.campo, m.depois),
-    })),
-    note: e.nota,
-  }))
-
-  const colunasContatos = useMemo<DataTableColumn<ContatoCliente>[]>(
-    () => [
-      {
-        id: 'nome',
-        header: t('clientes.form.contactName'),
-        type: 'unique-text',
-        accessor: (r) => r.nome,
-        size: 220,
-        mobile: 'title',
-      },
-      {
-        id: 'email',
-        header: t('clientes.form.email'),
-        type: 'unique-text',
-        accessor: (r) => r.email,
-        size: 300,
-        cell: (r) => <EmailLink email={r.email} />,
-      },
-      {
-        id: 'telefone',
-        header: t('clientes.form.phone'),
-        type: 'unique-text',
-        accessor: (r) => r.telefone,
-        size: 170,
-        cell: (r) => <span className="num">{formatPhone(r.telefone)}</span>,
-        exportValue: (r) => formatPhone(r.telefone),
-      },
-      {
-        id: 'principal',
-        header: t('clientes.form.main'),
-        type: 'boolean',
-        accessor: (r) => r.principal,
-        size: 120,
-      },
-    ],
-    [t],
-  )
 
   const acoes = [...c.acoesPermitidas].sort((a, b) => ACOES[a].peso - ACOES[b].peso)
   const editar = () => void navigate({ to: '/clientes/$id/editar', params: { id: c.id } })
@@ -208,102 +138,28 @@ function Detalhe({ c }: { c: Cliente }) {
             id: 'visao-geral',
             label: t('clientes.tabs.visaoGeral'),
             icon: LayoutDashboard,
-            content: (
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle>{t('clientes.detail.general')}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <KeyValueList
-                      items={[
-                        { label: t('clientes.cols.nome'), value: c.nome, full: true },
-                        {
-                          label: t('clientes.cols.cnpj'),
-                          value: <span className="font-mono">{formatCnpj(c.cnpj)}</span>,
-                        },
-                        {
-                          label: t('clientes.cols.codigo'),
-                          value: <span className="font-mono">{c.codigo}</span>,
-                        },
-                        { label: t('clientes.cols.status'), value: t(`status.${c.status}`) },
-                        { label: t('clientes.cols.criadoEm'), value: formatDate(c.criadoEm) },
-                      ]}
-                    />
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t('clientes.detail.mainContact')}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {principal ? (
-                      <KeyValueList
-                        items={[
-                          {
-                            label: t('clientes.form.contactName'),
-                            value: principal.nome,
-                            full: true,
-                          },
-                          {
-                            label: t('clientes.form.email'),
-                            value: <EmailLink email={principal.email} />,
-                            full: true,
-                          },
-                          {
-                            label: t('clientes.form.phone'),
-                            value: <span className="num">{formatPhone(principal.telefone)}</span>,
-                            full: true,
-                          },
-                        ]}
-                      />
-                    ) : (
-                      <EmptyState size="sm" title={t('clientes.detail.noContacts')} />
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            ),
+            content: <AbaVisaoGeral c={c} />,
           },
           {
             id: 'contatos',
             label: t('clientes.tabs.contatos'),
             icon: Users,
             count: c.contatos.length,
-            content: (
-              <DataTable
-                id="cliente-contatos"
-                title={t('clientes.tabs.contatos')}
-                columns={colunasContatos}
-                getRowId={(r) => r.id}
-                data={c.contatos}
-                query={contatosQuery}
-                onQueryChange={setContatosQuery}
-                exportName={`contatos-${c.codigo}`}
-                toolbar={
-                  <Can permission="clientes.editar" fallback="hide">
-                    <Button size="sm" variant="secondary" onClick={editar}>
-                      <Pencil aria-hidden />
-                      {t('clientes.detail.manageContacts')}
-                    </Button>
-                  </Can>
-                }
-              />
-            ),
+            content: <AbaContatos c={c} onEditar={editar} />,
           },
           {
             id: 'logistica',
             label: t('clientes.tabs.logistica'),
             icon: Truck,
-            content: <AbaEmDefinicao icon={<Truck />} texto={t('clientes.tabs.logisticaHelp')} />,
+            count: sites.data?.length,
+            content: <AbaLogistica c={c} />,
           },
           {
             id: 'documentos',
             label: t('clientes.tabs.documentos'),
             icon: FileText,
-            content: (
-              <AbaEmDefinicao icon={<FileText />} texto={t('clientes.tabs.documentosHelp')} />
-            ),
+            count: docs.data?.length,
+            content: <AbaDocumentos c={c} />,
           },
           {
             id: 'configuracoes',
@@ -317,11 +173,7 @@ function Detalhe({ c }: { c: Cliente }) {
             id: 'historico',
             label: t('clientes.tabs.historico'),
             icon: History,
-            content: (
-              <div className="max-w-3xl">
-                <Timeline events={eventos} />
-              </div>
-            ),
+            content: <AbaHistorico c={c} />,
           },
         ]}
       />
@@ -337,25 +189,5 @@ function Detalhe({ c }: { c: Cliente }) {
         }}
       />
     </>
-  )
-}
-
-function EmailLink({ email }: { email: string }) {
-  return (
-    <a href={`mailto:${email}`} className="break-all text-link underline-offset-4 hover:underline">
-      {email}
-    </a>
-  )
-}
-
-/** Aba reservada: o conteúdo será definido depois. */
-function AbaEmDefinicao({ icon, texto }: { icon: React.ReactNode; texto: string }) {
-  const { t } = useTranslation()
-  return (
-    <Card>
-      <CardContent>
-        <EmptyState icon={icon} title={t('clientes.tabs.emDefinicao')} description={texto} />
-      </CardContent>
-    </Card>
   )
 }

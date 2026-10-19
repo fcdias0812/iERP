@@ -1,6 +1,8 @@
 import { fakerPT_BR as faker } from '@faker-js/faker'
 import type {
   AcaoCliente,
+  DocumentoCliente,
+  SiteCliente,
   AcaoUsuario,
   Cliente,
   ClienteResumo,
@@ -157,9 +159,16 @@ function gerarClientes(hoje: number): Cliente[] {
   })
 }
 
+/** Documento simulado: o conteúdo fica em memória (para o download). */
+export type DocumentoDb = DocumentoCliente & { conteudo: Blob }
+
 export interface Db {
   usuarios: Usuario[]
   clientes: Cliente[]
+  /** Sites por cliente (Logística). */
+  sites: Record<string, SiteCliente[]>
+  /** Documentos por cliente. */
+  documentos: Record<string, DocumentoDb[]>
   notificacoes: Notificacao[]
   seq: number
   seqClientes: number
@@ -244,7 +253,79 @@ function gerar(): Db {
   ]
 
   const clientes = gerarClientes(hoje)
-  return { usuarios, clientes, notificacoes, seq: usuarios.length, seqClientes: clientes.length }
+  // Um site de exemplo no primeiro cliente (com duas docas).
+  const primeiro = clientes[0]!
+  const sites: Record<string, SiteCliente[]> = {
+    [primeiro.id]: [
+      {
+        id: 'site00001',
+        codigo: 'SPO-01',
+        regiao: 'Sudeste',
+        horario: 'seg a sex, 8h às 18h',
+        totalGaylords: 24,
+        cep: '01001000',
+        endereco: 'Praça da Sé, Sé, São Paulo – SP',
+        latitude: -23.5503898,
+        longitude: -46.633081,
+        shredderProprio: true,
+        edgeSite: false,
+        responsavel: primeiro.contatos[0] ?? null,
+        docas: [
+          {
+            id: 'doca00001',
+            numero: 'D1',
+            alturaMaxCaminhao: 4.2,
+            comprimentoMaxCaminhao: 12,
+            dockLeveler: true,
+            tailLift: false,
+            areaLift: 6,
+            espaco: 40,
+            altura: 4.5,
+            voltagemShredder: 380,
+            pisoProtecaoObrigatorio: true,
+          },
+          {
+            id: 'doca00002',
+            numero: 'D2',
+            alturaMaxCaminhao: 3.8,
+            comprimentoMaxCaminhao: null,
+            dockLeveler: false,
+            tailLift: true,
+            areaLift: null,
+            espaco: null,
+            altura: null,
+            voltagemShredder: null,
+            pisoProtecaoObrigatorio: false,
+          },
+        ],
+        criadoEm: new Date(hoje - 30 * DAY).toISOString(),
+        alteradoEm: new Date(hoje - 30 * DAY).toISOString(),
+      },
+    ],
+  }
+  const documentos: Record<string, DocumentoDb[]> = {
+    [primeiro.id]: [
+      {
+        id: 'doc00001',
+        tipo: 'contrato',
+        nome: 'Contrato de prestação de serviços.pdf',
+        extensao: 'pdf',
+        tamanho: 18,
+        enviadoEm: new Date(hoje - 20 * DAY).toISOString(),
+        enviadoPor: ADMIN_SISTEMA,
+        conteudo: new Blob(['%PDF-1.4 exemplo'], { type: 'application/pdf' }),
+      },
+    ],
+  }
+  return {
+    usuarios,
+    clientes,
+    sites,
+    documentos,
+    notificacoes,
+    seq: usuarios.length,
+    seqClientes: clientes.length,
+  }
 }
 
 let db: Db | null = null

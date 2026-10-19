@@ -19,7 +19,15 @@ export interface EventoHistorico {
   id: string
   autor: string
   em: string
-  acao: 'criado' | 'editado' | 'status'
+  acao:
+    | 'criado'
+    | 'editado'
+    | 'status'
+    | 'site_criado'
+    | 'site_editado'
+    | 'site_removido'
+    | 'documento_adicionado'
+    | 'documento_removido'
   mudancas?: Mudanca[]
   nota?: string
 }
@@ -123,11 +131,20 @@ export interface Cliente {
   acoesPermitidas: AcaoCliente[]
 }
 
-/** Dados enviados ao criar/editar. Exatamente um contato com `principal: true`. */
+/**
+ * Dados enviados ao criar/editar. Exatamente um contato com `principal: true`.
+ * Contato com `id` = já existente (mantém o vínculo, ex.: responsável por um site).
+ */
 export interface ClienteInput {
   nome: string
   cnpj: string
-  contatos: { nome: string | null; email: string; telefone: string; principal: boolean }[]
+  contatos: {
+    id: string | null
+    nome: string | null
+    email: string
+    telefone: string
+    principal: boolean
+  }[]
 }
 
 export interface ClientesResumo {
@@ -138,6 +155,107 @@ export interface ClientesResumo {
 
 export type PaginaClientes = TablePage<ClienteResumo> & {
   facets: Record<string, Record<string, number>>
+}
+
+/** Doca de um site. Medidas em metros (m) e metros quadrados (m²). */
+export interface Doca {
+  id: string
+  numero: string
+  alturaMaxCaminhao: number
+  comprimentoMaxCaminhao: number | null
+  dockLeveler: boolean
+  tailLift: boolean
+  areaLift: number | null
+  espaco: number | null
+  altura: number | null
+  voltagemShredder: number | null
+  pisoProtecaoObrigatorio: boolean
+}
+
+/** Site do cliente (Logística). CEP só com dígitos. */
+export interface SiteCliente {
+  id: string
+  codigo: string
+  regiao: string | null
+  horario: string | null
+  totalGaylords: number | null
+  cep: string | null
+  endereco: string | null
+  latitude: number | null
+  longitude: number | null
+  shredderProprio: boolean
+  edgeSite: boolean
+  /** Contato do cliente responsável pelo site (null = sem responsável). */
+  responsavel: ContatoCliente | null
+  docas: Doca[]
+  criadoEm: string
+  alteradoEm: string
+}
+
+/**
+ * Criar/editar site. Responsável: contato existente (`contatoId`) OU contato novo
+ * (`novoContato`, que entra também na lista de contatos do cliente) OU nenhum.
+ */
+export interface SiteInput {
+  codigo: string
+  regiao: string | null
+  horario: string | null
+  totalGaylords: number | null
+  cep: string | null
+  endereco: string | null
+  latitude: number | null
+  longitude: number | null
+  shredderProprio: boolean
+  edgeSite: boolean
+  contatoId: string | null
+  novoContato: { nome: string | null; email: string; telefone: string } | null
+  docas: Omit<Doca, 'id'>[]
+}
+
+export type TipoDocumento = 'contrato' | 'fiscal' | 'licenca' | 'outro'
+
+export interface DocumentoCliente {
+  id: string
+  tipo: TipoDocumento
+  nome: string
+  extensao: string
+  /** Bytes. */
+  tamanho: number
+  enviadoEm: string
+  enviadoPor: string
+}
+
+/**
+ * Resumo dos lotes do cliente (Visão geral). Os lotes vêm dos sistemas de produção:
+ * enquanto `conectado` for false, a tela mostra "sem dados".
+ */
+export interface LotesResumoCliente {
+  conectado: boolean
+  aChegar: number
+  emOperacao: number
+  finalizados: number
+  /** Últimos lotes com atualização (até 5). */
+  ultimos: { id: string; codigo: string; status: string; atualizadoEm: string }[]
+}
+
+/** CEP → endereço (ViaCEP, pelo servidor). */
+export interface EnderecoCep {
+  cep: string
+  logradouro: string
+  bairro: string
+  cidade: string
+  uf: string
+  regiao: string
+  endereco: string
+}
+
+/** Endereço → coordenadas (mapa, pelo servidor). */
+export interface Coordenadas {
+  latitude: number
+  longitude: number
+  descricao: string
+  /** `cidade` = só achou a cidade: ponto aproximado, pedir para ajustar o pino. */
+  precisao: 'endereco' | 'cidade'
 }
 
 /* ------------------------------------------------------------ shell (busca e notificações) */

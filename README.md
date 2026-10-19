@@ -3,10 +3,10 @@
 ERP da Re-Teck focado em **logística reversa**. Esta é a versão 2, construída do zero a partir do
 **template padrão de frontend** da Re-Teck (`C:\Systems\template-padrao`).
 
-> **Status:** 2 módulos — **Clientes** (cadastro com CNPJ e contatos; detalhe em abas: visão geral,
-> contatos, logística, documentos, configurações, histórico) e **Administração › Usuários**.
-> Abas de logística, documentos e configurações ainda em definição. Login ainda não definido
-> (sessão simulada).
+> **Status:** 2 módulos — **Clientes** (cadastro com CNPJ e contatos; detalhe em abas: visão geral
+> com lotes, contatos, logística com sites/docas e mapa, documentos, configurações, histórico em
+> tabela) e **Administração › Usuários**. Pendentes: aba Configurações (a definir) e a integração
+> de lotes com os sistemas de produção. Login ainda não definido (sessão simulada).
 
 ## Arquitetura
 
@@ -136,17 +136,36 @@ server/                     BACKEND
 
 ## API de clientes
 
-| Método e caminho                   | O que faz                                                              |
-| ---------------------------------- | ---------------------------------------------------------------------- |
-| `GET /api/clientes`                | lista (com o contato principal) — busca, filtros, ordenação, paginação |
-| `GET /api/clientes/resumo`         | total, ativos, inativos                                                |
-| `GET /api/clientes/:id`            | detalhe + contatos + histórico + ações permitidas                      |
-| `POST /api/clientes`               | cria (`nome`, `cnpj`, `contatos[]`) — CNPJ único (409)                 |
-| `PUT /api/clientes/:id`            | edita (substitui os contatos); histórico antes → depois                |
-| `POST /api/clientes/:id/transicao` | `inativar`, `reativar`                                                 |
+| Método e caminho                                  | O que faz                                                                                                |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `GET /api/clientes`                               | lista (com o contato principal) — busca, filtros, ordenação, paginação                                   |
+| `GET /api/clientes/resumo`                        | total, ativos, inativos                                                                                  |
+| `GET /api/clientes/:id`                           | detalhe + contatos + histórico + ações permitidas                                                        |
+| `POST /api/clientes`                              | cria (`nome`, `cnpj`, `contatos[]`) — CNPJ único (409)                                                   |
+| `PUT /api/clientes/:id`                           | edita; contato com `id` é mantido (vínculo com sites); histórico antes → depois                          |
+| `POST /api/clientes/:id/transicao`                | `inativar`, `reativar`                                                                                   |
+| `GET /api/clientes/:id/lotes/resumo`              | lotes a chegar / em operação / finalizados + últimos 5 (integração ainda não ligada: `conectado: false`) |
+| `GET/POST /api/clientes/:id/sites`                | sites (com docas e responsável); responsável existente ou contato novo                                   |
+| `PUT/DELETE /api/clientes/:id/sites/:siteId`      | edita / remove site (docas juntas)                                                                       |
+| `GET/POST /api/clientes/:id/documentos`           | lista / envia (multipart `arquivo` + `tipo`), até 25 MB                                                  |
+| `GET /api/clientes/:id/documentos/:docId/arquivo` | baixa (sempre como anexo)                                                                                |
+| `DELETE /api/clientes/:id/documentos/:docId`      | remove                                                                                                   |
+| `GET /api/geo/cep/:cep`                           | CEP → endereço e região (ViaCEP)                                                                         |
+| `GET /api/geo/endereco?q=`                        | endereço → latitude/longitude (Nominatim/OpenStreetMap, 1 consulta/s, com cache)                         |
 
 CNPJ (numérico ou alfanumérico) e telefone são guardados **sem pontuação** e validados no
 servidor; cada cliente tem **um** contato principal. Cliente não é excluído: é inativado.
+Tudo o que muda no cliente (dados, contatos, sites, documentos) vai para o histórico dele.
+
+**Documentos:** tipos `contrato`, `fiscal`, `licenca`, `outro`; extensões PDF, DOC/DOCX, XLS/XLSX,
+CSV, TXT, XML, JPG/JPEG, PNG, WEBP e ZIP. Os arquivos ficam em `server/data/arquivos` (variável
+`ARQUIVOS_DIR`), fora do git — **inclua essa pasta no backup**, junto do banco.
+
+**Mapa e localização:** o mapa usa os tiles públicos do OpenStreetMap (crédito visível, sem uso
+pesado — [política](https://operations.osmfoundation.org/policies/tiles/)); para outro provedor,
+`VITE_MAP_TILES_URL` e `VITE_MAP_TILES_ATTRIBUTION`. Endereço → coordenadas passa pelo servidor,
+que respeita a [política do Nominatim](https://operations.osmfoundation.org/policies/nominatim/)
+(1 consulta/s no total, cache, sem autocompletar); `GEO_CONTATO` vai no User-Agent.
 
 ## API de usuários
 

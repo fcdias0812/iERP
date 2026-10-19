@@ -66,6 +66,7 @@ function validar(input: Partial<ClienteInput>): string | ClienteInput {
   if (nome.length < 2) return 'Informe o nome do cliente.'
   if (!isValidCnpj(cnpj)) return 'CNPJ inválido.'
   const contatos = (input.contatos ?? []).map((c) => ({
+    id: c.id ?? null,
     nome: c.nome?.trim() || null,
     email: (c.email ?? '').trim().toLowerCase(),
     telefone: (c.telefone ?? '').replace(/\D/g, ''),
@@ -85,7 +86,8 @@ const cnpjEmUso = (cnpj: string, idAtual?: string) =>
 const comIds = (id: string, l: ClienteInput['contatos']) =>
   [...l]
     .sort((a, b) => Number(b.principal) - Number(a.principal))
-    .map((c, i) => ({ ...c, id: `${id}-c${Date.now()}${i}` }))
+    // Contato existente mantém o id (vínculo com sites); novo ganha um id.
+    .map((c, i) => ({ ...c, id: c.id ?? `${id}-c${Date.now()}${i}` }))
 
 const resumoContatos = (l: { email: string; principal: boolean }[]) =>
   l.map((c) => (c.principal ? `${c.email} (principal)` : c.email)).join(', ')

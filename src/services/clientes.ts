@@ -1,8 +1,13 @@
 import { queryToSearch } from '@/components/data-table/url-state'
 import type { TableQuery } from '@/components/data-table/types'
-import { api } from './http'
+import { api, buildUrl } from './http'
 import type {
   AcaoCliente,
+  DocumentoCliente,
+  LotesResumoCliente,
+  SiteCliente,
+  SiteInput,
+  TipoDocumento,
   PaginaClientes,
   Cliente,
   ClienteInput,
@@ -20,6 +25,9 @@ export const clientesKeys = {
   lista: (query: TableQuery) => ['clientes', 'lista', query] as const,
   resumo: () => ['clientes', 'resumo'] as const,
   detalhe: (id: string) => ['clientes', 'detalhe', id] as const,
+  sites: (id: string) => ['clientes', 'sites', id] as const,
+  documentos: (id: string) => ['clientes', 'documentos', id] as const,
+  lotes: (id: string) => ['clientes', 'lotes', id] as const,
 }
 
 export function listarClientes(query: TableQuery, signal?: AbortSignal) {
@@ -50,3 +58,40 @@ export const atualizarCliente = (id: string, input: ClienteInput) =>
 
 export const transicionarCliente = (id: string, acao: AcaoCliente) =>
   api<Cliente>(`/clientes/${id}/transicao`, { method: 'POST', body: { acao } })
+
+/* ------------------------------------------------------------ visão geral */
+
+export const resumoLotesCliente = (id: string) =>
+  api<LotesResumoCliente>(`/clientes/${id}/lotes/resumo`)
+
+/* ------------------------------------------------------------ logística */
+
+export const listarSites = (id: string) => api<SiteCliente[]>(`/clientes/${id}/sites`)
+
+export const criarSite = (id: string, input: SiteInput) =>
+  api<SiteCliente>(`/clientes/${id}/sites`, { method: 'POST', body: input })
+
+export const atualizarSite = (id: string, siteId: string, input: SiteInput) =>
+  api<SiteCliente>(`/clientes/${id}/sites/${siteId}`, { method: 'PUT', body: input })
+
+export const removerSite = (id: string, siteId: string) =>
+  api<void>(`/clientes/${id}/sites/${siteId}`, { method: 'DELETE' })
+
+/* ------------------------------------------------------------ documentos */
+
+export const listarDocumentos = (id: string) =>
+  api<DocumentoCliente[]>(`/clientes/${id}/documentos`)
+
+export function enviarDocumento(id: string, arquivo: File, tipo: TipoDocumento) {
+  const form = new FormData()
+  form.set('tipo', tipo)
+  form.set('arquivo', arquivo, arquivo.name)
+  return api<DocumentoCliente>(`/clientes/${id}/documentos`, { method: 'POST', body: form })
+}
+
+/** Endereço para baixar o arquivo (o servidor responde como anexo). */
+export const urlDocumento = (id: string, docId: string) =>
+  buildUrl(`/clientes/${id}/documentos/${docId}/arquivo`)
+
+export const removerDocumento = (id: string, docId: string) =>
+  api<void>(`/clientes/${id}/documentos/${docId}`, { method: 'DELETE' })

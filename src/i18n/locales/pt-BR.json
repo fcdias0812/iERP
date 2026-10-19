@@ -707,7 +707,9 @@
     "dateOrder": "A data final deve ser depois da inicial.",
     "acceptTerms": "É preciso aceitar para continuar.",
     "passwordMatch": "As senhas não conferem.",
-    "pastDate": "A data não pode ser anterior a hoje."
+    "pastDate": "A data não pode ser anterior a hoje.",
+    "coordinates": "Use o formato \"latitude, longitude\" (ex.: -22.85, -47.22).",
+    "duplicate": "Este valor já foi usado."
   },
   "confirm": {
     "typeToConfirm": "Para confirmar, digite"
@@ -1240,7 +1242,13 @@
     "forbidden": "Seu perfil não tem permissão para esta ação.",
     "server": "O servidor encontrou um erro. Tente de novo em instantes.",
     "emailInUse": "Já existe um usuário com este e-mail.",
-    "cnpjInUse": "Já existe um cliente com este CNPJ."
+    "cnpjInUse": "Já existe um cliente com este CNPJ.",
+    "siteCodeInUse": "Já existe um site com este código neste cliente.",
+    "fileTooLarge": "Arquivo maior que o permitido.",
+    "fileTypeNotAllowed": "Tipo de arquivo não permitido.",
+    "geoUnavailable": "Serviço de localização indisponível. Tente de novo.",
+    "cepNotFound": "CEP não encontrado.",
+    "addressNotFound": "Endereço não encontrado no mapa."
   },
   "calendar": {
     "today": "Hoje",
@@ -1412,8 +1420,6 @@
       "configuracoes": "Configurações",
       "historico": "Histórico",
       "emDefinicao": "Em definição",
-      "logisticaHelp": "Aqui ficarão os dados de logística do cliente, como os locais de coleta.",
-      "documentosHelp": "Aqui ficarão os documentos do cliente.",
       "configuracoesHelp": "Aqui ficarão as configurações específicas deste cliente."
     },
     "detail": {
@@ -1427,7 +1433,12 @@
     "history": {
       "criado": "Cadastrou o cliente",
       "editado": "Alterou os dados",
-      "status": "Mudou o status"
+      "status": "Mudou o status",
+      "site_criado": "Cadastrou site",
+      "site_editado": "Alterou site",
+      "site_removido": "Removeu site",
+      "documento_adicionado": "Adicionou documento",
+      "documento_removido": "Removeu documento"
     },
     "acoes": {
       "inativar": "Inativar",
@@ -1451,6 +1462,146 @@
       "acao": {
         "inativar": "{{name}} foi inativado.",
         "reativar": "{{name}} foi reativado."
+      }
+    },
+    "visaoGeral": {
+      "lotesTitle": "Lotes do cliente",
+      "kpis": {
+        "aChegar": "Lotes a chegar",
+        "emOperacao": "Lotes em operação",
+        "finalizados": "Lotes finalizados"
+      },
+      "ultimosTitle": "Últimos lotes atualizados",
+      "semIntegracaoTitle": "Aguardando integração",
+      "semIntegracaoBody": "Os lotes aparecem aqui quando a integração com os sistemas de produção estiver ligada.",
+      "semLotes": "Nenhum lote deste cliente ainda."
+    },
+    "historico": {
+      "cols": {
+        "em": "Data e hora",
+        "autor": "Usuário",
+        "acao": "Ação",
+        "campo": "Campo",
+        "antes": "Antes",
+        "depois": "Depois",
+        "nota": "Referência"
+      },
+      "vazio": "Nenhum registro no histórico.",
+      "campos": {
+        "nome": "Nome",
+        "cnpj": "CNPJ",
+        "contatos": "Contatos",
+        "status": "Status",
+        "codigo": "Código do site",
+        "regiao": "Região",
+        "horario": "Horário de funcionamento",
+        "totalGaylords": "Total de gaylords",
+        "cep": "CEP",
+        "endereco": "Endereço",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "shredderProprio": "Shredder próprio",
+        "edgeSite": "Edge site",
+        "responsavel": "Responsável",
+        "contatoNovo": "Contato novo",
+        "docas": "Docas",
+        "tipoDocumento": "Tipo de documento"
+      }
+    },
+    "documentos": {
+      "cols": {
+        "nome": "Arquivo",
+        "tipo": "Tipo",
+        "extensao": "Extensão",
+        "tamanho": "Tamanho",
+        "enviadoEm": "Enviado em",
+        "enviadoPor": "Enviado por"
+      },
+      "tipos": {
+        "contrato": "Contrato",
+        "fiscal": "Fiscal",
+        "licenca": "Licença",
+        "outro": "Outro"
+      },
+      "enviarTitle": "Enviar documentos",
+      "escolhaTipo": "Escolha o tipo",
+      "arquivos": "Arquivos",
+      "ajuda": "Aceita: {{exts}}. Até {{max}} por arquivo.",
+      "escolhaTipoAntes": "Escolha o tipo do documento para liberar o envio.",
+      "vazioTitle": "Nenhum documento",
+      "vazioBody": "Envie contratos, documentos fiscais, licenças e outros arquivos do cliente.",
+      "baixar": "Baixar",
+      "apagarTitle": "Excluir {{name}}?",
+      "apagarBody": "O arquivo será apagado do sistema. Esta ação não pode ser desfeita.",
+      "toast": {
+        "sent": "{{name}} enviado.",
+        "sendFailed": "Não foi possível enviar {{name}}.",
+        "removed": "{{name}} excluído."
+      }
+    },
+    "sites": {
+      "newTitle": "Novo site",
+      "editTitle": "Editar site {{code}}",
+      "formDescription": "Dados do site, localização no mapa, responsável e docas.",
+      "secoes": {
+        "identificacao": "Site",
+        "localizacao": "Endereço e localização",
+        "estrutura": "Estrutura",
+        "responsavel": "Responsável",
+        "docas": "Docas"
+      },
+      "horarioExemplo": "Ex.: seg a sex, 8h às 18h",
+      "enderecoExemplo": "Rua, número, bairro, cidade – UF",
+      "buscarCep": "Buscar CEP",
+      "localizar": "Localizar pelo endereço",
+      "coordenadasAjuda": "Outro site no mesmo prédio? Copie daqui e cole no outro site.",
+      "mapa": {
+        "rotulo": "Mapa do site",
+        "ajuda": "Arraste o pino até o portão do site ou clique no mapa.",
+        "zoomIn": "Aproximar",
+        "zoomOut": "Afastar",
+        "naoAchou": "Não foi possível localizar o endereço no mapa.",
+        "cepNaoAchou": "Não foi possível buscar o CEP.",
+        "aproximado": "Ponto aproximado: o mapa só encontrou a cidade. Arraste o pino até o portão do site."
+      },
+      "semResponsavel": "Sem responsável",
+      "novoContato": "Cadastrar novo contato…",
+      "novoContatoAjuda": "O contato novo também entra na lista de contatos do cliente.",
+      "semDocas": "Nenhuma doca cadastrada.",
+      "docaN": "Doca {{n}}",
+      "removerDoca": "Remover doca {{n}}",
+      "adicionarDoca": "Adicionar doca",
+      "vazioTitle": "Nenhum site cadastrado",
+      "vazioBody": "Cadastre os sites do cliente com endereço, mapa e docas.",
+      "apagarTitle": "Excluir o site {{code}}?",
+      "apagarBody": "O site e as docas dele serão apagados. Esta ação não pode ser desfeita.",
+      "toast": {
+        "created": "Site {{code}} cadastrado.",
+        "saved": "Site {{code}} salvo.",
+        "saveFailed": "Não foi possível salvar o site.",
+        "removed": "Site {{code}} excluído."
+      },
+      "campos": {
+        "codigo": "Código do site",
+        "regiao": "Região",
+        "horario": "Horário de funcionamento",
+        "totalGaylords": "Total de gaylords",
+        "cep": "CEP",
+        "endereco": "Endereço",
+        "coordenadas": "Latitude, longitude",
+        "shredderProprio": "Shredder próprio",
+        "edgeSite": "Edge site",
+        "responsavel": "Contato responsável pelo site",
+        "numeroDoca": "Número da doca",
+        "alturaMaxCaminhao": "Altura máx. do caminhão",
+        "comprimentoMaxCaminhao": "Comprimento máx. do caminhão",
+        "dockLeveler": "Dock leveler",
+        "tailLift": "Tail lift",
+        "areaLift": "Área de lift",
+        "espaco": "Espaço",
+        "altura": "Altura",
+        "voltagemShredder": "Voltagem do shredder",
+        "pisoProtecaoObrigatorio": "Proteção do piso obrigatória"
       }
     }
   }

@@ -9,6 +9,8 @@ import { MAX_CONTATOS } from './fluxo'
  */
 
 const contatoSchema = z.object({
+  /** Contato já salvo (null = novo). Mantém o vínculo, ex.: responsável por um site. */
+  id: z.string().nullable(),
   nome: z.string().trim().max(120),
   email: z.email().max(160),
   telefone: z.string().refine(isValidPhone, 'validation.phone'),
@@ -23,7 +25,7 @@ export const clienteSchema = z.object({
 export type ClienteForm = z.input<typeof clienteSchema>
 export type ContatoForm = ClienteForm['contatos'][number]
 
-export const contatoVazio = (): ContatoForm => ({ nome: '', email: '', telefone: '' })
+export const contatoVazio = (): ContatoForm => ({ id: null, nome: '', email: '', telefone: '' })
 
 export const novoClienteForm = (): ClienteForm => ({
   nome: '',
@@ -37,13 +39,14 @@ export const clienteParaForm = (c: Cliente): ClienteForm => ({
   // O principal primeiro (a API já devolve assim; garantimos).
   contatos: [...c.contatos]
     .sort((a, b) => Number(b.principal) - Number(a.principal))
-    .map((k) => ({ nome: k.nome ?? '', email: k.email, telefone: k.telefone })),
+    .map((k) => ({ id: k.id, nome: k.nome ?? '', email: k.email, telefone: k.telefone })),
 })
 
 export const formParaInput = (v: z.output<typeof clienteSchema>): ClienteInput => ({
   nome: v.nome.trim(),
   cnpj: v.cnpj.toUpperCase(),
   contatos: v.contatos.map((k, i) => ({
+    id: k.id,
     nome: k.nome.trim() || null,
     email: k.email.trim().toLowerCase(),
     telefone: k.telefone,

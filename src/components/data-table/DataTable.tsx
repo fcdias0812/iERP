@@ -156,6 +156,13 @@ export interface DataTableProps<T> {
   createLabel?: string
   /** Botões extras na barra. */
   toolbar?: React.ReactNode
+  /**
+   * Linhas sempre no TOPO, em qualquer ordenação ou filtro (só no modo cliente, `data`).
+   * Ex.: o contato principal do cliente.
+   */
+  pinTop?: (row: T) => boolean
+  /** Linhas destacadas (barra azul-petróleo à esquerda). Ex.: o contato principal. */
+  highlightRow?: (row: T) => boolean
   /** Estado vazio (sem nenhum registro). */
   empty?: { title: string; description?: string; action?: React.ReactNode }
   /** Prefixo do arquivo exportado. */
@@ -208,6 +215,8 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
     toolbar,
     empty,
     exportName,
+    pinTop,
+    highlightRow,
   } = props
   const { t } = useTranslation()
   const isDesktop = useMediaQuery('(min-width: 768px)')
@@ -225,10 +234,15 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
       }),
     [query, onQueryChange],
   )
-  const client = React.useMemo(
-    () => (clientMode ? runQuery(data, columns, query, getRowId) : undefined),
-    [clientMode, data, columns, query, getRowId],
-  )
+  const client = React.useMemo(() => {
+    if (!clientMode) return undefined
+    const r = runQuery(data, columns, query, getRowId)
+    if (!pinTop) return r
+    // Fixas no topo: reordena o resultado inteiro e refaz a página.
+    const all = [...r.all.filter(pinTop), ...r.all.filter((x) => !pinTop(x))]
+    const start = (query.page - 1) * query.pageSize
+    return { ...r, all, rows: all.slice(start, start + query.pageSize) }
+  }, [clientMode, data, columns, query, getRowId, pinTop])
   const result: TablePage<T> = client ?? serverPage ?? EMPTY_PAGE
   const pageCount = Math.max(1, Math.ceil(result.total / query.pageSize))
 
@@ -896,6 +910,7 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
                         <React.Fragment key={row.id}>
                           <tr
                             data-selected={selected || undefined}
+                            data-highlight={highlightRow?.(original) || undefined}
                             tabIndex={onRowClick ? 0 : undefined}
                             onClick={(e) => {
                               if (!onRowClick) return
@@ -918,10 +933,17 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
                                 'cursor-pointer outline-none focus-visible:[&>td]:bg-accent',
                             )}
                           >
-                            {row.getVisibleCells().map((cell) => {
+                            {row.getVisibleCells().map((cell, i, celulas) => {
                               const colId = cell.column.id
                               const col = byId.get(colId)
                               const pinned = cell.column.getIsPinned()
+                              // Linha destacada: barra azul-petróleo na primeira célula de dados.
+                              const barra =
+                                highlightRow?.(original) &&
+                                i ===
+                                  celulas.findIndex(
+                                    (c) => c.column.id !== SELECT && c.column.id !== EXPAND,
+                                  )
                               return (
                                 <td
                                   key={cell.id}
@@ -934,7 +956,7 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
                                   }}
                                   className={cn(
                                     'h-(--table-row-h) truncate border-b bg-card px-(--table-cell-px) transition-colors duration-150 group-hover/row:bg-accent group-data-[selected]/row:bg-selected',
-                                    pinned && 'sticky z-10',
+                                    pinned ? 'sticky z-10' : barra && 'relative',
                                     colId === lastPinned && 'border-r',
                                     pinned === 'end' && 'border-l',
                                     col && isNumeric(col.type) && 'text-right',
@@ -943,6 +965,12 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
                                       'font-medium',
                                   )}
                                 >
+                                  {barra && (
+                                    <span
+                                      aria-hidden
+                                      className="absolute inset-y-0 left-0 w-1 bg-primary"
+                                    />
+                                  )}
                                   {colId === SELECT ? (
                                     <Checkbox
                                       aria-label={t('dataTable.selectRow', { id: row.id })}
@@ -1075,6 +1103,7 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
           stateBlock={stateBlock}
           onRowClick={onRowClick}
           rowActions={rowActions}
+          highlightRow={highlightRow}
           selectable={Boolean(bulkActions)}
           isSelected={(rid) => allMatching || Boolean(rowSelection[rid])}
           toggle={(rid) => {
@@ -1152,6 +1181,7 @@ function MobileList<T>({
   stateBlock,
   onRowClick,
   rowActions,
+  highlightRow,
   selectable,
   isSelected,
   toggle,
@@ -1165,6 +1195,7 @@ function MobileList<T>({
   stateBlock: React.ReactNode
   onRowClick?: (row: T) => void
   rowActions?: (row: T) => React.ReactNode
+  highlightRow?: (row: T) => boolean
   selectable: boolean
   isSelected: (id: string) => boolean
   toggle: (id: string) => void
@@ -1231,7 +1262,8 @@ function MobileList<T>({
               <li
                 key={rid}
                 data-selected={isSelected(rid) || undefined}
-                className="rounded-lg border bg-card p-3 data-[selected]:border-primary data-[selected]:bg-selected"
+                data-highlight={highlightRow?.(row) || undefined}
+                className="rounded-lg border bg-card p-3 data-[highlight]:border-l-4 data-[highlight]:border-l-primary data-[selected]:border-primary data-[selected]:bg-selected"
               >
                 <div className="flex items-start gap-2">
                   {selectable && (

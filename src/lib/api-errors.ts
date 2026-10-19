@@ -16,6 +16,18 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.emailInUse')
     case 'cnpj_in_use':
       return i18n.t('apiErrors.cnpjInUse')
+    case 'site_code_in_use':
+      return i18n.t('apiErrors.siteCodeInUse')
+    case 'file_too_large':
+      return i18n.t('apiErrors.fileTooLarge')
+    case 'file_type_not_allowed':
+      return i18n.t('apiErrors.fileTypeNotAllowed')
+    case 'geo_unavailable':
+      return i18n.t('apiErrors.geoUnavailable')
+    case 'cep_not_found':
+      return i18n.t('apiErrors.cepNotFound')
+    case 'address_not_found':
+      return i18n.t('apiErrors.addressNotFound')
     case 'validation':
       return i18n.t('apiErrors.validation', { detail: error.message })
   }
