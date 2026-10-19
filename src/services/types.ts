@@ -258,10 +258,178 @@ export interface Coordenadas {
   precisao: 'endereco' | 'cidade'
 }
 
+/* ------------------------------------------------------------ Relacionamento */
+
+/** Cadastros simples: ativo ⇄ inativo (não se exclui; o histórico fica). */
+export type StatusCadastro = 'ativo' | 'inativo'
+export type AcaoCadastro = 'inativar' | 'reativar'
+
+export interface ResumoCadastro {
+  total: number
+  ativos: number
+  inativos: number
+}
+
+/* ---------------- motoristas */
+
+export interface MotoristaResumo {
+  id: string
+  codigo: string
+  nome: string
+  /** Só dígitos. */
+  cpf: string
+  /** Só dígitos. */
+  telefone: string
+  transportadoraId: string | null
+  transportadoraNome: string | null
+  status: StatusCadastro
+  criadoEm: string
+}
+
+export interface Motorista extends MotoristaResumo {
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+  historico: EventoHistorico[]
+  acoesPermitidas: AcaoCadastro[]
+}
+
+/** Transportadora: existente (`transportadoraId`), nova (`novaTransportadora`) ou nenhuma. */
+export interface MotoristaInput {
+  nome: string
+  cpf: string
+  telefone: string
+  transportadoraId: string | null
+  novaTransportadora: { nome: string; cnpj: string } | null
+}
+
+export type PaginaMotoristas = TablePage<MotoristaResumo> & {
+  facets: Record<string, Record<string, number>>
+}
+
+export type ResumoMotoristas = ResumoCadastro & { semTransportadora: number }
+
+/* ---------------- transportadoras */
+
+export interface ContatoTransportadora {
+  id: string
+  nome: string | null
+  email: string
+  telefone: string
+  principal: boolean
+}
+
+export interface TransportadoraResumo {
+  id: string
+  codigo: string
+  nome: string
+  cnpj: string
+  contatoNome: string | null
+  contatoEmail: string | null
+  contatoTelefone: string | null
+  contatos: number
+  /** Quantidade de motoristas vinculados. */
+  motoristas: number
+  status: StatusCadastro
+  criadoEm: string
+}
+
+export interface Transportadora {
+  id: string
+  codigo: string
+  nome: string
+  cnpj: string
+  status: StatusCadastro
+  /** O principal vem primeiro. Pode ser vazio. */
+  contatos: ContatoTransportadora[]
+  motoristas: MotoristaResumo[]
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+  historico: EventoHistorico[]
+  acoesPermitidas: AcaoCadastro[]
+}
+
+/**
+ * Criar/editar. Contatos opcionais (se houver, exatamente um principal). Motoristas vinculados:
+ * existentes (`id`) ou novos (`novo`); os que saírem da lista ficam sem transportadora.
+ */
+export interface TransportadoraInput {
+  nome: string
+  cnpj: string
+  contatos: {
+    id: string | null
+    nome: string | null
+    email: string
+    telefone: string
+    principal: boolean
+  }[]
+  motoristas: ({ id: string } | { novo: { nome: string; cpf: string; telefone: string } })[]
+}
+
+export interface TransportadoraOpcao {
+  id: string
+  nome: string
+  cnpj: string
+  status: StatusCadastro
+}
+
+export type PaginaTransportadoras = TablePage<TransportadoraResumo> & {
+  facets: Record<string, Record<string, number>>
+}
+
+/* ---------------- veículos */
+
+export type TipoVeiculo = 'truck' | 'carreta' | 'van'
+
+export interface Veiculo {
+  id: string
+  codigo: string
+  tipo: TipoVeiculo
+  /** m² */
+  volumeMinimo: number | null
+  /** m² */
+  volumeMaximo: number | null
+  /** metros */
+  comprimento: number | null
+  /** metros */
+  largura: number | null
+  /** Quantidade de pallets. */
+  capacidadePallets: number | null
+  /** Toneladas. */
+  capacidadeToneladas: number | null
+  status: StatusCadastro
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+export interface VeiculoDetalhe extends Veiculo {
+  historico: EventoHistorico[]
+  acoesPermitidas: AcaoCadastro[]
+}
+
+export type VeiculoInput = Pick<
+  Veiculo,
+  | 'tipo'
+  | 'volumeMinimo'
+  | 'volumeMaximo'
+  | 'comprimento'
+  | 'largura'
+  | 'capacidadePallets'
+  | 'capacidadeToneladas'
+>
+
+export type PaginaVeiculos = TablePage<Veiculo> & {
+  facets: Record<string, Record<string, number>>
+}
+
 /* ------------------------------------------------------------ shell (busca e notificações) */
 
 export interface ResultadoBusca {
-  tipo: 'cliente' | 'usuario'
+  tipo: 'cliente' | 'transportadora' | 'motorista' | 'usuario'
   id: string
   codigo: string
   titulo: string

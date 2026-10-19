@@ -5,6 +5,12 @@ import { criarServicoDocumentos } from './modules/clientes/clientes-documentos.s
 import { criarRepositorioSites } from './modules/clientes/clientes-sites.repositorio.js'
 import { criarServicoSites } from './modules/clientes/clientes-sites.servico.js'
 import { rotasGeo } from './modules/geo/geo.rotas.js'
+import { criarServicoMotoristas, rotasMotoristas } from './modules/motoristas/motoristas.js'
+import {
+  criarServicoTransportadoras,
+  rotasTransportadoras,
+} from './modules/transportadoras/transportadoras.js'
+import { criarServicoVeiculos, rotasVeiculos } from './modules/veiculos/veiculos.js'
 import { criarServicoGeo, type ServicoGeo } from './modules/geo/geo.servico.js'
 import { criarRepositorioClientes } from './modules/clientes/clientes.repositorio.js'
 import { rotasClientes } from './modules/clientes/clientes.rotas.js'
@@ -28,6 +34,9 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
     pasta: opcoes.arquivosDir ?? config.arquivosDir,
   })
   const geo = opcoes.geo ?? criarServicoGeo({ contato: config.geoContato })
+  const transportadoras = criarServicoTransportadoras(db)
+  const motoristas = criarServicoMotoristas(db)
+  const veiculos = criarServicoVeiculos(db)
 
   const api = express.Router()
   api.get('/saude', (_req, res) => {
@@ -36,7 +45,10 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   api.use('/usuarios', rotasUsuarios(usuarios))
   api.use('/clientes', rotasClientes(clientes, sites, documentos))
   api.use('/geo', rotasGeo(geo))
-  api.use(rotasSistema({ usuarios, clientes }))
+  api.use('/transportadoras', rotasTransportadoras(transportadoras))
+  api.use('/motoristas', rotasMotoristas(motoristas))
+  api.use('/veiculos', rotasVeiculos(veiculos))
+  api.use(rotasSistema({ usuarios, clientes, transportadoras, motoristas }))
   api.use(rotaInexistente)
 
   const app = express()

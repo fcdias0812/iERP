@@ -1,4 +1,14 @@
-import { Building2, House, Package, Settings, Users, type LucideIcon } from 'lucide-react'
+import {
+  Building2,
+  Container,
+  House,
+  IdCard,
+  Package,
+  Settings,
+  Truck,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
 import type { ParseKeys } from 'i18next'
 
 /*
@@ -70,6 +80,27 @@ export const MODULES = {
     to: '/clientes',
     permission: 'clientes.ver',
   },
+  transportadoras: {
+    id: 'transportadoras',
+    labelKey: 'nav.transportadoras',
+    icon: Truck,
+    to: '/transportadoras',
+    permission: 'transportadoras.ver',
+  },
+  veiculos: {
+    id: 'veiculos',
+    labelKey: 'nav.veiculos',
+    icon: Container,
+    to: '/veiculos',
+    permission: 'veiculos.ver',
+  },
+  motoristas: {
+    id: 'motoristas',
+    labelKey: 'nav.motoristas',
+    icon: IdCard,
+    to: '/motoristas',
+    permission: 'motoristas.ver',
+  },
   admin: {
     id: 'admin',
     labelKey: 'nav.admin.title',
@@ -98,7 +129,12 @@ export const CONTEXTS: AppContext[] = [
     kind: 'empresa',
     sections: [
       section('principal', 'nav.sections.principal', ['inicio']),
-      section('relacionamento', 'nav.sections.relacionamento', ['clientes']),
+      section('relacionamento', 'nav.sections.relacionamento', [
+        'clientes',
+        'transportadoras',
+        'veiculos',
+        'motoristas',
+      ]),
       section('sistema', 'nav.sections.sistema', ['admin']),
     ],
   },

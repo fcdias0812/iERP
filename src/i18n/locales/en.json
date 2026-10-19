@@ -626,7 +626,9 @@
     },
     "records": {
       "customer": "Customer",
-      "user": "User"
+      "user": "User",
+      "carrier": "Carrier",
+      "driver": "Driver"
     },
     "actions": {
       "lightTheme": "Switch to light theme",
@@ -656,6 +658,9 @@
   "nav": {
     "inicio": "Home",
     "clientes": "Customers",
+    "transportadoras": "Carriers",
+    "veiculos": "Vehicles",
+    "motoristas": "Drivers",
     "sections": {
       "principal": "Main",
       "relacionamento": "Relationships",
@@ -709,7 +714,8 @@
     "passwordMatch": "Passwords don't match.",
     "pastDate": "The date can’t be earlier than today.",
     "coordinates": "Use the \"latitude, longitude\" format (e.g. -22.85, -47.22).",
-    "duplicate": "This value is already in use."
+    "duplicate": "This value is already in use.",
+    "volumeOrder": "Minimum volume can’t be greater than the maximum."
   },
   "confirm": {
     "typeToConfirm": "To confirm, type"
@@ -1242,13 +1248,14 @@
     "forbidden": "Your role isn’t allowed to do this.",
     "server": "The server ran into an error. Try again in a moment.",
     "emailInUse": "A user with this email already exists.",
-    "cnpjInUse": "A customer with this CNPJ already exists.",
+    "cnpjInUse": "A record with this CNPJ already exists.",
     "siteCodeInUse": "This customer already has a site with this code.",
     "fileTooLarge": "File is larger than allowed.",
     "fileTypeNotAllowed": "File type not allowed.",
     "geoUnavailable": "Location service unavailable. Try again.",
     "cepNotFound": "ZIP code (CEP) not found.",
-    "addressNotFound": "Address not found on the map."
+    "addressNotFound": "Address not found on the map.",
+    "cpfInUse": "A driver with this CPF already exists."
   },
   "calendar": {
     "today": "Today",
@@ -1477,16 +1484,6 @@
       "semLotes": "No lots for this customer yet."
     },
     "historico": {
-      "cols": {
-        "em": "Date and time",
-        "autor": "User",
-        "acao": "Action",
-        "campo": "Field",
-        "antes": "Before",
-        "depois": "After",
-        "nota": "Reference"
-      },
-      "vazio": "No history records.",
       "campos": {
         "nome": "Name",
         "cnpj": "CNPJ",
@@ -1603,6 +1600,263 @@
         "voltagemShredder": "Shredder voltage",
         "pisoProtecaoObrigatorio": "Floor protection required"
       }
+    }
+  },
+  "contatos": {
+    "contatoN": "Contact {{n}}",
+    "principal": "Main",
+    "tornarPrincipal": "Make main",
+    "removerN": "Remove contact {{n}}",
+    "adicionar": "Add contact",
+    "nome": "Contact name",
+    "email": "Email",
+    "telefone": "Phone",
+    "nenhum": "No contacts registered."
+  },
+  "historico": {
+    "cols": {
+      "em": "Date and time",
+      "autor": "User",
+      "acao": "Action",
+      "campo": "Field",
+      "antes": "Before",
+      "depois": "After",
+      "nota": "Reference"
+    },
+    "vazio": "No history records.",
+    "acoes": {
+      "criado": "Created",
+      "editado": "Changed the details",
+      "status": "Changed the status"
+    }
+  },
+  "transportadoras": {
+    "list": {
+      "description": "Partner carriers, contacts and drivers.",
+      "emptyTitle": "No carriers found",
+      "emptyBody": "Adjust the search or filters."
+    },
+    "kpis": {
+      "total": "Total carriers",
+      "ativos": "Active",
+      "inativos": "Inactive"
+    },
+    "cols": {
+      "codigo": "Code",
+      "nome": "Name",
+      "cnpj": "CNPJ",
+      "contatoEmail": "Main contact email",
+      "contatoTelefone": "Main contact phone",
+      "motoristas": "Drivers",
+      "status": "Status",
+      "criadoEm": "Created on"
+    },
+    "new": {
+      "title": "New carrier",
+      "description": "Register the carrier, its contacts and drivers."
+    },
+    "edit": {
+      "title": "Edit {{name}}"
+    },
+    "form": {
+      "identificacao": "Carrier details",
+      "contatos": "Contacts",
+      "contatosAjuda": "Optional. The first contact is the main one.",
+      "motoristas": "Drivers",
+      "motoristasAjuda": "Optional. Pick from the list or add a new driver, who is also added to Drivers.",
+      "escolherMotorista": "Add a driver from the list…",
+      "novoMotorista": "Add a new driver",
+      "vinculadoA": "currently at {{name}}",
+      "semMotoristas": "No drivers linked.",
+      "removerMotorista": "Unlink {{name}}",
+      "motoristaNovoN": "New driver {{n}}",
+      "removerNovoN": "Remove new driver {{n}}"
+    },
+    "tabs": {
+      "dados": "Details",
+      "contatos": "Contacts",
+      "motoristas": "Drivers",
+      "historico": "History"
+    },
+    "detail": {
+      "general": "Carrier details",
+      "mainContact": "Main contact",
+      "noContacts": "No contacts registered",
+      "editar": "Edit contacts and drivers"
+    },
+    "campos": {
+      "nome": "Name",
+      "cnpj": "CNPJ",
+      "contatos": "Contacts",
+      "motoristas": "Drivers",
+      "status": "Status"
+    },
+    "toast": {
+      "created": "Carrier {{name}} created.",
+      "saved": "Changes to {{name}} saved.",
+      "saveFailed": "Couldn’t save the carrier.",
+      "actionFailed": "Couldn’t complete the action.",
+      "acao": {
+        "inativar": "{{name}} was deactivated.",
+        "reativar": "{{name}} was reactivated."
+      }
+    },
+    "acoes": {
+      "inativar": "Deactivate",
+      "reativar": "Reactivate"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Deactivate {{name}}?",
+        "body": "The record and history are kept and it can be reactivated later."
+      },
+      "reativar": {
+        "title": "Reactivate {{name}}?",
+        "body": "The carrier becomes active again."
+      }
+    },
+    "inativoTitle": "Inactive carrier",
+    "inativoBody": "The record and history are kept. Reactivate to use it again."
+  },
+  "motoristas": {
+    "list": {
+      "description": "Drivers, with or without a carrier.",
+      "emptyTitle": "No drivers found",
+      "emptyBody": "Adjust the search or filters."
+    },
+    "kpis": {
+      "total": "Total drivers",
+      "ativos": "Active",
+      "semTransportadora": "Without carrier"
+    },
+    "cols": {
+      "codigo": "Code",
+      "nome": "Full name",
+      "cpf": "CPF",
+      "telefone": "Phone",
+      "transportadora": "Carrier",
+      "status": "Status",
+      "criadoEm": "Created on"
+    },
+    "newTitle": "New driver",
+    "editTitle": "Driver {{name}}",
+    "formDescription": "Driver details and carrier (optional).",
+    "tabs": {
+      "dados": "Details",
+      "historico": "History"
+    },
+    "semTransportadora": "No carrier",
+    "novaTransportadora": "Add a new carrier…",
+    "novaTransportadoraAjuda": "The new carrier is also added to Carriers.",
+    "nomeTransportadora": "Carrier name",
+    "cnpjTransportadora": "Carrier CNPJ",
+    "campos": {
+      "nome": "Full name",
+      "cpf": "CPF",
+      "telefone": "Phone",
+      "transportadora": "Carrier",
+      "status": "Status"
+    },
+    "toast": {
+      "created": "Driver {{name}} created.",
+      "saved": "Changes to {{name}} saved.",
+      "saveFailed": "Couldn’t save the driver.",
+      "actionFailed": "Couldn’t complete the action.",
+      "acao": {
+        "inativar": "{{name}} was deactivated.",
+        "reativar": "{{name}} was reactivated."
+      }
+    },
+    "acoes": {
+      "inativar": "Deactivate",
+      "reativar": "Reactivate"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Deactivate {{name}}?",
+        "body": "The record and history are kept and it can be reactivated later."
+      },
+      "reativar": {
+        "title": "Reactivate {{name}}?",
+        "body": "The driver becomes active again."
+      }
+    },
+    "inativoTitle": "Inactive driver",
+    "inativoBody": "The record and history are kept. Reactivate to use it again."
+  },
+  "veiculos": {
+    "list": {
+      "description": "Vehicle types and measurements used to choose the order vehicle.",
+      "emptyTitle": "No vehicles found",
+      "emptyBody": "Adjust the search or filters."
+    },
+    "kpis": {
+      "total": "Total vehicles",
+      "ativos": "Active",
+      "inativos": "Inactive"
+    },
+    "cols": {
+      "codigo": "Code",
+      "tipo": "Vehicle type",
+      "volumeMinimo": "Minimum volume",
+      "volumeMaximo": "Maximum volume",
+      "comprimento": "Length",
+      "largura": "Width",
+      "capacidadePallets": "Capacity (pallets)",
+      "capacidadeToneladas": "Capacity (tons)",
+      "status": "Status",
+      "criadoEm": "Created on"
+    },
+    "tipos": {
+      "truck": "Truck",
+      "carreta": "Semi-trailer",
+      "van": "Van"
+    },
+    "newTitle": "New vehicle",
+    "editTitle": "Vehicle {{code}}",
+    "formDescription": "Vehicle type, measurements and capacity.",
+    "tabs": {
+      "dados": "Details",
+      "historico": "History"
+    },
+    "secoes": {
+      "tipo": "Vehicle",
+      "medidas": "Measurements",
+      "capacidade": "Capacity"
+    },
+    "toast": {
+      "created": "Vehicle {{code}} created.",
+      "saved": "Vehicle {{code}} saved.",
+      "saveFailed": "Couldn’t save the vehicle.",
+      "actionFailed": "Couldn’t complete the action.",
+      "acao": {
+        "inativar": "{{code}} was deactivated.",
+        "reativar": "{{code}} was reactivated."
+      }
+    },
+    "acoes": {
+      "inativar": "Deactivate",
+      "reativar": "Reactivate"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Deactivate {{name}}?",
+        "body": "The record and history are kept and it can be reactivated later."
+      },
+      "reativar": {
+        "title": "Reactivate {{name}}?",
+        "body": "The vehicle becomes active again."
+      }
+    },
+    "inativoTitle": "Inactive vehicle",
+    "inativoBody": "The record and history are kept. Reactivate to use it again.",
+    "escolhaTipo": "Choose the type",
+    "pallets": "pallets"
+  },
+  "cadastro": {
+    "abas": {
+      "dados": "Details",
+      "historico": "History"
     }
   }
 }

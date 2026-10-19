@@ -626,7 +626,9 @@
     },
     "records": {
       "customer": "客戶",
-      "user": "使用者"
+      "user": "使用者",
+      "carrier": "運輸公司",
+      "driver": "司機"
     },
     "actions": {
       "lightTheme": "切換為淺色主題",
@@ -656,6 +658,9 @@
   "nav": {
     "inicio": "首頁",
     "clientes": "客戶",
+    "transportadoras": "運輸公司",
+    "veiculos": "車輛",
+    "motoristas": "司機",
     "sections": {
       "principal": "主要",
       "relacionamento": "客戶關係",
@@ -709,7 +714,8 @@
     "passwordMatch": "兩次輸入的密碼不一致。",
     "pastDate": "日期不可早於今天。",
     "coordinates": "請使用「緯度, 經度」格式（例如 -22.85, -47.22）。",
-    "duplicate": "此值已被使用。"
+    "duplicate": "此值已被使用。",
+    "volumeOrder": "最小容積不可大於最大容積。"
   },
   "confirm": {
     "typeToConfirm": "請輸入以下文字以確認："
@@ -1242,13 +1248,14 @@
     "forbidden": "您的角色沒有執行此操作的權限。",
     "server": "伺服器發生錯誤，請稍後再試。",
     "emailInUse": "已有使用者使用此電子郵件。",
-    "cnpjInUse": "已有客戶使用此 CNPJ。",
+    "cnpjInUse": "已有資料使用此 CNPJ。",
     "siteCodeInUse": "此客戶已有相同代碼的站點。",
     "fileTooLarge": "檔案超過允許的大小。",
     "fileTypeNotAllowed": "不允許的檔案類型。",
     "geoUnavailable": "定位服務無法使用，請再試一次。",
     "cepNotFound": "找不到此郵遞區號 (CEP)。",
-    "addressNotFound": "在地圖上找不到此地址。"
+    "addressNotFound": "在地圖上找不到此地址。",
+    "cpfInUse": "已有司機使用此 CPF。"
   },
   "calendar": {
     "today": "今天",
@@ -1477,16 +1484,6 @@
       "semLotes": "此客戶尚無批次。"
     },
     "historico": {
-      "cols": {
-        "em": "日期時間",
-        "autor": "使用者",
-        "acao": "動作",
-        "campo": "欄位",
-        "antes": "變更前",
-        "depois": "變更後",
-        "nota": "參考"
-      },
-      "vazio": "沒有歷程紀錄。",
       "campos": {
         "nome": "名稱",
         "cnpj": "CNPJ",
@@ -1603,6 +1600,263 @@
         "voltagemShredder": "碎紙機電壓",
         "pisoProtecaoObrigatorio": "必須保護地板"
       }
+    }
+  },
+  "contatos": {
+    "contatoN": "聯絡人 {{n}}",
+    "principal": "主要",
+    "tornarPrincipal": "設為主要",
+    "removerN": "移除聯絡人 {{n}}",
+    "adicionar": "新增聯絡人",
+    "nome": "聯絡人姓名",
+    "email": "電子郵件",
+    "telefone": "電話",
+    "nenhum": "尚未登錄聯絡人。"
+  },
+  "historico": {
+    "cols": {
+      "em": "日期時間",
+      "autor": "使用者",
+      "acao": "動作",
+      "campo": "欄位",
+      "antes": "變更前",
+      "depois": "變更後",
+      "nota": "參考"
+    },
+    "vazio": "沒有歷程紀錄。",
+    "acoes": {
+      "criado": "建立",
+      "editado": "變更了資料",
+      "status": "變更了狀態"
+    }
+  },
+  "transportadoras": {
+    "list": {
+      "description": "合作運輸公司、聯絡人與司機。",
+      "emptyTitle": "找不到運輸公司",
+      "emptyBody": "請調整搜尋或篩選條件。"
+    },
+    "kpis": {
+      "total": "運輸公司總數",
+      "ativos": "啟用",
+      "inativos": "停用"
+    },
+    "cols": {
+      "codigo": "代碼",
+      "nome": "名稱",
+      "cnpj": "CNPJ",
+      "contatoEmail": "主要聯絡人電子郵件",
+      "contatoTelefone": "主要聯絡人電話",
+      "motoristas": "司機",
+      "status": "狀態",
+      "criadoEm": "建立日期"
+    },
+    "new": {
+      "title": "新增運輸公司",
+      "description": "登錄運輸公司、聯絡人與司機。"
+    },
+    "edit": {
+      "title": "編輯 {{name}}"
+    },
+    "form": {
+      "identificacao": "運輸公司資料",
+      "contatos": "聯絡人",
+      "contatosAjuda": "選填。第一位聯絡人為主要聯絡人。",
+      "motoristas": "司機",
+      "motoristasAjuda": "選填。從清單中選擇或新增司機，新司機也會加入「司機」。",
+      "escolherMotorista": "從清單新增司機…",
+      "novoMotorista": "新增司機",
+      "vinculadoA": "目前在 {{name}}",
+      "semMotoristas": "尚未連結司機。",
+      "removerMotorista": "取消連結 {{name}}",
+      "motoristaNovoN": "新司機 {{n}}",
+      "removerNovoN": "移除新司機 {{n}}"
+    },
+    "tabs": {
+      "dados": "資料",
+      "contatos": "聯絡人",
+      "motoristas": "司機",
+      "historico": "歷程"
+    },
+    "detail": {
+      "general": "運輸公司資料",
+      "mainContact": "主要聯絡人",
+      "noContacts": "尚未登錄聯絡人",
+      "editar": "編輯聯絡人與司機"
+    },
+    "campos": {
+      "nome": "名稱",
+      "cnpj": "CNPJ",
+      "contatos": "聯絡人",
+      "motoristas": "司機",
+      "status": "狀態"
+    },
+    "toast": {
+      "created": "已建立運輸公司 {{name}}。",
+      "saved": "已儲存 {{name}} 的變更。",
+      "saveFailed": "無法儲存運輸公司。",
+      "actionFailed": "無法完成此操作。",
+      "acao": {
+        "inativar": "已停用 {{name}}。",
+        "reativar": "已重新啟用 {{name}}。"
+      }
+    },
+    "acoes": {
+      "inativar": "停用",
+      "reativar": "重新啟用"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "要停用 {{name}} 嗎？",
+        "body": "資料與歷程會保留，之後可重新啟用。"
+      },
+      "reativar": {
+        "title": "要重新啟用 {{name}} 嗎？",
+        "body": "此運輸公司將恢復為啟用狀態。"
+      }
+    },
+    "inativoTitle": "運輸公司已停用",
+    "inativoBody": "資料與歷程會保留。重新啟用即可再次使用。"
+  },
+  "motoristas": {
+    "list": {
+      "description": "司機，可隸屬或不隸屬運輸公司。",
+      "emptyTitle": "找不到司機",
+      "emptyBody": "請調整搜尋或篩選條件。"
+    },
+    "kpis": {
+      "total": "司機總數",
+      "ativos": "啟用",
+      "semTransportadora": "無運輸公司"
+    },
+    "cols": {
+      "codigo": "代碼",
+      "nome": "全名",
+      "cpf": "CPF",
+      "telefone": "電話",
+      "transportadora": "運輸公司",
+      "status": "狀態",
+      "criadoEm": "建立日期"
+    },
+    "newTitle": "新增司機",
+    "editTitle": "司機 {{name}}",
+    "formDescription": "司機資料與運輸公司（選填）。",
+    "tabs": {
+      "dados": "資料",
+      "historico": "歷程"
+    },
+    "semTransportadora": "無運輸公司",
+    "novaTransportadora": "新增運輸公司…",
+    "novaTransportadoraAjuda": "新的運輸公司也會加入「運輸公司」。",
+    "nomeTransportadora": "運輸公司名稱",
+    "cnpjTransportadora": "運輸公司 CNPJ",
+    "campos": {
+      "nome": "全名",
+      "cpf": "CPF",
+      "telefone": "電話",
+      "transportadora": "運輸公司",
+      "status": "狀態"
+    },
+    "toast": {
+      "created": "已建立司機 {{name}}。",
+      "saved": "已儲存 {{name}} 的變更。",
+      "saveFailed": "無法儲存司機。",
+      "actionFailed": "無法完成此操作。",
+      "acao": {
+        "inativar": "已停用 {{name}}。",
+        "reativar": "已重新啟用 {{name}}。"
+      }
+    },
+    "acoes": {
+      "inativar": "停用",
+      "reativar": "重新啟用"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "要停用 {{name}} 嗎？",
+        "body": "資料與歷程會保留，之後可重新啟用。"
+      },
+      "reativar": {
+        "title": "要重新啟用 {{name}} 嗎？",
+        "body": "此司機將恢復為啟用狀態。"
+      }
+    },
+    "inativoTitle": "司機已停用",
+    "inativoBody": "資料與歷程會保留。重新啟用即可再次使用。"
+  },
+  "veiculos": {
+    "list": {
+      "description": "用於選擇訂單車輛的車型與尺寸。",
+      "emptyTitle": "找不到車輛",
+      "emptyBody": "請調整搜尋或篩選條件。"
+    },
+    "kpis": {
+      "total": "車輛總數",
+      "ativos": "啟用",
+      "inativos": "停用"
+    },
+    "cols": {
+      "codigo": "代碼",
+      "tipo": "車型",
+      "volumeMinimo": "最小容積",
+      "volumeMaximo": "最大容積",
+      "comprimento": "長度",
+      "largura": "寬度",
+      "capacidadePallets": "容量（棧板）",
+      "capacidadeToneladas": "容量（噸）",
+      "status": "狀態",
+      "criadoEm": "建立日期"
+    },
+    "tipos": {
+      "truck": "卡車",
+      "carreta": "半拖車",
+      "van": "廂型車"
+    },
+    "newTitle": "新增車輛",
+    "editTitle": "車輛 {{code}}",
+    "formDescription": "車型、尺寸與容量。",
+    "tabs": {
+      "dados": "資料",
+      "historico": "歷程"
+    },
+    "secoes": {
+      "tipo": "車輛",
+      "medidas": "尺寸",
+      "capacidade": "容量"
+    },
+    "toast": {
+      "created": "已建立車輛 {{code}}。",
+      "saved": "已儲存車輛 {{code}}。",
+      "saveFailed": "無法儲存車輛。",
+      "actionFailed": "無法完成此操作。",
+      "acao": {
+        "inativar": "已停用 {{code}}。",
+        "reativar": "已重新啟用 {{code}}。"
+      }
+    },
+    "acoes": {
+      "inativar": "停用",
+      "reativar": "重新啟用"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "要停用 {{name}} 嗎？",
+        "body": "資料與歷程會保留，之後可重新啟用。"
+      },
+      "reativar": {
+        "title": "要重新啟用 {{name}} 嗎？",
+        "body": "此車輛將恢復為啟用狀態。"
+      }
+    },
+    "inativoTitle": "車輛已停用",
+    "inativoBody": "資料與歷程會保留。重新啟用即可再次使用。",
+    "escolhaTipo": "選擇車型",
+    "pallets": "棧板"
+  },
+  "cadastro": {
+    "abas": {
+      "dados": "資料",
+      "historico": "歷程"
     }
   }
 }

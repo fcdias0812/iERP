@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from '@tanstack/react-router'
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { ClipboardList, History, Pencil, UserPlus } from 'lucide-react'
 import { Can } from '@/components/layout/Can'
@@ -31,6 +31,7 @@ import type { AcaoUsuario, Mudanca, Usuario, UsuarioPerfil } from '@/services/ty
 import { useBreadcrumb } from '@/stores/breadcrumb-store'
 import { ACOES } from './fluxo'
 import { useTransicaoUsuario, useUsuario } from './use-usuarios'
+import { UsuarioSheet } from './UsuarioSheet'
 
 /** Admin › Usuários › detalhe (padrão Detalhe). */
 export function UsuarioDetailPage() {
@@ -76,6 +77,13 @@ function Detalhe({ u }: { u: Usuario }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const transicao = useTransicaoUsuario()
+  const { editar: editando } = useSearch({ from: '/_app/admin/usuarios/$id/' })
+  const painel = (aberto: boolean) =>
+    void navigate({
+      to: '/admin/usuarios/$id',
+      params: { id: u.id },
+      search: { editar: aberto || undefined },
+    })
   const [confirm, setConfirm] = useState<AcaoUsuario | null>(null)
   const [bloqueio, setBloqueio] = useState(false)
   const [motivo, setMotivo] = useState('')
@@ -142,12 +150,7 @@ function Detalhe({ u }: { u: Usuario }) {
         actions={
           <>
             <Can permission="admin.editar" fallback="disable">
-              <Button
-                variant="secondary"
-                onClick={() =>
-                  void navigate({ to: '/admin/usuarios/$id/editar', params: { id: u.id } })
-                }
-              >
+              <Button variant="secondary" onClick={() => painel(true)}>
                 <Pencil aria-hidden />
                 {t('common.edit')}
               </Button>
@@ -223,6 +226,8 @@ function Detalhe({ u }: { u: Usuario }) {
           },
         ]}
       />
+
+      {editando && <UsuarioSheet id={u.id} onClose={() => painel(false)} />}
 
       <ConfirmDialog
         open={Boolean(confirm)}

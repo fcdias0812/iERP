@@ -10,8 +10,12 @@ antigo (v1) nem de outro lugar.
   `C:\Systems\template-padrao\.claude\CONTEXTO.md`.
 - **Backend** (`server/`): TypeScript + Node + Express 5. Banco **SQLite** via **Kysely**
   (better-sqlite3), preparado para migrar para **PostgreSQL** (ver "Backend" abaixo).
-- Módulos hoje: **Clientes** (item direto no menu; tudo do cliente fica em **abas** do detalhe —
-  contatos, logística, documentos, configurações) e **Administração › Usuários**.
+- Módulos hoje: seção **Relacionamento** — **Clientes** (tudo do cliente fica em **abas** do
+  detalhe — contatos, logística, documentos, configurações), **Transportadoras** (detalhe em abas:
+  dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral) —
+  e **Administração › Usuários**.
+- Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
+  cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
 - Regra da organização: pesquisar na web antes de afirmar fato técnico (versão, API, menu).
   Pacote novo: confirmar versão estável e licença no npm e fixar versão exata (`save-exact`).
 
@@ -54,8 +58,13 @@ antigo (v1) nem de outro lugar.
    `FormPage` + `FormSection`, `WizardPage`, `SettingsLayout`, `AuthLayout`/`StatusPage`. Exemplos
    prontos para copiar em `src/features/examples/` (menu **Exemplos**, rota `/exemplos`): Lista,
    Detalhe, Cadastro, Assistente, Dashboard, Relatório, Kanban, Calendário; Perfil e Configurações em
-   `src/features/system/`. Formulário: `FormPage` já traz Ctrl+S, rodapé fixo e aviso de alterações
-   não salvas (`useUnsavedChanges`). Detalhe fora do menu: `useBreadcrumb({ parent, label })`.
+   `src/features/system/`. Detalhe fora do menu: `useBreadcrumb({ parent, label })`.
+   **Cadastro e edição SEMPRE no painel lateral à direita** (`CadastroSheet` +
+   `CadastroSecao`, `src/features/comum/CadastroSheet.tsx`) — pedido do usuário, um padrão só para
+   todos os módulos. Nada de página própria `/novo` ou `/:id/editar`. Na lista: `?aberto=novo` ou
+   `?aberto=<id>`; no detalhe: `?editar=true`. O painel já traz Ctrl+S, aviso de campo obrigatório
+   e confirmação ao fechar com alterações. Registro com página de detalhe: depois de criar, abre o
+   detalhe. (`FormPage` fica só para formulários que não são cadastro, ex.: configurações.)
    Grid responsivo começa com `grid-cols-1` (sem isso o grid estoura no celular).
 7. **Dados só pela camada `services/`** (API real em `server/`; MSW só com `VITE_USE_MOCKS=true`).
    Tela nunca importa mock direto.
@@ -126,11 +135,21 @@ O layout não muda. Modelos completos para copiar:
 - **Clientes** — item direto no menu (sem submenu); detalhe com abas na URL (`?aba=`), uma por
   arquivo em `src/features/clientes/detalhe/` (Visão geral, Contatos, Logística com painel lateral
   - mapa Leaflet carregado sob demanda, Documentos com envio de arquivo, Histórico como tabela de
-    auditoria); formulário com lista de contatos (`useFieldArray`). Rotas `src/routes/_app/clientes/`,
+    auditoria); cadastro no painel (`ClienteSheet`) com lista de contatos (`useFieldArray`). Rotas `src/routes/_app/clientes/`,
     backend `server/src/modules/clientes/` (view `clientes_lista`; sites/docas, documentos em disco)
     e `server/src/modules/geo/` (CEP e endereço → coordenadas).
-- **Administração › Usuários** — módulo com submenu. Frontend `src/features/admin/usuarios/`,
-  rotas `src/routes/_app/admin/usuarios/`, backend `server/src/modules/usuarios/`.
+- **Administração › Usuários** — módulo com submenu. Frontend `src/features/admin/usuarios/`
+  (cadastro em `UsuarioSheet`), rotas `src/routes/_app/admin/usuarios/`, backend
+  `server/src/modules/usuarios/`.
+- **Cadastro simples** (Veículos, Motoristas) — só lista; o painel lateral (`CadastroSheet`) tem
+  abas Dados/Histórico e Inativar/Reativar, aberto por `?aberto=<id|novo>` na URL. Backend num arquivo só
+  (`server/src/modules/veiculos/veiculos.ts`); hooks por `criarHooksCadastro` (`features/comum/use-cadastro.ts`).
+- **Transportadoras** — detalhe em abas + cadastro no painel (`TransportadoraSheet`) com contatos
+  opcionais e motoristas (da lista ou novos). Histórico genérico: tabela `historico` (`server/src/shared/historico.repositorio.ts`).
+
+Peças compartilhadas em `src/features/comum/`: `ContatosEditor`/`ContatosTabela` (principal em
+primeiro e destacado), `HistoricoTabela` (auditoria em tabela), `CadastroSheet`, `basicos.ts`
+(inclusão rápida de motorista/transportadora). Inativar em vez de excluir.
 
 Coisas que pertencem a um registro (contatos, locais, documentos do cliente) viram **abas** do
 detalhe dele, não itens de menu. Pedido da diretoria: **agilidade** — a informação aparece já
@@ -157,8 +176,8 @@ pelo id interno e a ordem parece aleatória — e de **lista estável** (constan
    demonstração sem backend).
 7. **Telas**: até existir a rota, a tela abre "em construção" (rota coringa `src/routes/_app/$.tsx`).
    Crie `src/routes/_app/<caminho>.tsx` exportando só `Route`, com o componente em
-   `src/features/<modulo>/`. Siga um padrão de página (`ListPage`, `DetailPage`, `FormPage`,
-   `WizardPage`…). Tela fora do menu (detalhe, edição) chama `useBreadcrumb({ parent, label })`;
+   `src/features/<modulo>/`. Siga um padrão de página (`ListPage`, `DetailPage`, `WizardPage`…);
+   cadastro/edição no `CadastroSheet`. Tela fora do menu (detalhe) chama `useBreadcrumb({ parent, label })`;
    tela inteira protegida por `<RequirePermission>`. Inclua as rotas novas nos e2e (`e2e/`).
 8. **Ações por perfil**: `<Can permission="<modulo>.criar" fallback="disable">…</Can>` (ou `hide`);
    em lógica, `useCan('<modulo>.excluir')`.

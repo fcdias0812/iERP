@@ -29,10 +29,11 @@ export function useUsuariosLista(query: TableQuery) {
 export const useUsuariosResumo = () =>
   useQuery({ queryKey: usuariosKeys.resumo(), queryFn: resumoUsuarios })
 
-export function useUsuario(id: string) {
+export function useUsuario(id: string | undefined) {
   return useQuery({
-    queryKey: usuariosKeys.detalhe(id),
-    queryFn: ({ signal }) => obterUsuario(id, signal),
+    queryKey: usuariosKeys.detalhe(id ?? ''),
+    queryFn: ({ signal }) => obterUsuario(id!, signal),
+    enabled: Boolean(id),
   })
 }
 

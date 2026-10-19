@@ -1,6 +1,5 @@
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { FormSection } from '@/components/patterns/FormPage'
 import { RhfField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,17 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { CadastroSecao } from '@/features/comum/CadastroSheet'
 import { PERFIS } from './fluxo'
 import type { UsuarioForm } from './usuario-schema'
 
 /* ------------------------------------------------------------ campos */
 
-/** Seções do formulário de usuário (mesmas no Novo e no Editar). */
+/** Seções do formulário de usuário (painel lateral: novo e editar). */
 export function UsuarioFields({ form }: { form: UseFormReturn<UsuarioForm> }) {
   const { t } = useTranslation()
   return (
     <>
-      <FormSection title={t('usuarios.form.identification')}>
+      <CadastroSecao titulo={t('usuarios.form.identification')}>
         <RhfField
           control={form.control}
           name="nome"
@@ -41,8 +41,8 @@ export function UsuarioFields({ form }: { form: UseFormReturn<UsuarioForm> }) {
             <Input {...control} {...field} type="email" autoComplete="off" spellCheck={false} />
           )}
         </RhfField>
-      </FormSection>
-      <FormSection title={t('usuarios.form.access')}>
+      </CadastroSecao>
+      <CadastroSecao titulo={t('usuarios.form.access')}>
         <RhfField
           control={form.control}
           name="perfil"
@@ -65,7 +65,7 @@ export function UsuarioFields({ form }: { form: UseFormReturn<UsuarioForm> }) {
             </Select>
           )}
         </RhfField>
-      </FormSection>
+      </CadastroSecao>
     </>
   )
 }

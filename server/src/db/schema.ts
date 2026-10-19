@@ -139,6 +139,84 @@ export interface ClientesDocumentosTable {
   enviadoPor: string
 }
 
+/** Histórico único (transportadoras, motoristas, veículos). */
+export interface HistoricoTable {
+  id: string
+  entidade: string
+  registroId: string
+  autor: string
+  em: string
+  acao: string
+  mudancas: string | null
+  nota: string | null
+}
+
+/** Colunas de controle de todo cadastro. */
+interface Controle {
+  id: string
+  numero: number
+  codigo: string
+  status: string
+  busca: string
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+export interface TransportadorasTable extends Controle {
+  nome: string
+  /** Sem pontuação, maiúsculas. Único. */
+  cnpj: string
+}
+
+export interface TransportadorasContatosTable {
+  id: string
+  transportadoraId: string
+  nome: string | null
+  email: string
+  telefone: string
+  principal: number
+  ordem: number
+}
+
+export interface TransportadorasListaView extends TransportadorasTable {
+  contatoNome: string | null
+  contatoEmail: string | null
+  contatoTelefone: string | null
+  contatos: number
+  motoristas: number
+}
+
+export interface MotoristasTable extends Controle {
+  nome: string
+  /** Só dígitos. Único. */
+  cpf: string
+  /** Só dígitos. */
+  telefone: string
+  transportadoraId: string | null
+}
+
+export interface MotoristasListaView extends MotoristasTable {
+  transportadoraNome: string | null
+}
+
+export interface VeiculosTable extends Controle {
+  tipo: string
+  /** m² */
+  volumeMinimo: number | null
+  /** m² */
+  volumeMaximo: number | null
+  /** metros */
+  comprimento: number | null
+  /** metros */
+  largura: number | null
+  /** Quantidade de pallets. */
+  capacidadePallets: number | null
+  /** toneladas */
+  capacidadeToneladas: number | null
+}
+
 export interface Database {
   usuarios: UsuariosTable
   usuariosHistorico: UsuariosHistoricoTable
@@ -149,4 +227,11 @@ export interface Database {
   clientesSites: ClientesSitesTable
   clientesDocas: ClientesDocasTable
   clientesDocumentos: ClientesDocumentosTable
+  historico: HistoricoTable
+  transportadoras: TransportadorasTable
+  transportadorasContatos: TransportadorasContatosTable
+  transportadorasLista: TransportadorasListaView
+  motoristas: MotoristasTable
+  motoristasLista: MotoristasListaView
+  veiculos: VeiculosTable
 }

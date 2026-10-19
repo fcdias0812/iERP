@@ -3,9 +3,10 @@
 ERP da Re-Teck focado em **logística reversa**. Esta é a versão 2, construída do zero a partir do
 **template padrão de frontend** da Re-Teck (`C:\Systems\template-padrao`).
 
-> **Status:** 2 módulos — **Clientes** (cadastro com CNPJ e contatos; detalhe em abas: visão geral
-> com lotes, contatos, logística com sites/docas e mapa, documentos, configurações, histórico em
-> tabela) e **Administração › Usuários**. Pendentes: aba Configurações (a definir) e a integração
+> **Status:** menu **Relacionamento** com **Clientes** (cadastro com CNPJ e contatos; detalhe em
+> abas: visão geral com lotes, contatos, logística com sites/docas e mapa, documentos,
+> configurações, histórico em tabela), **Transportadoras** (contatos e motoristas), **Veículos**
+> (tipo, medidas e capacidade) e **Motoristas**; e **Administração › Usuários**. Pendentes: aba Configurações (a definir) e a integração
 > de lotes com os sistemas de produção. Login ainda não definido (sessão simulada).
 
 ## Arquitetura
@@ -120,8 +121,13 @@ src/                        FRONTEND (padrão do template)
   config/navigation.ts      menu, módulos e contexto
   config/permissions.ts     perfis × permissões
   features/clientes/        telas de Clientes (lista, detalhe com abas, formulário com contatos)
+  features/transportadoras/ Transportadoras (lista, detalhe com abas, formulário com contatos e motoristas)
+  features/motoristas/      Motoristas (lista + painel lateral)
+  features/veiculos/        Veículos (lista + painel lateral)
+  features/comum/           peças compartilhadas: contatos, histórico (auditoria), painel de cadastro
+                            (CadastroSheet — todo cadastro/edição abre no painel lateral à direita)
   features/admin/usuarios/  telas de Admin › Usuários (lista, detalhe, formulário)
-  routes/_app/              rotas (clientes/, admin/usuarios/)
+  routes/_app/              rotas (clientes/, transportadoras/, motoristas/, veiculos/, admin/usuarios/)
   services/                 chamadas à API + contrato (types.ts)
   mocks/                    API simulada (opcional)
   i18n/locales/             pt-BR, en, zh-TW
@@ -129,6 +135,8 @@ server/                     BACKEND
   src/app.ts                aplicação Express (rotas em /api)
   src/db/                   conexão (database.ts), tipos das tabelas (schema.ts), migrations, seed
   src/modules/<modulo>/     clientes, usuarios: rotas → serviço (regras) → repositório (banco) + testes
+                            transportadoras, motoristas, veiculos: um arquivo por módulo (cadastros
+                            simples) + relacionamento.basico.ts (inclusão rápida) e relacionamento.test.ts
   src/shared/               erros, consulta de tabela (filtros/ordenação → SQL), datas, texto,
                             documentos (CNPJ, telefone), histórico
   data/                     arquivo do SQLite (fora do git)
@@ -166,6 +174,21 @@ pesado — [política](https://operations.osmfoundation.org/policies/tiles/)); p
 `VITE_MAP_TILES_URL` e `VITE_MAP_TILES_ATTRIBUTION`. Endereço → coordenadas passa pelo servidor,
 que respeita a [política do Nominatim](https://operations.osmfoundation.org/policies/nominatim/)
 (1 consulta/s no total, cache, sem autocompletar); `GEO_CONTATO` vai no User-Agent.
+
+## API de Relacionamento (transportadoras, motoristas, veículos)
+
+Os três seguem o mesmo molde: `GET /api/<modulo>` (lista do DataTable), `GET /resumo`,
+`GET /:id` (detalhe + histórico + ações), `POST`, `PUT /:id` e `POST /:id/transicao`
+(`inativar`, `reativar` — nada é excluído).
+
+| Módulo          | Campos                                                                                                                       | Regras                                                                                                                                                                           |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Transportadoras | `nome`, `cnpj`, `contatos[]` (opcionais), `motoristas[]` (`{ id }` da lista ou `{ novo: { nome, cpf, telefone } }`)          | CNPJ único (409 `cnpj_in_use`); se houver contatos, um é o principal; motorista de outra transportadora muda para esta; quem sai da lista fica sem transportadora. `GET /opcoes` |
+| Motoristas      | `nome`, `cpf`, `telefone`, `transportadoraId` **ou** `novaTransportadora: { nome, cnpj }` (opcional)                         | CPF único (409 `cpf_in_use`); a transportadora nova entra em Transportadoras                                                                                                     |
+| Veículos        | `tipo` (`truck`, `carreta`, `van`), volume mínimo/máximo (m²), comprimento/largura (m), capacidade em pallets e em toneladas | volume mínimo ≤ máximo; sem placa e sem vínculo com transportadora ou motorista                                                                                                  |
+
+Toda mudança (inclusive vincular/desvincular motorista) vai para o histórico do registro
+(tabela `historico`, por entidade).
 
 ## API de usuários
 

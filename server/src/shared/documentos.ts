@@ -42,3 +42,18 @@ export function telefoneValido(valor: string): boolean {
 }
 
 export const limparTelefone = soDigitos
+
+/** CPF: 11 dígitos, dois dígitos verificadores (módulo 11). */
+export function cpfValido(valor: string): boolean {
+  const d = soDigitos(valor)
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false
+  const n = d.split('').map(Number)
+  const dv = (len: number) => {
+    const soma = n.slice(0, len).reduce((acc, x, i) => acc + x * (len + 1 - i), 0)
+    const r = (soma * 10) % 11
+    return r === 10 ? 0 : r
+  }
+  return dv(9) === n[9] && dv(10) === n[10]
+}
+
+export const limparCpf = soDigitos

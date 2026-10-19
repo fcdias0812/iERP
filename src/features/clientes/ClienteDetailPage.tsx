@@ -17,6 +17,7 @@ import { ApiError } from '@/services/http'
 import type { AcaoCliente, Cliente } from '@/services/types'
 import { useBreadcrumb } from '@/stores/breadcrumb-store'
 import type { AbaCliente } from './abas'
+import { ClienteSheet } from './ClienteSheet'
 import { AbaContatos } from './detalhe/AbaContatos'
 import { AbaDocumentos } from './detalhe/AbaDocumentos'
 import { AbaHistorico } from './detalhe/AbaHistorico'
@@ -62,7 +63,7 @@ function DetailSkeleton() {
 function Detalhe({ c }: { c: Cliente }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { aba = 'visao-geral' } = useSearch({ from: '/_app/clientes/$id/' })
+  const { aba = 'visao-geral', editar: editando } = useSearch({ from: '/_app/clientes/$id/' })
   const transicao = useTransicaoCliente()
   const [confirm, setConfirm] = useState<AcaoCliente | null>(null)
   // Contadores nas abas (a lista é pequena; as abas usam o mesmo cache).
@@ -78,7 +79,13 @@ function Detalhe({ c }: { c: Cliente }) {
     })
 
   const acoes = [...c.acoesPermitidas].sort((a, b) => ACOES[a].peso - ACOES[b].peso)
-  const editar = () => void navigate({ to: '/clientes/$id/editar', params: { id: c.id } })
+  const painel = (aberto: boolean) =>
+    void navigate({
+      to: '/clientes/$id',
+      params: { id: c.id },
+      search: { aba: aba === 'visao-geral' ? undefined : aba, editar: aberto || undefined },
+    })
+  const editar = () => painel(true)
 
   return (
     <>
@@ -177,6 +184,8 @@ function Detalhe({ c }: { c: Cliente }) {
           },
         ]}
       />
+
+      {editando && <ClienteSheet id={c.id} onClose={() => painel(false)} />}
 
       <ConfirmDialog
         open={Boolean(confirm)}

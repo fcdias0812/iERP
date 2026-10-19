@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Eye, Pencil } from 'lucide-react'
 import { DataTable, useUrlTableQuery, type DataTableColumn } from '@/components/data-table'
@@ -11,6 +11,7 @@ import { useCan } from '@/hooks/use-can'
 import { formatCnpj, formatNumber, formatPhone } from '@/lib/format'
 import { listarTodosClientes } from '@/services/clientes'
 import type { ClienteResumo } from '@/services/types'
+import { ClienteSheet } from './ClienteSheet'
 import { STATUS_CLIENTE } from './fluxo'
 import { useClientesLista, useClientesResumo } from './use-clientes'
 
@@ -109,6 +110,9 @@ function ClientesList() {
   const resumoQ = useClientesResumo()
   const resumo = resumoQ.data
   const canCreate = useCan('clientes.criar')
+  const { aberto } = useSearch({ from: '/_app/clientes/' })
+  const painel = (id: string | undefined) =>
+    void navigate({ to: '.', search: (s) => ({ ...s, aberto: id }) })
 
   const abrir = (r: ClienteResumo) => void navigate({ to: '/clientes/$id', params: { id: r.id } })
   const kpi = (id: 'total' | 'ativos' | 'inativos') => ({
@@ -139,7 +143,7 @@ function ClientesList() {
         onRetry={() => void lista.refetch()}
         fetchAll={() => listarTodosClientes(query)}
         onRowClick={abrir}
-        onCreate={canCreate ? () => void navigate({ to: '/clientes/novo' }) : undefined}
+        onCreate={canCreate ? () => painel('novo') : undefined}
         createLabel={t('clientes.new.title')}
         empty={{ title: t('clientes.list.emptyTitle'), description: t('clientes.list.emptyBody') }}
         rowActions={(r) => (
@@ -149,9 +153,7 @@ function ClientesList() {
               {t('common.open')}
             </DropdownMenuItem>
             <Can permission="clientes.editar">
-              <DropdownMenuItem
-                onSelect={() => void navigate({ to: '/clientes/$id/editar', params: { id: r.id } })}
-              >
+              <DropdownMenuItem onSelect={() => painel(r.id)}>
                 <Pencil aria-hidden />
                 {t('common.edit')}
               </DropdownMenuItem>
@@ -159,6 +161,17 @@ function ClientesList() {
           </>
         )}
       />
+      {aberto && (
+        <ClienteSheet
+          key={aberto}
+          id={aberto === 'novo' ? undefined : aberto}
+          onClose={() => painel(undefined)}
+          // Cliente novo: abre o detalhe para seguir com logística e documentos.
+          onSalvo={(c) =>
+            aberto === 'novo' && void navigate({ to: '/clientes/$id', params: { id: c.id } })
+          }
+        />
+      )}
     </ListPage>
   )
 }

@@ -47,7 +47,8 @@ test('N na lista abre "Novo usuário"', async ({ page }) => {
   await abrir(page, '/admin/usuarios')
   await page.locator('main h1').click()
   await page.keyboard.press('n')
-  await expect(page).toHaveURL(/\/admin\/usuarios\/novo/)
+  await expect(page).toHaveURL(/\/admin\/usuarios\?aberto=novo/)
+  await expect(page.getByRole('dialog', { name: /Novo usuário/ })).toBeVisible()
 })
 
 test('diálogo de confirmação prende o foco e fecha com Esc', async ({ page }) => {
@@ -65,8 +66,8 @@ test('diálogo de confirmação prende o foco e fecha com Esc', async ({ page })
 })
 
 test('Ctrl+S salva o formulário do usuário', async ({ page }) => {
-  await abrir(page, '/admin/usuarios/usr00001/editar')
-  const campo = page.getByLabel(/^Nome/)
+  await abrir(page, '/admin/usuarios/usr00001?editar=true')
+  const campo = page.getByRole('dialog').getByLabel(/^Nome/)
   await campo.fill('Fulano de Teste')
   await campo.blur()
   await page.keyboard.press('Control+s')
@@ -88,15 +89,17 @@ test('abas e menus têm os papéis ARIA certos', async ({ page }) => {
 })
 
 test('cliente: adicionar contato, tornar principal e salvar com Ctrl+S', async ({ page }) => {
-  await abrir(page, '/clientes/cli00001/editar')
-  await page.getByRole('button', { name: 'Adicionar contato' }).click()
-  const lista = page.getByRole('list', { name: 'Contatos' })
+  await abrir(page, '/clientes/cli00001?editar=true')
+  const painel = page.getByRole('dialog')
+  await painel.getByRole('button', { name: 'Adicionar contato' }).click()
+  const lista = painel.getByRole('list', { name: 'Contatos' })
   const ultimo = lista.getByRole('listitem').last()
   await ultimo.getByLabel(/^E-mail/).fill('novo.contato@exemplo.com.br')
   await ultimo.getByLabel(/^Telefone/).fill('11987650000')
   await ultimo.getByRole('button', { name: /Tornar principal/ }).click()
   await expect(lista.getByRole('listitem').first()).toContainText('Principal')
   await page.keyboard.press('Control+s')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page).toHaveURL(/\/clientes\/cli00001$/)
   await expect(page.getByText('novo.contato@exemplo.com.br').first()).toBeVisible()
 })

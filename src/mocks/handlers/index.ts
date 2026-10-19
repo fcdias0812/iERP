@@ -1,6 +1,7 @@
 import { clientesHandlers } from './clientes'
 import { clientesAbasHandlers } from './clientes-abas'
 import { perfilHandlers } from './perfil'
+import { relacionamentoHandlers } from './relacionamento'
 import { sistemaHandlers } from './sistema'
 import { usuariosHandlers } from './usuarios'
 
@@ -8,6 +9,7 @@ import { usuariosHandlers } from './usuarios'
 export const handlers = [
   ...clientesAbasHandlers,
   ...clientesHandlers,
+  ...relacionamentoHandlers,
   ...usuariosHandlers,
   ...sistemaHandlers,
   ...perfilHandlers,

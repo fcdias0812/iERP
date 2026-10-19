@@ -145,6 +145,14 @@ export function formatCnpj(value: string | null | undefined): string {
   return `${v.slice(0, 2)}.${v.slice(2, 5)}.${v.slice(5, 8)}/${v.slice(8, 12)}-${v.slice(12)}`
 }
 
+/** CPF com pontuação: 123.456.789-09. Outro formato → como veio. */
+export function formatCpf(value: string | null | undefined): string {
+  if (!value) return EMPTY
+  const d = value.replace(/\D/g, '')
+  if (d.length !== 11) return value
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`
+}
+
 /** Telefone com DDD: (11) 98765-4321 ou (11) 3234-5678. Outro formato → como veio. */
 export function formatPhone(value: string | null | undefined): string {
   if (!value) return EMPTY

@@ -20,6 +20,3 @@ export const ACOES: Record<AcaoCliente, AcaoMeta> = {
 }
 
 export const STATUS_CLIENTE: ClienteStatus[] = ['ativo', 'inativo']
-
-/** Máximo de contatos por cliente (o servidor confere o mesmo limite). */
-export const MAX_CONTATOS = 20

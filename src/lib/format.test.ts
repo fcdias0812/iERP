@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   EMPTY,
   formatCnpj,
+  formatCpf,
   formatCurrency,
   formatDate,
   formatDateTime,
@@ -54,7 +55,7 @@ describe('format', () => {
     expect(formatDate('não é data')).toBe(EMPTY)
   })
 
-  it('CNPJ e telefone guardados sem pontuação', () => {
+  it('CNPJ, CPF e telefone guardados sem pontuação', () => {
     expect(formatCnpj('11444777000161')).toBe('11.444.777/0001-61')
     expect(formatCnpj('12abc34501de35')).toBe('12.ABC.345/01DE-35')
     expect(formatCnpj('123')).toBe('123')
@@ -62,5 +63,7 @@ describe('format', () => {
     expect(formatPhone('11987654321')).toBe('(11) 98765-4321')
     expect(formatPhone('1132345678')).toBe('(11) 3234-5678')
     expect(formatPhone('')).toBe(EMPTY)
+    expect(formatCpf('12345678909')).toBe('123.456.789-09')
+    expect(formatCpf(null)).toBe(EMPTY)
   })
 })

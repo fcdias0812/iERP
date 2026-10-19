@@ -8,10 +8,14 @@ const ROTAS = [
   '/',
   '/clientes',
   '/clientes/cli00001',
-  '/clientes/cli00001/editar',
+  '/clientes/cli00001?editar=true',
+  '/transportadoras/tra00001',
+  '/transportadoras?aberto=novo',
+  '/motoristas?aberto=mot00001',
+  '/veiculos?aberto=vei00001',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
-  '/admin/usuarios/novo',
+  '/admin/usuarios?aberto=novo',
   '/perfil',
 ]
 

@@ -1,4 +1,11 @@
+import { randomUUID } from 'node:crypto'
 import type { Db } from './database.js'
+import {
+  buscaTransportadora,
+  inserirMotorista,
+  inserirTransportadora,
+} from '../modules/relacionamento.basico.js'
+import { registrarHistorico } from '../shared/historico.repositorio.js'
 import { criarRepositorioClientes } from '../modules/clientes/clientes.repositorio.js'
 import { codigoCliente } from '../modules/clientes/clientes.regras.js'
 import { criarRepositorioUsuarios } from '../modules/usuarios/usuarios.repositorio.js'
@@ -32,7 +39,7 @@ const DIA = 86_400_000
 
 /** Semeia o que estiver vazio. Devolve quantos registros criou. */
 export async function semear(db: Db): Promise<number> {
-  return (await semearUsuarios(db)) + (await semearClientes(db))
+  return (await semearUsuarios(db)) + (await semearClientes(db)) + (await semearRelacionamento(db))
 }
 
 async function semearUsuarios(db: Db): Promise<number> {
@@ -187,4 +194,123 @@ async function semearClientes(db: Db): Promise<number> {
     }
   })
   return CLIENTES.length
+}
+
+/* ------------------------------------------------------------ relacionamento */
+
+/** CPF fictício válido a partir de 9 dígitos. */
+function cpfFicticio(base: string): string {
+  const n = base.split('').map(Number)
+  const dv = (len: number) => {
+    const soma = n.slice(0, len).reduce((acc, x, i) => acc + x * (len + 1 - i), 0)
+    const r = (soma * 10) % 11
+    return r === 10 ? 0 : r
+  }
+  n.push(dv(9))
+  n.push(dv(10))
+  return n.join('')
+}
+
+const TRANSPORTADORAS: [string, string, [string | null, string, string][]][] = [
+  [
+    'Rápido Sul Transportes Ltda',
+    '33445566',
+    [['Luciana Prado', 'luciana@rapidosul.exemplo.com.br', '51998765432']],
+  ],
+  [
+    'TransLog Express Ltda',
+    '44556677',
+    [
+      ['Operações', 'operacoes@translog.exemplo.com.br', '1133445566'],
+      ['Fábio Teixeira', 'fabio@translog.exemplo.com.br', '11987001122'],
+    ],
+  ],
+  ['Carga Certa Logística Ltda', '55667788', []],
+]
+
+const MOTORISTAS: [string, string, string, number | null][] = [
+  ['Antônio Carlos Silva', '123456780', '51991112222', 0],
+  ['Bruna Ferreira Lima', '234567891', '11992223333', 1],
+  ['Cláudio Mendes Rocha', '345678912', '11993334444', 1],
+  ['Daniela Souza Pires', '456789123', '21994445555', null],
+]
+
+const VEICULOS: ['truck' | 'carreta' | 'van', number, number, number, number, number, number][] = [
+  // tipo, vol. mín (m²), vol. máx (m²), comprimento (m), largura (m), pallets, toneladas
+  ['van', 4, 8, 3.2, 1.7, 4, 1.5],
+  ['truck', 14, 28, 8.5, 2.5, 12, 12],
+  ['carreta', 30, 45, 14.6, 2.6, 28, 32],
+]
+
+export async function semearRelacionamento(db: Db): Promise<number> {
+  const existe = await db.selectFrom('transportadoras').select('id').limit(1).executeTakeFirst()
+  if (existe) return 0
+  await db.transaction().execute(async (trx) => {
+    const ids: string[] = []
+    for (const [nome, raiz, contatos] of TRANSPORTADORAS) {
+      const id = await inserirTransportadora(trx, { nome, cnpj: cnpjFicticio(raiz) }, 'Sistema')
+      ids.push(id)
+      for (const [i, [n, email, telefone]] of contatos.entries())
+        await trx
+          .insertInto('transportadorasContatos')
+          .values({
+            id: randomUUID(),
+            transportadoraId: id,
+            nome: n,
+            email,
+            telefone,
+            principal: i === 0 ? 1 : 0,
+            ordem: i,
+          })
+          .execute()
+      const t = await trx
+        .selectFrom('transportadoras')
+        .selectAll()
+        .where('id', '=', id)
+        .executeTakeFirstOrThrow()
+      await trx
+        .updateTable('transportadoras')
+        .set({
+          busca: buscaTransportadora(
+            t,
+            contatos.map(([n, email, telefone]) => ({ nome: n, email, telefone })),
+          ),
+        })
+        .where('id', '=', id)
+        .execute()
+    }
+    for (const [nome, base, telefone, t] of MOTORISTAS)
+      await inserirMotorista(
+        trx,
+        { nome, cpf: cpfFicticio(base), telefone, transportadoraId: t === null ? null : ids[t]! },
+        'Sistema',
+      )
+    for (const [i, [tipo, vmin, vmax, comp, larg, pallets, ton]] of VEICULOS.entries()) {
+      const agora = new Date().toISOString()
+      const id = randomUUID()
+      await trx
+        .insertInto('veiculos')
+        .values({
+          id,
+          numero: i + 1,
+          codigo: `VEI-${String(i + 1).padStart(5, '0')}`,
+          tipo,
+          volumeMinimo: vmin,
+          volumeMaximo: vmax,
+          comprimento: comp,
+          largura: larg,
+          capacidadePallets: pallets,
+          capacidadeToneladas: ton,
+          status: 'ativo',
+          busca: `vei-${String(i + 1).padStart(5, '0')} ${tipo}`,
+          criadoEm: agora,
+          criadoPor: 'Sistema',
+          alteradoEm: agora,
+          alteradoPor: 'Sistema',
+        })
+        .execute()
+      await registrarHistorico(trx, 'veiculo', id, { autor: 'Sistema', em: agora, acao: 'criado' })
+    }
+  })
+  return TRANSPORTADORAS.length + MOTORISTAS.length + VEICULOS.length
 }

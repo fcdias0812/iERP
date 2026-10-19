@@ -16,6 +16,8 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.emailInUse')
     case 'cnpj_in_use':
       return i18n.t('apiErrors.cnpjInUse')
+    case 'cpf_in_use':
+      return i18n.t('apiErrors.cpfInUse')
     case 'site_code_in_use':
       return i18n.t('apiErrors.siteCodeInUse')
     case 'file_too_large':

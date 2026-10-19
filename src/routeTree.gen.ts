@@ -18,13 +18,13 @@ import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoes'
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
 import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
-import { Route as AppClientesNovoRouteImport } from './routes/_app/clientes/novo'
+import { Route as AppMotoristasIndexRouteImport } from './routes/_app/motoristas/index'
+import { Route as AppTransportadorasIndexRouteImport } from './routes/_app/transportadoras/index'
+import { Route as AppVeiculosIndexRouteImport } from './routes/_app/veiculos/index'
 import { Route as AppAdminUsuariosIndexRouteImport } from './routes/_app/admin/usuarios/index'
-import { Route as AppAdminUsuariosNovoRouteImport } from './routes/_app/admin/usuarios/novo'
 import { Route as AppClientesIdIndexRouteImport } from './routes/_app/clientes/$id.index'
-import { Route as AppClientesIdEditarRouteImport } from './routes/_app/clientes/$id.editar'
+import { Route as AppTransportadorasIdIndexRouteImport } from './routes/_app/transportadoras/$id.index'
 import { Route as AppAdminUsuariosIdIndexRouteImport } from './routes/_app/admin/usuarios/$id.index'
-import { Route as AppAdminUsuariosIdEditarRouteImport } from './routes/_app/admin/usuarios/$id.editar'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -70,9 +70,19 @@ const AppClientesIndexRoute = AppClientesIndexRouteImport.update({
   path: '/clientes/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppClientesNovoRoute = AppClientesNovoRouteImport.update({
-  id: '/clientes/novo',
-  path: '/clientes/novo',
+const AppMotoristasIndexRoute = AppMotoristasIndexRouteImport.update({
+  id: '/motoristas/',
+  path: '/motoristas/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTransportadorasIndexRoute = AppTransportadorasIndexRouteImport.update({
+  id: '/transportadoras/',
+  path: '/transportadoras/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVeiculosIndexRoute = AppVeiculosIndexRouteImport.update({
+  id: '/veiculos/',
+  path: '/veiculos/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminUsuariosIndexRoute = AppAdminUsuariosIndexRouteImport.update({
@@ -80,32 +90,22 @@ const AppAdminUsuariosIndexRoute = AppAdminUsuariosIndexRouteImport.update({
   path: '/admin/usuarios/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminUsuariosNovoRoute = AppAdminUsuariosNovoRouteImport.update({
-  id: '/admin/usuarios/novo',
-  path: '/admin/usuarios/novo',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppClientesIdIndexRoute = AppClientesIdIndexRouteImport.update({
   id: '/clientes/$id/',
   path: '/clientes/$id/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppClientesIdEditarRoute = AppClientesIdEditarRouteImport.update({
-  id: '/clientes/$id/editar',
-  path: '/clientes/$id/editar',
-  getParentRoute: () => AppRoute,
-} as any)
+const AppTransportadorasIdIndexRoute =
+  AppTransportadorasIdIndexRouteImport.update({
+    id: '/transportadoras/$id/',
+    path: '/transportadoras/$id/',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppAdminUsuariosIdIndexRoute = AppAdminUsuariosIdIndexRouteImport.update({
   id: '/admin/usuarios/$id/',
   path: '/admin/usuarios/$id/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminUsuariosIdEditarRoute =
-  AppAdminUsuariosIdEditarRouteImport.update({
-    id: '/admin/usuarios/$id/editar',
-    path: '/admin/usuarios/$id/editar',
-    getParentRoute: () => AppRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -115,13 +115,13 @@ export interface FileRoutesByFullPath {
   '/$': typeof AppSplatRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
-  '/clientes/novo': typeof AppClientesNovoRoute
   '/clientes/': typeof AppClientesIndexRoute
-  '/admin/usuarios/novo': typeof AppAdminUsuariosNovoRoute
-  '/clientes/$id/editar': typeof AppClientesIdEditarRoute
+  '/motoristas/': typeof AppMotoristasIndexRoute
+  '/transportadoras/': typeof AppTransportadorasIndexRoute
+  '/veiculos/': typeof AppVeiculosIndexRoute
   '/admin/usuarios/': typeof AppAdminUsuariosIndexRoute
   '/clientes/$id/': typeof AppClientesIdIndexRoute
-  '/admin/usuarios/$id/editar': typeof AppAdminUsuariosIdEditarRoute
+  '/transportadoras/$id/': typeof AppTransportadorasIdIndexRoute
   '/admin/usuarios/$id/': typeof AppAdminUsuariosIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,13 +132,13 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
-  '/clientes/novo': typeof AppClientesNovoRoute
   '/clientes': typeof AppClientesIndexRoute
-  '/admin/usuarios/novo': typeof AppAdminUsuariosNovoRoute
-  '/clientes/$id/editar': typeof AppClientesIdEditarRoute
+  '/motoristas': typeof AppMotoristasIndexRoute
+  '/transportadoras': typeof AppTransportadorasIndexRoute
+  '/veiculos': typeof AppVeiculosIndexRoute
   '/admin/usuarios': typeof AppAdminUsuariosIndexRoute
   '/clientes/$id': typeof AppClientesIdIndexRoute
-  '/admin/usuarios/$id/editar': typeof AppAdminUsuariosIdEditarRoute
+  '/transportadoras/$id': typeof AppTransportadorasIdIndexRoute
   '/admin/usuarios/$id': typeof AppAdminUsuariosIdIndexRoute
 }
 export interface FileRoutesById {
@@ -151,13 +151,13 @@ export interface FileRoutesById {
   '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
-  '/_app/clientes/novo': typeof AppClientesNovoRoute
   '/_app/clientes/': typeof AppClientesIndexRoute
-  '/_app/admin/usuarios/novo': typeof AppAdminUsuariosNovoRoute
-  '/_app/clientes/$id/editar': typeof AppClientesIdEditarRoute
+  '/_app/motoristas/': typeof AppMotoristasIndexRoute
+  '/_app/transportadoras/': typeof AppTransportadorasIndexRoute
+  '/_app/veiculos/': typeof AppVeiculosIndexRoute
   '/_app/admin/usuarios/': typeof AppAdminUsuariosIndexRoute
   '/_app/clientes/$id/': typeof AppClientesIdIndexRoute
-  '/_app/admin/usuarios/$id/editar': typeof AppAdminUsuariosIdEditarRoute
+  '/_app/transportadoras/$id/': typeof AppTransportadorasIdIndexRoute
   '/_app/admin/usuarios/$id/': typeof AppAdminUsuariosIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -170,13 +170,13 @@ export interface FileRouteTypes {
     | '/$'
     | '/configuracoes'
     | '/perfil'
-    | '/clientes/novo'
     | '/clientes/'
-    | '/admin/usuarios/novo'
-    | '/clientes/$id/editar'
+    | '/motoristas/'
+    | '/transportadoras/'
+    | '/veiculos/'
     | '/admin/usuarios/'
     | '/clientes/$id/'
-    | '/admin/usuarios/$id/editar'
+    | '/transportadoras/$id/'
     | '/admin/usuarios/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,13 +187,13 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/perfil'
     | '/'
-    | '/clientes/novo'
     | '/clientes'
-    | '/admin/usuarios/novo'
-    | '/clientes/$id/editar'
+    | '/motoristas'
+    | '/transportadoras'
+    | '/veiculos'
     | '/admin/usuarios'
     | '/clientes/$id'
-    | '/admin/usuarios/$id/editar'
+    | '/transportadoras/$id'
     | '/admin/usuarios/$id'
   id:
     | '__root__'
@@ -205,13 +205,13 @@ export interface FileRouteTypes {
     | '/_app/configuracoes'
     | '/_app/perfil'
     | '/_app/'
-    | '/_app/clientes/novo'
     | '/_app/clientes/'
-    | '/_app/admin/usuarios/novo'
-    | '/_app/clientes/$id/editar'
+    | '/_app/motoristas/'
+    | '/_app/transportadoras/'
+    | '/_app/veiculos/'
     | '/_app/admin/usuarios/'
     | '/_app/clientes/$id/'
-    | '/_app/admin/usuarios/$id/editar'
+    | '/_app/transportadoras/$id/'
     | '/_app/admin/usuarios/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -287,11 +287,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClientesIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/clientes/novo': {
-      id: '/_app/clientes/novo'
-      path: '/clientes/novo'
-      fullPath: '/clientes/novo'
-      preLoaderRoute: typeof AppClientesNovoRouteImport
+    '/_app/motoristas/': {
+      id: '/_app/motoristas/'
+      path: '/motoristas'
+      fullPath: '/motoristas/'
+      preLoaderRoute: typeof AppMotoristasIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/transportadoras/': {
+      id: '/_app/transportadoras/'
+      path: '/transportadoras'
+      fullPath: '/transportadoras/'
+      preLoaderRoute: typeof AppTransportadorasIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/veiculos/': {
+      id: '/_app/veiculos/'
+      path: '/veiculos'
+      fullPath: '/veiculos/'
+      preLoaderRoute: typeof AppVeiculosIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/usuarios/': {
@@ -301,13 +315,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminUsuariosIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/admin/usuarios/novo': {
-      id: '/_app/admin/usuarios/novo'
-      path: '/admin/usuarios/novo'
-      fullPath: '/admin/usuarios/novo'
-      preLoaderRoute: typeof AppAdminUsuariosNovoRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/clientes/$id/': {
       id: '/_app/clientes/$id/'
       path: '/clientes/$id'
@@ -315,11 +322,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClientesIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/clientes/$id/editar': {
-      id: '/_app/clientes/$id/editar'
-      path: '/clientes/$id/editar'
-      fullPath: '/clientes/$id/editar'
-      preLoaderRoute: typeof AppClientesIdEditarRouteImport
+    '/_app/transportadoras/$id/': {
+      id: '/_app/transportadoras/$id/'
+      path: '/transportadoras/$id'
+      fullPath: '/transportadoras/$id/'
+      preLoaderRoute: typeof AppTransportadorasIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/usuarios/$id/': {
@@ -327,13 +334,6 @@ declare module '@tanstack/react-router' {
       path: '/admin/usuarios/$id'
       fullPath: '/admin/usuarios/$id/'
       preLoaderRoute: typeof AppAdminUsuariosIdIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/admin/usuarios/$id/editar': {
-      id: '/_app/admin/usuarios/$id/editar'
-      path: '/admin/usuarios/$id/editar'
-      fullPath: '/admin/usuarios/$id/editar'
-      preLoaderRoute: typeof AppAdminUsuariosIdEditarRouteImport
       parentRoute: typeof AppRoute
     }
   }
@@ -344,13 +344,13 @@ interface AppRouteChildren {
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
-  AppClientesNovoRoute: typeof AppClientesNovoRoute
   AppClientesIndexRoute: typeof AppClientesIndexRoute
-  AppAdminUsuariosNovoRoute: typeof AppAdminUsuariosNovoRoute
-  AppClientesIdEditarRoute: typeof AppClientesIdEditarRoute
+  AppMotoristasIndexRoute: typeof AppMotoristasIndexRoute
+  AppTransportadorasIndexRoute: typeof AppTransportadorasIndexRoute
+  AppVeiculosIndexRoute: typeof AppVeiculosIndexRoute
   AppAdminUsuariosIndexRoute: typeof AppAdminUsuariosIndexRoute
   AppClientesIdIndexRoute: typeof AppClientesIdIndexRoute
-  AppAdminUsuariosIdEditarRoute: typeof AppAdminUsuariosIdEditarRoute
+  AppTransportadorasIdIndexRoute: typeof AppTransportadorasIdIndexRoute
   AppAdminUsuariosIdIndexRoute: typeof AppAdminUsuariosIdIndexRoute
 }
 
@@ -359,13 +359,13 @@ const AppRouteChildren: AppRouteChildren = {
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
-  AppClientesNovoRoute: AppClientesNovoRoute,
   AppClientesIndexRoute: AppClientesIndexRoute,
-  AppAdminUsuariosNovoRoute: AppAdminUsuariosNovoRoute,
-  AppClientesIdEditarRoute: AppClientesIdEditarRoute,
+  AppMotoristasIndexRoute: AppMotoristasIndexRoute,
+  AppTransportadorasIndexRoute: AppTransportadorasIndexRoute,
+  AppVeiculosIndexRoute: AppVeiculosIndexRoute,
   AppAdminUsuariosIndexRoute: AppAdminUsuariosIndexRoute,
   AppClientesIdIndexRoute: AppClientesIdIndexRoute,
-  AppAdminUsuariosIdEditarRoute: AppAdminUsuariosIdEditarRoute,
+  AppTransportadorasIdIndexRoute: AppTransportadorasIdIndexRoute,
   AppAdminUsuariosIdIndexRoute: AppAdminUsuariosIdIndexRoute,
 }
 

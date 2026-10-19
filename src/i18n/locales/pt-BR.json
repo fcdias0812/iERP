@@ -626,7 +626,9 @@
     },
     "records": {
       "customer": "Cliente",
-      "user": "Usuário"
+      "user": "Usuário",
+      "carrier": "Transportadora",
+      "driver": "Motorista"
     },
     "actions": {
       "lightTheme": "Mudar para o tema claro",
@@ -656,6 +658,9 @@
   "nav": {
     "inicio": "Início",
     "clientes": "Clientes",
+    "transportadoras": "Transportadoras",
+    "veiculos": "Veículos",
+    "motoristas": "Motoristas",
     "sections": {
       "principal": "Principal",
       "relacionamento": "Relacionamento",
@@ -709,7 +714,8 @@
     "passwordMatch": "As senhas não conferem.",
     "pastDate": "A data não pode ser anterior a hoje.",
     "coordinates": "Use o formato \"latitude, longitude\" (ex.: -22.85, -47.22).",
-    "duplicate": "Este valor já foi usado."
+    "duplicate": "Este valor já foi usado.",
+    "volumeOrder": "O volume mínimo não pode ser maior que o máximo."
   },
   "confirm": {
     "typeToConfirm": "Para confirmar, digite"
@@ -1242,13 +1248,14 @@
     "forbidden": "Seu perfil não tem permissão para esta ação.",
     "server": "O servidor encontrou um erro. Tente de novo em instantes.",
     "emailInUse": "Já existe um usuário com este e-mail.",
-    "cnpjInUse": "Já existe um cliente com este CNPJ.",
+    "cnpjInUse": "Já existe um cadastro com este CNPJ.",
     "siteCodeInUse": "Já existe um site com este código neste cliente.",
     "fileTooLarge": "Arquivo maior que o permitido.",
     "fileTypeNotAllowed": "Tipo de arquivo não permitido.",
     "geoUnavailable": "Serviço de localização indisponível. Tente de novo.",
     "cepNotFound": "CEP não encontrado.",
-    "addressNotFound": "Endereço não encontrado no mapa."
+    "addressNotFound": "Endereço não encontrado no mapa.",
+    "cpfInUse": "Já existe um motorista com este CPF."
   },
   "calendar": {
     "today": "Hoje",
@@ -1477,16 +1484,6 @@
       "semLotes": "Nenhum lote deste cliente ainda."
     },
     "historico": {
-      "cols": {
-        "em": "Data e hora",
-        "autor": "Usuário",
-        "acao": "Ação",
-        "campo": "Campo",
-        "antes": "Antes",
-        "depois": "Depois",
-        "nota": "Referência"
-      },
-      "vazio": "Nenhum registro no histórico.",
       "campos": {
         "nome": "Nome",
         "cnpj": "CNPJ",
@@ -1603,6 +1600,263 @@
         "voltagemShredder": "Voltagem do shredder",
         "pisoProtecaoObrigatorio": "Proteção do piso obrigatória"
       }
+    }
+  },
+  "contatos": {
+    "contatoN": "Contato {{n}}",
+    "principal": "Principal",
+    "tornarPrincipal": "Tornar principal",
+    "removerN": "Remover contato {{n}}",
+    "adicionar": "Adicionar contato",
+    "nome": "Nome do contato",
+    "email": "E-mail",
+    "telefone": "Telefone",
+    "nenhum": "Nenhum contato cadastrado."
+  },
+  "historico": {
+    "cols": {
+      "em": "Data e hora",
+      "autor": "Usuário",
+      "acao": "Ação",
+      "campo": "Campo",
+      "antes": "Antes",
+      "depois": "Depois",
+      "nota": "Referência"
+    },
+    "vazio": "Nenhum registro no histórico.",
+    "acoes": {
+      "criado": "Cadastrou",
+      "editado": "Alterou os dados",
+      "status": "Mudou o status"
+    }
+  },
+  "transportadoras": {
+    "list": {
+      "description": "Transportadoras parceiras, contatos e motoristas.",
+      "emptyTitle": "Nenhuma transportadora encontrada",
+      "emptyBody": "Ajuste a busca ou os filtros."
+    },
+    "kpis": {
+      "total": "Total de transportadoras",
+      "ativos": "Ativas",
+      "inativos": "Inativas"
+    },
+    "cols": {
+      "codigo": "Código",
+      "nome": "Nome",
+      "cnpj": "CNPJ",
+      "contatoEmail": "E-mail do contato principal",
+      "contatoTelefone": "Telefone do contato principal",
+      "motoristas": "Motoristas",
+      "status": "Status",
+      "criadoEm": "Cadastrada em"
+    },
+    "new": {
+      "title": "Nova transportadora",
+      "description": "Cadastre a transportadora, os contatos e os motoristas."
+    },
+    "edit": {
+      "title": "Editar {{name}}"
+    },
+    "form": {
+      "identificacao": "Dados da transportadora",
+      "contatos": "Contatos",
+      "contatosAjuda": "Opcional. O primeiro contato é o principal.",
+      "motoristas": "Motoristas",
+      "motoristasAjuda": "Opcional. Escolha da lista ou cadastre um motorista novo, que também entra em Motoristas.",
+      "escolherMotorista": "Adicionar motorista da lista…",
+      "novoMotorista": "Cadastrar novo motorista",
+      "vinculadoA": "hoje em {{name}}",
+      "semMotoristas": "Nenhum motorista vinculado.",
+      "removerMotorista": "Desvincular {{name}}",
+      "motoristaNovoN": "Motorista novo {{n}}",
+      "removerNovoN": "Remover motorista novo {{n}}"
+    },
+    "tabs": {
+      "dados": "Dados",
+      "contatos": "Contatos",
+      "motoristas": "Motoristas",
+      "historico": "Histórico"
+    },
+    "detail": {
+      "general": "Dados da transportadora",
+      "mainContact": "Contato principal",
+      "noContacts": "Nenhum contato cadastrado",
+      "editar": "Editar contatos e motoristas"
+    },
+    "campos": {
+      "nome": "Nome",
+      "cnpj": "CNPJ",
+      "contatos": "Contatos",
+      "motoristas": "Motoristas",
+      "status": "Status"
+    },
+    "toast": {
+      "created": "Transportadora {{name}} cadastrada.",
+      "saved": "Alterações de {{name}} salvas.",
+      "saveFailed": "Não foi possível salvar a transportadora.",
+      "actionFailed": "Não foi possível concluir a ação.",
+      "acao": {
+        "inativar": "{{name}} foi inativada.",
+        "reativar": "{{name}} foi reativada."
+      }
+    },
+    "acoes": {
+      "inativar": "Inativar",
+      "reativar": "Reativar"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Inativar {{name}}?",
+        "body": "O cadastro e o histórico são mantidos e dá para reativar depois."
+      },
+      "reativar": {
+        "title": "Reativar {{name}}?",
+        "body": "A transportadora volta a ficar ativa."
+      }
+    },
+    "inativoTitle": "Transportadora inativa",
+    "inativoBody": "O cadastro e o histórico são mantidos. Reative para voltar a usar."
+  },
+  "motoristas": {
+    "list": {
+      "description": "Motoristas, com ou sem transportadora.",
+      "emptyTitle": "Nenhum motorista encontrado",
+      "emptyBody": "Ajuste a busca ou os filtros."
+    },
+    "kpis": {
+      "total": "Total de motoristas",
+      "ativos": "Ativos",
+      "semTransportadora": "Sem transportadora"
+    },
+    "cols": {
+      "codigo": "Código",
+      "nome": "Nome completo",
+      "cpf": "CPF",
+      "telefone": "Telefone",
+      "transportadora": "Transportadora",
+      "status": "Status",
+      "criadoEm": "Cadastrado em"
+    },
+    "newTitle": "Novo motorista",
+    "editTitle": "Motorista {{name}}",
+    "formDescription": "Dados do motorista e a transportadora (opcional).",
+    "tabs": {
+      "dados": "Dados",
+      "historico": "Histórico"
+    },
+    "semTransportadora": "Sem transportadora",
+    "novaTransportadora": "Cadastrar nova transportadora…",
+    "novaTransportadoraAjuda": "A transportadora nova também entra em Transportadoras.",
+    "nomeTransportadora": "Nome da transportadora",
+    "cnpjTransportadora": "CNPJ da transportadora",
+    "campos": {
+      "nome": "Nome completo",
+      "cpf": "CPF",
+      "telefone": "Telefone",
+      "transportadora": "Transportadora",
+      "status": "Status"
+    },
+    "toast": {
+      "created": "Motorista {{name}} cadastrado.",
+      "saved": "Alterações de {{name}} salvas.",
+      "saveFailed": "Não foi possível salvar o motorista.",
+      "actionFailed": "Não foi possível concluir a ação.",
+      "acao": {
+        "inativar": "{{name}} foi inativado.",
+        "reativar": "{{name}} foi reativado."
+      }
+    },
+    "acoes": {
+      "inativar": "Inativar",
+      "reativar": "Reativar"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Inativar {{name}}?",
+        "body": "O cadastro e o histórico são mantidos e dá para reativar depois."
+      },
+      "reativar": {
+        "title": "Reativar {{name}}?",
+        "body": "O motorista volta a ficar ativo."
+      }
+    },
+    "inativoTitle": "Motorista inativo",
+    "inativoBody": "O cadastro e o histórico são mantidos. Reative para voltar a usar."
+  },
+  "veiculos": {
+    "list": {
+      "description": "Tipos de veículo e medidas usados para escolher o veículo da ordem.",
+      "emptyTitle": "Nenhum veículo encontrado",
+      "emptyBody": "Ajuste a busca ou os filtros."
+    },
+    "kpis": {
+      "total": "Total de veículos",
+      "ativos": "Ativos",
+      "inativos": "Inativos"
+    },
+    "cols": {
+      "codigo": "Código",
+      "tipo": "Tipo de veículo",
+      "volumeMinimo": "Volume mínimo",
+      "volumeMaximo": "Volume máximo",
+      "comprimento": "Comprimento",
+      "largura": "Largura",
+      "capacidadePallets": "Capacidade (pallets)",
+      "capacidadeToneladas": "Capacidade (toneladas)",
+      "status": "Status",
+      "criadoEm": "Cadastrado em"
+    },
+    "tipos": {
+      "truck": "Truck",
+      "carreta": "Carreta",
+      "van": "Van"
+    },
+    "newTitle": "Novo veículo",
+    "editTitle": "Veículo {{code}}",
+    "formDescription": "Tipo, medidas e capacidade do veículo.",
+    "tabs": {
+      "dados": "Dados",
+      "historico": "Histórico"
+    },
+    "secoes": {
+      "tipo": "Veículo",
+      "medidas": "Medidas",
+      "capacidade": "Capacidade"
+    },
+    "toast": {
+      "created": "Veículo {{code}} cadastrado.",
+      "saved": "Veículo {{code}} salvo.",
+      "saveFailed": "Não foi possível salvar o veículo.",
+      "actionFailed": "Não foi possível concluir a ação.",
+      "acao": {
+        "inativar": "{{code}} foi inativado.",
+        "reativar": "{{code}} foi reativado."
+      }
+    },
+    "acoes": {
+      "inativar": "Inativar",
+      "reativar": "Reativar"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Inativar {{name}}?",
+        "body": "O cadastro e o histórico são mantidos e dá para reativar depois."
+      },
+      "reativar": {
+        "title": "Reativar {{name}}?",
+        "body": "O veículo volta a ficar ativo."
+      }
+    },
+    "inativoTitle": "Veículo inativo",
+    "inativoBody": "O cadastro e o histórico são mantidos. Reative para voltar a usar.",
+    "escolhaTipo": "Escolha o tipo",
+    "pallets": "pallets"
+  },
+  "cadastro": {
+    "abas": {
+      "dados": "Dados",
+      "historico": "Histórico"
     }
   }
 }

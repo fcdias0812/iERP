@@ -37,10 +37,11 @@ export function useClientesLista(query: TableQuery) {
 export const useClientesResumo = () =>
   useQuery({ queryKey: clientesKeys.resumo(), queryFn: resumoClientes })
 
-export function useCliente(id: string) {
+export function useCliente(id: string | undefined) {
   return useQuery({
-    queryKey: clientesKeys.detalhe(id),
-    queryFn: ({ signal }) => obterCliente(id, signal),
+    queryKey: clientesKeys.detalhe(id ?? ''),
+    queryFn: ({ signal }) => obterCliente(id!, signal),
+    enabled: Boolean(id),
   })
 }
 

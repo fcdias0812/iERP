@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Eye, Pencil } from 'lucide-react'
 import { DataTable, useUrlTableQuery, type DataTableColumn } from '@/components/data-table'
@@ -13,6 +13,7 @@ import type { UsuarioResumo } from '@/services/types'
 import { listarTodosUsuarios } from '@/services/usuarios'
 import { PERFIS, STATUS_USUARIO } from './fluxo'
 import { useUsuariosLista, useUsuariosResumo } from './use-usuarios'
+import { UsuarioSheet } from './UsuarioSheet'
 
 /** Colunas da lista — ids iguais aos campos que a API filtra/ordena. */
 function useColunas(): DataTableColumn<UsuarioResumo>[] {
@@ -100,6 +101,9 @@ function UsuariosList() {
   // Sem resumo (erro): mostra "—" em vez de carregar para sempre.
   const kpiLoading = resumoQ.isPending
   const canCreate = useCan('admin.criar')
+  const { aberto } = useSearch({ from: '/_app/admin/usuarios/' })
+  const painel = (id: string | undefined) =>
+    void navigate({ to: '.', search: (s) => ({ ...s, aberto: id }) })
 
   const abrir = (r: UsuarioResumo) =>
     void navigate({ to: '/admin/usuarios/$id', params: { id: r.id } })
@@ -130,7 +134,7 @@ function UsuariosList() {
         onRetry={() => void lista.refetch()}
         fetchAll={() => listarTodosUsuarios(query)}
         onRowClick={abrir}
-        onCreate={canCreate ? () => void navigate({ to: '/admin/usuarios/novo' }) : undefined}
+        onCreate={canCreate ? () => painel('novo') : undefined}
         createLabel={t('usuarios.new.title')}
         empty={{ title: t('usuarios.list.emptyTitle'), description: t('usuarios.list.emptyBody') }}
         rowActions={(r) => (
@@ -140,11 +144,7 @@ function UsuariosList() {
               {t('common.open')}
             </DropdownMenuItem>
             <Can permission="admin.editar">
-              <DropdownMenuItem
-                onSelect={() =>
-                  void navigate({ to: '/admin/usuarios/$id/editar', params: { id: r.id } })
-                }
-              >
+              <DropdownMenuItem onSelect={() => painel(r.id)}>
                 <Pencil aria-hidden />
                 {t('common.edit')}
               </DropdownMenuItem>
@@ -152,6 +152,17 @@ function UsuariosList() {
           </>
         )}
       />
+      {aberto && (
+        <UsuarioSheet
+          key={aberto}
+          id={aberto === 'novo' ? undefined : aberto}
+          onClose={() => painel(undefined)}
+          // Usuário novo: abre o detalhe.
+          onSalvo={(u) =>
+            aberto === 'novo' && void navigate({ to: '/admin/usuarios/$id', params: { id: u.id } })
+          }
+        />
+      )}
     </ListPage>
   )
 }

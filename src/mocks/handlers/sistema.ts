@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw/http'
 import type { ResultadoBusca } from '@/services/types'
 import { simulateNetwork } from '../config'
 import { getDb } from '../db'
+import { getRelacionamento } from './relacionamento'
 
 /** Busca global (Ctrl+K) e notificações. */
 
@@ -29,6 +30,31 @@ export const sistemaHandlers = [
           codigo: c.codigo,
           titulo: c.nome,
           rota: `/clientes/${c.id}`,
+        })),
+      ...getRelacionamento()
+        .transportadoras.filter(
+          (t) => contem(t.nome, q) || contem(t.codigo, q) || t.cnpj.includes(q.toUpperCase()),
+        )
+        .slice(0, 5)
+        .map((t) => ({
+          tipo: 'transportadora' as const,
+          id: t.id,
+          codigo: t.codigo,
+          titulo: t.nome,
+          rota: `/transportadoras/${t.id}`,
+        })),
+      ...getRelacionamento()
+        .motoristas.filter(
+          (m) =>
+            contem(m.nome, q) || contem(m.codigo, q) || m.cpf.includes(q.replace(/\D/g, '') || '-'),
+        )
+        .slice(0, 5)
+        .map((m) => ({
+          tipo: 'motorista' as const,
+          id: m.id,
+          codigo: m.codigo,
+          titulo: m.nome,
+          rota: `/motoristas?aberto=${m.id}`,
         })),
       ...db.usuarios
         .filter((u) => contem(u.nome, q) || contem(u.email, q) || contem(u.codigo, q))
