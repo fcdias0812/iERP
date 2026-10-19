@@ -1,7 +1,14 @@
 # Re-Teck iERP (versão 2)
 
 ERP da Re-Teck focado em **logística reversa**. Esta é a versão 2, construída do zero a partir do
-**template padrão de frontend** da Re-Teck (`C:\Systems\template-padrao`).
+**template padrão de frontend** da Re-Teck (https://github.com/fcdias0812/template-padrao).
+
+Repositório: https://github.com/fcdias0812/iERP
+
+> **Continuar o desenvolvimento com o Claude (outro PC ou outra sessão):** clone o repositório, abra a
+> pasta no Claude Code e rode o skill **`/retomar`**. Todo o contexto — as ordens do usuário, as
+> decisões de cada módulo, o estado atual, as perguntas em aberto e o jeito de construir — está em
+> [`.claude/CONTEXTO.md`](.claude/CONTEXTO.md) e [`.claude/FLUXO-DE-TRABALHO.md`](.claude/FLUXO-DE-TRABALHO.md).
 
 > **Status:** menu **Relacionamento** com **Clientes** (cadastro com CNPJ e contatos; detalhe em
 > abas: visão geral com lotes, contatos, logística com sites/docas e mapa, documentos,
@@ -49,7 +56,8 @@ npm --prefix server install
 npm --prefix server run db:seed
 ```
 
-(cria o banco, aplica as migrations e põe 12 usuários **fictícios** — só para desenvolvimento)
+(cria o banco, aplica as migrations e põe dados **fictícios** — usuários, clientes, transportadoras,
+motoristas e veículos — só para desenvolvimento)
 
 Em dois terminais:
 
@@ -104,18 +112,19 @@ npm run test:e2e
 
 ## Scripts
 
-| Script                               | O que faz                                            |
-| ------------------------------------ | ---------------------------------------------------- |
-| `npm run dev`                        | Frontend (Vite, porta 5173)                          |
-| `npm run dev:api`                    | Backend em modo observação (tsx, porta 3001)         |
-| `npm run build`                      | Checagem de tipos + build do frontend em `dist/`     |
-| `npm run typecheck` / `lint`         | TypeScript strict / ESLint (frontend e backend)      |
-| `npm run test` / `test:api`          | Testes do frontend / da API                          |
-| `npm run test:e2e`                   | Ponta a ponta (acessibilidade, teclado, responsivo)  |
-| `npm run check:contrast`             | Contraste WCAG 2.2 AA dos tokens de cor              |
-| `npm run check:colors`               | Falha se houver cor fora de token em `src/`          |
-| `npm --prefix server run db:migrate` | Aplica as migrations pendentes                       |
-| `npm --prefix server run db:seed`    | Migrations + dados fictícios (só nas tabelas vazias) |
+| Script                                | O que faz                                                         |
+| ------------------------------------- | ----------------------------------------------------------------- |
+| `npm run dev`                         | Frontend (Vite, porta 5173)                                       |
+| `npm run dev:api`                     | Backend em modo observação (tsx, porta 3001)                      |
+| `npm run build`                       | Checagem de tipos + build do frontend em `dist/`                  |
+| `npm run typecheck` / `lint`          | TypeScript strict / ESLint (frontend e backend)                   |
+| `npm run test` / `test:api`           | Testes do frontend / da API                                       |
+| `npm run test:e2e`                    | Ponta a ponta (acessibilidade, teclado, responsivo)               |
+| `npm run check:contrast`              | Contraste WCAG 2.2 AA dos tokens de cor                           |
+| `npm run check:colors`                | Falha se houver cor fora de token em `src/`                       |
+| `npm --prefix server run db:migrate`  | Aplica as migrations pendentes                                    |
+| `npm --prefix server run db:seed`     | Migrations + dados fictícios (só nas tabelas vazias)              |
+| `npm --prefix server run db:desfazer` | Desfaz a última migration (só dev; migration ainda não commitada) |
 
 ## Estrutura
 

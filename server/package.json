@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/db/cli.ts migrate",
     "db:seed": "tsx src/db/cli.ts seed",
+    "db:desfazer": "tsx src/db/cli.ts desfazer",
     "test": "node --import tsx --test \"src/**/*.test.ts\""
   },
   "dependencies": {

@@ -4,10 +4,18 @@ ERP da Re-Teck focado em **logística reversa**. O usuário passa os requisitos 
 **siga só o que ele disser nesta conversa/projeto** — não puxe regras, telas ou dados do sistema
 antigo (v1) nem de outro lugar.
 
-- **Frontend** (raiz): nasceu do template padrão (`C:\Systems\template-padrao`) — design e
-  tecnologias são o padrão da empresa. Leia [`DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md); a página
-  `/design-system` e os exemplos `/exemplos` estão no template. Armadilhas conhecidas do frontend:
-  `C:\Systems\template-padrao\.claude\CONTEXTO.md`.
+> **Sessão nova? Leia antes de tudo** (ou rode o skill `/retomar`):
+> [`.claude/CONTEXTO.md`](.claude/CONTEXTO.md) — ordens do usuário, decisões por módulo, estado
+> atual e perguntas em aberto · [`.claude/FLUXO-DE-TRABALHO.md`](.claude/FLUXO-DE-TRABALHO.md) —
+> como construir cada pedido, comandos, validação no Chrome, banco de dev, armadilhas do iERP ·
+> [`.claude/ARMADILHAS-TEMPLATE.md`](.claude/ARMADILHAS-TEMPLATE.md) — herança do template.
+> Repositório: https://github.com/fcdias0812/iERP. Commit só com o "sim" do usuário; push só quando
+> ele pedir. Ao terminar uma entrega, atualize o `.claude/CONTEXTO.md`.
+
+- **Frontend** (raiz): nasceu do template padrão (https://github.com/fcdias0812/template-padrao,
+  na máquina original `C:\Systems\template-padrao`) — design e tecnologias são o padrão da empresa.
+  Leia [`DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md); a página `/design-system` e os exemplos `/exemplos`
+  ficam **só no template**. Armadilhas do frontend: [`.claude/ARMADILHAS-TEMPLATE.md`](.claude/ARMADILHAS-TEMPLATE.md).
 - **Backend** (`server/`): TypeScript + Node + Express 5. Banco **SQLite** via **Kysely**
   (better-sqlite3), preparado para migrar para **PostgreSQL** (ver "Backend" abaixo).
 - Módulos hoje: seção **Relacionamento** — **Clientes** (tudo do cliente fica em **abas** do
@@ -54,13 +62,17 @@ antigo (v1) nem de outro lugar.
    Defina as colunas com o **tipo** certo (`unique-text`, `enum`, `status`, `number`, `currency`, `date`,
    `boolean`) — ele escolhe filtro, ordenação e alinhamento. Estado na URL: `useUrlTableQuery(columns)` e,
    na rota, `validateSearch: tableSearchSchema` importado de `@/components/data-table/url-state`
-   (não do barril `@/components/data-table`, que puxaria a tabela para o pacote principal). Modelo:
-   `src/features/examples/DataTableExample.tsx`; detalhes no `DESIGN-SYSTEM.md` §8.
+   (não do barril `@/components/data-table`, que puxaria a tabela para o pacote principal). Modelos
+   no iERP: `src/features/clientes/ClientesListPage.tsx` (servidor) e
+   `src/features/comum/ContatosTabela.tsx` (cliente); detalhes no `DESIGN-SYSTEM.md` §8.
 6. **Toda tela segue um padrão de página** (`src/components/patterns/`): `ListPage`, `DetailPage`,
-   `FormPage` + `FormSection`, `WizardPage`, `SettingsLayout`, `AuthLayout`/`StatusPage`. Exemplos
-   prontos para copiar em `src/features/examples/` (menu **Exemplos**, rota `/exemplos`): Lista,
-   Detalhe, Cadastro, Assistente, Dashboard, Relatório, Kanban, Calendário; Perfil e Configurações em
-   `src/features/system/`. Detalhe fora do menu: `useBreadcrumb({ parent, label })`.
+   `FormPage` + `FormSection`, `WizardPage`, `SettingsLayout`, `AuthLayout`/`StatusPage`. Modelos no
+   iERP: lista `src/features/clientes/ClientesListPage.tsx`, detalhe com abas
+   `src/features/clientes/ClienteDetailPage.tsx`, cadastro no painel
+   `src/features/veiculos/VeiculosPage.tsx`, página própria `src/features/ordens/AgendamentoPage.tsx`;
+   Perfil e Configurações em `src/features/system/`. Os exemplos Assistente, Dashboard, Relatório,
+   Kanban e Calendário estão no template (`src/features/examples/`). Detalhe fora do menu:
+   `useBreadcrumb({ parent, label })`.
    **Cadastro e edição SEMPRE no painel lateral à direita** (`CadastroSheet` +
    `CadastroSecao`, `src/features/comum/CadastroSheet.tsx`) — pedido do usuário, um padrão só para
    todos os módulos. Nada de página própria `/novo` ou `/:id/editar` — **única exceção:
