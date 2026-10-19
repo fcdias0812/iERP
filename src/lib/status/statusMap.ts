@@ -10,6 +10,7 @@ import {
   CircleCheck,
   CircleCheckBig,
   CircleDot,
+  CircleHelp,
   CircleMinus,
   CirclePlay,
   CircleX,
@@ -60,6 +61,10 @@ export const STATUS_MAP = {
   pendente: { tone: 'warning', icon: Clock, flowOrder: 30 },
   // Ocorrência do lote (alerta leve: alguém precisa olhar).
   registrada: { tone: 'warning', icon: MessageSquareWarning, flowOrder: 32 },
+  // Inspeção visual do recebimento.
+  inspecao_bom: { tone: 'success', icon: CircleCheck, flowOrder: 61 },
+  inspecao_outro: { tone: 'warning', icon: CircleHelp, flowOrder: 202 },
+  inspecao_avaria: { tone: 'alert', icon: TriangleAlert, flowOrder: 203 },
   aguardando_aprovacao: { tone: 'warning', icon: Hourglass, flowOrder: 40 },
   em_revisao: { tone: 'warning', icon: Eye, flowOrder: 50 },
   aprovado: { tone: 'success', icon: CircleCheck, flowOrder: 60 },

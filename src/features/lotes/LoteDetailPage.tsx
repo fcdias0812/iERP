@@ -1,6 +1,15 @@
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { FileText, History, Info, ListChecks, MessageSquareWarning, Pencil } from 'lucide-react'
+import {
+  ClipboardPen,
+  FileText,
+  History,
+  Info,
+  ListChecks,
+  MessageSquareWarning,
+  PackageCheck,
+  Pencil,
+} from 'lucide-react'
 import { Can } from '@/components/layout/Can'
 import { RequirePermission } from '@/components/layout/RequirePermission'
 import { DetailPage } from '@/components/patterns/DetailPage'
@@ -19,6 +28,7 @@ import { AbaInformacoes } from './AbaInformacoes'
 import { AbaOcorrencias } from './AbaOcorrencias'
 import { AbaProgresso } from './AbaProgresso'
 import { LoteSheet } from './LoteSheet'
+import { RecebimentoSheet } from './RecebimentoSheet'
 import type { LoteSearch } from './lote-search'
 import { OcorrenciaSheet } from './OcorrenciaSheet'
 import type { AbaLote, OrigemLote } from './origem'
@@ -67,7 +77,12 @@ function LoteDetail({ id, origem }: { id: string; origem: OrigemLote }) {
 
 function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
   const { t } = useTranslation()
-  const { aba = 'informacoes', ocorrencia, editar } = useSearch({ strict: false }) as LoteSearch
+  const {
+    aba = 'informacoes',
+    ocorrencia,
+    editar,
+    receber,
+  } = useSearch({ strict: false }) as LoteSearch
   const ir = useIrNoLote(origem, o.id)
   const permissaoEditar = `${origem}.editar`
   const abaUrl = (a: AbaLote) => (a === 'informacoes' ? undefined : a)
@@ -75,6 +90,9 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
   const ativas = o.ocorrencias.filter((x) => x.status === 'registrada').length
   // Decisão do usuário: os dados do agendamento só mudam enquanto o lote está agendado.
   const editavel = o.status === 'agendado'
+  // Recebimento (Operação): receber o agendado; corrigir enquanto em Inspeção.
+  const podeReceber = o.status === 'agendado'
+  const podeCorrigirRecebimento = o.status === 'inspecao' && Boolean(o.recebimento)
 
   return (
     <>
@@ -110,12 +128,31 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
                 </Button>
               </Can>
             )}
+            {podeCorrigirRecebimento && (
+              <Can permission="operacao.editar" fallback="disable">
+                <Button variant="secondary" onClick={() => ir({ aba: abaUrl(aba), receber: true })}>
+                  <ClipboardPen aria-hidden />
+                  {t('recebimento.corrigir')}
+                </Button>
+              </Can>
+            )}
             <Can permission={permissaoEditar} fallback="disable">
-              <Button onClick={() => abrirOcorrencia('nova')}>
+              <Button
+                variant={podeReceber ? 'secondary' : 'default'}
+                onClick={() => abrirOcorrencia('nova')}
+              >
                 <MessageSquareWarning aria-hidden />
                 {t('lotes.ocorrencias.registrar')}
               </Button>
             </Can>
+            {podeReceber && (
+              <Can permission="operacao.editar" fallback="disable">
+                <Button onClick={() => ir({ aba: abaUrl(aba), receber: true })}>
+                  <PackageCheck aria-hidden />
+                  {t('recebimento.receberLote')}
+                </Button>
+              </Can>
+            )}
           </>
         }
         tabs={[
@@ -159,6 +196,14 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
           },
         ]}
       />
+
+      {receber && (podeReceber || podeCorrigirRecebimento) && (
+        <RecebimentoSheet
+          loteId={o.id}
+          permissao="operacao.editar"
+          onClose={() => ir({ aba: abaUrl(aba) })}
+        />
+      )}
 
       {editar && editavel && (
         <LoteSheet lote={o} permissao={permissaoEditar} onClose={() => ir({ aba: abaUrl(aba) })} />

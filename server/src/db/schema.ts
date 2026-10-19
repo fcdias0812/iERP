@@ -296,6 +296,7 @@ export interface OrdensPalletsTable {
   numero: number
   /** kg */
   pesoKg: number | null
+  taraKg: number | null
   conteudo: string | null
   pesadoPor: string | null
   pesadoEm: string | null
@@ -330,6 +331,40 @@ export interface OrdensOcorrenciasFotosTable {
   enviadoPor: string
 }
 
+/** Recebimento do lote (Operação › Recebimento) — um por lote. */
+export interface OrdensRecebimentosTable {
+  ordemId: string
+  dataRecebimento: string
+  inspecao: string
+  /** LocalizedText em JSON (avaria/outro). */
+  inspecaoDescricao: string | null
+  ocorrenciaId: string | null
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+export interface OrdensItensRecebimentoTable {
+  id: string
+  ordemId: string
+  posicao: number
+  numero: string
+}
+
+export interface OrdensRecebimentoFotosTable {
+  id: string
+  ordemId: string
+  alvo: string
+  alvoId: string | null
+  posicao: number
+  nome: string
+  extensao: string
+  tamanho: number
+  enviadoEm: string
+  enviadoPor: string
+}
+
 export interface Database {
   usuarios: UsuariosTable
   usuariosHistorico: UsuariosHistoricoTable
@@ -354,4 +389,8 @@ export interface Database {
   ordensPallets: OrdensPalletsTable
   ordensOcorrencias: OrdensOcorrenciasTable
   ordensOcorrenciasFotos: OrdensOcorrenciasFotosTable
+  ordensRecebimentos: OrdensRecebimentosTable
+  ordensLacres: OrdensItensRecebimentoTable
+  ordensNotasFiscais: OrdensItensRecebimentoTable
+  ordensRecebimentoFotos: OrdensRecebimentoFotosTable
 }

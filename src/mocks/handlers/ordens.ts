@@ -7,6 +7,8 @@ import type {
   Doca,
   OcorrenciaInput,
   Ordem,
+  RecebimentoInput,
+  FotoRecebimento,
   TipoDocumentoLote,
   OrdemInput,
   OrdemResumo,
@@ -126,6 +128,9 @@ function semente(): Ordem {
         pesadoEm: quando(5, 13),
         temFoto: false,
         origem: 'iERP',
+        taraKg: null,
+        pesoLiquidoKg: null,
+        fotos: [],
       },
       {
         id: 'pal00002',
@@ -136,8 +141,24 @@ function semente(): Ordem {
         pesadoEm: quando(5, 14),
         temFoto: false,
         origem: 'iERP',
+        taraKg: null,
+        pesoLiquidoKg: null,
+        fotos: [],
       },
     ],
+    recebimento: {
+      dataRecebimento: dia(5),
+      inspecao: 'bom',
+      inspecaoDescricao: null,
+      ocorrenciaId: null,
+      lacres: [],
+      notas: [],
+      fotosGerais: [],
+      criadoEm: quando(5, 13),
+      criadoPor: 'Sistema',
+      alteradoEm: quando(5, 13),
+      alteradoPor: 'Sistema',
+    },
     ocorrencias: [
       {
         id: 'oco00001',
@@ -381,6 +402,7 @@ export const ordensHandlers = [
       etapas: [{ etapa: 'agendado', em: agora }],
       pallets: [],
       ocorrencias: [],
+      recebimento: null,
     }
     ordens = [ordem, ...lotes()]
     return HttpResponse.json(ordem, { status: 201 })
@@ -657,4 +679,134 @@ export const ordensHandlers = [
       ]
     return HttpResponse.json(o)
   }),
+
+  /* ---------------- recebimento (Operação › Recebimento) */
+
+  http.post('*/api/ordens/:id/recebimento', ({ request, params }) =>
+    salvarRecebimento(request, String(params.id), 'receber'),
+  ),
+  http.put('*/api/ordens/:id/recebimento', ({ request, params }) =>
+    salvarRecebimento(request, String(params.id), 'corrigir'),
+  ),
+  http.get('*/api/ordens/:id/recebimento/fotos/:foto', ({ params }) => {
+    const f = fotos.get(String(params.foto))
+    return f
+      ? new HttpResponse(f, { headers: { 'Content-Type': f.type || 'image/jpeg' } })
+      : apiError(404, 'not_found', 'Foto não encontrada.')
+  }),
 ]
+
+/** Recebimento simulado (regras resumidas — a fonte da verdade é o servidor). */
+async function salvarRecebimento(request: Request, id: string, modo: 'receber' | 'corrigir') {
+  const fail = await simulateNetwork(request)
+  if (fail) return fail
+  const o = lotes().find((x) => x.id === id)
+  if (!o) return apiError(404, 'not_found', 'Lote não encontrado.')
+  if (modo === 'receber' && o.status !== 'agendado')
+    return apiError(409, 'invalid_transition', 'Só lote agendado pode ser recebido.')
+  if (modo === 'corrigir' && (o.status !== 'inspecao' || !o.recebimento))
+    return apiError(409, 'invalid_transition', 'Só enquanto o lote está em Inspeção.')
+  const form = await request.formData()
+  const d = JSON.parse(String(form.get('dados') ?? '{}')) as RecebimentoInput
+  if (!d.pallets?.length) return apiError(422, 'validation', 'Informe pelo menos um pallet.')
+  if (d.inspecao !== 'bom' && !d.inspecaoDescricao)
+    return apiError(422, 'validation', 'Descreva o que foi encontrado na inspeção.')
+  const agora = new Date().toISOString()
+  const todas = [
+    ...(o.recebimento?.lacres.flatMap((l) => l.fotos) ?? []),
+    ...(o.recebimento?.notas.flatMap((n) => n.fotos) ?? []),
+    ...(o.recebimento?.fotosGerais ?? []),
+    ...o.pallets.flatMap((p) => p.fotos),
+  ]
+  const fotosDe = (campo: string, manter: string[]): FotoRecebimento[] => [
+    ...todas.filter((f) => manter.includes(f.id)),
+    ...(form.getAll(campo) as File[]).map((f) => {
+      const fid = novoId('frc')
+      fotos.set(fid, f)
+      return { id: fid, nome: f.name, extensao: f.name.split('.').pop() ?? '', tamanho: f.size }
+    }),
+  ]
+  const itens = (nome: 'lacres' | 'notas') =>
+    d[nome].map((x, i) => ({
+      id: x.id ?? novoId('itm'),
+      numero: x.numero,
+      fotos: fotosDe(`${nome}.${i}`, x.fotosManter),
+    }))
+  const inicio = inicioDoDia(d.dataRecebimento)!
+  o.pallets = d.pallets.map((p, i) => ({
+    id: p.id ?? novoId('pal'),
+    numero: i + 1,
+    pesoKg: p.pesoBruto,
+    taraKg: p.tara,
+    pesoLiquidoKg: p.pesoBruto - (p.tara ?? 0),
+    conteudo: p.conteudo,
+    pesadoPor: autor(),
+    pesadoEm: agora,
+    temFoto: false,
+    origem: 'iERP',
+    fotos: fotosDe(`pallets.${i}`, p.fotosManter),
+  }))
+  // Avaria/Outro: ocorrência de Recebimento no lote.
+  let ocorrenciaId = o.recebimento?.ocorrenciaId ?? null
+  const existente = o.ocorrencias.find((x) => x.id === ocorrenciaId && x.status === 'registrada')
+  if (d.inspecao === 'bom') {
+    if (existente) existente.status = 'cancelado'
+    ocorrenciaId = null
+  } else if (existente) {
+    existente.categoria = d.inspecao === 'avaria' ? 'avaria_carga' : 'outro'
+    existente.texto = d.inspecaoDescricao!
+  } else {
+    const numero = Math.max(0, ...o.ocorrencias.map((x) => x.numero)) + 1
+    ocorrenciaId = novoId('oco')
+    o.ocorrencias = [
+      {
+        id: ocorrenciaId,
+        numero,
+        momento: 'recebimento',
+        categoria: d.inspecao === 'avaria' ? 'avaria_carga' : 'outro',
+        texto: d.inspecaoDescricao!,
+        status: 'registrada',
+        fotos: [],
+        criadoEm: agora,
+        criadoPor: autor(),
+        alteradoEm: agora,
+        alteradoPor: autor(),
+      },
+      ...o.ocorrencias,
+    ]
+  }
+  o.recebimento = {
+    dataRecebimento: inicio,
+    inspecao: d.inspecao,
+    inspecaoDescricao: d.inspecao === 'bom' ? null : d.inspecaoDescricao,
+    ocorrenciaId,
+    lacres: itens('lacres'),
+    notas: itens('notas'),
+    fotosGerais: fotosDe('gerais', d.fotosGeraisManter),
+    criadoEm: o.recebimento?.criadoEm ?? agora,
+    criadoPor: o.recebimento?.criadoPor ?? autor(),
+    alteradoEm: agora,
+    alteradoPor: autor(),
+  }
+  if (modo === 'receber') {
+    o.status = 'inspecao'
+    o.recebidoEm = agora
+    o.etapaDesde = agora
+    o.etapas = [...o.etapas, { etapa: 'inspecao', em: agora }]
+  }
+  o.historico = [
+    {
+      id: novoId('h'),
+      autor: autor(),
+      em: agora,
+      acao: modo === 'receber' ? 'recebido' : 'recebimento_editado',
+      mudancas: [
+        ...(modo === 'receber' ? [{ campo: 'status', antes: 'agendado', depois: 'inspecao' }] : []),
+        { campo: 'inspecao', antes: null, depois: d.inspecao },
+        { campo: 'palletsRecebidos', antes: null, depois: o.pallets.length },
+      ],
+    },
+    ...o.historico,
+  ]
+  return HttpResponse.json(o, { status: modo === 'receber' ? 201 : 200 })
+}

@@ -741,7 +741,11 @@
     "coordinates": "Use the \"latitude, longitude\" format (e.g. -22.85, -47.22).",
     "duplicate": "This value is already in use.",
     "volumeOrder": "Minimum volume can’t be greater than the maximum.",
-    "scopeRequired": "Write the scope of work or attach at least one document."
+    "scopeRequired": "Write the scope of work or attach at least one document.",
+    "photoRequired": "Take or choose at least one photo.",
+    "tareGreater": "The tare cannot exceed the gross weight.",
+    "futureDate": "The date cannot be in the future.",
+    "palletRequired": "Add at least one pallet."
   },
   "confirm": {
     "typeToConfirm": "To confirm, type"
@@ -842,7 +846,10 @@
     "aguardando_cod": "Awaiting COD",
     "no_prazo": "On track",
     "sem_sla": "No SLA set",
-    "registrada": "Logged"
+    "registrada": "Logged",
+    "inspecao_bom": "Good",
+    "inspecao_avaria": "Damaged",
+    "inspecao_outro": "Other"
   },
   "dataTable": {
     "yes": "Yes",
@@ -2016,7 +2023,8 @@
         "servicos": "Services",
         "totalVolumes": "Volumes",
         "status": "Status",
-        "criadoEm": "Scheduled on"
+        "criadoEm": "Scheduled on",
+        "recebidoEm": "Received on"
       }
     }
   },
@@ -2184,23 +2192,29 @@
         "atual": "Current stage",
         "pendente": "To do"
       },
-      "etapasAjuda": "Stages advance through the integration with the production systems (not connected yet)."
+      "etapasAjuda": "The stage changes when the lot is received (Operations › Receiving) and then through the integration with the production systems."
     },
     "recebimento": {
       "titulo": "Receiving",
-      "ajuda": "Pallet by pallet: weight, contents, who weighed it and the photo.",
+      "ajuda": "Pallet by pallet: gross weight, tare, net weight, contents, who weighed it and the photos.",
       "cols": {
         "numero": "Pallet",
-        "peso": "Weight",
+        "peso": "Gross weight",
         "conteudo": "Contents",
         "pesadoPor": "Weighed by",
         "pesadoEm": "Weighed at",
-        "foto": "Photo",
-        "origem": "Source"
+        "foto": "Photos",
+        "origem": "Source",
+        "tara": "Tare",
+        "pesoLiquido": "Net weight"
       },
       "fotoTitulo": "Pallet {{numero}} — {{lote}}",
       "vazioTitle": "No pallets received",
-      "vazioBody": "Pallets show up here once they are weighed at receiving — through the integration or Operations › Receiving."
+      "vazioBody": "Pallets show up here once the lot is received in Operations › Receiving (or through the integration).",
+      "fotoDe_lacre": "Seal {{numero}}",
+      "fotoDe_nota": "Invoice {{numero}}",
+      "dadosTitulo": "Receiving details",
+      "recebidoPor": "Received by"
     },
     "ocorrencias": {
       "registrar": "Log incident",
@@ -2268,7 +2282,9 @@
         "ocorrencia_editada": "Corrected incident",
         "ocorrencia_cancelada": "Canceled incident",
         "documento_adicionado": "Added document",
-        "documento_removido": "Removed document"
+        "documento_removido": "Removed document",
+        "recebido": "Received the lot",
+        "recebimento_editado": "Corrected the receiving"
       },
       "campos": {
         "status": "Status",
@@ -2276,7 +2292,16 @@
         "categoria": "Category",
         "texto": "Description",
         "fotos": "Photos",
-        "tipoDocumento": "Document type"
+        "tipoDocumento": "Document type",
+        "dataRecebimento": "Receiving date",
+        "inspecao": "Visual inspection",
+        "inspecaoDescricao": "What was found",
+        "lacres": "Seals",
+        "notas": "Invoices",
+        "palletsRecebidos": "Pallets received",
+        "pesoBruto": "Gross weight",
+        "pesoLiquido": "Net weight",
+        "fotosGerais": "General photos"
       }
     },
     "informacoes": {
@@ -2344,6 +2369,82 @@
         "salvo": "Lot {{code}} updated.",
         "falhou": "Could not save the lot."
       }
+    }
+  },
+  "recebimento": {
+    "paginaDescricao": "Receive scheduled lots: seals, invoices, visual inspection and pallets.",
+    "receberLote": "Receive lot",
+    "corrigir": "Correct receiving",
+    "abrirLote": "Open lot",
+    "visao": "Lots",
+    "visoes": {
+      "a-receber": "To receive",
+      "recebidos": "Received"
+    },
+    "vazio": {
+      "a-receber": "No lots to receive",
+      "recebidos": "No lots received"
+    },
+    "vazioBody": "Adjust the search or filters.",
+    "receberTitulo": "Receive lot",
+    "corrigirTitulo": "Correct receiving — {{code}}",
+    "descricao": "Seals, invoices, visual inspection and pallets. When saving, the lot moves to Inspection.",
+    "corrigirDescricao": "It can be corrected while the lot is in Inspection. Every change stays in the history.",
+    "bloqueadoTitle": "Cannot save",
+    "bloqueadoReceber": "This lot is no longer scheduled.",
+    "bloqueadoCorrigir": "The lot has left Inspection: the receiving no longer changes.",
+    "secoes": {
+      "lote": "Lot",
+      "chegada": "Arrival",
+      "lacres": "Seals",
+      "notas": "Invoices",
+      "pallets": "Pallets",
+      "fotosGerais": "General photos"
+    },
+    "campos": {
+      "lote": "Lot",
+      "cliente": "Customer",
+      "dataRecebimento": "Receiving date",
+      "inspecao": "Visual inspection",
+      "descricao": "What was found",
+      "numero_lacre": "Seal number",
+      "foto_lacre": "Seal photo",
+      "numero_nota": "Invoice number",
+      "foto_nota": "Invoice photo",
+      "pesoBruto": "Gross weight",
+      "tara": "Tare",
+      "pesoLiquido": "Net weight",
+      "conteudo": "Contents",
+      "fotoPallet": "Pallet photo",
+      "fotos": "Photos"
+    },
+    "escolhaLote": "Choose the scheduled lot…",
+    "clienteDoLote": "Filled from the lot",
+    "loteEscolhido": "The customer comes from the chosen lot.",
+    "inspecaoAjuda": "The condition the cargo arrived in. Damaged or Other become a Receiving incident on the lot.",
+    "descricaoAjuda": "Write in any language: the system translates it into the other two when saving. Do not include personal data.",
+    "lacresAjuda": "Optional. Each seal needs its number and at least one photo.",
+    "notasAjuda": "Optional. Each invoice needs its number and at least one photo.",
+    "palletsAjuda": "At least one pallet: gross weight and photo required; tare (empty pallet weight) optional.",
+    "fotosGeraisAjuda": "Optional. Receiving photos that are not of a pallet or a seal.",
+    "lacreN": "Seal {{n}}",
+    "notaN": "Invoice {{n}}",
+    "palletN": "Pallet {{n}}",
+    "remover": "Remove {{item}}",
+    "adicionar_lacre": "Add seal",
+    "adicionar_nota": "Add invoice",
+    "adicionarPallet": "Add pallet",
+    "fotos": {
+      "lista": "Photos — {{item}}",
+      "tirar": "Take photo",
+      "escolher": "Choose file",
+      "limite": "Limit of {{n}} photos reached.",
+      "remover": "Remove photo {{nome}}"
+    },
+    "toast": {
+      "recebido": "Lot {{code}} received.",
+      "corrigido": "Receiving of lot {{code}} corrected.",
+      "falhou": "Could not save the receiving."
     }
   }
 }

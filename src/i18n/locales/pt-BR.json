@@ -741,7 +741,11 @@
     "coordinates": "Use o formato \"latitude, longitude\" (ex.: -22.85, -47.22).",
     "duplicate": "Este valor já foi usado.",
     "volumeOrder": "O volume mínimo não pode ser maior que o máximo.",
-    "scopeRequired": "Escreva o escopo de trabalho ou anexe pelo menos um documento."
+    "scopeRequired": "Escreva o escopo de trabalho ou anexe pelo menos um documento.",
+    "photoRequired": "Tire ou escolha pelo menos uma foto.",
+    "tareGreater": "A tara não pode ser maior que o peso bruto.",
+    "futureDate": "A data não pode ser no futuro.",
+    "palletRequired": "Informe pelo menos um pallet."
   },
   "confirm": {
     "typeToConfirm": "Para confirmar, digite"
@@ -842,7 +846,10 @@
     "aguardando_cod": "Aguardando COD",
     "no_prazo": "Normal",
     "sem_sla": "Sem SLA medido",
-    "registrada": "Registrada"
+    "registrada": "Registrada",
+    "inspecao_bom": "Bom",
+    "inspecao_avaria": "Avaria",
+    "inspecao_outro": "Outro"
   },
   "dataTable": {
     "yes": "Sim",
@@ -2016,7 +2023,8 @@
         "servicos": "Serviços",
         "totalVolumes": "Volumes",
         "status": "Status",
-        "criadoEm": "Agendado em"
+        "criadoEm": "Agendado em",
+        "recebidoEm": "Recebido em"
       }
     }
   },
@@ -2184,23 +2192,29 @@
         "atual": "Etapa atual",
         "pendente": "A fazer"
       },
-      "etapasAjuda": "As etapas avançam pela integração com os sistemas de produção (ainda não ligada)."
+      "etapasAjuda": "A etapa muda ao receber o lote (Operação › Recebimento) e, depois, pela integração com os sistemas de produção."
     },
     "recebimento": {
       "titulo": "Recebimento",
-      "ajuda": "Pallet a pallet: peso, conteúdo, quem pesou e a foto.",
+      "ajuda": "Pallet a pallet: peso bruto, tara, peso líquido, conteúdo, quem pesou e as fotos.",
       "cols": {
         "numero": "Pallet",
-        "peso": "Peso",
+        "peso": "Peso bruto",
         "conteudo": "Conteúdo",
         "pesadoPor": "Pesado por",
         "pesadoEm": "Pesado em",
-        "foto": "Foto",
-        "origem": "Origem"
+        "foto": "Fotos",
+        "origem": "Origem",
+        "tara": "Tara",
+        "pesoLiquido": "Peso líquido"
       },
       "fotoTitulo": "Pallet {{numero}} — {{lote}}",
       "vazioTitle": "Nenhum pallet recebido",
-      "vazioBody": "Os pallets aparecem aqui quando forem pesados no recebimento — pela integração ou por Operação › Recebimento."
+      "vazioBody": "Os pallets aparecem aqui quando o lote for recebido em Operação › Recebimento (ou pela integração).",
+      "fotoDe_lacre": "Lacre {{numero}}",
+      "fotoDe_nota": "Nota fiscal {{numero}}",
+      "dadosTitulo": "Dados do recebimento",
+      "recebidoPor": "Recebido por"
     },
     "ocorrencias": {
       "registrar": "Registrar ocorrência",
@@ -2268,7 +2282,9 @@
         "ocorrencia_editada": "Corrigiu ocorrência",
         "ocorrencia_cancelada": "Cancelou ocorrência",
         "documento_adicionado": "Adicionou documento",
-        "documento_removido": "Removeu documento"
+        "documento_removido": "Removeu documento",
+        "recebido": "Recebeu o lote",
+        "recebimento_editado": "Corrigiu o recebimento"
       },
       "campos": {
         "status": "Status",
@@ -2276,7 +2292,16 @@
         "categoria": "Categoria",
         "texto": "Descrição",
         "fotos": "Fotos",
-        "tipoDocumento": "Tipo de documento"
+        "tipoDocumento": "Tipo de documento",
+        "dataRecebimento": "Data de recebimento",
+        "inspecao": "Inspeção visual",
+        "inspecaoDescricao": "O que foi encontrado",
+        "lacres": "Lacres",
+        "notas": "Notas fiscais",
+        "palletsRecebidos": "Pallets recebidos",
+        "pesoBruto": "Peso bruto",
+        "pesoLiquido": "Peso líquido",
+        "fotosGerais": "Fotos gerais"
       }
     },
     "informacoes": {
@@ -2344,6 +2369,82 @@
         "salvo": "Lote {{code}} atualizado.",
         "falhou": "Não foi possível salvar o lote."
       }
+    }
+  },
+  "recebimento": {
+    "paginaDescricao": "Receba os lotes agendados: lacres, notas fiscais, inspeção visual e pallets.",
+    "receberLote": "Receber lote",
+    "corrigir": "Corrigir recebimento",
+    "abrirLote": "Abrir lote",
+    "visao": "Lotes",
+    "visoes": {
+      "a-receber": "A receber",
+      "recebidos": "Recebidos"
+    },
+    "vazio": {
+      "a-receber": "Nenhum lote a receber",
+      "recebidos": "Nenhum lote recebido"
+    },
+    "vazioBody": "Ajuste a busca ou os filtros.",
+    "receberTitulo": "Receber lote",
+    "corrigirTitulo": "Corrigir recebimento — {{code}}",
+    "descricao": "Lacres, notas fiscais, inspeção visual e pallets. Ao salvar, o lote vai para Inspeção.",
+    "corrigirDescricao": "Dá para corrigir enquanto o lote está em Inspeção. Toda mudança fica no histórico.",
+    "bloqueadoTitle": "Não dá para salvar",
+    "bloqueadoReceber": "Este lote não está mais agendado.",
+    "bloqueadoCorrigir": "O lote saiu de Inspeção: o recebimento não muda mais.",
+    "secoes": {
+      "lote": "Lote",
+      "chegada": "Chegada",
+      "lacres": "Lacres",
+      "notas": "Notas fiscais",
+      "pallets": "Pallets",
+      "fotosGerais": "Fotos gerais"
+    },
+    "campos": {
+      "lote": "Lote",
+      "cliente": "Cliente",
+      "dataRecebimento": "Data de recebimento",
+      "inspecao": "Inspeção visual",
+      "descricao": "O que foi encontrado",
+      "numero_lacre": "Número do lacre",
+      "foto_lacre": "Foto do lacre",
+      "numero_nota": "Número da nota",
+      "foto_nota": "Foto da nota",
+      "pesoBruto": "Peso bruto",
+      "tara": "Tara",
+      "pesoLiquido": "Peso líquido",
+      "conteudo": "Conteúdo",
+      "fotoPallet": "Foto do pallet",
+      "fotos": "Fotos"
+    },
+    "escolhaLote": "Escolha o lote agendado…",
+    "clienteDoLote": "Preenchido pelo lote",
+    "loteEscolhido": "O cliente vem do lote escolhido.",
+    "inspecaoAjuda": "Em que estado a carga chegou. Avaria ou Outro viram ocorrência de Recebimento no lote.",
+    "descricaoAjuda": "Escreva em qualquer idioma: o sistema traduz para os outros dois ao salvar. Não coloque dados pessoais.",
+    "lacresAjuda": "Opcional. Cada lacre precisa do número e de pelo menos uma foto.",
+    "notasAjuda": "Opcional. Cada nota fiscal precisa do número e de pelo menos uma foto.",
+    "palletsAjuda": "Pelo menos um pallet: peso bruto e foto obrigatórios; tara (peso do pallet vazio) opcional.",
+    "fotosGeraisAjuda": "Opcional. Fotos do recebimento que não são de um pallet nem de um lacre.",
+    "lacreN": "Lacre {{n}}",
+    "notaN": "Nota fiscal {{n}}",
+    "palletN": "Pallet {{n}}",
+    "remover": "Remover {{item}}",
+    "adicionar_lacre": "Adicionar lacre",
+    "adicionar_nota": "Adicionar nota fiscal",
+    "adicionarPallet": "Adicionar pallet",
+    "fotos": {
+      "lista": "Fotos — {{item}}",
+      "tirar": "Tirar foto",
+      "escolher": "Escolher arquivo",
+      "limite": "Limite de {{n}} fotos atingido.",
+      "remover": "Remover a foto {{nome}}"
+    },
+    "toast": {
+      "recebido": "Lote {{code}} recebido.",
+      "corrigido": "Recebimento do lote {{code}} corrigido.",
+      "falhou": "Não foi possível salvar o recebimento."
     }
   }
 }

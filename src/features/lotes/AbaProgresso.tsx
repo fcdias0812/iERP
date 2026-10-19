@@ -5,12 +5,20 @@ import { DataTable, type DataTableColumn } from '@/components/data-table'
 import { EMPTY_QUERY, type TableQuery } from '@/components/data-table/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { KpiCard } from '@/components/ui/kpi-card'
+import { TextoTraduzido } from '@/components/ui/localized-text'
+import { KeyValueList } from '@/components/ui/metadata'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { EMPTY, formatDate, formatDateTime, formatNumber } from '@/lib/format'
 import { STATUS_MAP } from '@/lib/status/statusMap'
 import { cn } from '@/lib/utils'
-import { urlFotoPallet } from '@/services/ordens'
-import type { Ordem, PalletLote, StatusOrdem } from '@/services/types'
+import { urlFotoPallet, urlFotoRecebimento } from '@/services/ordens'
+import type {
+  FotoRecebimento,
+  ItemRecebimento,
+  Ordem,
+  PalletLote,
+  StatusOrdem,
+} from '@/services/types'
 import { FotoMiniatura } from './FotoMiniatura'
 import { ETAPAS_LOTE } from './origem'
 
@@ -18,8 +26,7 @@ import { ETAPAS_LOTE } from './origem'
  * Progresso do lote: etapa atual, pallets recebidos e peso bruto; linha do tempo das etapas
  * (feitas, atual, a fazer); e o recebimento pallet a pallet. Os dados do agendamento ficam
  * na aba Informações.
- * Etapas e pallets vêm da integração (ou, depois, de Operação › Recebimento): sem ela, ficam
- * vazios.
+ * Etapas e pallets vêm de Operação › Recebimento ou da integração com os sistemas de produção.
  */
 
 const ORDEM_PALLETS: TableQuery = { ...EMPTY_QUERY, sort: [{ id: 'numero', desc: false }] }
@@ -71,6 +78,7 @@ export function AbaProgresso({ o }: { o: Ordem }) {
       </section>
 
       <LinhaDoTempo o={o} />
+      {o.recebimento && <DadosRecebimento o={o} />}
       <Recebimento o={o} />
     </div>
   )
@@ -173,27 +181,35 @@ function Recebimento({ o }: { o: Ordem }) {
   )
   const origens = useMemo(() => [...new Set(o.pallets.map((p) => p.origem))].sort(), [o.pallets])
 
-  const colunas = useMemo<DataTableColumn<PalletLote>[]>(
-    () => [
+  const colunas = useMemo<DataTableColumn<PalletLote>[]>(() => {
+    const kg = (
+      id: 'pesoKg' | 'taraKg' | 'pesoLiquidoKg',
+      rotulo: 'peso' | 'tara' | 'pesoLiquido',
+      valor: (r: PalletLote) => number | null,
+    ): DataTableColumn<PalletLote> => ({
+      id,
+      header: t(`lotes.recebimento.cols.${rotulo}`),
+      type: 'number',
+      accessor: valor,
+      size: 160,
+      total: true,
+      cell: (r) => {
+        const v = valor(r)
+        return <span className="num">{v === null ? EMPTY : `${formatNumber(v)} kg`}</span>
+      },
+    })
+    return [
       {
         id: 'numero',
         header: t('lotes.recebimento.cols.numero'),
         type: 'number',
         accessor: (r) => r.numero,
-        size: 100,
+        size: 120,
         mobile: 'title',
       },
-      {
-        id: 'pesoKg',
-        header: t('lotes.recebimento.cols.peso'),
-        type: 'number',
-        accessor: (r) => r.pesoKg,
-        size: 130,
-        total: true,
-        cell: (r) => (
-          <span className="num">{r.pesoKg === null ? EMPTY : `${formatNumber(r.pesoKg)} kg`}</span>
-        ),
-      },
+      kg('pesoKg', 'peso', (r) => r.pesoKg),
+      kg('taraKg', 'tara', (r) => r.taraKg),
+      kg('pesoLiquidoKg', 'pesoLiquido', (r) => r.pesoLiquidoKg),
       {
         id: 'conteudo',
         header: t('lotes.recebimento.cols.conteudo'),
@@ -221,20 +237,29 @@ function Recebimento({ o }: { o: Ordem }) {
       {
         id: 'foto',
         header: t('lotes.recebimento.cols.foto'),
-        type: 'boolean',
-        accessor: (r) => r.temFoto,
-        size: 110,
+        type: 'number',
+        accessor: (r) => r.fotos.length + (r.temFoto ? 1 : 0),
+        size: 160,
         sortable: false,
-        cell: (r) =>
-          r.temFoto ? (
-            <FotoMiniatura
-              className="size-9"
-              src={urlFotoPallet(o.id, r.id)}
-              titulo={t('lotes.recebimento.fotoTitulo', { numero: r.numero, lote: o.codigo })}
-            />
-          ) : (
-            EMPTY
-          ),
+        cell: (r) => {
+          const titulo = t('lotes.recebimento.fotoTitulo', { numero: r.numero, lote: o.codigo })
+          if (!r.fotos.length && !r.temFoto) return EMPTY
+          return (
+            <span className="flex items-center gap-1">
+              {r.temFoto && (
+                <FotoMiniatura className="size-9" src={urlFotoPallet(o.id, r.id)} titulo={titulo} />
+              )}
+              {r.fotos.map((f, i) => (
+                <FotoMiniatura
+                  key={f.id}
+                  className="size-9"
+                  src={urlFotoRecebimento(o.id, f.id)}
+                  titulo={`${titulo} (${i + 1})`}
+                />
+              ))}
+            </span>
+          )
+        },
       },
       {
         id: 'origem',
@@ -245,9 +270,8 @@ function Recebimento({ o }: { o: Ordem }) {
         hidden: true,
         options: origens.map((x) => ({ value: x, label: x })),
       },
-    ],
-    [t, o.id, o.codigo, pessoas, origens],
-  )
+    ]
+  }, [t, o.id, o.codigo, pessoas, origens])
 
   return (
     <section aria-labelledby="lote-recebimento-titulo" className="flex flex-col gap-3">
@@ -272,5 +296,78 @@ function Recebimento({ o }: { o: Ordem }) {
         }}
       />
     </section>
+  )
+}
+
+/* ---------------------------------------------------------------- dados do recebimento */
+
+function DadosRecebimento({ o }: { o: Ordem }) {
+  const { t } = useTranslation()
+  const r = o.recebimento!
+  const fotos = (lista: FotoRecebimento[], titulo: string) =>
+    lista.length ? (
+      <span className="flex flex-wrap gap-1">
+        {lista.map((f, i) => (
+          <FotoMiniatura
+            key={f.id}
+            className="size-10"
+            src={urlFotoRecebimento(o.id, f.id)}
+            titulo={lista.length > 1 ? `${titulo} (${i + 1})` : titulo}
+          />
+        ))}
+      </span>
+    ) : null
+  const itens = (lista: ItemRecebimento[], rotulo: 'lacre' | 'nota') =>
+    lista.length ? (
+      <ul className="flex flex-col gap-2">
+        {lista.map((x) => (
+          <li key={x.id} className="flex flex-wrap items-center gap-2">
+            <span className="font-mono">{x.numero}</span>
+            {fotos(x.fotos, t(`lotes.recebimento.fotoDe_${rotulo}`, { numero: x.numero }))}
+          </li>
+        ))}
+      </ul>
+    ) : null
+
+  return (
+    <Card role="region" aria-labelledby="lote-dados-recebimento">
+      <CardHeader>
+        <CardTitle id="lote-dados-recebimento">{t('lotes.recebimento.dadosTitulo')}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <KeyValueList
+          columns={3}
+          items={[
+            {
+              label: t('recebimento.campos.dataRecebimento'),
+              value: formatDate(r.dataRecebimento),
+            },
+            {
+              label: t('recebimento.campos.inspecao'),
+              value: <StatusBadge status={`inspecao_${r.inspecao}`} />,
+            },
+            {
+              label: t('lotes.recebimento.recebidoPor'),
+              value: `${r.criadoPor} · ${formatDateTime(r.criadoEm)}`,
+            },
+            ...(r.inspecaoDescricao
+              ? [
+                  {
+                    label: t('recebimento.campos.descricao'),
+                    value: <TextoTraduzido valor={r.inspecaoDescricao} />,
+                    full: true,
+                  },
+                ]
+              : []),
+            { label: t('recebimento.secoes.lacres'), value: itens(r.lacres, 'lacre') },
+            { label: t('recebimento.secoes.notas'), value: itens(r.notas, 'nota') },
+            {
+              label: t('recebimento.secoes.fotosGerais'),
+              value: fotos(r.fotosGerais, t('recebimento.secoes.fotosGerais')),
+            },
+          ]}
+        />
+      </CardContent>
+    </Card>
   )
 }

@@ -1,5 +1,6 @@
 import { LoteDetailPage } from './LoteDetailPage'
 import { LotesListPage } from './LotesListPage'
+export { RecebimentoPage } from './RecebimentoPage'
 
 /* Telas das rotas de lote: o mesmo lote em Ordens › Lotes e em Operação › Lotes. */
 

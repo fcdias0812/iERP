@@ -34,6 +34,10 @@ const TODAS = [
   '/ordens/agendamento',
   '/operacao/dashboard',
   '/operacao/lotes',
+  '/operacao/recebimento',
+  '/operacao/recebimento?aberto=novo',
+  '/operacao/recebimento?visao=recebidos',
+  '/operacao/lotes/ord00001?receber=true',
   '/operacao/lotes/ord00001?aba=progresso',
   '/operacao/lotes/ord00001?aba=ocorrencias',
   '/operacao/lotes/ord00001?aba=ocorrencias&ocorrencia=oco00001',
@@ -63,6 +67,7 @@ const AMOSTRA = [
   '/operacao/dashboard',
   '/operacao/lotes/ord00001',
   '/operacao/lotes/ord00001?aba=progresso',
+  '/operacao/recebimento?aberto=novo',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
 ]

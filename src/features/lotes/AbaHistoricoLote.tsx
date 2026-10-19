@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HistoricoTabela } from '@/features/comum/HistoricoTabela'
-import { formatDate } from '@/lib/format'
+import { formatDate, formatNumber } from '@/lib/format'
 import type {
   CategoriaOcorrencia,
   MomentoOcorrencia,
@@ -22,10 +22,28 @@ const ACOES = [
   'ocorrencia_cancelada',
   'documento_adicionado',
   'documento_removido',
+  'recebido',
+  'recebimento_editado',
 ] as const
 
 /** Campos das ocorrências e dos documentos (rótulos do lote). */
-const CAMPOS_LOTE = ['status', 'momento', 'categoria', 'texto', 'fotos', 'tipoDocumento'] as const
+const CAMPOS_LOTE = [
+  'status',
+  'momento',
+  'categoria',
+  'texto',
+  'fotos',
+  'tipoDocumento',
+  'dataRecebimento',
+  'inspecao',
+  'inspecaoDescricao',
+  'lacres',
+  'notas',
+  'palletsRecebidos',
+  'pesoBruto',
+  'pesoLiquido',
+  'fotosGerais',
+] as const
 
 /** Campos da edição do lote (mesmos rótulos do Agendamento). */
 const CAMPOS_AGENDAMENTO = [
@@ -52,7 +70,8 @@ const CAMPOS_AGENDAMENTO = [
   'observacoes',
 ] as const
 
-const DATAS = new Set(['dataColeta', 'coletaPrevista', 'dataChegada'])
+const DATAS = new Set(['dataColeta', 'coletaPrevista', 'dataChegada', 'dataRecebimento'])
+const PESOS = new Set(['pesoBruto', 'pesoLiquido'])
 
 export function AbaHistoricoLote({ o }: { o: Ordem }) {
   const { t } = useTranslation()
@@ -82,6 +101,8 @@ export function AbaHistoricoLote({ o }: { o: Ordem }) {
       if (campo === 'caminhao')
         return t(`veiculos.tipos.${v as 'van'}`, { defaultValue: String(v) })
       if (DATAS.has(campo)) return formatDate(String(v))
+      if (PESOS.has(campo)) return `${formatNumber(Number(v))} kg`
+      if (campo === 'inspecao') return t(`status.inspecao_${v as 'bom'}`)
       return undefined
     },
     [t],

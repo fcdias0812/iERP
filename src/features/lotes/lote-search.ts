@@ -8,5 +8,7 @@ export const loteSearchSchema = z.object({
   ocorrencia: z.string().optional().catch(undefined),
   /** Painel de edição do lote (só enquanto agendado). */
   editar: z.boolean().optional().catch(undefined),
+  /** Painel de recebimento (receber o agendado ou corrigir em Inspeção). */
+  receber: z.boolean().optional().catch(undefined),
 })
 export type LoteSearch = z.infer<typeof loteSearchSchema>

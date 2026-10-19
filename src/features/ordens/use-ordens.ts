@@ -17,8 +17,16 @@ import {
   preCalcularOrdem,
   registrarOcorrencia,
   removerDocumentoLote,
+  salvarRecebimento,
 } from '@/services/ordens'
-import type { OcorrenciaInput, Ordem, OrdemInput, TipoDocumentoLote } from '@/services/types'
+import type {
+  FotosRecebimento,
+  OcorrenciaInput,
+  Ordem,
+  OrdemInput,
+  RecebimentoInput,
+  TipoDocumentoLote,
+} from '@/services/types'
 
 /* Consultas e mutações de Ordens (agendamento, lista dos lotes e detalhe do lote). */
 
@@ -172,5 +180,27 @@ export function useEditarLote(id: string) {
     },
     onError: (e) =>
       toast.error(t('lotes.editar.toast.falhou'), { description: apiErrorMessage(e) }),
+  })
+}
+
+export function useSalvarRecebimento() {
+  const { t } = useTranslation()
+  const atualizar = useAtualizarLote()
+  return useMutation({
+    mutationFn: (v: {
+      ordemId: string
+      dados: RecebimentoInput
+      fotos: FotosRecebimento
+      modo: 'receber' | 'corrigir'
+    }) => salvarRecebimento(v.ordemId, v.dados, v.fotos, v.modo),
+    onSuccess: (o, v) => {
+      atualizar(o)
+      toast.success(
+        t(v.modo === 'receber' ? 'recebimento.toast.recebido' : 'recebimento.toast.corrigido', {
+          code: o.codigo,
+        }),
+      )
+    },
+    onError: (e) => toast.error(t('recebimento.toast.falhou'), { description: apiErrorMessage(e) }),
   })
 }

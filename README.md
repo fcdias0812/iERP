@@ -222,21 +222,30 @@ Toda mudança (inclusive vincular/desvincular motorista) vai para o histórico d
 
 ### Detalhe do lote (`server/src/modules/ordens/ordens.lote.ts`)
 
-| Método e caminho                                  | O que faz                                                                                                  |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `POST /api/ordens/:id/ocorrencias`                | registra ocorrência (multipart: `dados` = `{ momento, categoria, texto }` + até 10 `fotos`) → lote inteiro |
-| `PATCH /api/ordens/:id/ocorrencias/:oc`           | corrige (mesmos campos + `removerFotos[]`); cancelada não muda (409 `invalid_transition`)                  |
-| `POST /api/ordens/:id/ocorrencias/:oc/cancelar`   | cancela (a ocorrência fica, com status `cancelado`)                                                        |
-| `GET /api/ordens/:id/ocorrencias/:oc/fotos/:foto` | foto da ocorrência (imagem exibida na tela: `nosniff`, `default-src 'none'`)                               |
-| `GET /api/ordens/:id/pallets/:pallet/foto`        | foto do pallet recebido                                                                                    |
+| Método e caminho                                  | O que faz                                                                                                         |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `POST /api/ordens/:id/ocorrencias`                | registra ocorrência (multipart: `dados` = `{ momento, categoria, texto }` + até 10 `fotos`) → lote inteiro        |
+| `PATCH /api/ordens/:id/ocorrencias/:oc`           | corrige (mesmos campos + `removerFotos[]`); cancelada não muda (409 `invalid_transition`)                         |
+| `POST /api/ordens/:id/ocorrencias/:oc/cancelar`   | cancela (a ocorrência fica, com status `cancelado`)                                                               |
+| `GET /api/ordens/:id/ocorrencias/:oc/fotos/:foto` | foto da ocorrência (imagem exibida na tela: `nosniff`, `default-src 'none'`)                                      |
+| `GET /api/ordens/:id/pallets/:pallet/foto`        | foto do pallet recebido                                                                                           |
+| `POST /api/ordens/:id/recebimento`                | recebe o lote agendado → Inspeção (multipart: `dados` + fotos `lacres.<i>`, `notas.<i>`, `pallets.<i>`, `gerais`) |
+| `PUT /api/ordens/:id/recebimento`                 | corrige o recebimento (só em Inspeção); itens com `id` e `fotosManter` mantêm o que já existe                     |
+| `GET /api/ordens/:id/recebimento/fotos/:foto`     | foto do recebimento (imagem)                                                                                      |
+
+**Recebimento** (`ordens.recebimento.ts`): data (não futura) e inspeção visual (`bom`, `avaria`,
+`outro`) obrigatórias; avaria/outro pedem `inspecaoDescricao` (LocalizedText) e criam/atualizam
+uma ocorrência de Recebimento; lacres e notas opcionais, cada um com número e 1–5 fotos; pelo
+menos um pallet com `pesoBruto` e 1–5 fotos (`tara` opcional, ≤ bruto; líquido = bruto − tara);
+até 20 fotos gerais. Tudo vai para o histórico (`recebido`, `recebimento_editado`).
 
 Momento `coleta`, `trajeto` ou `recebimento`; categorias `atraso`, `avaria_carga`,
 `divergencia_quantidade`, `embalagem_inadequada`, `problema_veiculo`, `acesso_negado`,
 `material_nao_identificado`, `outro`; texto em 3 idiomas (LocalizedText, traduzido na tela ao
 salvar); fotos JPG, PNG ou WEBP até 25 MB. Tudo vai para o histórico do lote (`#n` na referência).
 Tipos de documento do lote: `escopo`, `nota_fiscal`, `mtr`, `cdf`, `foto`, `outro`.
-Etapas (`ordens_etapas`) e pallets (`ordens_pallets`) vêm da integração ou, depois, de Operação ›
-Recebimento — hoje só são lidos.
+Pallets (`ordens_pallets`) e a etapa Inspeção vêm de Operação › Recebimento; as etapas seguintes
+(`ordens_etapas`) virão da integração com os sistemas de produção.
 
 Obrigatórios: cliente, site (do cliente), doca (do site), data de coleta e o escopo de trabalho (texto **ou**
 arquivo — 422 `scope_required`). Placas de policarbonato só com o serviço IV (Value Recovery –

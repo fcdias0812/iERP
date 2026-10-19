@@ -23,6 +23,8 @@ export interface EventoHistorico {
     | 'ocorrencia_registrada'
     | 'ocorrencia_editada'
     | 'ocorrencia_cancelada'
+    | 'recebido'
+    | 'recebimento_editado'
   mudancas?: Mudanca[]
   nota?: string
 }

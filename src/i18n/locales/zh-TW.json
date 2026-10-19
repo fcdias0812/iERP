@@ -741,7 +741,11 @@
     "coordinates": "請使用「緯度, 經度」格式（例如 -22.85, -47.22）。",
     "duplicate": "此值已被使用。",
     "volumeOrder": "最小容積不可大於最大容積。",
-    "scopeRequired": "請填寫工作範圍，或至少附上一份文件。"
+    "scopeRequired": "請填寫工作範圍，或至少附上一份文件。",
+    "photoRequired": "請拍攝或選擇至少一張照片。",
+    "tareGreater": "皮重不得大於毛重。",
+    "futureDate": "日期不得為未來日期。",
+    "palletRequired": "請至少新增一個棧板。"
   },
   "confirm": {
     "typeToConfirm": "請輸入以下文字以確認："
@@ -842,7 +846,10 @@
     "aguardando_cod": "等待 COD",
     "no_prazo": "正常",
     "sem_sla": "未設定 SLA",
-    "registrada": "已登記"
+    "registrada": "已登記",
+    "inspecao_bom": "良好",
+    "inspecao_avaria": "損壞",
+    "inspecao_outro": "其他"
   },
   "dataTable": {
     "yes": "是",
@@ -2016,7 +2023,8 @@
         "servicos": "服務",
         "totalVolumes": "件數",
         "status": "狀態",
-        "criadoEm": "排程時間"
+        "criadoEm": "排程時間",
+        "recebidoEm": "收貨日期"
       }
     }
   },
@@ -2184,23 +2192,29 @@
         "atual": "目前階段",
         "pendente": "待進行"
       },
-      "etapasAjuda": "階段會透過與生產系統的整合推進（尚未連接）。"
+      "etapasAjuda": "收貨（營運 › 收貨）時階段會變更，之後透過與生產系統的整合推進。"
     },
     "recebimento": {
       "titulo": "收貨",
-      "ajuda": "逐一棧板：重量、內容物、秤重人員與照片。",
+      "ajuda": "逐一棧板：毛重、皮重、淨重、內容物、秤重人員與照片。",
       "cols": {
         "numero": "棧板",
-        "peso": "重量",
+        "peso": "毛重",
         "conteudo": "內容物",
         "pesadoPor": "秤重人員",
         "pesadoEm": "秤重時間",
         "foto": "照片",
-        "origem": "來源"
+        "origem": "來源",
+        "tara": "皮重",
+        "pesoLiquido": "淨重"
       },
       "fotoTitulo": "棧板 {{numero}} — {{lote}}",
       "vazioTitle": "尚未收到棧板",
-      "vazioBody": "棧板在收貨秤重後會顯示於此 — 透過整合或「營運 › 收貨」。"
+      "vazioBody": "批次在「營運 › 收貨」收貨後（或透過整合），棧板會顯示於此。",
+      "fotoDe_lacre": "封條 {{numero}}",
+      "fotoDe_nota": "發票 {{numero}}",
+      "dadosTitulo": "收貨資料",
+      "recebidoPor": "收貨人員"
     },
     "ocorrencias": {
       "registrar": "登記異常事件",
@@ -2268,7 +2282,9 @@
         "ocorrencia_editada": "更正了異常事件",
         "ocorrencia_cancelada": "取消了異常事件",
         "documento_adicionado": "新增了文件",
-        "documento_removido": "移除了文件"
+        "documento_removido": "移除了文件",
+        "recebido": "收取了批次",
+        "recebimento_editado": "更正了收貨"
       },
       "campos": {
         "status": "狀態",
@@ -2276,7 +2292,16 @@
         "categoria": "類別",
         "texto": "說明",
         "fotos": "照片",
-        "tipoDocumento": "文件類型"
+        "tipoDocumento": "文件類型",
+        "dataRecebimento": "收貨日期",
+        "inspecao": "目視檢查",
+        "inspecaoDescricao": "發現的狀況",
+        "lacres": "封條",
+        "notas": "發票",
+        "palletsRecebidos": "已收棧板",
+        "pesoBruto": "毛重",
+        "pesoLiquido": "淨重",
+        "fotosGerais": "一般照片"
       }
     },
     "informacoes": {
@@ -2344,6 +2369,82 @@
         "salvo": "已更新批次 {{code}}。",
         "falhou": "無法儲存批次。"
       }
+    }
+  },
+  "recebimento": {
+    "paginaDescricao": "收取已排程的批次：封條、發票、目視檢查與棧板。",
+    "receberLote": "收取批次",
+    "corrigir": "更正收貨",
+    "abrirLote": "開啟批次",
+    "visao": "批次",
+    "visoes": {
+      "a-receber": "待收貨",
+      "recebidos": "已收貨"
+    },
+    "vazio": {
+      "a-receber": "沒有待收貨的批次",
+      "recebidos": "沒有已收貨的批次"
+    },
+    "vazioBody": "調整搜尋或篩選條件。",
+    "receberTitulo": "收取批次",
+    "corrigirTitulo": "更正收貨 — {{code}}",
+    "descricao": "封條、發票、目視檢查與棧板。儲存後，批次會進入檢驗。",
+    "corrigirDescricao": "批次在檢驗階段時可更正。所有變更都會留在歷程中。",
+    "bloqueadoTitle": "無法儲存",
+    "bloqueadoReceber": "此批次已不是已排程狀態。",
+    "bloqueadoCorrigir": "批次已離開檢驗階段：收貨資料不再變更。",
+    "secoes": {
+      "lote": "批次",
+      "chegada": "抵達",
+      "lacres": "封條",
+      "notas": "發票",
+      "pallets": "棧板",
+      "fotosGerais": "一般照片"
+    },
+    "campos": {
+      "lote": "批次",
+      "cliente": "客戶",
+      "dataRecebimento": "收貨日期",
+      "inspecao": "目視檢查",
+      "descricao": "發現的狀況",
+      "numero_lacre": "封條號碼",
+      "foto_lacre": "封條照片",
+      "numero_nota": "發票號碼",
+      "foto_nota": "發票照片",
+      "pesoBruto": "毛重",
+      "tara": "皮重",
+      "pesoLiquido": "淨重",
+      "conteudo": "內容物",
+      "fotoPallet": "棧板照片",
+      "fotos": "照片"
+    },
+    "escolhaLote": "選擇已排程的批次…",
+    "clienteDoLote": "由批次帶入",
+    "loteEscolhido": "客戶由所選批次帶入。",
+    "inspecaoAjuda": "貨物抵達時的狀態。「損壞」或「其他」會在批次中建立收貨異常事件。",
+    "descricaoAjuda": "可用任何語言撰寫：儲存時系統會翻譯成另外兩種語言。請勿填寫個人資料。",
+    "lacresAjuda": "選填。每個封條都需要號碼與至少一張照片。",
+    "notasAjuda": "選填。每張發票都需要號碼與至少一張照片。",
+    "palletsAjuda": "至少一個棧板：毛重與照片為必填；皮重（空棧板重量）選填。",
+    "fotosGeraisAjuda": "選填。不屬於棧板或封條的收貨照片。",
+    "lacreN": "封條 {{n}}",
+    "notaN": "發票 {{n}}",
+    "palletN": "棧板 {{n}}",
+    "remover": "移除 {{item}}",
+    "adicionar_lacre": "新增封條",
+    "adicionar_nota": "新增發票",
+    "adicionarPallet": "新增棧板",
+    "fotos": {
+      "lista": "照片 — {{item}}",
+      "tirar": "拍照",
+      "escolher": "選擇檔案",
+      "limite": "已達 {{n}} 張照片的上限。",
+      "remover": "移除照片 {{nome}}"
+    },
+    "toast": {
+      "recebido": "已收取批次 {{code}}。",
+      "corrigido": "已更正批次 {{code}} 的收貨。",
+      "falhou": "無法儲存收貨。"
     }
   }
 }

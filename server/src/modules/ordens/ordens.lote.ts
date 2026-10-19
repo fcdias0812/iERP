@@ -78,11 +78,25 @@ export interface OcorrenciaLote {
   alteradoPor: string
 }
 
+/** Foto do recebimento (lacre, nota fiscal, pallet ou geral). */
+export interface FotoRecebimento {
+  id: string
+  nome: string
+  extensao: string
+  tamanho: number
+}
+
 export interface PalletLote {
   id: string
   numero: number
-  /** kg */
+  /** Peso bruto (kg). */
   pesoKg: number | null
+  /** Tara — peso do pallet vazio (kg). */
+  taraKg: number | null
+  /** Bruto − tara (kg); sem tara = bruto. */
+  pesoLiquidoKg: number | null
+  /** Fotos do recebimento (Operação › Recebimento). */
+  fotos: FotoRecebimento[]
   conteudo: string | null
   pesadoPor: string | null
   pesadoEm: string | null
@@ -99,7 +113,7 @@ export interface EtapaLote {
 /* ------------------------------------------------------------ regras */
 
 /** Fotos: só imagens que o navegador exibe. */
-const TIPOS_FOTO: Record<string, string> = {
+export const TIPOS_FOTO: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
   png: 'image/png',
@@ -108,7 +122,7 @@ const TIPOS_FOTO: Record<string, string> = {
 const MAX_FOTOS = 10
 const MAX_TEXTO = 2000
 
-const textoTraduzidoSchema = z
+export const textoTraduzidoSchema = z
   .object({
     origem: z.enum(IDIOMAS),
     textos: z.object({
@@ -133,7 +147,7 @@ const edicaoSchema = ocorrenciaSchema.extend({
   removerFotos: z.array(z.string()).default([]),
 })
 
-const original = (t: LocalizedText) => t.textos[t.origem]?.trim() ?? ''
+export const original = (t: LocalizedText) => t.textos[t.origem]?.trim() ?? ''
 
 /* ------------------------------------------------------------ serviço */
 
@@ -222,7 +236,7 @@ export function criarServicoLote(db: Db, opcoes: { pasta: string }) {
   return {
     /** Etapas, pallets e ocorrências do lote (entram no GET /api/ordens/:id). */
     async dados(ordemId: string) {
-      const [etapas, pallets, ocorrencias] = await Promise.all([
+      const [etapas, pallets, ocorrencias, fotosPallets] = await Promise.all([
         db
           .selectFrom('ordensEtapas')
           .select(['etapa', 'em'])
@@ -242,14 +256,28 @@ export function criarServicoLote(db: Db, opcoes: { pasta: string }) {
           .where('ordemId', '=', ordemId)
           .orderBy('numero', 'desc')
           .execute(),
+        db
+          .selectFrom('ordensRecebimentoFotos')
+          .select(['id', 'alvoId', 'nome', 'extensao', 'tamanho'])
+          .where('ordemId', '=', ordemId)
+          .where('alvo', '=', 'pallet')
+          .orderBy('posicao', 'asc')
+          .execute(),
       ])
       const fotos = await fotosDa(ocorrencias.map((o) => o.id))
+      const fotosDoPallet = (id: string): FotoRecebimento[] =>
+        fotosPallets
+          .filter((f) => f.alvoId === id)
+          .map((f) => ({ id: f.id, nome: f.nome, extensao: f.extensao, tamanho: f.tamanho }))
       return {
         etapas: etapas as EtapaLote[],
         pallets: pallets.map((p): PalletLote => ({
           id: p.id,
           numero: p.numero,
           pesoKg: p.pesoKg,
+          taraKg: p.taraKg,
+          pesoLiquidoKg: p.pesoKg === null ? null : p.pesoKg - (p.taraKg ?? 0),
+          fotos: fotosDoPallet(p.id),
           conteudo: p.conteudo,
           pesadoPor: p.pesadoPor,
           pesadoEm: p.pesadoEm,
@@ -501,7 +529,7 @@ export type ServicoLote = ReturnType<typeof criarServicoLote>
 /* ------------------------------------------------------------ rotas (montadas em /api/ordens) */
 
 /** Imagem exibida na tela: só tipos de imagem, sem "adivinhar" o conteúdo. */
-function enviarImagem(res: Response, f: { nome: string; tipo: string; conteudo: Buffer }) {
+export function enviarImagem(res: Response, f: { nome: string; tipo: string; conteudo: Buffer }) {
   if (!f.tipo.startsWith('image/')) {
     res.attachment(f.nome)
     res.setHeader('X-Content-Type-Options', 'nosniff')

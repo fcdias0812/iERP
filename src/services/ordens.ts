@@ -8,6 +8,8 @@ import type {
   OrdemInput,
   OrdemResumo,
   PaginaOrdens,
+  FotosRecebimento,
+  RecebimentoInput,
   TipoDocumentoLote,
   QuantidadesOs,
   ServicosOs,
@@ -113,3 +115,26 @@ export function adicionarDocumentosLote(
 
 export const removerDocumentoLote = (ordemId: string, anexoId: string) =>
   api<Ordem>(`/ordens/${ordemId}/anexos/${anexoId}`, { method: 'DELETE' })
+
+/* ---------------- Recebimento (Operação › Recebimento) */
+
+/** Recebe o lote agendado (`receber`) ou corrige o recebimento (`corrigir`, só em Inspeção). */
+export function salvarRecebimento(
+  ordemId: string,
+  dados: RecebimentoInput,
+  fotos: FotosRecebimento,
+  modo: 'receber' | 'corrigir',
+) {
+  const form = new FormData()
+  form.set('dados', JSON.stringify(dados))
+  for (const [campo, arquivos] of Object.entries(fotos))
+    for (const f of arquivos) form.append(campo, f, f.name)
+  return api<Ordem>(`/ordens/${ordemId}/recebimento`, {
+    method: modo === 'receber' ? 'POST' : 'PUT',
+    body: form,
+  })
+}
+
+/** Foto do recebimento (lacre, nota, pallet ou geral). */
+export const urlFotoRecebimento = (ordemId: string, fotoId: string) =>
+  buildUrl(`/ordens/${ordemId}/recebimento/fotos/${fotoId}`)

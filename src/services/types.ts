@@ -32,6 +32,8 @@ export interface EventoHistorico {
     | 'ocorrencia_registrada'
     | 'ocorrencia_editada'
     | 'ocorrencia_cancelada'
+    | 'recebido'
+    | 'recebimento_editado'
   mudancas?: Mudanca[]
   nota?: string
 }
@@ -543,7 +545,56 @@ export interface Ordem extends OrdemResumo {
   pallets: PalletLote[]
   /** Ocorrências (mais recente primeiro). */
   ocorrencias: OcorrenciaLote[]
+  /** Recebimento (Operação › Recebimento); null = ainda não recebido. */
+  recebimento: RecebimentoLote | null
 }
+
+/* ---------------- Recebimento (server/src/modules/ordens/ordens.recebimento.ts) */
+
+export type InspecaoVisual = 'bom' | 'avaria' | 'outro'
+
+export interface ItemRecebimento {
+  id: string
+  numero: string
+  fotos: FotoRecebimento[]
+}
+
+export interface RecebimentoLote {
+  /** Início do dia (ISO). */
+  dataRecebimento: string
+  inspecao: InspecaoVisual
+  inspecaoDescricao: LocalizedText | null
+  /** Ocorrência criada para avaria/outro. */
+  ocorrenciaId: string | null
+  lacres: ItemRecebimento[]
+  notas: ItemRecebimento[]
+  fotosGerais: FotoRecebimento[]
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+/** Recebimento enviado (vai como `dados` no multipart; fotos novas por campo). */
+export interface RecebimentoInput {
+  /** AAAA-MM-DD */
+  dataRecebimento: string
+  inspecao: InspecaoVisual
+  inspecaoDescricao: LocalizedText | null
+  lacres: { id?: string; numero: string; fotosManter: string[] }[]
+  notas: { id?: string; numero: string; fotosManter: string[] }[]
+  pallets: {
+    id?: string
+    pesoBruto: number
+    tara: number | null
+    conteudo: string | null
+    fotosManter: string[]
+  }[]
+  fotosGeraisManter: string[]
+}
+
+/** Fotos novas do recebimento: `lacres.<i>`, `notas.<i>`, `pallets.<i>` e `gerais`. */
+export type FotosRecebimento = Record<string, File[]>
 
 /* ---------------- Detalhe do lote (server/src/modules/ordens/ordens.lote.ts) */
 
@@ -553,11 +604,25 @@ export interface EtapaLote {
   em: string
 }
 
+/** Foto do recebimento (lacre, nota fiscal, pallet ou geral). */
+export interface FotoRecebimento {
+  id: string
+  nome: string
+  extensao: string
+  tamanho: number
+}
+
 export interface PalletLote {
   id: string
   numero: number
-  /** kg */
+  /** Peso bruto (kg). */
   pesoKg: number | null
+  /** Tara — peso do pallet vazio (kg). */
+  taraKg: number | null
+  /** Bruto − tara (kg). */
+  pesoLiquidoKg: number | null
+  /** Fotos do recebimento. */
+  fotos: FotoRecebimento[]
   conteudo: string | null
   pesadoPor: string | null
   pesadoEm: string | null

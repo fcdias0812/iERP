@@ -33,6 +33,11 @@ import {
   type OcorrenciaLote,
   type PalletLote,
 } from './ordens.lote.js'
+import {
+  criarServicoRecebimento,
+  rotasRecebimento,
+  type RecebimentoLote,
+} from './ordens.recebimento.js'
 
 /*
  * Ordens › Agendamento: cada ordem é um LOTE agendado (LOT-00001).
@@ -151,6 +156,8 @@ export interface Ordem extends OrdemResumo {
   pallets: PalletLote[]
   /** Ocorrências (mais recente primeiro). */
   ocorrencias: OcorrenciaLote[]
+  /** Recebimento (Operação › Recebimento); null = ainda não recebido. */
+  recebimento: RecebimentoLote | null
 }
 
 /* ------------------------------------------------------------ regras */
@@ -260,6 +267,7 @@ export const COLUNAS_ORDEM: ColunaConsulta[] = [
   { id: 'rastrear', tipo: 'boolean' },
   { id: 'totalVolumes', tipo: 'number' },
   { id: 'status', tipo: 'status', ordem: ORDEM_ETAPAS },
+  { id: 'recebidoEm', tipo: 'date' },
   { id: 'criadoEm', tipo: 'date' },
 ]
 
@@ -323,11 +331,12 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
   const caminho = (ordemId: string, anexoId: string) =>
     path.join(opcoes.pasta, 'ordens', ordemId, anexoId)
   const lote = criarServicoLote(db, opcoes)
+  const recebimento = criarServicoRecebimento(db, opcoes)
 
   async function obter(id: string): Promise<Ordem> {
     const l = await linhaDe(db, id)
     if (!l) throw naoEncontrado('Ordem não encontrada.')
-    const [anexos, historico, doLote] = await Promise.all([
+    const [anexos, historico, doLote, recebido] = await Promise.all([
       db
         .selectFrom('ordensAnexos')
         .selectAll()
@@ -336,6 +345,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
         .execute(),
       listarHistorico(db, 'ordem', id),
       lote.dados(id),
+      recebimento.dados(id),
     ])
     return {
       ...paraResumo(l),
@@ -372,6 +382,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
       alteradoPor: l.alteradoPor,
       historico,
       ...doLote,
+      recebimento: recebido,
     }
   }
 
@@ -471,6 +482,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
     obter,
     preCalcular,
     lote,
+    recebimento,
 
     async listar(query: unknown) {
       const consulta = lerConsulta(query, COLUNAS_ORDEM)
@@ -1025,5 +1037,6 @@ export function rotasOrdens(servico: ServicoOrdens) {
     res.send(a.conteudo)
   })
   r.use(rotasLote(servico.lote, (id) => servico.obter(id)))
+  r.use(rotasRecebimento(servico.recebimento, (id) => servico.obter(id)))
   return r
 }

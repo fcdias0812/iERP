@@ -565,3 +565,203 @@ describe('ordens › editar lote', () => {
     assert.equal(travado.body.code, 'invalid_transition')
   })
 })
+
+/* ------------------------------------------------------------ recebimento */
+
+type Foto = { campo: string; nome: string }
+
+/** Envia o recebimento como a tela faz: multipart com `dados` (JSON) e as fotos por campo. */
+async function enviarRecebimento(
+  ordemId: string,
+  dados: Record<string, unknown>,
+  fotos: Foto[],
+  method: 'POST' | 'PUT' = 'POST',
+) {
+  const form = new FormData()
+  form.append('dados', JSON.stringify(dados))
+  for (const f of fotos) form.append(f.campo, new Blob([f.nome]), f.nome)
+  const res = await fetch(`${base}/ordens/${ordemId}/recebimento`, { method, body: form })
+  return { status: res.status, body: JSON.parse(await res.text()) }
+}
+
+const hojeSp = () =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date())
+
+const recebimento = (extra: Record<string, unknown> = {}) => ({
+  dataRecebimento: hojeSp(),
+  inspecao: 'bom',
+  inspecaoDescricao: null,
+  lacres: [{ numero: 'LAC-001' }],
+  notas: [{ numero: '123456' }],
+  pallets: [
+    { pesoBruto: 250.5, tara: 20, conteudo: 'Servidores' },
+    { pesoBruto: 300, tara: null },
+  ],
+  ...extra,
+})
+
+const FOTOS_OK: Foto[] = [
+  { campo: 'lacres.0', nome: 'lacre.jpg' },
+  { campo: 'notas.0', nome: 'nf.png' },
+  { campo: 'pallets.0', nome: 'p1.jpg' },
+  { campo: 'pallets.1', nome: 'p2.jpg' },
+  { campo: 'gerais', nome: 'doca.webp' },
+]
+
+describe('ordens › recebimento', () => {
+  it('recebe o lote agendado: vai para Inspeção, guarda pallets, lacres, notas e fotos', async () => {
+    const lote = (await criarOrdem(ordem())).body
+    const r = await enviarRecebimento(lote.id, recebimento(), FOTOS_OK)
+    assert.equal(r.status, 201)
+    const o = r.body
+    assert.equal(o.status, 'inspecao')
+    assert.ok(o.recebidoEm)
+    assert.deepEqual(
+      o.etapas.map((e: { etapa: string }) => e.etapa),
+      ['agendado', 'inspecao'],
+    )
+    assert.equal(o.recebimento.inspecao, 'bom')
+    assert.equal(o.recebimento.lacres[0].numero, 'LAC-001')
+    assert.equal(o.recebimento.lacres[0].fotos.length, 1)
+    assert.equal(o.recebimento.notas[0].fotos[0].nome, 'nf.png')
+    assert.equal(o.recebimento.fotosGerais.length, 1)
+    assert.equal(o.pallets.length, 2)
+    assert.equal(o.pallets[0].pesoKg, 250.5)
+    assert.equal(o.pallets[0].pesoLiquidoKg, 230.5)
+    assert.equal(o.pallets[1].pesoLiquidoKg, 300)
+    assert.equal(o.pallets[0].fotos[0].nome, 'p1.jpg')
+    assert.equal(o.pallets[0].origem, 'iERP')
+    assert.equal(o.historico[0].acao, 'recebido')
+
+    // Foto servida como imagem.
+    const foto = await fetch(
+      `${base}/ordens/${lote.id}/recebimento/fotos/${o.recebimento.lacres[0].fotos[0].id}`,
+    )
+    assert.equal(foto.status, 200)
+    assert.equal(foto.headers.get('content-type'), 'image/jpeg')
+
+    // Recebido não recebe de novo.
+    const denovo = await enviarRecebimento(lote.id, recebimento(), FOTOS_OK)
+    assert.equal(denovo.status, 409)
+  })
+
+  it('obrigatórios: pallet com peso e foto; lacre/nota com foto; inspeção; data não futura', async () => {
+    const lote = (await criarOrdem(ordem())).body
+    const semPallet = await enviarRecebimento(lote.id, recebimento({ pallets: [] }), [])
+    assert.equal(semPallet.status, 422)
+    const semFotoPallet = await enviarRecebimento(
+      lote.id,
+      recebimento(),
+      FOTOS_OK.filter((f) => f.campo !== 'pallets.1'),
+    )
+    assert.equal(semFotoPallet.status, 422)
+    const semFotoLacre = await enviarRecebimento(
+      lote.id,
+      recebimento(),
+      FOTOS_OK.filter((f) => f.campo !== 'lacres.0'),
+    )
+    assert.equal(semFotoLacre.status, 422)
+    const semInspecao = await enviarRecebimento(
+      lote.id,
+      recebimento({ inspecao: undefined }),
+      FOTOS_OK,
+    )
+    assert.equal(semInspecao.status, 422)
+    const futuro = await enviarRecebimento(
+      lote.id,
+      recebimento({ dataRecebimento: '2999-01-01' }),
+      FOTOS_OK,
+    )
+    assert.equal(futuro.status, 422)
+    const taraMaior = await enviarRecebimento(
+      lote.id,
+      recebimento({ pallets: [{ pesoBruto: 10, tara: 20 }, { pesoBruto: 5 }] }),
+      FOTOS_OK,
+    )
+    assert.equal(taraMaior.status, 422)
+    const pdf = await enviarRecebimento(lote.id, recebimento(), [
+      ...FOTOS_OK,
+      { campo: 'gerais', nome: 'laudo.pdf' },
+    ])
+    assert.equal(pdf.status, 415)
+    // Nada foi gravado: continua agendado.
+    assert.equal((await api(`/ordens/${lote.id}`)).body.status, 'agendado')
+  })
+
+  it('avaria pede descrição e vira ocorrência; a correção acompanha (e bom cancela)', async () => {
+    const lote = (await criarOrdem(ordem())).body
+    const semDescricao = await enviarRecebimento(
+      lote.id,
+      recebimento({ inspecao: 'avaria' }),
+      FOTOS_OK,
+    )
+    assert.equal(semDescricao.status, 422)
+
+    const r = await enviarRecebimento(
+      lote.id,
+      recebimento({
+        inspecao: 'avaria',
+        inspecaoDescricao: texto('Pallet 2 com a base quebrada.'),
+      }),
+      FOTOS_OK,
+    )
+    assert.equal(r.status, 201)
+    const oc = r.body.ocorrencias[0]
+    assert.equal(oc.momento, 'recebimento')
+    assert.equal(oc.categoria, 'avaria_carga')
+    assert.equal(r.body.recebimento.ocorrenciaId, oc.id)
+
+    // Correção: mantém as fotos (por id), muda a descrição → a ocorrência acompanha.
+    const atual = r.body
+    const manter = (fotos: { id: string }[]) => fotos.map((f) => f.id)
+    const correcao = {
+      dataRecebimento: hojeSp(),
+      inspecao: 'outro',
+      inspecaoDescricao: texto('Carga molhada.'),
+      lacres: atual.recebimento.lacres.map((l: { id: string; numero: string; fotos: [] }) => ({
+        id: l.id,
+        numero: l.numero,
+        fotosManter: manter(l.fotos),
+      })),
+      notas: [],
+      pallets: atual.pallets.map(
+        (p: { id: string; pesoKg: number; taraKg: number | null; fotos: [] }) => ({
+          id: p.id,
+          pesoBruto: p.pesoKg,
+          tara: p.taraKg,
+          fotosManter: manter(p.fotos),
+        }),
+      ),
+      fotosGeraisManter: manter(atual.recebimento.fotosGerais),
+    }
+    const c = await enviarRecebimento(lote.id, correcao, [], 'PUT')
+    assert.equal(c.status, 200)
+    assert.equal(c.body.recebimento.notas.length, 0)
+    assert.equal(c.body.pallets[0].id, atual.pallets[0].id)
+    const mesma = c.body.ocorrencias.find((x: { id: string }) => x.id === oc.id)
+    assert.equal(mesma.categoria, 'outro')
+    assert.equal(mesma.texto.textos['pt-BR'], 'Carga molhada.')
+    assert.ok(c.body.historico.some((h: { acao: string }) => h.acao === 'recebimento_editado'))
+
+    const bom = await enviarRecebimento(
+      lote.id,
+      { ...correcao, inspecao: 'bom', inspecaoDescricao: null },
+      [],
+      'PUT',
+    )
+    assert.equal(bom.status, 200)
+    const cancelada = bom.body.ocorrencias.find((x: { id: string }) => x.id === oc.id)
+    assert.equal(cancelada.status, 'cancelado')
+    assert.equal(bom.body.recebimento.ocorrenciaId, null)
+  })
+
+  it('correção só enquanto em Inspeção', async () => {
+    const lote = (await criarOrdem(ordem())).body
+    const naoRecebido = await enviarRecebimento(lote.id, recebimento(), FOTOS_OK, 'PUT')
+    assert.equal(naoRecebido.status, 409)
+    await enviarRecebimento(lote.id, recebimento(), FOTOS_OK)
+    await db.updateTable('ordens').set({ status: 'processo' }).where('id', '=', lote.id).execute()
+    const travado = await enviarRecebimento(lote.id, recebimento(), FOTOS_OK, 'PUT')
+    assert.equal(travado.status, 409)
+  })
+})

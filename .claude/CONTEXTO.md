@@ -73,11 +73,12 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `a66737c` | Operação: menu Ordens/Operação/Estoque; Ordens › Lotes e Agendamento com pré-cálculo     |
 | `5a6a734` | Contexto completo em `.claude/` (primeiro push no GitHub)                                |
 | `33519cd` | Operação › Dashboard; SLA no cliente; etapas do lote                                     |
-| (local)   | Detalhe do lote (5 abas), editar lote, tipos de documento e Operação › Lotes             |
+| `2a872a1` | Detalhe do lote (5 abas), editar lote, tipos de documento e Operação › Lotes             |
+| (local)   | Operação › Recebimento (lacres, notas, inspeção, pallets, fotos; corrigir em Inspeção)   |
 
-Portão de qualidade verde no commit do detalhe do lote: lint, typecheck (front e servidor), 60
-testes unitários, 70 testes do servidor, 170 e2e (Playwright + axe WCAG 2.2 AA), contraste
-158/158, cores, formatação, build. Commit **local** (push só quando ele pedir).
+Portão de qualidade verde no commit do Recebimento: lint, typecheck (front e servidor), 60 testes
+unitários, 74 testes do servidor, 185 e2e (Playwright + axe WCAG 2.2 AA), contraste 158/158,
+cores, formatação, build. Commit **local** (push só quando ele pedir).
 
 **Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
 clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
@@ -100,7 +101,8 @@ Esri (`VITE_ESRI_API_KEY`, em `.env.local`) ainda não existe — sem ela, só f
 |                | Ordens › Viagens ativas · Histórico de viagens                             | em construção (rota coringa)                  |
 |                | Operação › **Dashboard**                                                   | **pronto** (quase tudo zerado sem integração) |
 |                | Operação › **Lotes**                                                       | **pronto** (mesma lista e detalhe de Ordens)  |
-|                | Operação › Recebimento · Chamados internos · Histórico                     | em construção                                 |
+|                | Operação › **Recebimento**                                                 | **pronto** (A receber / Recebidos + painel)   |
+|                | Operação › Chamados internos · Histórico                                   | em construção                                 |
 |                | Estoque › Materiais · Assets · Servidores · E-commerce · Peças · Histórico | em construção                                 |
 | Sistema        | Administração › Usuários                                                   | **pronto**                                    |
 
@@ -295,6 +297,27 @@ ordem foi pedida por ele; Informações e Documentos chegaram no meio do trabalh
 API simulada: lote de demonstração `ord00001` (LOT-00001, em processo, 2 pallets, 1 ocorrência) —
 o primeiro lote criado nos e2e agora é o LOT-00002.
 
+### 5.9 Operação › Recebimento (19/10/2026)
+
+Pedido dele (mostrou a tela da v1 só como referência): escolher o lote (**só os agendados**) e o
+cliente vem preenchido; **lacres** e **notas fiscais** opcionais, vários, mas cada um com **número
+\+ foto** ("tirar foto pelo celular ou escolher da galeria/PC"); **data de recebimento** já com hoje
+(obrigatória, pode mudar); **inspeção visual** Bom / Avaria / Outro (**obrigatória**); **pallets**
+com **peso bruto obrigatório**, **tara opcional**, **peso líquido calculado** e foto; **fotos gerais**.
+
+Respostas dele: **lista + painel lateral** (padrão de cadastro, sem nova exceção) — a tela tem
+"A receber" (agendados) e "Recebidos"; o botão "Receber lote" também fica no detalhe do lote.
+**Mínimo 1 pallet, foto do pallet obrigatória.** **Avaria/Outro pedem descrição e viram ocorrência
+de Recebimento** (avaria → "Avaria na carga"; outro → "Outro"); se a correção muda para Bom, a
+ocorrência é cancelada. **O recebimento pode ser corrigido enquanto o lote está em Inspeção**
+("Corrigir recebimento", mesmo painel; tudo no histórico).
+
+Decisões minhas (avisadas): ao receber, o lote vai para **Inspeção** e a data de recebimento vira o
+`recebido_em` (início do SLA); "Tirar foto" usa `capture="environment"` (câmera traseira no
+celular; no computador abre a escolha de arquivo — confirmado no MDN); até 5 fotos por
+lacre/nota/pallet e 20 gerais; data não pode ser futura; campo opcional **Conteúdo** no pallet
+(a tabela do Progresso já tinha a coluna); descrição traduzível (como as ocorrências).
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -326,7 +349,8 @@ negócio (perguntar). Resumo:
   Integração) entram.
 - **Ordens:** etapas de uma viagem (Viagens ativas / Histórico de viagens); o que acontece com o
   rastreio (a v1 gerava link/QR para o motorista — **não** foi pedido); editar/cancelar ordem.
-- **Detalhe do lote:** quem muda a etapa do lote (integração ou botão na tela)? Categorias de ocorrência definitivas? Ocorrência ganha
+- **Detalhe do lote:** quem muda a etapa depois de Inspeção (processo, aguardando COD, concluído
+  — integração ou botão na tela)? Categorias de ocorrência definitivas? Ocorrência ganha
   "resolvida"/responsável?
 - **Operação e Estoque:** de qual sistema de produção vêm os dados (integração) e o que se cadastra
   no próprio iERP; diferença entre Materiais, Assets, Servidores, E-commerce e Peças.
@@ -338,9 +362,8 @@ negócio (perguntar). Resumo:
 
 ## 7. Próximo passo sugerido
 
-Ele escolhe. Opções já levantadas: Ordens › Viagens ativas / Histórico de viagens; Operação ›
-Recebimento (lançar pallets: peso, conteúdo, quem pesou, foto — alimenta a aba Progresso do lote) e
-as etapas (quem muda a etapa — integração ou tela); Operação ›
+Ele escolhe. Opções já levantadas: Ordens › Viagens ativas / Histórico de viagens; as etapas
+depois da Inspeção (quem muda — integração ou tela); Operação ›
 Chamados internos (alimenta o Harvesting do dashboard); Operação › Histórico; Estoque. Ele também
 disse que vai mostrar as **exceções entre data de coleta e de recebimento** (afetam a previsão de
 chegada). Antes de construir qualquer uma, fazer as perguntas da §6 correspondentes.

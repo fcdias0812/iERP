@@ -22,8 +22,8 @@ antigo (v1) nem de outro lugar.
   detalhe — contatos, logística, documentos, configurações), **Transportadoras** (detalhe em abas:
   dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral);
   seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento; Viagens ativas e
-  Histórico de viagens em construção), **Operação** (Dashboard e Lotes — a mesma lista e o mesmo
-  detalhe de Ordens › Lotes; demais em construção) e **Estoque** (em construção); e
+  Histórico de viagens em construção), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo
+  detalhe de Ordens › Lotes — e Recebimento; demais em construção) e **Estoque** (em construção); e
   **Administração › Usuários**.
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
   cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
@@ -178,6 +178,13 @@ O layout não muda. Modelos completos para copiar:
   `PUT /api/ordens/:id`. Backend `server/src/modules/ordens/ordens.lote.ts` (tabelas
   `ordens_etapas`, `ordens_pallets`, `ordens_ocorrencias`, `ordens_ocorrencias_fotos`); fotos
   servidas como imagem (`nosniff` + `default-src 'none'`). Mocks: lote de demonstração `ord00001`.
+- **Operação › Recebimento** — `src/features/lotes/RecebimentoPage.tsx` (A receber / Recebidos sobre
+  `/api/ordens` com filtro de status) + `RecebimentoSheet` (painel; `?aberto=novo|<id>` na lista,
+  `?receber=true` no detalhe) com `CampoFotos` ("Tirar foto" = `capture="environment"`; "Escolher
+  arquivo"). Backend `server/src/modules/ordens/ordens.recebimento.ts`: `POST`/`PUT
+/api/ordens/:id/recebimento` (multipart `dados` + fotos em `lacres.<i>`, `notas.<i>`,
+  `pallets.<i>`, `gerais`), tabelas `ordens_recebimentos`, `ordens_lacres`, `ordens_notas_fiscais`,
+  `ordens_recebimento_fotos`; receber = agendado → Inspeção; avaria/outro viram ocorrência.
 - **Operação › Dashboard** — `server/src/modules/dashboard/dashboard.ts` (um endpoint calcula
   tudo: cards de SLA, previsão, mapa, por cliente, anomalias) e `src/features/operacao/` (mapa Leaflet
   carregado sob demanda; config leve em `mapa-config.ts` para não puxar o Leaflet). SLA = `slaDias`

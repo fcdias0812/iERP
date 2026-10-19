@@ -1,5 +1,6 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { abrir, violacoes } from './helpers'
+import { loteAgendado, PNG, traducaoSimulada } from './lotes-helpers'
 
 /*
  * Detalhe do lote (API simulada; lote de demonstração ord00001 em processo, com 2 pallets e
@@ -8,20 +9,6 @@ import { abrir, violacoes } from './helpers'
  */
 
 const LOTE = '/operacao/lotes/ord00001'
-
-/** Tradução automática simulada (o MyMemory não é chamado nos testes). */
-async function traducaoSimulada(page: Page) {
-  await page.route('**/api.mymemory.translated.net/**', (route) =>
-    route.fulfill({
-      json: { responseStatus: 200, responseData: { translatedText: 'texto traduzido' } },
-    }),
-  )
-}
-
-const PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGP4z8DAwMDAxMDAwMDAAAANHQEDK+mmyAAAAABJRU5ErkJggg==',
-  'base64',
-)
 
 test('Operação › Lotes é a mesma lista e abre o detalhe na aba Informações', async ({ page }) => {
   await abrir(page, '/operacao/lotes')
@@ -129,56 +116,6 @@ test('documentos: tipo obrigatório, envio e remoção', async ({ page }) => {
   await expect(page.getByText('Nota fiscal.pdf removido.')).toBeVisible()
   await expect(linha).toHaveCount(0)
 })
-
-/** Cria um lote AGENDADO na API simulada (como o Agendamento faz) e devolve o id. */
-async function loteAgendado(page: Page) {
-  await abrir(page, '/ordens/lotes')
-  return page.evaluate(async () => {
-    const sites = (await (await fetch('/api/clientes/cli00001/sites')).json()) as {
-      id: string
-      docas: { id: string }[]
-    }[]
-    const form = new FormData()
-    form.set(
-      'dados',
-      JSON.stringify({
-        clienteId: 'cli00001',
-        siteId: sites[0]!.id,
-        docaId: sites[0]!.docas[0]!.id,
-        transportadoraId: null,
-        referenciaCliente: 'PO-1',
-        dataColeta: '2026-11-10',
-        coletaPrevista: null,
-        dataChegada: null,
-        rastrear: false,
-        motoristaId: null,
-        placa: null,
-        servicos: {
-          psm: false,
-          onsiteShredding: false,
-          recycleOnly: true,
-          valueRecoveryRacks: false,
-          valueRecoveryItad: false,
-        },
-        quantidades: {
-          boxes: null,
-          pallets: 4,
-          gaylords: null,
-          racks: null,
-          placasPolicarbonato: null,
-          requerPalletsVazios: false,
-          palletsVazios: null,
-          itensMais25kg: false,
-          fatorLimitante: null,
-        },
-        escopo: 'Coleta de pallets.',
-        observacoes: null,
-      }),
-    )
-    const r = await fetch('/api/ordens', { method: 'POST', body: form })
-    return ((await r.json()) as { id: string }).id
-  })
-}
 
 test('editar lote agendado no painel; o cliente não muda; histórico registra', async ({ page }) => {
   const id = await loteAgendado(page)
