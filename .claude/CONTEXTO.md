@@ -73,9 +73,11 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `a66737c` | Operação: menu Ordens/Operação/Estoque; Ordens › Lotes e Agendamento com pré-cálculo     |
 | `5a6a734` | Contexto completo em `.claude/` (primeiro push no GitHub)                                |
 | `33519cd` | Operação › Dashboard; SLA no cliente; etapas do lote                                     |
+| (local)   | Detalhe do lote (5 abas), editar lote, tipos de documento e Operação › Lotes             |
 
-Portão de qualidade verde em `33519cd`: lint, typecheck (front e servidor), 60 testes unitários,
-61 testes do servidor, 141 e2e (Playwright + axe WCAG 2.2 AA), contraste 158/158, cores, build.
+Portão de qualidade verde no commit do detalhe do lote: lint, typecheck (front e servidor), 60
+testes unitários, 70 testes do servidor, 170 e2e (Playwright + axe WCAG 2.2 AA), contraste
+158/158, cores, formatação, build. Commit **local** (push só quando ele pedir).
 
 **Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
 clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
@@ -93,11 +95,12 @@ Esri (`VITE_ESRI_API_KEY`, em `.env.local`) ainda não existe — sem ela, só f
 |                | Transportadoras (item direto)                                              | **pronto** (detalhe em abas)                  |
 |                | Veículos (item direto)                                                     | **pronto** (lista + painel)                   |
 |                | Motoristas (item direto)                                                   | **pronto** (lista + painel)                   |
-| Operação       | Ordens › **Lotes**                                                         | **pronto** (lista dos lotes agendados)        |
+| Operação       | Ordens › **Lotes**                                                         | **pronto** (lista + detalhe do lote, 5 abas)  |
 |                | Ordens › **Agendamento**                                                   | **pronto** (página própria + pré-cálculo)     |
 |                | Ordens › Viagens ativas · Histórico de viagens                             | em construção (rota coringa)                  |
 |                | Operação › **Dashboard**                                                   | **pronto** (quase tudo zerado sem integração) |
-|                | Operação › Lotes · Recebimento · Chamados internos · Histórico             | em construção                                 |
+|                | Operação › **Lotes**                                                       | **pronto** (mesma lista e detalhe de Ordens)  |
+|                | Operação › Recebimento · Chamados internos · Histórico                     | em construção                                 |
 |                | Estoque › Materiais · Assets · Servidores · E-commerce · Peças · Histórico | em construção                                 |
 | Sistema        | Administração › Usuários                                                   | **pronto**                                    |
 
@@ -247,6 +250,51 @@ fecharam dentro do SLA; "parado há X dias" por etapa ainda **não** gera anomal
 definido) — a tela só mostra há quantos dias o lote está na etapa. Harvesting espera Operação ›
 Chamados internos; Refurbish e Value Recovery esperam o sistema de ITAD novo. Relê a cada 30 s.
 
+### 5.8 Detalhe do lote e Operação › Lotes (19/10/2026)
+
+Pedido dele: "replique essa página de lotes de ordens em operação … vai ser a mesma coisa que em
+ordens" → **Operação › Lotes = a mesma lista** de Ordens › Lotes (agora com todas as etapas no
+filtro de status). Clicar no lote abre o **detalhe dentro do módulo de origem**
+(`/ordens/lotes/:id` ou `/operacao/lotes/:id`; caminho e permissão seguem a origem). Abas (a
+ordem foi pedida por ele; Informações e Documentos chegaram no meio do trabalho):
+
+- **Informações** (primeira): tudo do agendamento — cliente e local da coleta (endereço, região,
+  horário, contato e restrições da doca vêm do cadastro do site), datas (coleta, prevista,
+  chegada, recebido, COD, agendado em), transporte, serviços e quantidades, pré-cálculo guardado,
+  escopo e observações.
+- **Progresso:** cards de etapa atual, pallets recebidos e peso bruto (soma dos pesos); **linha do
+  tempo** das etapas (agendado → inspeção → processo → aguardando COD → concluído: feitas em verde,
+  atual em azul-petróleo, a fazer em cinza, com a data em que entrou em cada uma — tabela
+  `ordens_etapas`); **Recebimento** pallet a pallet (peso, conteúdo, quem pesou, quando, foto).
+  Pallets: "vai vir de outros sistemas, mas também pode vir do iERP, lá na aba de recebimento que
+  será feita posteriormente" → hoje só **estrutura e leitura** (`ordens_pallets`, `origem`), sem
+  lançamento no detalhe; o lançamento manual vem com **Operação › Recebimento**.
+- **Ocorrências:** respostas dele — momentos **Coleta, Trajeto e Recebimento**; categorias da
+  **lista proposta** (atraso, avaria na carga, divergência de quantidade, embalagem inadequada,
+  problema no veículo, acesso negado no site, material não identificado, outro — fixa, ajustável
+  depois); **momento, categoria e texto obrigatórios, fotos opcionais; pode corrigir ou cancelar**,
+  tudo no histórico. Decisões minhas (avisadas): texto traduzível (LocalizedText, regra de
+  "comentário operacional" — a ajuda pede para não pôr dado pessoal); até 10 fotos JPG/PNG/WEBP de
+  25 MB; numeração `#1, #2…` por lote; cancelar é definitivo (a ocorrência fica como "Cancelado");
+  status "Registrada" em amarelo (alerta leve). Botão "Registrar ocorrência" também no cabeçalho.
+- **Documentos** (antes do Histórico): os arquivos do agendamento (escopo, observações) e os
+  **adicionados depois** (seção `lote`). Ajuste dele antes do commit: "os documentos devem ter
+  tipos, parecido com clientes" → **lista própria do lote** (escolha dele): Escopo de trabalho ·
+  Nota fiscal · MTR · CDF (certificado de destinação) · Foto · Outro. Os do agendamento entram como
+  escopo/outro. **Pode remover** (como em Clientes; permissão `<origem>.excluir`, fica no
+  histórico); o único escopo de um lote sem texto de escopo não sai (422 `scope_required`).
+- **Histórico:** auditoria em tabela, igual à do cliente (agendou, editou, ocorrências, documentos).
+- **Editar o lote** (ajuste dele: "lotes são criados semanas antes da coleta, então dados podem
+  mudar"): botão **Editar** no cabeçalho → **painel lateral** (`?editar=true`, padrão único de
+  cadastro) com os mesmos campos e regras do Agendamento (campos compartilhados em
+  `features/ordens/agendamento-campos.tsx`). Respostas dele: **tudo menos o cliente**; **só enquanto
+  Agendado** (depois da chegada o botão some e a aba Informações avisa "registre como
+  ocorrência"); **o pré-cálculo é refeito ao salvar** (o painel tem Pré-calcular para conferir).
+  Arquivos ficam na aba Documentos; o escopo vale com texto OU documento do tipo escopo.
+
+API simulada: lote de demonstração `ord00001` (LOT-00001, em processo, 2 pallets, 1 ocorrência) —
+o primeiro lote criado nos e2e agora é o LOT-00002.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -276,9 +324,10 @@ negócio (perguntar). Resumo:
 - **Menu:** quais submódulos da v1 não são usados; se troca o nome da seção "Operação"; se Cadastros
   (Caixotes, Áreas, Pontos do mapa, Rastreadores GPS, Materiais) e Administração (Perfis de acesso,
   Integração) entram.
-- **Ordens:** etapas de uma viagem (Viagens ativas / Histórico de viagens); se o lote ganha página de
-  detalhe; o que acontece com o rastreio (a v1 gerava link/QR para o motorista — **não** foi pedido);
-  editar/cancelar ordem.
+- **Ordens:** etapas de uma viagem (Viagens ativas / Histórico de viagens); o que acontece com o
+  rastreio (a v1 gerava link/QR para o motorista — **não** foi pedido); editar/cancelar ordem.
+- **Detalhe do lote:** quem muda a etapa do lote (integração ou botão na tela)? Categorias de ocorrência definitivas? Ocorrência ganha
+  "resolvida"/responsável?
 - **Operação e Estoque:** de qual sistema de produção vêm os dados (integração) e o que se cadastra
   no próprio iERP; diferença entre Materiais, Assets, Servidores, E-commerce e Peças.
 - **Dashboard:** as exceções entre data de coleta e de recebimento (ele vai mostrar depois); limite
@@ -289,8 +338,9 @@ negócio (perguntar). Resumo:
 
 ## 7. Próximo passo sugerido
 
-Ele escolhe. Opções já levantadas: Ordens › Viagens ativas / Histórico de viagens; página de detalhe
-do lote; Operação › Lotes, Recebimento e as etapas (quem muda a etapa — integração ou tela); Operação ›
+Ele escolhe. Opções já levantadas: Ordens › Viagens ativas / Histórico de viagens; Operação ›
+Recebimento (lançar pallets: peso, conteúdo, quem pesou, foto — alimenta a aba Progresso do lote) e
+as etapas (quem muda a etapa — integração ou tela); Operação ›
 Chamados internos (alimenta o Harvesting do dashboard); Operação › Histórico; Estoque. Ele também
 disse que vai mostrar as **exceções entre data de coleta e de recebimento** (afetam a previsão de
 chegada). Antes de construir qualquer uma, fazer as perguntas da §6 correspondentes.

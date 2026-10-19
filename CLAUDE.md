@@ -21,9 +21,9 @@ antigo (v1) nem de outro lugar.
 - Módulos hoje: seção **Relacionamento** — **Clientes** (tudo do cliente fica em **abas** do
   detalhe — contatos, logística, documentos, configurações), **Transportadoras** (detalhe em abas:
   dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral);
-  seção **Operação** — **Ordens** (Lotes agendados, Agendamento; Viagens ativas e Histórico de
-  viagens em construção), **Operação** (Dashboard pronto; demais em construção) e **Estoque** (em
-  construção); e
+  seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento; Viagens ativas e
+  Histórico de viagens em construção), **Operação** (Dashboard e Lotes — a mesma lista e o mesmo
+  detalhe de Ordens › Lotes; demais em construção) e **Estoque** (em construção); e
   **Administração › Usuários**.
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
   cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
@@ -167,6 +167,17 @@ O layout não muda. Modelos completos para copiar:
   os mesmos testes — mudar número do cálculo é decisão de negócio). Cada ordem é um lote
   `LOT-00001` com status `agendado`. Frontend `src/features/ordens/`. Veículos: volume mín./máx.
   são **quantidade de volumes** (pallets + gaylords + racks; boxes não contam), não m².
+- **Lotes** (Ordens › Lotes = Operação › Lotes) — `src/features/lotes/`: a mesma lista e o mesmo
+  detalhe nos dois módulos (`origem` = `ordens` | `operacao` decide rota, caminho e permissão
+  `<origem>.ver`/`<origem>.editar`). Detalhe com abas na URL (`?aba=`): **Informações** (padrão),
+  **Progresso** (etapa, pallets, peso bruto, linha do tempo, recebimento), **Ocorrências** (painel
+  `?ocorrencia=nova|<id>`, texto traduzível, fotos), **Documentos** (do agendamento + adicionados
+  depois, com tipo e remoção) e **Histórico**. **Editar** (só enquanto agendado, cliente fixo,
+  refaz o pré-cálculo): `LoteSheet` com os campos do Agendamento
+  (`features/ordens/agendamento-campos.tsx` + `SecaoContexto` = moldura página/painel); backend
+  `PUT /api/ordens/:id`. Backend `server/src/modules/ordens/ordens.lote.ts` (tabelas
+  `ordens_etapas`, `ordens_pallets`, `ordens_ocorrencias`, `ordens_ocorrencias_fotos`); fotos
+  servidas como imagem (`nosniff` + `default-src 'none'`). Mocks: lote de demonstração `ord00001`.
 - **Operação › Dashboard** — `server/src/modules/dashboard/dashboard.ts` (um endpoint calcula
   tudo: cards de SLA, previsão, mapa, por cliente, anomalias) e `src/features/operacao/` (mapa Leaflet
   carregado sob demanda; config leve em `mapa-config.ts` para não puxar o Leaflet). SLA = `slaDias`

@@ -21,11 +21,14 @@ import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/ind
 import { Route as AppMotoristasIndexRouteImport } from './routes/_app/motoristas/index'
 import { Route as AppOperacaoDashboardRouteImport } from './routes/_app/operacao/dashboard'
 import { Route as AppOrdensAgendamentoRouteImport } from './routes/_app/ordens/agendamento'
-import { Route as AppOrdensLotesRouteImport } from './routes/_app/ordens/lotes'
 import { Route as AppTransportadorasIndexRouteImport } from './routes/_app/transportadoras/index'
 import { Route as AppVeiculosIndexRouteImport } from './routes/_app/veiculos/index'
 import { Route as AppAdminUsuariosIndexRouteImport } from './routes/_app/admin/usuarios/index'
 import { Route as AppClientesIdIndexRouteImport } from './routes/_app/clientes/$id.index'
+import { Route as AppOperacaoLotesIndexRouteImport } from './routes/_app/operacao/lotes/index'
+import { Route as AppOperacaoLotesIdRouteImport } from './routes/_app/operacao/lotes/$id'
+import { Route as AppOrdensLotesIndexRouteImport } from './routes/_app/ordens/lotes/index'
+import { Route as AppOrdensLotesIdRouteImport } from './routes/_app/ordens/lotes/$id'
 import { Route as AppTransportadorasIdIndexRouteImport } from './routes/_app/transportadoras/$id.index'
 import { Route as AppAdminUsuariosIdIndexRouteImport } from './routes/_app/admin/usuarios/$id.index'
 
@@ -88,11 +91,6 @@ const AppOrdensAgendamentoRoute = AppOrdensAgendamentoRouteImport.update({
   path: '/ordens/agendamento',
   getParentRoute: () => AppRoute,
 } as any)
-const AppOrdensLotesRoute = AppOrdensLotesRouteImport.update({
-  id: '/ordens/lotes',
-  path: '/ordens/lotes',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppTransportadorasIndexRoute = AppTransportadorasIndexRouteImport.update({
   id: '/transportadoras/',
   path: '/transportadoras/',
@@ -111,6 +109,26 @@ const AppAdminUsuariosIndexRoute = AppAdminUsuariosIndexRouteImport.update({
 const AppClientesIdIndexRoute = AppClientesIdIndexRouteImport.update({
   id: '/clientes/$id/',
   path: '/clientes/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOperacaoLotesIndexRoute = AppOperacaoLotesIndexRouteImport.update({
+  id: '/operacao/lotes/',
+  path: '/operacao/lotes/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOperacaoLotesIdRoute = AppOperacaoLotesIdRouteImport.update({
+  id: '/operacao/lotes/$id',
+  path: '/operacao/lotes/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrdensLotesIndexRoute = AppOrdensLotesIndexRouteImport.update({
+  id: '/ordens/lotes/',
+  path: '/ordens/lotes/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrdensLotesIdRoute = AppOrdensLotesIdRouteImport.update({
+  id: '/ordens/lotes/$id',
+  path: '/ordens/lotes/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTransportadorasIdIndexRoute =
@@ -135,13 +153,16 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AppPerfilRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
-  '/ordens/lotes': typeof AppOrdensLotesRoute
   '/clientes/': typeof AppClientesIndexRoute
   '/motoristas/': typeof AppMotoristasIndexRoute
   '/transportadoras/': typeof AppTransportadorasIndexRoute
   '/veiculos/': typeof AppVeiculosIndexRoute
+  '/operacao/lotes/$id': typeof AppOperacaoLotesIdRoute
+  '/ordens/lotes/$id': typeof AppOrdensLotesIdRoute
   '/admin/usuarios/': typeof AppAdminUsuariosIndexRoute
   '/clientes/$id/': typeof AppClientesIdIndexRoute
+  '/operacao/lotes/': typeof AppOperacaoLotesIndexRoute
+  '/ordens/lotes/': typeof AppOrdensLotesIndexRoute
   '/transportadoras/$id/': typeof AppTransportadorasIdIndexRoute
   '/admin/usuarios/$id/': typeof AppAdminUsuariosIdIndexRoute
 }
@@ -155,13 +176,16 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
-  '/ordens/lotes': typeof AppOrdensLotesRoute
   '/clientes': typeof AppClientesIndexRoute
   '/motoristas': typeof AppMotoristasIndexRoute
   '/transportadoras': typeof AppTransportadorasIndexRoute
   '/veiculos': typeof AppVeiculosIndexRoute
+  '/operacao/lotes/$id': typeof AppOperacaoLotesIdRoute
+  '/ordens/lotes/$id': typeof AppOrdensLotesIdRoute
   '/admin/usuarios': typeof AppAdminUsuariosIndexRoute
   '/clientes/$id': typeof AppClientesIdIndexRoute
+  '/operacao/lotes': typeof AppOperacaoLotesIndexRoute
+  '/ordens/lotes': typeof AppOrdensLotesIndexRoute
   '/transportadoras/$id': typeof AppTransportadorasIdIndexRoute
   '/admin/usuarios/$id': typeof AppAdminUsuariosIdIndexRoute
 }
@@ -177,13 +201,16 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/_app/ordens/agendamento': typeof AppOrdensAgendamentoRoute
-  '/_app/ordens/lotes': typeof AppOrdensLotesRoute
   '/_app/clientes/': typeof AppClientesIndexRoute
   '/_app/motoristas/': typeof AppMotoristasIndexRoute
   '/_app/transportadoras/': typeof AppTransportadorasIndexRoute
   '/_app/veiculos/': typeof AppVeiculosIndexRoute
+  '/_app/operacao/lotes/$id': typeof AppOperacaoLotesIdRoute
+  '/_app/ordens/lotes/$id': typeof AppOrdensLotesIdRoute
   '/_app/admin/usuarios/': typeof AppAdminUsuariosIndexRoute
   '/_app/clientes/$id/': typeof AppClientesIdIndexRoute
+  '/_app/operacao/lotes/': typeof AppOperacaoLotesIndexRoute
+  '/_app/ordens/lotes/': typeof AppOrdensLotesIndexRoute
   '/_app/transportadoras/$id/': typeof AppTransportadorasIdIndexRoute
   '/_app/admin/usuarios/$id/': typeof AppAdminUsuariosIdIndexRoute
 }
@@ -199,13 +226,16 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/operacao/dashboard'
     | '/ordens/agendamento'
-    | '/ordens/lotes'
     | '/clientes/'
     | '/motoristas/'
     | '/transportadoras/'
     | '/veiculos/'
+    | '/operacao/lotes/$id'
+    | '/ordens/lotes/$id'
     | '/admin/usuarios/'
     | '/clientes/$id/'
+    | '/operacao/lotes/'
+    | '/ordens/lotes/'
     | '/transportadoras/$id/'
     | '/admin/usuarios/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -219,13 +249,16 @@ export interface FileRouteTypes {
     | '/'
     | '/operacao/dashboard'
     | '/ordens/agendamento'
-    | '/ordens/lotes'
     | '/clientes'
     | '/motoristas'
     | '/transportadoras'
     | '/veiculos'
+    | '/operacao/lotes/$id'
+    | '/ordens/lotes/$id'
     | '/admin/usuarios'
     | '/clientes/$id'
+    | '/operacao/lotes'
+    | '/ordens/lotes'
     | '/transportadoras/$id'
     | '/admin/usuarios/$id'
   id:
@@ -240,13 +273,16 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/operacao/dashboard'
     | '/_app/ordens/agendamento'
-    | '/_app/ordens/lotes'
     | '/_app/clientes/'
     | '/_app/motoristas/'
     | '/_app/transportadoras/'
     | '/_app/veiculos/'
+    | '/_app/operacao/lotes/$id'
+    | '/_app/ordens/lotes/$id'
     | '/_app/admin/usuarios/'
     | '/_app/clientes/$id/'
+    | '/_app/operacao/lotes/'
+    | '/_app/ordens/lotes/'
     | '/_app/transportadoras/$id/'
     | '/_app/admin/usuarios/$id/'
   fileRoutesById: FileRoutesById
@@ -344,13 +380,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrdensAgendamentoRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/ordens/lotes': {
-      id: '/_app/ordens/lotes'
-      path: '/ordens/lotes'
-      fullPath: '/ordens/lotes'
-      preLoaderRoute: typeof AppOrdensLotesRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/transportadoras/': {
       id: '/_app/transportadoras/'
       path: '/transportadoras'
@@ -379,6 +408,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClientesIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/operacao/lotes/': {
+      id: '/_app/operacao/lotes/'
+      path: '/operacao/lotes'
+      fullPath: '/operacao/lotes/'
+      preLoaderRoute: typeof AppOperacaoLotesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/operacao/lotes/$id': {
+      id: '/_app/operacao/lotes/$id'
+      path: '/operacao/lotes/$id'
+      fullPath: '/operacao/lotes/$id'
+      preLoaderRoute: typeof AppOperacaoLotesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ordens/lotes/': {
+      id: '/_app/ordens/lotes/'
+      path: '/ordens/lotes'
+      fullPath: '/ordens/lotes/'
+      preLoaderRoute: typeof AppOrdensLotesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ordens/lotes/$id': {
+      id: '/_app/ordens/lotes/$id'
+      path: '/ordens/lotes/$id'
+      fullPath: '/ordens/lotes/$id'
+      preLoaderRoute: typeof AppOrdensLotesIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/transportadoras/$id/': {
       id: '/_app/transportadoras/$id/'
       path: '/transportadoras/$id'
@@ -403,13 +460,16 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppOperacaoDashboardRoute: typeof AppOperacaoDashboardRoute
   AppOrdensAgendamentoRoute: typeof AppOrdensAgendamentoRoute
-  AppOrdensLotesRoute: typeof AppOrdensLotesRoute
   AppClientesIndexRoute: typeof AppClientesIndexRoute
   AppMotoristasIndexRoute: typeof AppMotoristasIndexRoute
   AppTransportadorasIndexRoute: typeof AppTransportadorasIndexRoute
   AppVeiculosIndexRoute: typeof AppVeiculosIndexRoute
+  AppOperacaoLotesIdRoute: typeof AppOperacaoLotesIdRoute
+  AppOrdensLotesIdRoute: typeof AppOrdensLotesIdRoute
   AppAdminUsuariosIndexRoute: typeof AppAdminUsuariosIndexRoute
   AppClientesIdIndexRoute: typeof AppClientesIdIndexRoute
+  AppOperacaoLotesIndexRoute: typeof AppOperacaoLotesIndexRoute
+  AppOrdensLotesIndexRoute: typeof AppOrdensLotesIndexRoute
   AppTransportadorasIdIndexRoute: typeof AppTransportadorasIdIndexRoute
   AppAdminUsuariosIdIndexRoute: typeof AppAdminUsuariosIdIndexRoute
 }
@@ -421,13 +481,16 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppOperacaoDashboardRoute: AppOperacaoDashboardRoute,
   AppOrdensAgendamentoRoute: AppOrdensAgendamentoRoute,
-  AppOrdensLotesRoute: AppOrdensLotesRoute,
   AppClientesIndexRoute: AppClientesIndexRoute,
   AppMotoristasIndexRoute: AppMotoristasIndexRoute,
   AppTransportadorasIndexRoute: AppTransportadorasIndexRoute,
   AppVeiculosIndexRoute: AppVeiculosIndexRoute,
+  AppOperacaoLotesIdRoute: AppOperacaoLotesIdRoute,
+  AppOrdensLotesIdRoute: AppOrdensLotesIdRoute,
   AppAdminUsuariosIndexRoute: AppAdminUsuariosIndexRoute,
   AppClientesIdIndexRoute: AppClientesIdIndexRoute,
+  AppOperacaoLotesIndexRoute: AppOperacaoLotesIndexRoute,
+  AppOrdensLotesIndexRoute: AppOrdensLotesIndexRoute,
   AppTransportadorasIdIndexRoute: AppTransportadorasIdIndexRoute,
   AppAdminUsuariosIdIndexRoute: AppAdminUsuariosIdIndexRoute,
 }

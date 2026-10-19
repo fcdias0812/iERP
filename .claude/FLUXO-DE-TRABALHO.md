@@ -97,6 +97,15 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
 - Python grava CRLF por padrão: `open(..., newline='\n')` e rode o Prettier depois.
 - `gh` (GitHub CLI) não está instalado nesta máquina; o push usa o Git Credential Manager.
 
+**Instalação (PC novo)**
+
+- **npm 11.19 tenta compilar o `better-sqlite3` 13** (`node-gyp rebuild`, pede Visual Studio C++)
+  mesmo com `"gypfile": false` e o binário pronto do Windows dentro do pacote
+  (`prebuilds/win32-x64.node`); o lockfile ganha `"hasInstallScript": true`. Contorno usado em
+  19/10/2026: `npm --prefix server install --ignore-scripts` e conferir com
+  `node -e "new (require('better-sqlite3'))(':memory:')"` (dentro de `server/`). Não commitar a
+  linha `hasInstallScript` que o npm acrescenta ao `server/package-lock.json`.
+
 **Backend**
 
 - Kysely 0.29: `Migrator` vem de `kysely/migration`.

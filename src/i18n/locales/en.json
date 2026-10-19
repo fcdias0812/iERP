@@ -841,7 +841,8 @@
     "processo": "Processing",
     "aguardando_cod": "Awaiting COD",
     "no_prazo": "On track",
-    "sem_sla": "No SLA set"
+    "sem_sla": "No SLA set",
+    "registrada": "Logged"
   },
   "dataTable": {
     "yes": "Yes",
@@ -1997,8 +1998,8 @@
       }
     },
     "lotes": {
-      "description": "Scheduled lots. To schedule a new one, use Scheduling.",
-      "emptyTitle": "No scheduled lots",
+      "description": "All lots, from scheduling to COD. Click a lot to see its progress, incidents and history.",
+      "emptyTitle": "No lots",
       "emptyBody": "Adjust the search or filters, or schedule a new lot.",
       "novo": "New scheduling",
       "cols": {
@@ -2154,6 +2155,194 @@
           "titulo": "Waiting for the ITAD system",
           "corpo": "This process will be measured by the new ITAD system, which is still being built."
         }
+      }
+    }
+  },
+  "lotes": {
+    "abas": {
+      "informacoes": "Information",
+      "progresso": "Progress",
+      "ocorrencias": "Incidents",
+      "documentos": "Documents",
+      "historico": "History"
+    },
+    "detalhe": {
+      "descricao": "{{cliente}} · Site {{site}} · Dock {{doca}}"
+    },
+    "fotos": {
+      "ampliar": "Enlarge photo {{nome}}"
+    },
+    "progresso": {
+      "resumo": "Lot summary",
+      "etapaAtual": "Current stage",
+      "desde": "since {{data}}",
+      "palletsRecebidos": "Pallets received",
+      "pesoBruto": "Gross weight",
+      "linhaDoTempo": "Timeline",
+      "estados": {
+        "feita": "Done",
+        "atual": "Current stage",
+        "pendente": "To do"
+      },
+      "etapasAjuda": "Stages advance through the integration with the production systems (not connected yet)."
+    },
+    "recebimento": {
+      "titulo": "Receiving",
+      "ajuda": "Pallet by pallet: weight, contents, who weighed it and the photo.",
+      "cols": {
+        "numero": "Pallet",
+        "peso": "Weight",
+        "conteudo": "Contents",
+        "pesadoPor": "Weighed by",
+        "pesadoEm": "Weighed at",
+        "foto": "Photo",
+        "origem": "Source"
+      },
+      "fotoTitulo": "Pallet {{numero}} — {{lote}}",
+      "vazioTitle": "No pallets received",
+      "vazioBody": "Pallets show up here once they are weighed at receiving — through the integration or Operations › Receiving."
+    },
+    "ocorrencias": {
+      "registrar": "Log incident",
+      "corrigir": "Correct",
+      "cancelar": "Cancel incident",
+      "cols": {
+        "numero": "No.",
+        "momento": "When",
+        "categoria": "Category",
+        "texto": "Description",
+        "fotos": "Photos",
+        "status": "Status",
+        "criadoEm": "Logged at",
+        "criadoPor": "Logged by"
+      },
+      "momentos": {
+        "coleta": "Pickup",
+        "trajeto": "In transit",
+        "recebimento": "Receiving"
+      },
+      "categorias": {
+        "atraso": "Delay",
+        "avaria_carga": "Damaged cargo",
+        "divergencia_quantidade": "Quantity mismatch",
+        "embalagem_inadequada": "Inadequate packaging",
+        "problema_veiculo": "Vehicle problem",
+        "acesso_negado": "Site access denied",
+        "material_nao_identificado": "Unidentified material",
+        "outro": "Other"
+      },
+      "vazioTitle": "No incidents",
+      "vazioBody": "Log here anything that happens at pickup, in transit or at receiving.",
+      "fotosDe": "Photos of incident #{{numero}}",
+      "alteradoPor": "Corrected by {{nome}} on {{data}}",
+      "cancelarTitle": "Cancel incident #{{numero}}?",
+      "cancelarBody": "It stays visible as canceled and remains in the lot history. This cannot be undone.",
+      "editTitle": "Correct incident #{{numero}}",
+      "newTitle": "Log incident",
+      "formDescription": "Lot {{code}} — what happened at pickup, in transit or at receiving.",
+      "secoes": {
+        "oque": "What happened",
+        "fotos": "Photos"
+      },
+      "escolhaMomento": "Choose when",
+      "escolhaCategoria": "Choose the category",
+      "textoAjuda": "Write in any language: the system translates it into the other two when saving. Do not include personal data.",
+      "fotosAjuda": "Optional. {{exts}}, up to {{max}} each, at most {{n}} photos. On a phone you can take the photo right away.",
+      "fotosDaOcorrencia": "Incident photos",
+      "manterFoto": "Keep",
+      "removerFoto": "Remove",
+      "limiteFotos": "Limit of {{n}} photos reached.",
+      "toast": {
+        "registrada": "Incident logged.",
+        "corrigida": "Incident corrected.",
+        "cancelada": "Incident #{{numero}} canceled.",
+        "falhou": "Could not save the incident."
+      }
+    },
+    "historico": {
+      "acoes": {
+        "criado": "Scheduled the lot",
+        "editado": "Edited the lot",
+        "status": "Changed the stage",
+        "ocorrencia_registrada": "Logged incident",
+        "ocorrencia_editada": "Corrected incident",
+        "ocorrencia_cancelada": "Canceled incident",
+        "documento_adicionado": "Added document",
+        "documento_removido": "Removed document"
+      },
+      "campos": {
+        "status": "Status",
+        "momento": "When",
+        "categoria": "Category",
+        "texto": "Description",
+        "fotos": "Photos",
+        "tipoDocumento": "Document type"
+      }
+    },
+    "informacoes": {
+      "local": "Customer and pickup site",
+      "contatoSite": "Site contact",
+      "datas": "Dates",
+      "recebidoEm": "Received at Re-Teck on",
+      "codEmitidoEm": "COD issued on",
+      "agendadoEm": "Scheduled on",
+      "transporte": "Transport",
+      "servicosQuantidades": "Services and quantities",
+      "semCalculo": "No pre-calculation (no active vehicle when it was scheduled)."
+    },
+    "documentos": {
+      "adicionarTitle": "Add documents",
+      "ajuda": "{{exts}} — up to {{max}} per file.",
+      "baixar": "Download",
+      "vazioTitle": "No documents",
+      "vazioBody": "Documents from scheduling and those added later show up here.",
+      "cols": {
+        "nome": "File",
+        "secao": "Source",
+        "extensao": "Format",
+        "tamanho": "Size",
+        "enviadoEm": "Uploaded at",
+        "enviadoPor": "Uploaded by",
+        "tipo": "Type"
+      },
+      "secoes": {
+        "escopo": "Scheduling › Scope of work",
+        "observacoes": "Scheduling › Notes",
+        "lote": "Added to the lot"
+      },
+      "toast": {
+        "enviados": "Documents added: {{n}}.",
+        "falhou": "Could not add the document.",
+        "removido": "{{name}} removed.",
+        "falhouRemover": "Could not remove the document."
+      },
+      "escolhaTipo": "Choose the type",
+      "escolhaTipoAntes": "Choose the type before uploading.",
+      "tipos": {
+        "escopo": "Scope of work",
+        "nota_fiscal": "Invoice (NF)",
+        "mtr": "MTR",
+        "cdf": "CDF (disposal certificate)",
+        "foto": "Photo",
+        "outro": "Other"
+      },
+      "remover": "Remove",
+      "removerTitle": "Remove {{name}}?",
+      "removerBody": "The file leaves the lot; the record stays in the history. This cannot be undone."
+    },
+    "editar": {
+      "botao": "Edit",
+      "titulo": "Edit lot {{code}}",
+      "descricao": "Scheduling details. The lot can only be edited while it is scheduled.",
+      "clienteFixo": "The lot's customer does not change. For another customer, schedule a new lot.",
+      "anexosAjuda": "Files are in the Documents tab.",
+      "escopoAjuda": "Required: write the scope or keep a \"Scope of work\" document in the Documents tab.",
+      "calculoAjuda": "When saving, the pre-calculation is redone with the new data.",
+      "travadoTitle": "Scheduling details locked",
+      "travadoBody": "The lot has already arrived at Re-Teck: the scheduling details no longer change. Log what changed as an incident.",
+      "toast": {
+        "salvo": "Lot {{code}} updated.",
+        "falhou": "Could not save the lot."
       }
     }
   }

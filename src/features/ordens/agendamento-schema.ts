@@ -1,7 +1,8 @@
 import { format } from 'date-fns'
+import { dayKey } from '@/components/data-table/engine'
 import { isValidPlate } from '@/lib/validators/br'
 import { z } from '@/lib/zod-i18n'
-import type { OrdemInput, QuantidadesOs, ServicosOs } from '@/services/types'
+import type { Ordem, OrdemInput, QuantidadesOs, ServicosOs } from '@/services/types'
 
 /*
  * Formulário do Agendamento (cria o lote). Mesmas regras do servidor
@@ -26,64 +27,71 @@ export const QUANTIDADES = ['boxes', 'pallets', 'gaylords', 'racks'] as const
 const qtd = z.number().int().min(0).max(100_000).nullable()
 const arquivos = z.array(z.custom<File>((v) => v instanceof File))
 
-export const agendamentoSchema = z
-  .object({
-    clienteId: z.string().min(1, 'validation.required'),
-    clienteNome: z.string(),
-    siteId: z.string().min(1, 'validation.required'),
-    docaId: z.string().min(1, 'validation.required'),
-    transportadoraId: z.string(),
-    referenciaCliente: z.string().trim().max(60),
-    dataColeta: z
-      .date()
-      .optional()
-      .refine((d) => d !== undefined, 'validation.required'),
-    coletaPrevista: z.date().optional(),
-    dataChegada: z.date().optional(),
-    rastrear: z.boolean(),
-    motoristaId: z.string(),
-    placa: z.string(),
-    servicos: z.object({
-      psm: z.boolean(),
-      onsiteShredding: z.boolean(),
-      recycleOnly: z.boolean(),
-      valueRecoveryRacks: z.boolean(),
-      valueRecoveryItad: z.boolean(),
-    }),
-    quantidades: z.object({
-      boxes: qtd,
-      pallets: qtd,
-      gaylords: qtd,
-      racks: qtd,
-      placasPolicarbonato: qtd,
-      requerPalletsVazios: z.boolean(),
-      palletsVazios: qtd,
-      itensMais25kg: z.boolean(),
-      fatorLimitante: z.string().trim().max(1000),
-    }),
-    escopo: z.string().trim().max(5000),
-    escopoArquivos: arquivos,
-    observacoes: z.string().trim().max(5000),
-    observacoesArquivos: arquivos,
-  })
-  .superRefine((v, ctx) => {
-    if (v.servicos.valueRecoveryRacks && v.quantidades.placasPolicarbonato === null)
-      ctx.addIssue({
-        code: 'custom',
-        path: ['quantidades', 'placasPolicarbonato'],
-        message: 'validation.required',
-      })
-    if (v.quantidades.requerPalletsVazios && !v.quantidades.palletsVazios)
-      ctx.addIssue({
-        code: 'custom',
-        path: ['quantidades', 'palletsVazios'],
-        message: 'validation.required',
-      })
-    if (!v.escopo && !v.escopoArquivos.length)
-      ctx.addIssue({ code: 'custom', path: ['escopo'], message: 'validation.scopeRequired' })
-    if (v.rastrear && v.placa && !isValidPlate(v.placa))
-      ctx.addIssue({ code: 'custom', path: ['placa'], message: 'validation.plate' })
-  })
+/**
+ * Regras do formulário. Na edição do lote os arquivos ficam na aba Documentos: o escopo vale com
+ * o texto OU com um documento do tipo "escopo" já guardado (`temEscopoArquivado`).
+ */
+export const criarAgendamentoSchema = ({ temEscopoArquivado = false } = {}) =>
+  z
+    .object({
+      clienteId: z.string().min(1, 'validation.required'),
+      clienteNome: z.string(),
+      siteId: z.string().min(1, 'validation.required'),
+      docaId: z.string().min(1, 'validation.required'),
+      transportadoraId: z.string(),
+      referenciaCliente: z.string().trim().max(60),
+      dataColeta: z
+        .date()
+        .optional()
+        .refine((d) => d !== undefined, 'validation.required'),
+      coletaPrevista: z.date().optional(),
+      dataChegada: z.date().optional(),
+      rastrear: z.boolean(),
+      motoristaId: z.string(),
+      placa: z.string(),
+      servicos: z.object({
+        psm: z.boolean(),
+        onsiteShredding: z.boolean(),
+        recycleOnly: z.boolean(),
+        valueRecoveryRacks: z.boolean(),
+        valueRecoveryItad: z.boolean(),
+      }),
+      quantidades: z.object({
+        boxes: qtd,
+        pallets: qtd,
+        gaylords: qtd,
+        racks: qtd,
+        placasPolicarbonato: qtd,
+        requerPalletsVazios: z.boolean(),
+        palletsVazios: qtd,
+        itensMais25kg: z.boolean(),
+        fatorLimitante: z.string().trim().max(1000),
+      }),
+      escopo: z.string().trim().max(5000),
+      escopoArquivos: arquivos,
+      observacoes: z.string().trim().max(5000),
+      observacoesArquivos: arquivos,
+    })
+    .superRefine((v, ctx) => {
+      if (v.servicos.valueRecoveryRacks && v.quantidades.placasPolicarbonato === null)
+        ctx.addIssue({
+          code: 'custom',
+          path: ['quantidades', 'placasPolicarbonato'],
+          message: 'validation.required',
+        })
+      if (v.quantidades.requerPalletsVazios && !v.quantidades.palletsVazios)
+        ctx.addIssue({
+          code: 'custom',
+          path: ['quantidades', 'palletsVazios'],
+          message: 'validation.required',
+        })
+      if (!v.escopo && !v.escopoArquivos.length && !temEscopoArquivado)
+        ctx.addIssue({ code: 'custom', path: ['escopo'], message: 'validation.scopeRequired' })
+      if (v.rastrear && v.placa && !isValidPlate(v.placa))
+        ctx.addIssue({ code: 'custom', path: ['placa'], message: 'validation.plate' })
+    })
+
+export const agendamentoSchema = criarAgendamentoSchema()
 
 export type AgendamentoForm = z.input<typeof agendamentoSchema>
 
@@ -161,5 +169,52 @@ export function formParaInput(v: AgendamentoForm): OrdemInput {
     quantidades: quantidadesParaApi(v),
     escopo: v.escopo.trim() || null,
     observacoes: v.observacoes.trim() || null,
+  }
+}
+
+/** O que o cálculo usa (para saber se ele ficou desatualizado). */
+export const chaveDoCalculo = (v: AgendamentoForm) =>
+  JSON.stringify({ docaId: v.docaId, servicos: v.servicos, quantidades: quantidadesParaApi(v) })
+
+/** Data guardada (início do dia em São Paulo, ISO) → Date local do seletor de data. */
+function paraData(iso: string | null): Date | undefined {
+  const k = iso ? dayKey(iso) : null
+  if (!k) return undefined
+  const [a, m, d] = k.split('-').map(Number)
+  return new Date(a!, m! - 1, d!)
+}
+
+/** Lote existente → formulário (edição no detalhe do lote). */
+export function ordemParaForm(o: Ordem): AgendamentoForm {
+  const q = o.quantidades
+  return {
+    clienteId: o.clienteId,
+    clienteNome: o.clienteNome,
+    siteId: o.siteId,
+    docaId: o.docaId,
+    transportadoraId: o.transportadoraId ?? NENHUM,
+    referenciaCliente: o.referenciaCliente ?? '',
+    dataColeta: paraData(o.dataColeta),
+    coletaPrevista: paraData(o.coletaPrevista),
+    dataChegada: paraData(o.dataChegada),
+    rastrear: o.rastrear,
+    motoristaId: o.motoristaId ?? NENHUM,
+    placa: o.placa ?? '',
+    servicos: { ...o.servicos },
+    quantidades: {
+      boxes: q.boxes,
+      pallets: q.pallets,
+      gaylords: q.gaylords,
+      racks: q.racks,
+      placasPolicarbonato: q.placasPolicarbonato,
+      requerPalletsVazios: q.requerPalletsVazios,
+      palletsVazios: q.palletsVazios,
+      itensMais25kg: q.itensMais25kg,
+      fatorLimitante: q.fatorLimitante ?? '',
+    },
+    escopo: o.escopo ?? '',
+    escopoArquivos: [],
+    observacoes: o.observacoes ?? '',
+    observacoesArquivos: [],
   }
 }

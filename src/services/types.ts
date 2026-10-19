@@ -1,5 +1,6 @@
 import type { TablePage } from '@/components/data-table/types'
 import type { Role } from '@/config/permissions'
+import type { LocalizedText } from '@/lib/localized-text'
 
 /*
  * CONTRATO DA API (tipos). O servidor simulado (src/mocks) e a API real devolvem
@@ -28,6 +29,9 @@ export interface EventoHistorico {
     | 'site_removido'
     | 'documento_adicionado'
     | 'documento_removido'
+    | 'ocorrencia_registrada'
+    | 'ocorrencia_editada'
+    | 'ocorrencia_cancelada'
   mudancas?: Mudanca[]
   nota?: string
 }
@@ -434,7 +438,8 @@ export type PaginaVeiculos = TablePage<Veiculo> & {
 
 /** Etapas do lote: agendado → inspeção (recebido) → processo → aguardando COD → concluído. */
 export type StatusOrdem = 'agendado' | 'inspecao' | 'processo' | 'aguardando_cod' | 'concluido'
-export type SecaoAnexo = 'escopo' | 'observacoes'
+/** escopo/observacoes = enviados no agendamento; lote = adicionados depois (aba Documentos). */
+export type SecaoAnexo = 'escopo' | 'observacoes' | 'lote'
 
 export interface ServicosOs {
   psm: boolean
@@ -478,9 +483,13 @@ export interface CalculoOs {
   avisos: AvisoCalculo[]
 }
 
+/** Tipos de documento do lote. */
+export type TipoDocumentoLote = 'escopo' | 'nota_fiscal' | 'mtr' | 'cdf' | 'foto' | 'outro'
+
 export interface AnexoOrdem {
   id: string
   secao: SecaoAnexo
+  tipo: TipoDocumentoLote
   nome: string
   extensao: string
   tamanho: number
@@ -528,6 +537,79 @@ export interface Ordem extends OrdemResumo {
   alteradoEm: string
   alteradoPor: string
   historico: EventoHistorico[]
+  /** Linha do tempo: etapas por onde o lote passou (a primeira é "agendado"). */
+  etapas: EtapaLote[]
+  /** Pallets recebidos (integração / Operação › Recebimento). */
+  pallets: PalletLote[]
+  /** Ocorrências (mais recente primeiro). */
+  ocorrencias: OcorrenciaLote[]
+}
+
+/* ---------------- Detalhe do lote (server/src/modules/ordens/ordens.lote.ts) */
+
+export interface EtapaLote {
+  etapa: StatusOrdem
+  /** Quando o lote entrou na etapa. */
+  em: string
+}
+
+export interface PalletLote {
+  id: string
+  numero: number
+  /** kg */
+  pesoKg: number | null
+  conteudo: string | null
+  pesadoPor: string | null
+  pesadoEm: string | null
+  temFoto: boolean
+  /** Sistema de onde veio o registro (ex.: "iERP"). */
+  origem: string
+}
+
+export type MomentoOcorrencia = 'coleta' | 'trajeto' | 'recebimento'
+export type CategoriaOcorrencia =
+  | 'atraso'
+  | 'avaria_carga'
+  | 'divergencia_quantidade'
+  | 'embalagem_inadequada'
+  | 'problema_veiculo'
+  | 'acesso_negado'
+  | 'material_nao_identificado'
+  | 'outro'
+export type StatusOcorrencia = 'registrada' | 'cancelado'
+
+export interface FotoOcorrencia {
+  id: string
+  nome: string
+  extensao: string
+  tamanho: number
+  enviadoEm: string
+  enviadoPor: string
+}
+
+export interface OcorrenciaLote {
+  id: string
+  /** Sequencial dentro do lote (#1, #2…). */
+  numero: number
+  momento: MomentoOcorrencia
+  categoria: CategoriaOcorrencia
+  /** Texto nos 3 idiomas (traduzido ao salvar). */
+  texto: LocalizedText
+  status: StatusOcorrencia
+  fotos: FotoOcorrencia[]
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+/** Registro/correção de ocorrência (vai como `dados` no multipart, com as `fotos`). */
+export interface OcorrenciaInput {
+  momento: MomentoOcorrencia
+  categoria: CategoriaOcorrencia
+  texto: LocalizedText
+  /** Só na correção: ids das fotos a remover. */
+  removerFotos?: string[]
 }
 
 /** Nova ordem (vai como `dados` no multipart, com os arquivos de escopo e observações). */

@@ -71,10 +71,11 @@ test('agendamento: pré-calcula e cria o lote agendado', async ({ page }) => {
   await expect(page.getByText('Escopo técnico.pdf')).toBeVisible()
   await page.getByRole('button', { name: 'Criar ordem' }).click()
 
-  await expect(page.getByText('Lote LOT-00001 agendado.')).toBeVisible()
+  // Já existe o lote de demonstração LOT-00001 na API simulada.
+  await expect(page.getByText('Lote LOT-00002 agendado.')).toBeVisible()
   await expect(page).toHaveURL(/\/ordens\/lotes/)
   const linha = page.locator('main tbody tr').first()
-  await expect(linha).toContainText('LOT-00001')
+  await expect(linha).toContainText('LOT-00002')
   await expect(linha).toContainText(nome)
   await expect(linha).toContainText('III · IV')
 })

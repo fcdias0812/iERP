@@ -27,6 +27,7 @@ import {
   HandCoins,
   Hourglass,
   Lock,
+  MessageSquareWarning,
   OctagonX,
   PackageCheck,
   PackageMinus,
@@ -57,6 +58,8 @@ export const STATUS_MAP = {
   rascunho: { tone: 'inactive', icon: PencilLine, flowOrder: 10 },
   novo: { tone: 'info', icon: CircleDot, flowOrder: 20 },
   pendente: { tone: 'warning', icon: Clock, flowOrder: 30 },
+  // Ocorrência do lote (alerta leve: alguém precisa olhar).
+  registrada: { tone: 'warning', icon: MessageSquareWarning, flowOrder: 32 },
   aguardando_aprovacao: { tone: 'warning', icon: Hourglass, flowOrder: 40 },
   em_revisao: { tone: 'warning', icon: Eye, flowOrder: 50 },
   aprovado: { tone: 'success', icon: CircleCheck, flowOrder: 60 },

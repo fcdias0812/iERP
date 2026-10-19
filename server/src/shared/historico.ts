@@ -20,6 +20,9 @@ export interface EventoHistorico {
     | 'site_removido'
     | 'documento_adicionado'
     | 'documento_removido'
+    | 'ocorrencia_registrada'
+    | 'ocorrencia_editada'
+    | 'ocorrencia_cancelada'
   mudancas?: Mudanca[]
   nota?: string
 }

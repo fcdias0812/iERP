@@ -841,7 +841,8 @@
     "processo": "處理中",
     "aguardando_cod": "等待 COD",
     "no_prazo": "正常",
-    "sem_sla": "未設定 SLA"
+    "sem_sla": "未設定 SLA",
+    "registrada": "已登記"
   },
   "dataTable": {
     "yes": "是",
@@ -1997,9 +1998,9 @@
       }
     },
     "lotes": {
-      "description": "已排程的批次。要新增請使用「排程」。",
-      "emptyTitle": "沒有已排程的批次",
-      "emptyBody": "請調整搜尋或篩選條件，或排程新的批次。",
+      "description": "所有批次，從排程到 COD。點選批次可查看進度、異常事件與歷程。",
+      "emptyTitle": "沒有批次",
+      "emptyBody": "調整搜尋或篩選條件，或排程新的批次。",
       "novo": "新增排程",
       "cols": {
         "codigo": "批次",
@@ -2154,6 +2155,194 @@
           "titulo": "等待 ITAD 系統",
           "corpo": "此流程將由仍在建置中的新 ITAD 系統衡量。"
         }
+      }
+    }
+  },
+  "lotes": {
+    "abas": {
+      "informacoes": "資訊",
+      "progresso": "進度",
+      "ocorrencias": "異常事件",
+      "documentos": "文件",
+      "historico": "歷程"
+    },
+    "detalhe": {
+      "descricao": "{{cliente}} · 站點 {{site}} · 碼頭 {{doca}}"
+    },
+    "fotos": {
+      "ampliar": "放大照片 {{nome}}"
+    },
+    "progresso": {
+      "resumo": "批次摘要",
+      "etapaAtual": "目前階段",
+      "desde": "自 {{data}} 起",
+      "palletsRecebidos": "已收棧板",
+      "pesoBruto": "毛重",
+      "linhaDoTempo": "時間軸",
+      "estados": {
+        "feita": "已完成",
+        "atual": "目前階段",
+        "pendente": "待進行"
+      },
+      "etapasAjuda": "階段會透過與生產系統的整合推進（尚未連接）。"
+    },
+    "recebimento": {
+      "titulo": "收貨",
+      "ajuda": "逐一棧板：重量、內容物、秤重人員與照片。",
+      "cols": {
+        "numero": "棧板",
+        "peso": "重量",
+        "conteudo": "內容物",
+        "pesadoPor": "秤重人員",
+        "pesadoEm": "秤重時間",
+        "foto": "照片",
+        "origem": "來源"
+      },
+      "fotoTitulo": "棧板 {{numero}} — {{lote}}",
+      "vazioTitle": "尚未收到棧板",
+      "vazioBody": "棧板在收貨秤重後會顯示於此 — 透過整合或「營運 › 收貨」。"
+    },
+    "ocorrencias": {
+      "registrar": "登記異常事件",
+      "corrigir": "更正",
+      "cancelar": "取消異常事件",
+      "cols": {
+        "numero": "編號",
+        "momento": "時機",
+        "categoria": "類別",
+        "texto": "說明",
+        "fotos": "照片",
+        "status": "狀態",
+        "criadoEm": "登記時間",
+        "criadoPor": "登記人員"
+      },
+      "momentos": {
+        "coleta": "取貨",
+        "trajeto": "運送途中",
+        "recebimento": "收貨"
+      },
+      "categorias": {
+        "atraso": "延誤",
+        "avaria_carga": "貨物損壞",
+        "divergencia_quantidade": "數量不符",
+        "embalagem_inadequada": "包裝不當",
+        "problema_veiculo": "車輛問題",
+        "acesso_negado": "站點拒絕進入",
+        "material_nao_identificado": "未識別物料",
+        "outro": "其他"
+      },
+      "vazioTitle": "沒有異常事件",
+      "vazioBody": "在此登記取貨、運送途中或收貨時發生的任何狀況。",
+      "fotosDe": "異常事件 #{{numero}} 的照片",
+      "alteradoPor": "由 {{nome}} 於 {{data}} 更正",
+      "cancelarTitle": "取消異常事件 #{{numero}}？",
+      "cancelarBody": "它會以已取消狀態保留，並留在批次歷程中。此操作無法復原。",
+      "editTitle": "更正異常事件 #{{numero}}",
+      "newTitle": "登記異常事件",
+      "formDescription": "批次 {{code}} — 取貨、運送途中或收貨時發生了什麼。",
+      "secoes": {
+        "oque": "發生了什麼",
+        "fotos": "照片"
+      },
+      "escolhaMomento": "選擇時機",
+      "escolhaCategoria": "選擇類別",
+      "textoAjuda": "可用任何語言撰寫：儲存時系統會翻譯成另外兩種語言。請勿填寫個人資料。",
+      "fotosAjuda": "選填。{{exts}}，每張最大 {{max}}，最多 {{n}} 張。使用手機可直接拍照。",
+      "fotosDaOcorrencia": "異常事件照片",
+      "manterFoto": "保留",
+      "removerFoto": "移除",
+      "limiteFotos": "已達 {{n}} 張照片的上限。",
+      "toast": {
+        "registrada": "已登記異常事件。",
+        "corrigida": "已更正異常事件。",
+        "cancelada": "已取消異常事件 #{{numero}}。",
+        "falhou": "無法儲存異常事件。"
+      }
+    },
+    "historico": {
+      "acoes": {
+        "criado": "排程了批次",
+        "editado": "編輯了批次",
+        "status": "變更了階段",
+        "ocorrencia_registrada": "登記了異常事件",
+        "ocorrencia_editada": "更正了異常事件",
+        "ocorrencia_cancelada": "取消了異常事件",
+        "documento_adicionado": "新增了文件",
+        "documento_removido": "移除了文件"
+      },
+      "campos": {
+        "status": "狀態",
+        "momento": "時機",
+        "categoria": "類別",
+        "texto": "說明",
+        "fotos": "照片",
+        "tipoDocumento": "文件類型"
+      }
+    },
+    "informacoes": {
+      "local": "客戶與取貨地點",
+      "contatoSite": "站點聯絡人",
+      "datas": "日期",
+      "recebidoEm": "抵達 Re-Teck 日期",
+      "codEmitidoEm": "COD 開立日期",
+      "agendadoEm": "排程日期",
+      "transporte": "運輸",
+      "servicosQuantidades": "服務與數量",
+      "semCalculo": "無預先計算（排程時沒有啟用中的車輛）。"
+    },
+    "documentos": {
+      "adicionarTitle": "新增文件",
+      "ajuda": "{{exts}} — 每個檔案最大 {{max}}。",
+      "baixar": "下載",
+      "vazioTitle": "沒有文件",
+      "vazioBody": "排程時的文件與之後新增的文件會顯示於此。",
+      "cols": {
+        "nome": "檔案",
+        "secao": "來源",
+        "extensao": "格式",
+        "tamanho": "大小",
+        "enviadoEm": "上傳時間",
+        "enviadoPor": "上傳人員",
+        "tipo": "類型"
+      },
+      "secoes": {
+        "escopo": "排程 › 工作範圍",
+        "observacoes": "排程 › 備註",
+        "lote": "新增至批次"
+      },
+      "toast": {
+        "enviados": "已新增文件：{{n}}。",
+        "falhou": "無法新增文件。",
+        "removido": "已移除 {{name}}。",
+        "falhouRemover": "無法移除文件。"
+      },
+      "escolhaTipo": "選擇類型",
+      "escolhaTipoAntes": "上傳前請先選擇類型。",
+      "tipos": {
+        "escopo": "工作範圍",
+        "nota_fiscal": "發票（NF）",
+        "mtr": "MTR",
+        "cdf": "CDF（處置證明）",
+        "foto": "照片",
+        "outro": "其他"
+      },
+      "remover": "移除",
+      "removerTitle": "移除 {{name}}？",
+      "removerBody": "檔案將從批次移除；紀錄仍保留在歷程中。此操作無法復原。"
+    },
+    "editar": {
+      "botao": "編輯",
+      "titulo": "編輯批次 {{code}}",
+      "descricao": "排程資料。僅在批次為已排程狀態時可編輯。",
+      "clienteFixo": "批次的客戶無法變更。若為其他客戶，請排程新的批次。",
+      "anexosAjuda": "檔案位於「文件」分頁。",
+      "escopoAjuda": "必填：撰寫工作範圍，或在「文件」分頁保留一份「工作範圍」類型的文件。",
+      "calculoAjuda": "儲存時會以新資料重新預先計算。",
+      "travadoTitle": "排程資料已鎖定",
+      "travadoBody": "批次已抵達 Re-Teck：排程資料不再變更。請將變更登記為異常事件。",
+      "toast": {
+        "salvo": "已更新批次 {{code}}。",
+        "falhou": "無法儲存批次。"
       }
     }
   }

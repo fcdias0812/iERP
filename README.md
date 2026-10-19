@@ -138,11 +138,13 @@ src/                        FRONTEND (padrão do template)
   features/transportadoras/ Transportadoras (lista, detalhe com abas, formulário com contatos e motoristas)
   features/motoristas/      Motoristas (lista + painel lateral)
   features/veiculos/        Veículos (lista + painel lateral)
-  features/ordens/          Ordens › Lotes (agendados) e Agendamento (página própria + pré-cálculo)
+  features/ordens/          Ordens › Agendamento (página própria + pré-cálculo) e hooks de ordens
+  features/lotes/           lista dos lotes (Ordens › Lotes = Operação › Lotes) e detalhe do lote
+                            (Informações, Progresso, Ocorrências, Documentos, Histórico)
   features/comum/           peças compartilhadas: contatos, histórico (auditoria), painel de cadastro
                             (CadastroSheet — todo cadastro/edição abre no painel lateral à direita)
   features/admin/usuarios/  telas de Admin › Usuários (lista, detalhe, formulário)
-  routes/_app/              rotas (clientes/, transportadoras/, motoristas/, veiculos/, ordens/, admin/usuarios/)
+  routes/_app/              rotas (clientes/, transportadoras/, motoristas/, veiculos/, ordens/, operacao/, admin/usuarios/)
   services/                 chamadas à API + contrato (types.ts)
   mocks/                    API simulada (opcional)
   i18n/locales/             pt-BR, en, zh-TW
@@ -209,11 +211,32 @@ Toda mudança (inclusive vincular/desvincular motorista) vai para o histórico d
 
 | Método e caminho                              | O que faz                                                                                                                  |
 | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/ordens`                             | lotes agendados (formato do DataTable)                                                                                     |
-| `GET /api/ordens/:id`                         | detalhe com quantidades, anexos, cálculo guardado e histórico                                                              |
+| `GET /api/ordens`                             | lotes (formato do DataTable)                                                                                               |
+| `GET /api/ordens/:id`                         | detalhe com quantidades, anexos, cálculo guardado, histórico, etapas, pallets e ocorrências                                |
 | `POST /api/ordens/pre-calculo`                | `{ docaId, servicos, quantidades }` → caminhão, capacidade, viagens, pessoas, plataforma, o que levar e avisos (não grava) |
 | `POST /api/ordens`                            | cria o lote `LOT-00001` (multipart: `dados` JSON + arquivos `escopo` e `observacoes`, até 20 cada, 25 MB por arquivo)      |
 | `GET /api/ordens/:id/anexos/:anexoId/arquivo` | baixa um anexo (sempre como anexo)                                                                                         |
+| `PUT /api/ordens/:id`                         | edita o lote — só enquanto `agendado` (409), o cliente não muda (422); refaz o pré-cálculo; histórico com antes → depois   |
+| `POST /api/ordens/:id/anexos`                 | adiciona documentos (multipart `tipo` + `arquivos`, até 20; seção `lote`)                                                  |
+| `DELETE /api/ordens/:id/anexos/:anexoId`      | remove um documento (histórico); o único escopo sem texto não sai (422 `scope_required`)                                   |
+
+### Detalhe do lote (`server/src/modules/ordens/ordens.lote.ts`)
+
+| Método e caminho                                  | O que faz                                                                                                  |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `POST /api/ordens/:id/ocorrencias`                | registra ocorrência (multipart: `dados` = `{ momento, categoria, texto }` + até 10 `fotos`) → lote inteiro |
+| `PATCH /api/ordens/:id/ocorrencias/:oc`           | corrige (mesmos campos + `removerFotos[]`); cancelada não muda (409 `invalid_transition`)                  |
+| `POST /api/ordens/:id/ocorrencias/:oc/cancelar`   | cancela (a ocorrência fica, com status `cancelado`)                                                        |
+| `GET /api/ordens/:id/ocorrencias/:oc/fotos/:foto` | foto da ocorrência (imagem exibida na tela: `nosniff`, `default-src 'none'`)                               |
+| `GET /api/ordens/:id/pallets/:pallet/foto`        | foto do pallet recebido                                                                                    |
+
+Momento `coleta`, `trajeto` ou `recebimento`; categorias `atraso`, `avaria_carga`,
+`divergencia_quantidade`, `embalagem_inadequada`, `problema_veiculo`, `acesso_negado`,
+`material_nao_identificado`, `outro`; texto em 3 idiomas (LocalizedText, traduzido na tela ao
+salvar); fotos JPG, PNG ou WEBP até 25 MB. Tudo vai para o histórico do lote (`#n` na referência).
+Tipos de documento do lote: `escopo`, `nota_fiscal`, `mtr`, `cdf`, `foto`, `outro`.
+Etapas (`ordens_etapas`) e pallets (`ordens_pallets`) vêm da integração ou, depois, de Operação ›
+Recebimento — hoje só são lidos.
 
 Obrigatórios: cliente, site (do cliente), doca (do site), data de coleta e o escopo de trabalho (texto **ou**
 arquivo — 422 `scope_required`). Placas de policarbonato só com o serviço IV (Value Recovery –

@@ -841,7 +841,8 @@
     "processo": "Processo",
     "aguardando_cod": "Aguardando COD",
     "no_prazo": "Normal",
-    "sem_sla": "Sem SLA medido"
+    "sem_sla": "Sem SLA medido",
+    "registrada": "Registrada"
   },
   "dataTable": {
     "yes": "Sim",
@@ -1997,8 +1998,8 @@
       }
     },
     "lotes": {
-      "description": "Lotes agendados. Para agendar um novo, use Agendamento.",
-      "emptyTitle": "Nenhum lote agendado",
+      "description": "Todos os lotes, do agendamento ao COD. Clique num lote para ver o progresso, as ocorrências e o histórico.",
+      "emptyTitle": "Nenhum lote",
       "emptyBody": "Ajuste a busca ou os filtros, ou agende um novo lote.",
       "novo": "Novo agendamento",
       "cols": {
@@ -2154,6 +2155,194 @@
           "titulo": "Aguardando o sistema de ITAD",
           "corpo": "Este processo vai ser medido pelo sistema de ITAD novo, que ainda está em construção."
         }
+      }
+    }
+  },
+  "lotes": {
+    "abas": {
+      "informacoes": "Informações",
+      "progresso": "Progresso",
+      "ocorrencias": "Ocorrências",
+      "documentos": "Documentos",
+      "historico": "Histórico"
+    },
+    "detalhe": {
+      "descricao": "{{cliente}} · Site {{site}} · Doca {{doca}}"
+    },
+    "fotos": {
+      "ampliar": "Ampliar a foto {{nome}}"
+    },
+    "progresso": {
+      "resumo": "Resumo do lote",
+      "etapaAtual": "Etapa atual",
+      "desde": "desde {{data}}",
+      "palletsRecebidos": "Pallets recebidos",
+      "pesoBruto": "Peso bruto",
+      "linhaDoTempo": "Linha do tempo",
+      "estados": {
+        "feita": "Concluída",
+        "atual": "Etapa atual",
+        "pendente": "A fazer"
+      },
+      "etapasAjuda": "As etapas avançam pela integração com os sistemas de produção (ainda não ligada)."
+    },
+    "recebimento": {
+      "titulo": "Recebimento",
+      "ajuda": "Pallet a pallet: peso, conteúdo, quem pesou e a foto.",
+      "cols": {
+        "numero": "Pallet",
+        "peso": "Peso",
+        "conteudo": "Conteúdo",
+        "pesadoPor": "Pesado por",
+        "pesadoEm": "Pesado em",
+        "foto": "Foto",
+        "origem": "Origem"
+      },
+      "fotoTitulo": "Pallet {{numero}} — {{lote}}",
+      "vazioTitle": "Nenhum pallet recebido",
+      "vazioBody": "Os pallets aparecem aqui quando forem pesados no recebimento — pela integração ou por Operação › Recebimento."
+    },
+    "ocorrencias": {
+      "registrar": "Registrar ocorrência",
+      "corrigir": "Corrigir",
+      "cancelar": "Cancelar ocorrência",
+      "cols": {
+        "numero": "Nº",
+        "momento": "Momento",
+        "categoria": "Categoria",
+        "texto": "Descrição",
+        "fotos": "Fotos",
+        "status": "Status",
+        "criadoEm": "Registrada em",
+        "criadoPor": "Registrada por"
+      },
+      "momentos": {
+        "coleta": "Coleta",
+        "trajeto": "Trajeto",
+        "recebimento": "Recebimento"
+      },
+      "categorias": {
+        "atraso": "Atraso",
+        "avaria_carga": "Avaria na carga",
+        "divergencia_quantidade": "Divergência de quantidade",
+        "embalagem_inadequada": "Embalagem inadequada",
+        "problema_veiculo": "Problema no veículo",
+        "acesso_negado": "Acesso negado no site",
+        "material_nao_identificado": "Material não identificado",
+        "outro": "Outro"
+      },
+      "vazioTitle": "Nenhuma ocorrência",
+      "vazioBody": "Registre aqui o que acontecer na coleta, no trajeto ou no recebimento.",
+      "fotosDe": "Fotos da ocorrência #{{numero}}",
+      "alteradoPor": "Corrigida por {{nome}} em {{data}}",
+      "cancelarTitle": "Cancelar a ocorrência #{{numero}}?",
+      "cancelarBody": "Ela continua visível como cancelada e fica no histórico do lote. Não dá para desfazer.",
+      "editTitle": "Corrigir ocorrência #{{numero}}",
+      "newTitle": "Registrar ocorrência",
+      "formDescription": "Lote {{code}} — o que aconteceu na coleta, no trajeto ou no recebimento.",
+      "secoes": {
+        "oque": "O que aconteceu",
+        "fotos": "Fotos"
+      },
+      "escolhaMomento": "Escolha o momento",
+      "escolhaCategoria": "Escolha a categoria",
+      "textoAjuda": "Escreva em qualquer idioma: o sistema traduz para os outros dois ao salvar. Não coloque dados pessoais.",
+      "fotosAjuda": "Opcional. {{exts}}, até {{max}} cada, no máximo {{n}} fotos. No celular, dá para tirar a foto na hora.",
+      "fotosDaOcorrencia": "Fotos da ocorrência",
+      "manterFoto": "Manter",
+      "removerFoto": "Remover",
+      "limiteFotos": "Limite de {{n}} fotos atingido.",
+      "toast": {
+        "registrada": "Ocorrência registrada.",
+        "corrigida": "Ocorrência corrigida.",
+        "cancelada": "Ocorrência #{{numero}} cancelada.",
+        "falhou": "Não foi possível salvar a ocorrência."
+      }
+    },
+    "historico": {
+      "acoes": {
+        "criado": "Agendou o lote",
+        "editado": "Editou o lote",
+        "status": "Mudou a etapa",
+        "ocorrencia_registrada": "Registrou ocorrência",
+        "ocorrencia_editada": "Corrigiu ocorrência",
+        "ocorrencia_cancelada": "Cancelou ocorrência",
+        "documento_adicionado": "Adicionou documento",
+        "documento_removido": "Removeu documento"
+      },
+      "campos": {
+        "status": "Status",
+        "momento": "Momento",
+        "categoria": "Categoria",
+        "texto": "Descrição",
+        "fotos": "Fotos",
+        "tipoDocumento": "Tipo de documento"
+      }
+    },
+    "informacoes": {
+      "local": "Cliente e local da coleta",
+      "contatoSite": "Contato no site",
+      "datas": "Datas",
+      "recebidoEm": "Recebido na Re-Teck em",
+      "codEmitidoEm": "COD emitido em",
+      "agendadoEm": "Agendado em",
+      "transporte": "Transporte",
+      "servicosQuantidades": "Serviços e quantidades",
+      "semCalculo": "Sem pré-cálculo (não havia veículo ativo ao agendar)."
+    },
+    "documentos": {
+      "adicionarTitle": "Adicionar documentos",
+      "ajuda": "{{exts}} — até {{max}} por arquivo.",
+      "baixar": "Baixar",
+      "vazioTitle": "Nenhum documento",
+      "vazioBody": "Os documentos do agendamento e os adicionados depois aparecem aqui.",
+      "cols": {
+        "nome": "Arquivo",
+        "secao": "Origem",
+        "extensao": "Formato",
+        "tamanho": "Tamanho",
+        "enviadoEm": "Enviado em",
+        "enviadoPor": "Enviado por",
+        "tipo": "Tipo"
+      },
+      "secoes": {
+        "escopo": "Agendamento › Escopo de trabalho",
+        "observacoes": "Agendamento › Observações",
+        "lote": "Adicionado ao lote"
+      },
+      "toast": {
+        "enviados": "Documentos adicionados: {{n}}.",
+        "falhou": "Não foi possível adicionar o documento.",
+        "removido": "{{name}} removido.",
+        "falhouRemover": "Não foi possível remover o documento."
+      },
+      "escolhaTipo": "Escolha o tipo",
+      "escolhaTipoAntes": "Escolha o tipo antes de enviar.",
+      "tipos": {
+        "escopo": "Escopo de trabalho",
+        "nota_fiscal": "Nota fiscal",
+        "mtr": "MTR",
+        "cdf": "CDF (certificado de destinação)",
+        "foto": "Foto",
+        "outro": "Outro"
+      },
+      "remover": "Remover",
+      "removerTitle": "Remover {{name}}?",
+      "removerBody": "O arquivo sai do lote; o registro fica no histórico. Não dá para desfazer."
+    },
+    "editar": {
+      "botao": "Editar",
+      "titulo": "Editar lote {{code}}",
+      "descricao": "Dados do agendamento. Só dá para editar enquanto o lote está agendado.",
+      "clienteFixo": "O cliente do lote não muda. Para outro cliente, agende um novo lote.",
+      "anexosAjuda": "Os arquivos ficam na aba Documentos.",
+      "escopoAjuda": "Obrigatório: escreva o escopo ou mantenha um documento do tipo \"Escopo de trabalho\" na aba Documentos.",
+      "calculoAjuda": "Ao salvar, o pré-cálculo é refeito com os dados novos.",
+      "travadoTitle": "Dados do agendamento travados",
+      "travadoBody": "O lote já chegou na Re-Teck: os dados do agendamento não mudam mais. Registre o que mudou como ocorrência.",
+      "toast": {
+        "salvo": "Lote {{code}} atualizado.",
+        "falhou": "Não foi possível salvar o lote."
       }
     }
   }

@@ -271,6 +271,58 @@ export interface OrdensAnexosTable {
   id: string
   ordemId: string
   secao: string
+  /** escopo | nota_fiscal | mtr | cdf | foto | outro */
+  tipo: string
+  nome: string
+  extensao: string
+  tamanho: number
+  enviadoEm: string
+  enviadoPor: string
+}
+
+/** Etapas por onde o lote passou (linha do tempo). */
+export interface OrdensEtapasTable {
+  id: string
+  ordemId: string
+  etapa: string
+  em: string
+  autor: string
+}
+
+/** Pallets recebidos (integração ou Operação › Recebimento). */
+export interface OrdensPalletsTable {
+  id: string
+  ordemId: string
+  numero: number
+  /** kg */
+  pesoKg: number | null
+  conteudo: string | null
+  pesadoPor: string | null
+  pesadoEm: string | null
+  fotoExtensao: string | null
+  origem: string
+  criadoEm: string
+}
+
+/** Ocorrências do lote (coleta, trajeto, recebimento); texto = LocalizedText em JSON. */
+export interface OrdensOcorrenciasTable {
+  id: string
+  ordemId: string
+  numero: number
+  momento: string
+  categoria: string
+  texto: string
+  status: string
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+export interface OrdensOcorrenciasFotosTable {
+  id: string
+  ocorrenciaId: string
+  posicao: number
   nome: string
   extensao: string
   tamanho: number
@@ -298,4 +350,8 @@ export interface Database {
   ordens: OrdensTable
   ordensLista: OrdensListaView
   ordensAnexos: OrdensAnexosTable
+  ordensEtapas: OrdensEtapasTable
+  ordensPallets: OrdensPalletsTable
+  ordensOcorrencias: OrdensOcorrenciasTable
+  ordensOcorrenciasFotos: OrdensOcorrenciasFotosTable
 }

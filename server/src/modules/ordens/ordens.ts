@@ -15,9 +15,9 @@ import {
   whereDaConsulta,
   type ColunaConsulta,
 } from '../../shared/consulta-tabela.js'
-import { ehDia, inicioDoDia } from '../../shared/datas.js'
+import { diaNoFuso, ehDia, inicioDoDia } from '../../shared/datas.js'
 import { ErroApi, naoEncontrado } from '../../shared/erros.js'
-import type { EventoHistorico } from '../../shared/historico.js'
+import type { EventoHistorico, Mudanca } from '../../shared/historico.js'
 import { listarHistorico, registrarHistorico } from '../../shared/historico.repositorio.js'
 import { normalizar } from '../../shared/texto.js'
 import {
@@ -26,6 +26,13 @@ import {
   type ResultadoCalculo,
   type ServicosOs,
 } from './ordens.calculo.js'
+import {
+  criarServicoLote,
+  rotasLote,
+  type EtapaLote,
+  type OcorrenciaLote,
+  type PalletLote,
+} from './ordens.lote.js'
 
 /*
  * Ordens › Agendamento: cada ordem é um LOTE agendado (LOT-00001).
@@ -35,6 +42,11 @@ import {
  *   POST /api/ordens               cria — multipart: `dados` (JSON) + arquivos `escopo` e
  *                                  `observacoes` (até 20 cada, 25 MB por arquivo)
  *   GET  /api/ordens/:id/anexos/:anexoId/arquivo   baixa (sempre como anexo)
+ *   PUT  /api/ordens/:id           edita o lote (só enquanto agendado; o cliente não muda) e refaz
+ *                                  o pré-cálculo
+ *   POST /api/ordens/:id/anexos    adiciona documentos ao lote (multipart `tipo` + `arquivos`)
+ *   DELETE /api/ordens/:id/anexos/:anexoId   remove um documento (fica no histórico)
+ *   …/ocorrencias, …/pallets   detalhe do lote (ordens.lote.ts)
  *
  * Regras: cliente, site (do cliente), doca (do site) e data de coleta obrigatórios; o resto opcional.
  * Placas de policarbonato obrigatórias só com Value Recovery (Racks); quantidade de pallets
@@ -58,11 +70,24 @@ export const ORDEM_ETAPAS: Record<StatusOrdem, number> = {
   aguardando_cod: 68,
   concluido: 110,
 }
-export type SecaoAnexo = 'escopo' | 'observacoes'
+/** escopo/observacoes = enviados no agendamento; lote = adicionados depois, na aba Documentos. */
+export type SecaoAnexo = 'escopo' | 'observacoes' | 'lote'
+
+/** Tipos de documento do lote (decisão do usuário, 19/10/2026). */
+export const TIPOS_DOCUMENTO_LOTE = [
+  'escopo',
+  'nota_fiscal',
+  'mtr',
+  'cdf',
+  'foto',
+  'outro',
+] as const
+export type TipoDocumentoLote = (typeof TIPOS_DOCUMENTO_LOTE)[number]
 
 export interface AnexoOrdem {
   id: string
   secao: SecaoAnexo
+  tipo: TipoDocumentoLote
   nome: string
   extensao: string
   tamanho: number
@@ -120,6 +145,12 @@ export interface Ordem extends OrdemResumo {
   alteradoEm: string
   alteradoPor: string
   historico: EventoHistorico[]
+  /** Linha do tempo: etapas por onde o lote passou (a primeira é "agendado"). */
+  etapas: EtapaLote[]
+  /** Pallets recebidos (integração / Operação › Recebimento). */
+  pallets: PalletLote[]
+  /** Ocorrências (mais recente primeiro). */
+  ocorrencias: OcorrenciaLote[]
 }
 
 /* ------------------------------------------------------------ regras */
@@ -240,6 +271,19 @@ const linhaDe = (db: Db, id: string) =>
 
 const sim = (v: number) => v === 1
 
+/** Serviços marcados em números romanos (I a V), como no formulário — para o histórico. */
+const ROMANOS: [keyof ServicosOs, string][] = [
+  ['psm', 'I'],
+  ['onsiteShredding', 'II'],
+  ['recycleOnly', 'III'],
+  ['valueRecoveryRacks', 'IV'],
+  ['valueRecoveryItad', 'V'],
+]
+const romanos = (s: ServicosOs) =>
+  ROMANOS.filter(([k]) => s[k])
+    .map(([, r]) => r)
+    .join(' · ') || null
+
 const paraResumo = (l: Linha): OrdemResumo => ({
   id: l.id,
   codigo: l.codigo,
@@ -278,11 +322,12 @@ export interface ArquivoEnviado {
 export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
   const caminho = (ordemId: string, anexoId: string) =>
     path.join(opcoes.pasta, 'ordens', ordemId, anexoId)
+  const lote = criarServicoLote(db, opcoes)
 
   async function obter(id: string): Promise<Ordem> {
     const l = await linhaDe(db, id)
     if (!l) throw naoEncontrado('Ordem não encontrada.')
-    const [anexos, historico] = await Promise.all([
+    const [anexos, historico, doLote] = await Promise.all([
       db
         .selectFrom('ordensAnexos')
         .selectAll()
@@ -290,6 +335,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
         .orderBy('enviadoEm', 'asc')
         .execute(),
       listarHistorico(db, 'ordem', id),
+      lote.dados(id),
     ])
     return {
       ...paraResumo(l),
@@ -313,6 +359,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
       anexos: anexos.map((a) => ({
         id: a.id,
         secao: a.secao as SecaoAnexo,
+        tipo: a.tipo as TipoDocumentoLote,
         nome: a.nome,
         extensao: a.extensao,
         tamanho: a.tamanho,
@@ -324,6 +371,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
       alteradoEm: l.alteradoEm,
       alteradoPor: l.alteradoPor,
       historico,
+      ...doLote,
     }
   }
 
@@ -422,6 +470,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
   return {
     obter,
     preCalcular,
+    lote,
 
     async listar(query: unknown) {
       const consulta = lerConsulta(query, COLUNAS_ORDEM)
@@ -569,6 +618,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
                   id: a.id,
                   ordemId: id,
                   secao: a.secao,
+                  tipo: a.secao === 'escopo' ? 'escopo' : 'outro',
                   nome: a.nome,
                   extensao: a.extensao,
                   tamanho: a.conteudo.length,
@@ -577,6 +627,10 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
                 })),
               )
               .execute()
+          await trx
+            .insertInto('ordensEtapas')
+            .values({ id: randomUUID(), ordemId: id, etapa: 'agendado', em: agora, autor })
+            .execute()
           await registrarHistorico(trx, 'ordem', id, { autor, em: agora, acao: 'criado' })
         })
       } catch (e) {
@@ -584,6 +638,297 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
         await Promise.all(gravados.map((g) => rm(g, { force: true })))
         throw e
       }
+      return obter(id)
+    },
+
+    /** Documentos adicionados depois do agendamento (aba Documentos do lote). */
+    async adicionarAnexos(
+      ordemId: string,
+      tipoBruto: unknown,
+      arquivos: ArquivoEnviado[],
+      autor: string,
+    ) {
+      const tipo = z
+        .enum(TIPOS_DOCUMENTO_LOTE, { error: 'Escolha o tipo do documento.' })
+        .parse(tipoBruto)
+      const existe = await db
+        .selectFrom('ordens')
+        .select('id')
+        .where('id', '=', ordemId)
+        .executeTakeFirst()
+      if (!existe) throw naoEncontrado('Lote não encontrado.')
+      if (!arquivos.length) throw new ErroApi(422, 'validation', 'Envie pelo menos um arquivo.')
+      const novos = arquivos.map((a) => {
+        const nome = nomeSeguro(a.nomeOriginal)
+        const extensao = extensaoDe(nome)
+        if (!EXTENSOES[extensao])
+          throw new ErroApi(415, 'file_type_not_allowed', 'Tipo de arquivo não permitido.', {
+            permitidas: Object.keys(EXTENSOES),
+          })
+        if (!a.conteudo.length) throw new ErroApi(422, 'validation', 'O arquivo está vazio.')
+        return { id: randomUUID(), nome, extensao, conteudo: a.conteudo }
+      })
+      const agora = new Date().toISOString()
+      const gravados: string[] = []
+      try {
+        for (const a of novos) {
+          const destino = caminho(ordemId, a.id)
+          await mkdir(path.dirname(destino), { recursive: true })
+          await writeFile(destino, a.conteudo)
+          gravados.push(destino)
+        }
+        await db.transaction().execute(async (trx) => {
+          await trx
+            .insertInto('ordensAnexos')
+            .values(
+              novos.map((a) => ({
+                id: a.id,
+                ordemId,
+                secao: 'lote',
+                tipo,
+                nome: a.nome,
+                extensao: a.extensao,
+                tamanho: a.conteudo.length,
+                enviadoEm: agora,
+                enviadoPor: autor,
+              })),
+            )
+            .execute()
+          for (const a of novos)
+            await registrarHistorico(trx, 'ordem', ordemId, {
+              autor,
+              em: agora,
+              acao: 'documento_adicionado',
+              nota: a.nome,
+              mudancas: [{ campo: 'tipoDocumento', antes: null, depois: tipo }],
+            })
+        })
+      } catch (e) {
+        await Promise.all(gravados.map((g) => rm(g, { force: true })))
+        throw e
+      }
+      return obter(ordemId)
+    },
+
+    /** Remove um documento do lote. O escopo continua obrigatório (texto ou documento). */
+    async removerAnexo(ordemId: string, anexoId: string, autor: string) {
+      const a = await db
+        .selectFrom('ordensAnexos')
+        .selectAll()
+        .where('id', '=', anexoId)
+        .where('ordemId', '=', ordemId)
+        .executeTakeFirst()
+      if (!a) throw naoEncontrado('Documento não encontrado.')
+      if (a.tipo === 'escopo') {
+        const ordem = await db
+          .selectFrom('ordens')
+          .select('escopo')
+          .where('id', '=', ordemId)
+          .executeTakeFirstOrThrow()
+        const outros = await db
+          .selectFrom('ordensAnexos')
+          .select('id')
+          .where('ordemId', '=', ordemId)
+          .where('tipo', '=', 'escopo')
+          .where('id', '<>', anexoId)
+          .execute()
+        if (!ordem.escopo && !outros.length)
+          throw new ErroApi(
+            422,
+            'scope_required',
+            'É o único escopo de trabalho do lote: escreva o escopo (Editar) ou envie outro antes.',
+          )
+      }
+      const agora = new Date().toISOString()
+      await db.transaction().execute(async (trx) => {
+        await trx.deleteFrom('ordensAnexos').where('id', '=', anexoId).execute()
+        await registrarHistorico(trx, 'ordem', ordemId, {
+          autor,
+          em: agora,
+          acao: 'documento_removido',
+          nota: a.nome,
+          mudancas: [{ campo: 'tipoDocumento', antes: a.tipo, depois: null }],
+        })
+      })
+      await rm(caminho(ordemId, anexoId), { force: true })
+      return obter(ordemId)
+    },
+
+    /**
+     * Edita o lote (decisões do usuário, 19/10/2026): tudo menos o cliente, só enquanto
+     * AGENDADO; o pré-cálculo é refeito ao salvar. Histórico antes → depois com os nomes.
+     */
+    async editar(id: string, dadosBrutos: unknown, autor: string): Promise<Ordem> {
+      const atual = await linhaDe(db, id)
+      if (!atual) throw naoEncontrado('Lote não encontrado.')
+      if (atual.status !== 'agendado')
+        throw new ErroApi(
+          409,
+          'invalid_transition',
+          'Só o lote agendado pode ser editado. Depois da chegada, registre uma ocorrência.',
+        )
+      const v = ordemInputSchema.parse(dadosBrutos)
+      if (v.clienteId !== atual.clienteId)
+        throw new ErroApi(422, 'validation', 'O cliente do lote não muda. Agende um novo lote.')
+      if (!v.escopo) {
+        const doc = await db
+          .selectFrom('ordensAnexos')
+          .select('id')
+          .where('ordemId', '=', id)
+          .where('tipo', '=', 'escopo')
+          .executeTakeFirst()
+        if (!doc)
+          throw new ErroApi(
+            422,
+            'scope_required',
+            'Descreva o escopo de trabalho ou anexe pelo menos um documento.',
+          )
+      }
+      const nomes = await conferirVinculos(v)
+      const doca = await db
+        .selectFrom('clientesDocas')
+        .select('numero')
+        .where('id', '=', v.docaId)
+        .executeTakeFirstOrThrow()
+      const motorista =
+        v.rastrear && v.motoristaId
+          ? ((
+              await db
+                .selectFrom('motoristas')
+                .select('nome')
+                .where('id', '=', v.motoristaId)
+                .executeTakeFirst()
+            )?.nome ?? null)
+          : null
+
+      let calculo: ResultadoCalculo | null = null
+      try {
+        calculo = await preCalcular({
+          docaId: v.docaId,
+          servicos: v.servicos,
+          quantidades: v.quantidades,
+        })
+      } catch (e) {
+        if (!(e instanceof ErroApi && e.code === 'no_vehicles')) throw e
+      }
+      const calculoAntes = atual.calculo ? (JSON.parse(atual.calculo) as ResultadoCalculo) : null
+      const q = v.quantidades
+      const dia = (iso: string | null) => (iso ? diaNoFuso(new Date(iso)) : null)
+      const servicosAntes = {
+        psm: sim(atual.psm),
+        onsiteShredding: sim(atual.onsiteShredding),
+        recycleOnly: sim(atual.recycleOnly),
+        valueRecoveryRacks: sim(atual.valueRecoveryRacks),
+        valueRecoveryItad: sim(atual.valueRecoveryItad),
+      }
+      const antes: Record<string, Mudanca['antes']> = {
+        site: atual.siteCodigo,
+        doca: atual.docaNumero,
+        transportadora: atual.transportadoraNome,
+        referenciaCliente: atual.referenciaCliente,
+        dataColeta: dia(atual.dataColeta),
+        coletaPrevista: dia(atual.coletaPrevista),
+        dataChegada: dia(atual.dataChegada),
+        rastrear: sim(atual.rastrear),
+        motorista: atual.motoristaNome,
+        placa: atual.placa,
+        servicos: romanos(servicosAntes),
+        boxes: atual.qtdBoxes,
+        pallets: atual.qtdPallets,
+        gaylords: atual.qtdGaylords,
+        racks: atual.qtdRacks,
+        placasPolicarbonato: atual.placasPolicarbonato,
+        requerPalletsVazios: sim(atual.requerPalletsVazios),
+        palletsVazios: atual.qtdPalletsVazios,
+        itensMais25kg: sim(atual.itensMais25kg),
+        fatorLimitante: atual.fatorLimitante,
+        escopo: atual.escopo,
+        observacoes: atual.observacoes,
+        caminhao: calculoAntes?.veiculo.tipo ?? null,
+        viagens: calculoAntes?.viagens ?? null,
+        pessoas: calculoAntes?.totalPessoas ?? null,
+      }
+      const depois: Record<string, Mudanca['depois']> = {
+        site: nomes.site,
+        doca: doca.numero,
+        transportadora: nomes.transportadora,
+        referenciaCliente: v.referenciaCliente,
+        dataColeta: v.dataColeta,
+        coletaPrevista: v.coletaPrevista,
+        dataChegada: v.dataChegada,
+        rastrear: v.rastrear,
+        motorista,
+        placa: v.rastrear ? v.placa : null,
+        servicos: romanos(v.servicos),
+        boxes: q.boxes,
+        pallets: q.pallets,
+        gaylords: q.gaylords,
+        racks: q.racks,
+        placasPolicarbonato: v.servicos.valueRecoveryRacks ? q.placasPolicarbonato : null,
+        requerPalletsVazios: q.requerPalletsVazios,
+        palletsVazios: q.requerPalletsVazios ? q.palletsVazios : null,
+        itensMais25kg: q.itensMais25kg,
+        fatorLimitante: q.fatorLimitante,
+        escopo: v.escopo,
+        observacoes: v.observacoes,
+        caminhao: calculo?.veiculo.tipo ?? null,
+        viagens: calculo?.viagens ?? null,
+        pessoas: calculo?.totalPessoas ?? null,
+      }
+      const mudancas: Mudanca[] = Object.keys(antes)
+        .filter((k) => (antes[k] ?? null) !== (depois[k] ?? null))
+        .map((k) => ({ campo: k, antes: antes[k] ?? null, depois: depois[k] ?? null }))
+      if (!mudancas.length) return obter(id)
+
+      const agora = new Date().toISOString()
+      await db.transaction().execute(async (trx) => {
+        await trx
+          .updateTable('ordens')
+          .set({
+            siteId: v.siteId,
+            docaId: v.docaId,
+            transportadoraId: v.transportadoraId,
+            referenciaCliente: v.referenciaCliente,
+            dataColeta: inicioDoDia(v.dataColeta),
+            coletaPrevista: v.coletaPrevista && inicioDoDia(v.coletaPrevista),
+            dataChegada: v.dataChegada && inicioDoDia(v.dataChegada),
+            rastrear: v.rastrear ? 1 : 0,
+            motoristaId: v.rastrear ? v.motoristaId : null,
+            placa: v.rastrear ? v.placa : null,
+            psm: v.servicos.psm ? 1 : 0,
+            onsiteShredding: v.servicos.onsiteShredding ? 1 : 0,
+            recycleOnly: v.servicos.recycleOnly ? 1 : 0,
+            valueRecoveryRacks: v.servicos.valueRecoveryRacks ? 1 : 0,
+            valueRecoveryItad: v.servicos.valueRecoveryItad ? 1 : 0,
+            qtdBoxes: q.boxes,
+            qtdPallets: q.pallets,
+            qtdGaylords: q.gaylords,
+            qtdRacks: q.racks,
+            placasPolicarbonato: v.servicos.valueRecoveryRacks ? q.placasPolicarbonato : null,
+            requerPalletsVazios: q.requerPalletsVazios ? 1 : 0,
+            qtdPalletsVazios: q.requerPalletsVazios ? q.palletsVazios : null,
+            itensMais25kg: q.itensMais25kg ? 1 : 0,
+            fatorLimitante: q.fatorLimitante,
+            escopo: v.escopo,
+            observacoes: v.observacoes,
+            calculo: calculo ? JSON.stringify(calculo) : null,
+            busca: normalizar(
+              [
+                atual.codigo,
+                nomes.cliente,
+                nomes.site,
+                v.referenciaCliente ?? '',
+                nomes.transportadora ?? '',
+                v.rastrear ? (v.placa ?? '') : '',
+              ].join(' '),
+            ),
+            alteradoEm: agora,
+            alteradoPor: autor,
+          })
+          .where('id', '=', id)
+          .execute()
+        await registrarHistorico(trx, 'ordem', id, { autor, em: agora, acao: 'editado', mudancas })
+      })
       return obter(id)
     },
 
@@ -650,6 +995,28 @@ export function rotasOrdens(servico: ServicoOrdens) {
     )
     res.status(201).json(ordem)
   })
+  const uploadDocumentos = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: MAX_BYTES, files: MAX_ARQUIVOS },
+    defParamCharset: 'utf8',
+  }).array('arquivos', MAX_ARQUIVOS)
+  r.put('/:id', async (req, res) => {
+    res.json(await servico.editar(String(req.params.id), req.body, autorDa(req)))
+  })
+  r.post('/:id/anexos', uploadDocumentos, async (req, res) => {
+    const ordem = await servico.adicionarAnexos(
+      String(req.params.id),
+      (req.body as Record<string, unknown>).tipo,
+      arquivosDe(req.files as Express.Multer.File[] | undefined),
+      autorDa(req),
+    )
+    res.status(201).json(ordem)
+  })
+  r.delete('/:id/anexos/:anexoId', async (req, res) => {
+    res.json(
+      await servico.removerAnexo(String(req.params.id), String(req.params.anexoId), autorDa(req)),
+    )
+  })
   r.get('/:id/anexos/:anexoId/arquivo', async (req, res) => {
     const a = await servico.arquivo(req.params.id, req.params.anexoId)
     res.setHeader('Content-Type', a.tipoConteudo)
@@ -657,5 +1024,6 @@ export function rotasOrdens(servico: ServicoOrdens) {
     res.attachment(a.nome)
     res.send(a.conteudo)
   })
+  r.use(rotasLote(servico.lote, (id) => servico.obter(id)))
   return r
 }

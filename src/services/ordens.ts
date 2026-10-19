@@ -3,15 +3,17 @@ import type { TableQuery } from '@/components/data-table/types'
 import { api, buildUrl } from './http'
 import type {
   CalculoOs,
+  OcorrenciaInput,
   Ordem,
   OrdemInput,
   OrdemResumo,
   PaginaOrdens,
+  TipoDocumentoLote,
   QuantidadesOs,
   ServicosOs,
 } from './types'
 
-/* Ordens: agendamento (cria o lote) e lista dos lotes agendados. */
+/* Ordens: agendamento (cria o lote), lista dos lotes e detalhe do lote (ocorrências, pallets). */
 
 export const ordensKeys = {
   all: ['ordens'] as const,
@@ -55,3 +57,59 @@ export function criarOrdem(dados: OrdemInput, arquivos: { escopo: File[]; observ
 /** Endereço para baixar um anexo (o servidor responde como anexo). */
 export const urlAnexoOrdem = (id: string, anexoId: string) =>
   buildUrl(`/ordens/${id}/anexos/${anexoId}/arquivo`)
+
+/* ---------------- Detalhe do lote: ocorrências (as respostas trazem o lote atualizado) */
+
+function formOcorrencia(dados: OcorrenciaInput, fotos: File[]) {
+  const form = new FormData()
+  form.set('dados', JSON.stringify(dados))
+  for (const f of fotos) form.append('fotos', f, f.name)
+  return form
+}
+
+export const registrarOcorrencia = (ordemId: string, dados: OcorrenciaInput, fotos: File[]) =>
+  api<Ordem>(`/ordens/${ordemId}/ocorrencias`, {
+    method: 'POST',
+    body: formOcorrencia(dados, fotos),
+  })
+
+export const corrigirOcorrencia = (
+  ordemId: string,
+  ocorrenciaId: string,
+  dados: OcorrenciaInput,
+  fotos: File[],
+) =>
+  api<Ordem>(`/ordens/${ordemId}/ocorrencias/${ocorrenciaId}`, {
+    method: 'PATCH',
+    body: formOcorrencia(dados, fotos),
+  })
+
+export const cancelarOcorrencia = (ordemId: string, ocorrenciaId: string) =>
+  api<Ordem>(`/ordens/${ordemId}/ocorrencias/${ocorrenciaId}/cancelar`, { method: 'POST' })
+
+/** Foto de uma ocorrência (imagem exibida na tela). */
+export const urlFotoOcorrencia = (ordemId: string, ocorrenciaId: string, fotoId: string) =>
+  buildUrl(`/ordens/${ordemId}/ocorrencias/${ocorrenciaId}/fotos/${fotoId}`)
+
+/** Foto de um pallet recebido. */
+export const urlFotoPallet = (ordemId: string, palletId: string) =>
+  buildUrl(`/ordens/${ordemId}/pallets/${palletId}/foto`)
+
+/** Edita o lote (só enquanto agendado; o cliente não muda). */
+export const editarOrdem = (id: string, dados: OrdemInput) =>
+  api<Ordem>(`/ordens/${id}`, { method: 'PUT', body: dados })
+
+/** Documentos adicionados ao lote depois do agendamento (aba Documentos). */
+export function adicionarDocumentosLote(
+  ordemId: string,
+  tipo: TipoDocumentoLote,
+  arquivos: File[],
+) {
+  const form = new FormData()
+  form.set('tipo', tipo)
+  for (const f of arquivos) form.append('arquivos', f, f.name)
+  return api<Ordem>(`/ordens/${ordemId}/anexos`, { method: 'POST', body: form })
+}
+
+export const removerDocumentoLote = (ordemId: string, anexoId: string) =>
+  api<Ordem>(`/ordens/${ordemId}/anexos/${anexoId}`, { method: 'DELETE' })
