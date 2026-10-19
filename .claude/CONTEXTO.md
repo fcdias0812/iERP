@@ -75,11 +75,12 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `33519cd` | Operação › Dashboard; SLA no cliente; etapas do lote                                     |
 | `2a872a1` | Detalhe do lote (5 abas), editar lote, tipos de documento e Operação › Lotes             |
 | `17f9602` | Operação › Recebimento (lacres, notas, inspeção, pallets, fotos; corrigir em Inspeção)   |
-| (local)   | Histórico de Ordens e de Operação; menu de Ordens com Viagens                            |
+| `159dd25` | Histórico de Ordens e de Operação; menu de Ordens com Viagens                            |
+| (local)   | Sistema › Cadastros (materiais, pallets, caixotes, áreas, rastreadores GPS)              |
 
-Portão de qualidade verde no commit dos históricos de módulo: lint, typecheck (front e servidor),
-60 testes unitários, 76 testes do servidor, 196 e2e (Playwright + axe WCAG 2.2 AA), contraste
-158/158, cores, formatação, build. Commit **local** (push só quando ele pedir).
+Portão de qualidade verde no commit de Cadastros: lint, typecheck (front e servidor), 60 testes
+unitários, 80 testes do servidor, 219 e2e (Playwright + axe WCAG 2.2 AA), contraste 158/158,
+cores, formatação, build. Commit **local** (push só quando ele pedir).
 
 **Troca de computador (19/10/2026):** o usuário vai continuar em **outro PC** a partir daqui. Lá:
 clonar https://github.com/fcdias0812/iERP, abrir a pasta no Claude Code e rodar `/retomar`. O banco
@@ -107,7 +108,8 @@ Esri (`VITE_ESRI_API_KEY`, em `.env.local`) ainda não existe — sem ela, só f
 |                | Operação › **Histórico**                                                   | **pronto** (auditoria do módulo)              |
 |                | Operação › Chamados internos                                               | em construção                                 |
 |                | Estoque › Materiais · Assets · Servidores · E-commerce · Peças · Histórico | em construção                                 |
-| Sistema        | Administração › Usuários                                                   | **pronto**                                    |
+| Sistema        | **Cadastros** › Materiais · Pallets · Caixotes · Áreas · Rastreadores GPS  | **pronto** (Rastreadores aguardam a API)      |
+|                | Administração › Usuários                                                   | **pronto**                                    |
 
 A seção e um item se chamam "Operação" (aparece **Operação › Operação**). O usuário foi avisado; ainda
 não respondeu se quer trocar o nome da seção.
@@ -338,6 +340,26 @@ igual em Ordens (criação dos lotes/agendamento, viagens ativadas/canceladas no
   Histórico) e **Cliente**. Decisão minha: período carregado 30 dias / **90 dias (padrão)** / 12
   meses / tudo, para a tela continuar leve com o tempo.
 
+### 5.11 Sistema › Cadastros (19/10/2026)
+
+Pedido dele (mostrou telas da v1 só como referência): submódulo **Cadastros** em Sistema com
+**Materiais · Pallets · Caixotes · Áreas do estoque · Rastreadores GPS**. Primeiro fiz como abas
+numa tela só; ele pediu **"igual aos outros, com a seta e abrem"** → Cadastros virou módulo com
+submenu, uma tela por item (`/cadastros/materiais`, `/pallets`, `/caixotes`, `/areas`,
+`/rastreadores`; `/cadastros` abre Materiais).
+
+- **Materiais:** a lista inicial de **96 materiais** que ele passou entra pela migration
+  `2026-10-19-07`. Resposta dele: nomes **nos 3 idiomas** — inglês e chinês feitos por mim e
+  marcados como tradução automática (revisáveis em "Revisar traduções"); material novo é traduzido
+  ao salvar. Só nome (não foram pedidos outros campos).
+- **Caixotes e Pallets** (recipientes): material (só ativos), **tara (kg)**, **área do estoque** e
+  **posição** — todos obrigatórios (sem "op"). Resposta dele: código automático com prefixo e ano
+  **CXT-2026xxxx / PLT-2026xxxx** (numeração por tipo, recomeça a cada ano — decisão minha).
+- **Áreas do estoque:** nome (único) e **descrição opcional** (resposta dele), traduzível.
+- **Rastreadores GPS:** virão da API de um sistema externo — "por enquanto em branco": aba com a
+  tabela vazia e o aviso "Aguardando a integração" (sem backend).
+- Resposta dele: **só inativar** (nada de excluir), com histórico em cada registro.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -364,9 +386,10 @@ negócio (perguntar). Resumo:
   O que vai na aba Configurações?
 - **Login/SSO:** como será a autenticação (hoje simulada). A empresa tem skills de SSO com o Portal
   Re-Teck (`reteck-integracao:*`) — só aplicar se ele pedir.
-- **Menu:** quais submódulos da v1 não são usados; se troca o nome da seção "Operação"; se Cadastros
-  (Caixotes, Áreas, Pontos do mapa, Rastreadores GPS, Materiais) e Administração (Perfis de acesso,
-  Integração) entram.
+- **Menu:** quais submódulos da v1 não são usados; se troca o nome da seção "Operação"; se
+  Pontos do mapa entra em Cadastros; se Administração ganha Perfis de acesso e Integração (API).
+- **Cadastros:** a API do sistema de GPS (rastreadores); material precisa de outros campos (código,
+  categoria, preço)?
 - **Ordens:** etapas de uma viagem (Viagens ativas / Histórico de viagens); o que acontece com o
   rastreio (a v1 gerava link/QR para o motorista — **não** foi pedido); editar/cancelar ordem.
 - **Detalhe do lote:** quem muda a etapa depois de Inspeção (processo, aguardando COD, concluído

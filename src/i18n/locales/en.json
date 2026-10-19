@@ -696,7 +696,15 @@
       "usuarios": "Users"
     },
     "perfil": "My profile",
-    "configuracoes": "Settings"
+    "configuracoes": "Settings",
+    "cadastros": {
+      "title": "Registries",
+      "materiais": "Materials",
+      "pallets": "Pallets",
+      "caixotes": "Bins",
+      "areas": "Warehouse areas",
+      "rastreadores": "GPS trackers"
+    }
   },
   "field": {
     "required": "required",
@@ -745,7 +753,8 @@
     "photoRequired": "Take or choose at least one photo.",
     "tareGreater": "The tare cannot exceed the gross weight.",
     "futureDate": "The date cannot be in the future.",
-    "palletRequired": "Add at least one pallet."
+    "palletRequired": "Add at least one pallet.",
+    "nameInUse": "A record with this name already exists."
   },
   "confirm": {
     "typeToConfirm": "To confirm, type"
@@ -1297,7 +1306,8 @@
     "addressNotFound": "Address not found on the map.",
     "cpfInUse": "A driver with this CPF already exists.",
     "noVehicles": "No active vehicle for the calculation. Add or reactivate one in Vehicles.",
-    "scopeRequired": "Write the scope of work or attach at least one document."
+    "scopeRequired": "Write the scope of work or attach at least one document.",
+    "nameInUse": "A record with this name already exists."
   },
   "calendar": {
     "today": "Today",
@@ -2460,5 +2470,129 @@
       "tudo": "All"
     },
     "erro": "Could not load the history."
+  },
+  "cadastros": {
+    "abas": {
+      "materiais": "Materials",
+      "pallets": "Pallets",
+      "caixotes": "Bins",
+      "areas": "Warehouse areas",
+      "rastreadores": "GPS trackers"
+    },
+    "cols": {
+      "recipientes": "Containers",
+      "status": "Status",
+      "alteradoEm": "Changed on"
+    },
+    "revisarTraducoes": "Review translations",
+    "traduzAoSalvar": "When saving, the system translates it into the other two languages.",
+    "ajudaTraducao": "Write in any language: the system translates it into the other two when saving.",
+    "inativoTitle": "Inactive record",
+    "toast": {
+      "inativar": "{{name}} deactivated.",
+      "reativar": "{{name}} reactivated."
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Deactivate {{name}}?"
+      },
+      "reativar": {
+        "title": "Reactivate {{name}}?"
+      }
+    },
+    "acoes": {
+      "inativar": "Deactivate",
+      "reativar": "Reactivate"
+    },
+    "materiais": {
+      "cols": {
+        "nome": "Name"
+      },
+      "novo": "New material",
+      "vazio": "No materials",
+      "descricao": "Material that can go inside bins and pallets.",
+      "confirm": "Inactive materials cannot be chosen for bins and pallets. Those already using it stay as they are.",
+      "inativoBody": "Cannot be chosen for new bins and pallets.",
+      "secao": "Material",
+      "toast": {
+        "criado": "Material {{name}} created.",
+        "salvo": "Material {{name}} saved.",
+        "falhou": "Could not save the material."
+      }
+    },
+    "areas": {
+      "cols": {
+        "nome": "Name",
+        "descricao": "Description"
+      },
+      "novo": "New area",
+      "vazio": "No areas",
+      "vazioBody": "Register the warehouse areas where bins and pallets are kept.",
+      "descricao": "Warehouse area where bins and pallets are kept.",
+      "confirm": "Inactive areas cannot be chosen for bins and pallets. Those already in it stay.",
+      "inativoBody": "Cannot be chosen for new bins and pallets.",
+      "secao": "Area",
+      "nomeAjuda": "E.g.: DELL, SHREDDING, RECEIVING.",
+      "toast": {
+        "criado": "Area {{name}} created.",
+        "salvo": "Area {{name}} saved.",
+        "falhou": "Could not save the area."
+      }
+    },
+    "recipientes": {
+      "cols": {
+        "codigo": "Code",
+        "material": "Material",
+        "area": "Area",
+        "posicao": "Position",
+        "taraKg": "Tare",
+        "criadoEm": "Registered on"
+      },
+      "novo_caixote": "New bin",
+      "novo_pallet": "New pallet",
+      "vazio_caixote": "No bins",
+      "vazio_pallet": "No pallets",
+      "vazioBody": "Register the container with its material, tare, area and position.",
+      "descricao_caixote": "Warehouse bin: material, tare, area and position.",
+      "descricao_pallet": "Warehouse pallet: material, tare, area and position.",
+      "confirm": "Inactive containers are not available for use. The history stays.",
+      "inativoBody": "This container is not in use.",
+      "codigoAjuda_caixote": "The code (CXT-year + number) is generated when saving.",
+      "codigoAjuda_pallet": "The code (PLT-year + number) is generated when saving.",
+      "secoes": {
+        "conteudo": "Contents",
+        "local": "Location"
+      },
+      "escolhaMaterial": "Search material…",
+      "taraAjuda": "Weight of the empty container.",
+      "semAreas": "No active area: register one in the Warehouse areas tab.",
+      "posicaoAjuda": "E.g.: A-01.",
+      "toast": {
+        "criado": "{{name}} created.",
+        "salvo": "{{name}} saved.",
+        "falhou": "Could not save the container."
+      }
+    },
+    "rastreadores": {
+      "cols": {
+        "aparelho": "Device",
+        "placa": "Plate",
+        "situacao": "Status",
+        "ultimoContato": "Last contact",
+        "ultimaPosicao": "Last position",
+        "viagem": "Open trip"
+      },
+      "integracaoTitle": "Waiting for the integration",
+      "integracaoBody": "Truck trackers will come from the GPS system's API. Once it is connected, the devices show up here.",
+      "vazio": "No trackers",
+      "vazioBody": "The list is filled by the integration with the GPS system."
+    },
+    "paginas": {
+      "materiais": "Materials that go inside bins and pallets, in the 3 languages.",
+      "pallets": "Warehouse pallets: material, tare, area and position.",
+      "caixotes": "Warehouse bins: material, tare, area and position.",
+      "areas": "Warehouse areas where bins and pallets are kept.",
+      "rastreadores": "Truck GPS trackers (they come from the GPS system)."
+    }
   }
 }

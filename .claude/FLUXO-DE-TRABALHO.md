@@ -67,6 +67,10 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
   Para fluxos (preencher e salvar), copie o script e escreva os passos com `getByRole`/`getByLabel`.
 - O navegador embutido do Claude Desktop (`mcp__Claude_Browser__*`) serve para conferir texto
   (`get_page_text`, `javascript_tool`); a captura falha se o painel estiver escondido.
+- **Painel escondido congela as animações** (`document.getAnimations()` fica "running"): popover/
+  combobox não some depois de escolher, fica por cima dos campos seguintes e o clique cai nele
+  (no AsyncCombobox, clicar de novo na opção DESMARCA). Não é bug do sistema — confirme o fluxo
+  com Playwright (`npx playwright test e2e/<spec>`), que renderiza de verdade.
 - O **Claude in Chrome** (extensão) **não alcança o localhost** desta máquina — não usar para depurar.
 - Bug relatado ("trava", "congela"): reproduzir no Chrome real com o mesmo gesto (ex.: passar o mouse
   no link e clicar — o pré-carregamento do router mudou o comportamento) antes de mexer no código; se
@@ -109,6 +113,9 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
 **Backend**
 
 - Kysely 0.29: `Migrator` vem de `kysely/migration`.
+- **SQLite tem UMA conexão:** dentro de `db.transaction().execute(async (trx) => …)`, toda consulta
+  tem de usar `trx`. Consultar `db` lá dentro trava a requisição para sempre (nos testes aparece como
+  `HeadersTimeoutError` depois de 5 min). Ex.: `conferirVinculos(trx, …)` em `cadastros.ts`.
 - **CamelCasePlugin e números:** `itensMais25kg` vira `itens_mais25kg` (não `itens_mais_25kg`) —
   nomeie a coluna como o plugin gera.
 - Datas "por dia" (coleta, chegada): gravar como **início do dia em São Paulo** em ISO UTC

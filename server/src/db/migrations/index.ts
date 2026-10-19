@@ -8,6 +8,7 @@ import * as m20261019_03 from './2026-10-19-03-sla-e-etapas-do-lote.js'
 import * as m20261019_04 from './2026-10-19-04-detalhe-do-lote.js'
 import * as m20261019_05 from './2026-10-19-05-tipo-dos-documentos-do-lote.js'
 import * as m20261019_06 from './2026-10-19-06-recebimento.js'
+import * as m20261019_07 from './2026-10-19-07-cadastros.js'
 
 /**
  * Migrations em ordem. Nova migration: crie `AAAA-MM-DD-NN-assunto.ts` nesta pasta
@@ -23,4 +24,5 @@ export const migrations: Record<string, Migration> = {
   '2026-10-19-04-detalhe-do-lote': m20261019_04,
   '2026-10-19-05-tipo-dos-documentos-do-lote': m20261019_05,
   '2026-10-19-06-recebimento': m20261019_06,
+  '2026-10-19-07-cadastros': m20261019_07,
 }

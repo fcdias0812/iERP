@@ -23,8 +23,9 @@ antigo (v1) nem de outro lugar.
   dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral);
   seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento, Histórico; Viagens em
   construção), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo detalhe de Ordens › Lotes
-  —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (em construção); e
-  **Administração › Usuários**.
+  —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (em construção); e,
+  em Sistema, **Cadastros** (submenu: Materiais, Pallets, Caixotes, Áreas do estoque, Rastreadores GPS)
+  e **Administração › Usuários**.
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
   cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
 - Regra da organização: pesquisar na web antes de afirmar fato técnico (versão, API, menu).
@@ -185,6 +186,13 @@ O layout não muda. Modelos completos para copiar:
 /api/ordens/:id/recebimento` (multipart `dados` + fotos em `lacres.<i>`, `notas.<i>`,
   `pallets.<i>`, `gerais`), tabelas `ordens_recebimentos`, `ordens_lacres`, `ordens_notas_fiscais`,
   `ordens_recebimento_fotos`; receber = agendado → Inspeção; avaria/outro viram ocorrência.
+- **Sistema › Cadastros** — `src/features/cadastros/` (módulo com submenu, uma rota por cadastro
+  em `src/routes/_app/cadastros/` — `paginas.tsx`; painel `?aberto=novo|<id>`; listas em modo
+  cliente — a API devolve a lista inteira) e
+  `server/src/modules/cadastros/cadastros.ts` (`/api/materiais`, `/api/areas`,
+  `/api/recipientes?tipo=caixote|pallet`; inativar/reativar; histórico por entidade `material`,
+  `area`, `recipiente`). Nome do material e descrição da área em LocalizedText (`RodapeTraduzivel`
+  para revisar traduções). Recipiente: código `CXT|PLT-AAAA0001` por tipo e ano.
 - **Histórico de módulo** (Ordens › Histórico, Operação › Histórico) —
   `src/features/historico/HistoricoModuloPage.tsx` (a mesma `HistoricoTabela`, com `registro` =
   colunas Lote e Cliente; período 30/90/365 dias ou tudo) e `server/src/modules/historico/historico.ts`

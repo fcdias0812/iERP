@@ -696,7 +696,15 @@
       "usuarios": "Usuários"
     },
     "perfil": "Meu perfil",
-    "configuracoes": "Configurações"
+    "configuracoes": "Configurações",
+    "cadastros": {
+      "title": "Cadastros",
+      "materiais": "Materiais",
+      "pallets": "Pallets",
+      "caixotes": "Caixotes",
+      "areas": "Áreas do estoque",
+      "rastreadores": "Rastreadores GPS"
+    }
   },
   "field": {
     "required": "obrigatório",
@@ -745,7 +753,8 @@
     "photoRequired": "Tire ou escolha pelo menos uma foto.",
     "tareGreater": "A tara não pode ser maior que o peso bruto.",
     "futureDate": "A data não pode ser no futuro.",
-    "palletRequired": "Informe pelo menos um pallet."
+    "palletRequired": "Informe pelo menos um pallet.",
+    "nameInUse": "Já existe um cadastro com este nome."
   },
   "confirm": {
     "typeToConfirm": "Para confirmar, digite"
@@ -1297,7 +1306,8 @@
     "addressNotFound": "Endereço não encontrado no mapa.",
     "cpfInUse": "Já existe um motorista com este CPF.",
     "noVehicles": "Nenhum veículo ativo para o cálculo. Cadastre ou reative um em Veículos.",
-    "scopeRequired": "Escreva o escopo de trabalho ou anexe pelo menos um documento."
+    "scopeRequired": "Escreva o escopo de trabalho ou anexe pelo menos um documento.",
+    "nameInUse": "Já existe um cadastro com este nome."
   },
   "calendar": {
     "today": "Hoje",
@@ -2460,5 +2470,129 @@
       "tudo": "Tudo"
     },
     "erro": "Não foi possível carregar o histórico."
+  },
+  "cadastros": {
+    "abas": {
+      "materiais": "Materiais",
+      "pallets": "Pallets",
+      "caixotes": "Caixotes",
+      "areas": "Áreas do estoque",
+      "rastreadores": "Rastreadores GPS"
+    },
+    "cols": {
+      "recipientes": "Recipientes",
+      "status": "Status",
+      "alteradoEm": "Alterado em"
+    },
+    "revisarTraducoes": "Revisar traduções",
+    "traduzAoSalvar": "Ao salvar, o sistema traduz para os outros dois idiomas.",
+    "ajudaTraducao": "Escreva em qualquer idioma: o sistema traduz para os outros dois ao salvar.",
+    "inativoTitle": "Cadastro inativo",
+    "toast": {
+      "inativar": "{{name}} inativado.",
+      "reativar": "{{name}} reativado."
+    },
+    "confirm": {
+      "inativar": {
+        "title": "Inativar {{name}}?"
+      },
+      "reativar": {
+        "title": "Reativar {{name}}?"
+      }
+    },
+    "acoes": {
+      "inativar": "Inativar",
+      "reativar": "Reativar"
+    },
+    "materiais": {
+      "cols": {
+        "nome": "Nome"
+      },
+      "novo": "Novo material",
+      "vazio": "Nenhum material",
+      "descricao": "Material que pode ir dentro dos caixotes e pallets.",
+      "confirm": "Inativo não aparece para escolher em caixotes e pallets. Os que já usam continuam.",
+      "inativoBody": "Não aparece para escolher em caixotes e pallets novos.",
+      "secao": "Material",
+      "toast": {
+        "criado": "Material {{name}} cadastrado.",
+        "salvo": "Material {{name}} salvo.",
+        "falhou": "Não foi possível salvar o material."
+      }
+    },
+    "areas": {
+      "cols": {
+        "nome": "Nome",
+        "descricao": "Descrição"
+      },
+      "novo": "Nova área",
+      "vazio": "Nenhuma área",
+      "vazioBody": "Cadastre as áreas do galpão onde ficam os caixotes e pallets.",
+      "descricao": "Área do galpão onde os caixotes e pallets ficam.",
+      "confirm": "Inativa não aparece para escolher em caixotes e pallets. Os que já estão nela continuam.",
+      "inativoBody": "Não aparece para escolher em caixotes e pallets novos.",
+      "secao": "Área",
+      "nomeAjuda": "Ex.: DELL, SHREDDING, RECEBIMENTO.",
+      "toast": {
+        "criado": "Área {{name}} cadastrada.",
+        "salvo": "Área {{name}} salva.",
+        "falhou": "Não foi possível salvar a área."
+      }
+    },
+    "recipientes": {
+      "cols": {
+        "codigo": "Código",
+        "material": "Material",
+        "area": "Área",
+        "posicao": "Posição",
+        "taraKg": "Tara",
+        "criadoEm": "Cadastrado em"
+      },
+      "novo_caixote": "Novo caixote",
+      "novo_pallet": "Novo pallet",
+      "vazio_caixote": "Nenhum caixote",
+      "vazio_pallet": "Nenhum pallet",
+      "vazioBody": "Cadastre o recipiente com o material, a tara, a área e a posição.",
+      "descricao_caixote": "Caixote do estoque: material, tara, área e posição.",
+      "descricao_pallet": "Pallet do estoque: material, tara, área e posição.",
+      "confirm": "Inativo não aparece para uso. O histórico fica.",
+      "inativoBody": "Este recipiente não está em uso.",
+      "codigoAjuda_caixote": "O código (CXT-ano + número) é gerado ao salvar.",
+      "codigoAjuda_pallet": "O código (PLT-ano + número) é gerado ao salvar.",
+      "secoes": {
+        "conteudo": "Conteúdo",
+        "local": "Onde fica"
+      },
+      "escolhaMaterial": "Buscar material…",
+      "taraAjuda": "Peso do recipiente vazio.",
+      "semAreas": "Nenhuma área ativa: cadastre na aba Áreas do estoque.",
+      "posicaoAjuda": "Ex.: A-01.",
+      "toast": {
+        "criado": "{{name}} cadastrado.",
+        "salvo": "{{name}} salvo.",
+        "falhou": "Não foi possível salvar o recipiente."
+      }
+    },
+    "rastreadores": {
+      "cols": {
+        "aparelho": "Aparelho",
+        "placa": "Placa",
+        "situacao": "Situação",
+        "ultimoContato": "Último contato",
+        "ultimaPosicao": "Última posição",
+        "viagem": "Viagem aberta"
+      },
+      "integracaoTitle": "Aguardando a integração",
+      "integracaoBody": "Os rastreadores dos caminhões virão da API do sistema de GPS. Quando ela for ligada, os aparelhos aparecem aqui.",
+      "vazio": "Nenhum rastreador",
+      "vazioBody": "A lista é preenchida pela integração com o sistema de GPS."
+    },
+    "paginas": {
+      "materiais": "Os materiais que vão dentro dos caixotes e pallets, nos 3 idiomas.",
+      "pallets": "Os pallets do estoque: material, tara, área e posição.",
+      "caixotes": "Os caixotes do estoque: material, tara, área e posição.",
+      "areas": "As áreas do galpão onde os caixotes e pallets ficam.",
+      "rastreadores": "Os rastreadores GPS dos caminhões (vêm do sistema de GPS)."
+    }
   }
 }

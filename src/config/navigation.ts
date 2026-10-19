@@ -1,6 +1,7 @@
 import {
   Building2,
   Container,
+  Database,
   Factory,
   House,
   IdCard,
@@ -142,6 +143,19 @@ export const MODULES = {
       leaf('estoque', 'historico', 'nav.estoque.historico', '/estoque/historico'),
     ],
   },
+  // Sistema › Cadastros: um item para cada cadastro (pedido do usuário).
+  cadastros: {
+    id: 'cadastros',
+    labelKey: 'nav.cadastros.title',
+    icon: Database,
+    children: [
+      leaf('cadastros', 'materiais', 'nav.cadastros.materiais', '/cadastros/materiais'),
+      leaf('cadastros', 'pallets', 'nav.cadastros.pallets', '/cadastros/pallets'),
+      leaf('cadastros', 'caixotes', 'nav.cadastros.caixotes', '/cadastros/caixotes'),
+      leaf('cadastros', 'areas', 'nav.cadastros.areas', '/cadastros/areas'),
+      leaf('cadastros', 'rastreadores', 'nav.cadastros.rastreadores', '/cadastros/rastreadores'),
+    ],
+  },
   admin: {
     id: 'admin',
     labelKey: 'nav.admin.title',
@@ -177,7 +191,7 @@ export const CONTEXTS: AppContext[] = [
         'motoristas',
       ]),
       section('operacao', 'nav.sections.operacao', ['ordens', 'operacao', 'estoque']),
-      section('sistema', 'nav.sections.sistema', ['admin']),
+      section('sistema', 'nav.sections.sistema', ['cadastros', 'admin']),
     ],
   },
 ]

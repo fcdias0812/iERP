@@ -17,6 +17,12 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoes'
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
+import { Route as AppCadastrosIndexRouteImport } from './routes/_app/cadastros/index'
+import { Route as AppCadastrosAreasRouteImport } from './routes/_app/cadastros/areas'
+import { Route as AppCadastrosCaixotesRouteImport } from './routes/_app/cadastros/caixotes'
+import { Route as AppCadastrosMateriaisRouteImport } from './routes/_app/cadastros/materiais'
+import { Route as AppCadastrosPalletsRouteImport } from './routes/_app/cadastros/pallets'
+import { Route as AppCadastrosRastreadoresRouteImport } from './routes/_app/cadastros/rastreadores'
 import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
 import { Route as AppMotoristasIndexRouteImport } from './routes/_app/motoristas/index'
 import { Route as AppOperacaoDashboardRouteImport } from './routes/_app/operacao/dashboard'
@@ -74,6 +80,37 @@ const AppPerfilRoute = AppPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCadastrosIndexRoute = AppCadastrosIndexRouteImport.update({
+  id: '/cadastros/',
+  path: '/cadastros/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCadastrosAreasRoute = AppCadastrosAreasRouteImport.update({
+  id: '/cadastros/areas',
+  path: '/cadastros/areas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCadastrosCaixotesRoute = AppCadastrosCaixotesRouteImport.update({
+  id: '/cadastros/caixotes',
+  path: '/cadastros/caixotes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCadastrosMateriaisRoute = AppCadastrosMateriaisRouteImport.update({
+  id: '/cadastros/materiais',
+  path: '/cadastros/materiais',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCadastrosPalletsRoute = AppCadastrosPalletsRouteImport.update({
+  id: '/cadastros/pallets',
+  path: '/cadastros/pallets',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCadastrosRastreadoresRoute =
+  AppCadastrosRastreadoresRouteImport.update({
+    id: '/cadastros/rastreadores',
+    path: '/cadastros/rastreadores',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppClientesIndexRoute = AppClientesIndexRouteImport.update({
   id: '/clientes/',
   path: '/clientes/',
@@ -169,11 +206,17 @@ export interface FileRoutesByFullPath {
   '/$': typeof AppSplatRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
+  '/cadastros/areas': typeof AppCadastrosAreasRoute
+  '/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
+  '/cadastros/materiais': typeof AppCadastrosMateriaisRoute
+  '/cadastros/pallets': typeof AppCadastrosPalletsRoute
+  '/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/ordens/historico': typeof AppOrdensHistoricoRoute
+  '/cadastros/': typeof AppCadastrosIndexRoute
   '/clientes/': typeof AppClientesIndexRoute
   '/motoristas/': typeof AppMotoristasIndexRoute
   '/transportadoras/': typeof AppTransportadorasIndexRoute
@@ -195,11 +238,17 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
+  '/cadastros/areas': typeof AppCadastrosAreasRoute
+  '/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
+  '/cadastros/materiais': typeof AppCadastrosMateriaisRoute
+  '/cadastros/pallets': typeof AppCadastrosPalletsRoute
+  '/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/ordens/historico': typeof AppOrdensHistoricoRoute
+  '/cadastros': typeof AppCadastrosIndexRoute
   '/clientes': typeof AppClientesIndexRoute
   '/motoristas': typeof AppMotoristasIndexRoute
   '/transportadoras': typeof AppTransportadorasIndexRoute
@@ -223,11 +272,17 @@ export interface FileRoutesById {
   '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/cadastros/areas': typeof AppCadastrosAreasRoute
+  '/_app/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
+  '/_app/cadastros/materiais': typeof AppCadastrosMateriaisRoute
+  '/_app/cadastros/pallets': typeof AppCadastrosPalletsRoute
+  '/_app/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
   '/_app/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/_app/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/_app/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/_app/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/_app/ordens/historico': typeof AppOrdensHistoricoRoute
+  '/_app/cadastros/': typeof AppCadastrosIndexRoute
   '/_app/clientes/': typeof AppClientesIndexRoute
   '/_app/motoristas/': typeof AppMotoristasIndexRoute
   '/_app/transportadoras/': typeof AppTransportadorasIndexRoute
@@ -251,11 +306,17 @@ export interface FileRouteTypes {
     | '/$'
     | '/configuracoes'
     | '/perfil'
+    | '/cadastros/areas'
+    | '/cadastros/caixotes'
+    | '/cadastros/materiais'
+    | '/cadastros/pallets'
+    | '/cadastros/rastreadores'
     | '/operacao/dashboard'
     | '/operacao/historico'
     | '/operacao/recebimento'
     | '/ordens/agendamento'
     | '/ordens/historico'
+    | '/cadastros/'
     | '/clientes/'
     | '/motoristas/'
     | '/transportadoras/'
@@ -277,11 +338,17 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/perfil'
     | '/'
+    | '/cadastros/areas'
+    | '/cadastros/caixotes'
+    | '/cadastros/materiais'
+    | '/cadastros/pallets'
+    | '/cadastros/rastreadores'
     | '/operacao/dashboard'
     | '/operacao/historico'
     | '/operacao/recebimento'
     | '/ordens/agendamento'
     | '/ordens/historico'
+    | '/cadastros'
     | '/clientes'
     | '/motoristas'
     | '/transportadoras'
@@ -304,11 +371,17 @@ export interface FileRouteTypes {
     | '/_app/configuracoes'
     | '/_app/perfil'
     | '/_app/'
+    | '/_app/cadastros/areas'
+    | '/_app/cadastros/caixotes'
+    | '/_app/cadastros/materiais'
+    | '/_app/cadastros/pallets'
+    | '/_app/cadastros/rastreadores'
     | '/_app/operacao/dashboard'
     | '/_app/operacao/historico'
     | '/_app/operacao/recebimento'
     | '/_app/ordens/agendamento'
     | '/_app/ordens/historico'
+    | '/_app/cadastros/'
     | '/_app/clientes/'
     | '/_app/motoristas/'
     | '/_app/transportadoras/'
@@ -386,6 +459,48 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AppPerfilRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/cadastros/': {
+      id: '/_app/cadastros/'
+      path: '/cadastros'
+      fullPath: '/cadastros/'
+      preLoaderRoute: typeof AppCadastrosIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/cadastros/areas': {
+      id: '/_app/cadastros/areas'
+      path: '/cadastros/areas'
+      fullPath: '/cadastros/areas'
+      preLoaderRoute: typeof AppCadastrosAreasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/cadastros/caixotes': {
+      id: '/_app/cadastros/caixotes'
+      path: '/cadastros/caixotes'
+      fullPath: '/cadastros/caixotes'
+      preLoaderRoute: typeof AppCadastrosCaixotesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/cadastros/materiais': {
+      id: '/_app/cadastros/materiais'
+      path: '/cadastros/materiais'
+      fullPath: '/cadastros/materiais'
+      preLoaderRoute: typeof AppCadastrosMateriaisRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/cadastros/pallets': {
+      id: '/_app/cadastros/pallets'
+      path: '/cadastros/pallets'
+      fullPath: '/cadastros/pallets'
+      preLoaderRoute: typeof AppCadastrosPalletsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/cadastros/rastreadores': {
+      id: '/_app/cadastros/rastreadores'
+      path: '/cadastros/rastreadores'
+      fullPath: '/cadastros/rastreadores'
+      preLoaderRoute: typeof AppCadastrosRastreadoresRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/clientes/': {
@@ -515,11 +630,17 @@ interface AppRouteChildren {
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppCadastrosAreasRoute: typeof AppCadastrosAreasRoute
+  AppCadastrosCaixotesRoute: typeof AppCadastrosCaixotesRoute
+  AppCadastrosMateriaisRoute: typeof AppCadastrosMateriaisRoute
+  AppCadastrosPalletsRoute: typeof AppCadastrosPalletsRoute
+  AppCadastrosRastreadoresRoute: typeof AppCadastrosRastreadoresRoute
   AppOperacaoDashboardRoute: typeof AppOperacaoDashboardRoute
   AppOperacaoHistoricoRoute: typeof AppOperacaoHistoricoRoute
   AppOperacaoRecebimentoRoute: typeof AppOperacaoRecebimentoRoute
   AppOrdensAgendamentoRoute: typeof AppOrdensAgendamentoRoute
   AppOrdensHistoricoRoute: typeof AppOrdensHistoricoRoute
+  AppCadastrosIndexRoute: typeof AppCadastrosIndexRoute
   AppClientesIndexRoute: typeof AppClientesIndexRoute
   AppMotoristasIndexRoute: typeof AppMotoristasIndexRoute
   AppTransportadorasIndexRoute: typeof AppTransportadorasIndexRoute
@@ -539,11 +660,17 @@ const AppRouteChildren: AppRouteChildren = {
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
+  AppCadastrosAreasRoute: AppCadastrosAreasRoute,
+  AppCadastrosCaixotesRoute: AppCadastrosCaixotesRoute,
+  AppCadastrosMateriaisRoute: AppCadastrosMateriaisRoute,
+  AppCadastrosPalletsRoute: AppCadastrosPalletsRoute,
+  AppCadastrosRastreadoresRoute: AppCadastrosRastreadoresRoute,
   AppOperacaoDashboardRoute: AppOperacaoDashboardRoute,
   AppOperacaoHistoricoRoute: AppOperacaoHistoricoRoute,
   AppOperacaoRecebimentoRoute: AppOperacaoRecebimentoRoute,
   AppOrdensAgendamentoRoute: AppOrdensAgendamentoRoute,
   AppOrdensHistoricoRoute: AppOrdensHistoricoRoute,
+  AppCadastrosIndexRoute: AppCadastrosIndexRoute,
   AppClientesIndexRoute: AppClientesIndexRoute,
   AppMotoristasIndexRoute: AppMotoristasIndexRoute,
   AppTransportadorasIndexRoute: AppTransportadorasIndexRoute,

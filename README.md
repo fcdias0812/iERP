@@ -192,6 +192,17 @@ pesado — [política](https://operations.osmfoundation.org/policies/tiles/)); p
 que respeita a [política do Nominatim](https://operations.osmfoundation.org/policies/nominatim/)
 (1 consulta/s no total, cache, sem autocompletar); `GEO_CONTATO` vai no User-Agent.
 
+## API de Cadastros (Sistema)
+
+Listas inteiras (sem paginação) + detalhe com histórico; nada é excluído (`POST /:id/transicao`
+com `inativar`/`reativar`).
+
+| Caminho                                 | Campos                                                                   | Regras                                                            |
+| --------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `/api/materiais`                        | `nome` (LocalizedText)                                                   | nome único (409 `name_in_use`); 96 iniciais (migration)           |
+| `/api/areas`                            | `nome`, `descricao` (LocalizedText, opcional)                            | nome único (409 `name_in_use`)                                    |
+| `/api/recipientes?tipo=caixote\|pallet` | `tipo`, `materialId`, `taraKg`, `areaId`, `posicao` (todos obrigatórios) | código `CXT\|PLT-AAAA0001`; material e área ativos; tipo não muda |
+
 ## API de histórico de módulo
 
 `GET /api/historico/:modulo?desde=<ISO>` (`ordens` ou `operacao`) — eventos do histórico dos

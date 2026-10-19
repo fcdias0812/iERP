@@ -813,3 +813,62 @@ export interface EventoHistoricoModulo extends EventoHistorico {
   registroCodigo: string
   clienteNome: string
 }
+
+/* ---------------- Sistema › Cadastros (server/src/modules/cadastros/cadastros.ts) */
+
+interface ControleCadastro {
+  id: string
+  status: StatusCadastro
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+interface ComHistoricoCadastro {
+  historico: EventoHistorico[]
+  acoesPermitidas: AcaoCadastro[]
+}
+
+export interface Material extends ControleCadastro {
+  /** Nome nos 3 idiomas. */
+  nome: LocalizedText
+  /** Quantos recipientes guardam este material. */
+  recipientes: number
+}
+export type MaterialDetalhe = Material & ComHistoricoCadastro
+export interface MaterialInput {
+  nome: LocalizedText
+}
+
+export interface AreaEstoque extends ControleCadastro {
+  nome: string
+  descricao: LocalizedText | null
+  recipientes: number
+}
+export type AreaEstoqueDetalhe = AreaEstoque & ComHistoricoCadastro
+export interface AreaEstoqueInput {
+  nome: string
+  descricao: LocalizedText | null
+}
+
+export type TipoRecipiente = 'caixote' | 'pallet'
+export interface Recipiente extends ControleCadastro {
+  tipo: TipoRecipiente
+  /** CXT-20260001 / PLT-20260001 */
+  codigo: string
+  materialId: string
+  materialNome: LocalizedText
+  areaId: string
+  areaNome: string
+  posicao: string
+  /** kg */
+  taraKg: number
+}
+export type RecipienteDetalhe = Recipiente & ComHistoricoCadastro
+export interface RecipienteInput {
+  tipo: TipoRecipiente
+  materialId: string
+  taraKg: number
+  areaId: string
+  posicao: string
+}

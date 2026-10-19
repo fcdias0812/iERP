@@ -9,6 +9,7 @@ import { criarServicoMotoristas, rotasMotoristas } from './modules/motoristas/mo
 import { criarServicoOrdens, rotasOrdens } from './modules/ordens/ordens.js'
 import { criarServicoDashboard, rotasDashboard } from './modules/dashboard/dashboard.js'
 import { criarServicoHistorico, rotasHistorico } from './modules/historico/historico.js'
+import { criarServicoCadastros, rotasCadastro } from './modules/cadastros/cadastros.js'
 import {
   criarServicoTransportadoras,
   rotasTransportadoras,
@@ -41,6 +42,7 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   const motoristas = criarServicoMotoristas(db)
   const veiculos = criarServicoVeiculos(db)
   const ordens = criarServicoOrdens(db, { pasta: opcoes.arquivosDir ?? config.arquivosDir })
+  const cadastros = criarServicoCadastros(db)
 
   const api = express.Router()
   api.get('/saude', (_req, res) => {
@@ -55,6 +57,9 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   api.use('/ordens', rotasOrdens(ordens))
   api.use('/dashboard', rotasDashboard(criarServicoDashboard(db)))
   api.use('/historico', rotasHistorico(criarServicoHistorico(db)))
+  api.use('/materiais', rotasCadastro(cadastros.materiais))
+  api.use('/areas', rotasCadastro(cadastros.areas))
+  api.use('/recipientes', rotasCadastro(cadastros.recipientes, 'tipo'))
   api.use(rotasSistema({ usuarios, clientes, transportadoras, motoristas }))
   api.use(rotaInexistente)
 

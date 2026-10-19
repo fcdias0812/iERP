@@ -22,6 +22,8 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.noVehicles')
     case 'scope_required':
       return i18n.t('apiErrors.scopeRequired')
+    case 'name_in_use':
+      return i18n.t('apiErrors.nameInUse')
     case 'site_code_in_use':
       return i18n.t('apiErrors.siteCodeInUse')
     case 'file_too_large':

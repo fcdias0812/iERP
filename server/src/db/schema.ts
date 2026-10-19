@@ -365,6 +365,51 @@ export interface OrdensRecebimentoFotosTable {
   enviadoPor: string
 }
 
+/** Sistema › Cadastros: materiais (nome em LocalizedText JSON + nome_ordem em português). */
+export interface MateriaisTable {
+  id: string
+  nome: string
+  nomeOrdem: string
+  status: string
+  busca: string
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+/** Áreas do estoque (descrição opcional, LocalizedText JSON). */
+export interface AreasEstoqueTable {
+  id: string
+  nome: string
+  descricao: string | null
+  status: string
+  busca: string
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+/** Caixotes e pallets (recipientes do estoque). */
+export interface RecipientesTable {
+  id: string
+  tipo: string
+  ano: number
+  numero: number
+  codigo: string
+  materialId: string
+  taraKg: number
+  areaId: string
+  posicao: string
+  status: string
+  busca: string
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
 export interface Database {
   usuarios: UsuariosTable
   usuariosHistorico: UsuariosHistoricoTable
@@ -393,4 +438,7 @@ export interface Database {
   ordensLacres: OrdensItensRecebimentoTable
   ordensNotasFiscais: OrdensItensRecebimentoTable
   ordensRecebimentoFotos: OrdensRecebimentoFotosTable
+  materiais: MateriaisTable
+  areasEstoque: AreasEstoqueTable
+  recipientes: RecipientesTable
 }

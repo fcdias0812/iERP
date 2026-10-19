@@ -696,7 +696,15 @@
       "usuarios": "使用者"
     },
     "perfil": "我的個人資料",
-    "configuracoes": "設定"
+    "configuracoes": "設定",
+    "cadastros": {
+      "title": "基本資料",
+      "materiais": "物料",
+      "pallets": "棧板",
+      "caixotes": "箱",
+      "areas": "倉儲區域",
+      "rastreadores": "GPS 追蹤器"
+    }
   },
   "field": {
     "required": "必填",
@@ -745,7 +753,8 @@
     "photoRequired": "請拍攝或選擇至少一張照片。",
     "tareGreater": "皮重不得大於毛重。",
     "futureDate": "日期不得為未來日期。",
-    "palletRequired": "請至少新增一個棧板。"
+    "palletRequired": "請至少新增一個棧板。",
+    "nameInUse": "已有相同名稱的資料。"
   },
   "confirm": {
     "typeToConfirm": "請輸入以下文字以確認："
@@ -1297,7 +1306,8 @@
     "addressNotFound": "在地圖上找不到此地址。",
     "cpfInUse": "已有司機使用此 CPF。",
     "noVehicles": "沒有可用於計算的啟用車輛。請在「車輛」新增或重新啟用。",
-    "scopeRequired": "請填寫工作範圍，或至少附上一份文件。"
+    "scopeRequired": "請填寫工作範圍，或至少附上一份文件。",
+    "nameInUse": "已有相同名稱的資料。"
   },
   "calendar": {
     "today": "今天",
@@ -2460,5 +2470,129 @@
       "tudo": "全部"
     },
     "erro": "無法載入歷程。"
+  },
+  "cadastros": {
+    "abas": {
+      "materiais": "物料",
+      "pallets": "棧板",
+      "caixotes": "箱",
+      "areas": "倉儲區域",
+      "rastreadores": "GPS 追蹤器"
+    },
+    "cols": {
+      "recipientes": "容器",
+      "status": "狀態",
+      "alteradoEm": "修改日期"
+    },
+    "revisarTraducoes": "檢視翻譯",
+    "traduzAoSalvar": "儲存時，系統會翻譯成另外兩種語言。",
+    "ajudaTraducao": "可用任何語言撰寫：儲存時系統會翻譯成另外兩種語言。",
+    "inativoTitle": "已停用的資料",
+    "toast": {
+      "inativar": "已停用 {{name}}。",
+      "reativar": "已重新啟用 {{name}}。"
+    },
+    "confirm": {
+      "inativar": {
+        "title": "停用 {{name}}？"
+      },
+      "reativar": {
+        "title": "重新啟用 {{name}}？"
+      }
+    },
+    "acoes": {
+      "inativar": "停用",
+      "reativar": "重新啟用"
+    },
+    "materiais": {
+      "cols": {
+        "nome": "名稱"
+      },
+      "novo": "新增物料",
+      "vazio": "沒有物料",
+      "descricao": "可放入箱與棧板的物料。",
+      "confirm": "停用的物料無法在箱與棧板中選擇。已使用者維持不變。",
+      "inativoBody": "無法在新的箱與棧板中選擇。",
+      "secao": "物料",
+      "toast": {
+        "criado": "已新增物料 {{name}}。",
+        "salvo": "已儲存物料 {{name}}。",
+        "falhou": "無法儲存物料。"
+      }
+    },
+    "areas": {
+      "cols": {
+        "nome": "名稱",
+        "descricao": "說明"
+      },
+      "novo": "新增區域",
+      "vazio": "沒有區域",
+      "vazioBody": "登記存放箱與棧板的倉庫區域。",
+      "descricao": "存放箱與棧板的倉庫區域。",
+      "confirm": "停用的區域無法在箱與棧板中選擇。已在其中者維持不變。",
+      "inativoBody": "無法在新的箱與棧板中選擇。",
+      "secao": "區域",
+      "nomeAjuda": "例如：DELL、SHREDDING、RECEBIMENTO。",
+      "toast": {
+        "criado": "已新增區域 {{name}}。",
+        "salvo": "已儲存區域 {{name}}。",
+        "falhou": "無法儲存區域。"
+      }
+    },
+    "recipientes": {
+      "cols": {
+        "codigo": "代碼",
+        "material": "物料",
+        "area": "區域",
+        "posicao": "位置",
+        "taraKg": "皮重",
+        "criadoEm": "登記日期"
+      },
+      "novo_caixote": "新增箱",
+      "novo_pallet": "新增棧板",
+      "vazio_caixote": "沒有箱",
+      "vazio_pallet": "沒有棧板",
+      "vazioBody": "登記容器的物料、皮重、區域與位置。",
+      "descricao_caixote": "倉儲箱：物料、皮重、區域與位置。",
+      "descricao_pallet": "倉儲棧板：物料、皮重、區域與位置。",
+      "confirm": "停用的容器無法使用。歷程會保留。",
+      "inativoBody": "此容器未在使用中。",
+      "codigoAjuda_caixote": "儲存時會產生代碼（CXT-年份 + 編號）。",
+      "codigoAjuda_pallet": "儲存時會產生代碼（PLT-年份 + 編號）。",
+      "secoes": {
+        "conteudo": "內容",
+        "local": "存放位置"
+      },
+      "escolhaMaterial": "搜尋物料…",
+      "taraAjuda": "空容器的重量。",
+      "semAreas": "沒有啟用中的區域：請在「倉儲區域」分頁登記。",
+      "posicaoAjuda": "例如：A-01。",
+      "toast": {
+        "criado": "已新增 {{name}}。",
+        "salvo": "已儲存 {{name}}。",
+        "falhou": "無法儲存容器。"
+      }
+    },
+    "rastreadores": {
+      "cols": {
+        "aparelho": "裝置",
+        "placa": "車牌",
+        "situacao": "狀態",
+        "ultimoContato": "最後聯繫",
+        "ultimaPosicao": "最後位置",
+        "viagem": "進行中的運輸"
+      },
+      "integracaoTitle": "等待整合",
+      "integracaoBody": "卡車追蹤器將來自 GPS 系統的 API。連接後，裝置會顯示於此。",
+      "vazio": "沒有追蹤器",
+      "vazioBody": "清單由與 GPS 系統的整合帶入。"
+    },
+    "paginas": {
+      "materiais": "放入箱與棧板的物料，三種語言。",
+      "pallets": "倉儲棧板：物料、皮重、區域與位置。",
+      "caixotes": "倉儲箱：物料、皮重、區域與位置。",
+      "areas": "存放箱與棧板的倉庫區域。",
+      "rastreadores": "卡車的 GPS 追蹤器（來自 GPS 系統）。"
+    }
   }
 }

@@ -133,7 +133,7 @@ export const textoTraduzidoSchema = z
     automaticos: z.array(z.enum(IDIOMAS)).optional(),
   })
   .refine((v) => Boolean(v.textos[v.origem]?.trim()), {
-    message: 'Descreva a ocorrência.',
+    message: 'Preencha o texto.',
     path: ['textos'],
   })
 
