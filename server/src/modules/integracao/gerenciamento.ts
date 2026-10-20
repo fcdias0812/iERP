@@ -103,7 +103,7 @@ export interface OrdemGerenciamento {
 }
 
 /** O que fica guardado no lote (`ordens.externo_dados`): o que veio de lá, cru. */
-interface Guardado {
+export interface Guardado {
   ordem: OrdemGerenciamento | null
   painel: PedidoPainel
 }

@@ -45,14 +45,18 @@ export function sistemaDoLote(l: { clienteNome: string; externoSistema: string |
  * Os sistemas que se cadastram em Administração › Integração:
  *  - processamento: os lotes daqui VÃO para ele (chave, avisos e painel — MoonShot);
  *  - origem: os lotes VÊM dele, e o iERP só mostra (painel e token — Gerenciamento de Projetos,
- *    pedido do usuário, 20/10/2026).
+ *    pedido do usuário, 20/10/2026);
+ *  - rastreio: o rastreador de GPS das viagens (ReTeckTracker — endereço e chave INTERNA; o
+ *    mesmo que o iERP antigo usa; `modules/viagens/`).
  */
-export type TipoSistema = 'processamento' | 'origem'
+export type TipoSistema = 'processamento' | 'origem' | 'rastreio'
 export const SISTEMAS_CONHECIDOS: { sistema: string; nome: string; tipo: TipoSistema }[] = [
   ...DESTINOS.map((d) => ({ sistema: d.sistema, nome: d.nome, tipo: 'processamento' as const })),
   { sistema: 'GERENCIAMENTO', nome: 'Gerenciamento de Projetos', tipo: 'origem' },
   // Re-Teck MSDC (equip-rack-2): os lotes da Microsoft nascem e são processados lá (20/10/2026).
   { sistema: 'MSDC', nome: 'Re-Teck MSDC (Microsoft)', tipo: 'origem' },
+  // Rastreador de GPS das viagens (ReTeckTracker, 20/10/2026).
+  { sistema: 'RASTREADOR', nome: 'Rastreador de GPS (ReTeckTracker)', tipo: 'rastreio' },
 ]
 
 /** Os códigos de sistema conhecidos. */

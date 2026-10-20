@@ -141,7 +141,14 @@ const CATEGORIA_DA_INSPECAO = { avaria: 'avaria_carga', outro: 'outro' } as cons
 
 /* ------------------------------------------------------------ serviço */
 
-export function criarServicoRecebimento(db: Db, opcoes: { pasta: string }) {
+export function criarServicoRecebimento(
+  db: Db,
+  opcoes: {
+    pasta: string
+    /** Recebeu: a viagem do lote termina (Ordens › Viagens). Erro aqui não desfaz o recebimento. */
+    aoReceber?: (ordemId: string, autor: string) => Promise<void>
+  },
+) {
   const caminho = (ordemId: string, fotoId: string) =>
     path.join(opcoes.pasta, 'ordens', ordemId, 'recebimento', fotoId)
 
@@ -636,6 +643,10 @@ export function criarServicoRecebimento(db: Db, opcoes: { pasta: string }) {
     await Promise.all(removidas.map((f) => rm(caminho(ordemId, f.id), { force: true })))
     // Lote que vai para um sistema de fora (Dell → MoonShot): avisa (ele busca o lote).
     await enfileirarAviso(db, ordemId, modo === 'receber' ? 'ordem.recebida' : 'ordem.editada')
+    if (modo === 'receber' && opcoes.aoReceber)
+      await opcoes.aoReceber(ordemId, autor).catch((e: unknown) => {
+        console.error(`[viagens] recebimento do lote ${ordemId}:`, e)
+      })
   }
 
   return {

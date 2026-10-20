@@ -25,6 +25,7 @@ import { balancoDoLote, type BalancoDeMassa } from '../integracao/balanco.js'
 import { enfileirarAviso } from '../integracao/sincronizacao.js'
 import { dadosExternos, type DadosExternos } from '../integracao/gerenciamento.js'
 import { garantirLoteDaqui } from './externo.js'
+import type { ServicoViagens } from '../viagens/viagens.js'
 import {
   calcularOs,
   SemVeiculoError,
@@ -403,11 +404,21 @@ export async function proximoNumeroAnexo(cx: Db | Transaction<Database>): Promis
   return Number(r?.n ?? 0) + 1
 }
 
-export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
+export function criarServicoOrdens(
+  db: Db,
+  opcoes: {
+    pasta: string
+    /** Ordens › Viagens: a viagem nasce com o rastreio e termina no recebimento. */
+    viagens?: Pick<ServicoViagens, 'aoMudarRastreio' | 'antesDeDesligar' | 'aoReceberLote'>
+  },
+) {
   const caminho = (ordemId: string, anexoId: string) =>
     path.join(opcoes.pasta, 'ordens', ordemId, anexoId)
   const lote = criarServicoLote(db, opcoes)
-  const recebimento = criarServicoRecebimento(db, opcoes)
+  const recebimento = criarServicoRecebimento(db, {
+    pasta: opcoes.pasta,
+    aoReceber: opcoes.viagens?.aoReceberLote,
+  })
 
   /**
    * Documento entrou ou saiu de um lote JÁ RECEBIDO: o sistema de fora do cliente (Dell →
@@ -748,6 +759,8 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
             .values({ id: randomUUID(), ordemId: id, etapa: 'agendado', em: agora, autor })
             .execute()
           await registrarHistorico(trx, 'ordem', id, { autor, em: agora, acao: 'criado' })
+          // "Rastrear coleta = Sim": nasce o card em Ordens › Viagens (aguardando motorista).
+          if (v.rastrear) await opcoes.viagens?.aoMudarRastreio(trx, id, true, autor, agora)
         })
       } catch (e) {
         // Falhou: não deixa arquivo órfão no disco.
@@ -1003,6 +1016,8 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
         .map((k) => ({ campo: k, antes: antes[k] ?? null, depois: depois[k] ?? null }))
       if (!mudancas.length) return obter(id)
 
+      // Desligando o rastreio: o motorista pode ter acabado de sair (o rastreador diz).
+      if (!v.rastrear && atual.rastrear) await opcoes.viagens?.antesDeDesligar(id)
       const agora = new Date().toISOString()
       await db.transaction().execute(async (trx) => {
         await trx
@@ -1051,6 +1066,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
           .where('id', '=', id)
           .execute()
         await registrarHistorico(trx, 'ordem', id, { autor, em: agora, acao: 'editado', mudancas })
+        await opcoes.viagens?.aoMudarRastreio(trx, id, v.rastrear, autor, agora)
       })
       return obter(id)
     },

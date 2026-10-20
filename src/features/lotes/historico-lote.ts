@@ -28,6 +28,12 @@ export const ACOES_LOTE = [
   'processamento',
   'devolucao_pedida',
   'devolucao_cancelada',
+  'viagem_iniciada',
+  'viagem_chegou',
+  'viagem_finalizada',
+  'viagem_cancelada',
+  'viagem_emergencia',
+  'viagem_emergencia_ciente',
 ] as const
 
 /** Campos das ocorrências e dos documentos (rótulos do lote). */
@@ -49,6 +55,8 @@ const CAMPOS_LOTE = [
   'fotosGerais',
   'processamento',
   'motivoDevolucao',
+  'finalizadaPor',
+  'emergencia',
 ] as const
 
 /** Campos da edição do lote (mesmos rótulos do Agendamento). */
@@ -110,6 +118,9 @@ export function useRotulosHistoricoLote() {
       if (DATAS.has(campo)) return formatDate(String(v))
       if (PESOS.has(campo)) return `${formatNumber(Number(v))} kg`
       if (campo === 'inspecao') return t(`status.inspecao_${v as 'bom'}`)
+      if (campo === 'finalizadaPor') return t(`viagens.finalizadaPor.${v as 'operador'}`)
+      if (campo === 'emergencia')
+        return t(`viagens.emergencias.${v as 'assalto'}`, { defaultValue: String(v) })
       return undefined
     },
     [t],

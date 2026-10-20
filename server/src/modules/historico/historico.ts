@@ -8,7 +8,7 @@ import type { EventoHistorico, Mudanca } from '../../shared/historico.js'
  * a mesma auditoria do histórico de cada registro, mas de todos os lotes, já filtrada pelo que
  * interessa a cada módulo (divisão aprovada por ele):
  *   - ordens:   lote criado (agendamento), edições do lote, documentos e ocorrências de coleta e
- *               trajeto (futuro: viagens ativadas/canceladas);
+ *               trajeto e as viagens (iniciada, chegou, finalizada, cancelada, emergência);
  *   - operacao: lote criado, recebimento e correções, mudanças de etapa e ocorrências de
  *               recebimento (futuro: chamados internos).
  *
@@ -28,7 +28,18 @@ export interface EventoHistoricoModulo extends EventoHistorico {
 
 /** Ações de lote de cada módulo (as de ocorrência dependem do momento). */
 const ACOES: Record<ModuloHistorico, string[]> = {
-  ordens: ['criado', 'editado', 'documento_adicionado', 'documento_removido'],
+  ordens: [
+    'criado',
+    'editado',
+    'documento_adicionado',
+    'documento_removido',
+    'viagem_iniciada',
+    'viagem_chegou',
+    'viagem_finalizada',
+    'viagem_cancelada',
+    'viagem_emergencia',
+    'viagem_emergencia_ciente',
+  ],
   operacao: [
     'criado',
     'recebido',

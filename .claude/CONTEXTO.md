@@ -115,7 +115,7 @@ Limpo e Cinza.
 | Operação       | Ordens › **Lotes**                                                         | **pronto** (lista + detalhe do lote, 5 abas)  |
 |                | Ordens › **Agendamento**                                                   | **pronto** (página própria + pré-cálculo)     |
 |                | Ordens › **Histórico**                                                     | **pronto** (auditoria do módulo)              |
-|                | Ordens › Viagens                                                           | em construção (rota coringa)                  |
+|                | Ordens › **Viagens**                                                       | **pronto** (mapa ao vivo pelo rastreador GPS) |
 |                | Operação › **Dashboard**                                                   | **pronto** (quase tudo zerado sem integração) |
 |                | Operação › **Lotes**                                                       | **pronto** (mesma lista e detalhe de Ordens)  |
 |                | Operação › **Recebimento**                                                 | **pronto** (A receber / Recebidos + painel)   |
@@ -474,6 +474,26 @@ os que chegaram pela doca do iERP antigo; nunca os de TESTE de lá); nome **"Re-
 (Microsoft)"**. O MSDC serve HTTPS com a CA Re-Teck: o certificado público é cadastrado na
 Integração e vale só para essa conexão. Como foi feito: **[`INTEGRACOES.md`](INTEGRACOES.md) §0.2**.
 
+### 5.17 Ordens › Viagens com o rastreador de GPS (20/10/2026)
+
+Pedido dele: "Agora vamos para o ultimo por enquanto: C:\Trabalho\01_Sistemas\reteck-truck-tracking
+— Esse é um dos sistemas de GPS. Ao agendar uma ordem, ele gera em viagens um card com a viagem do
+lote podendo acompanhar ele no mapa." (mandou o print da tela do iERP antigo). Decisões (às
+recomendações): viagem + mapa ao vivo, **emergência e chat**, **camadas do mapa** (Trânsito,
+Postos/balanças, Pontos); viagem junta **fora** desta entrega; lotes do Gerenciamento/MSDC **só
+para ver**; **receber o lote encerra a viagem**; aparelho de GPS no caminhão ("Usar rastreador")
+**depois**. Decisões minhas: o link do motorista vai **sem CPF** (ele digita no app — LGPD; o
+antigo mandava); a emergência aparece no topo de QUALQUER tela, com bipe, até alguém dar ciência;
+a viagem do lote aparece na aba Informações (ajuste dele, abaixo) e o código de chegada no painel de recebimento. Como foi
+feito: **[`INTEGRACOES.md`](INTEGRACOES.md) §0.3**.
+
+Ajuste dele (20/10/2026): "Caso o lote esteja com o rastreio, mas ainda não começou ou o rastreio
+está em andamento, ele deve aparecer na aba de informações dentro do lote. Aparecer apenas o mapa
+(filtros de transito, etc), a rota, e tudo mais." Feito: no topo da aba Informações, o card da
+viagem (código de chegada, link, conversa, finalizar) e o MESMO mapa de Viagens (`CartaoMapa`:
+camadas, rota, paradas, resumo) só com a viagem do lote; terminada, some dali (o replay fica em
+Ordens › Viagens). O card que estava na aba Progresso saiu (um lugar só).
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -507,10 +527,11 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
   Pontos do mapa entra em Cadastros; se Administração ganha Integração (API).
 - **Perfis de acesso:** quando houver login, o servidor passa a conferir a permissão de cada
   chamada; a Auditoria deve mostrar também acessos (entrar/sair)?
-- **Cadastros:** a API do sistema de GPS (rastreadores); material precisa de outros campos (código,
-  categoria, preço)?
-- **Ordens:** etapas de uma viagem (Viagens ativas / Histórico de viagens); o que acontece com o
-  rastreio (a v1 gerava link/QR para o motorista — **não** foi pedido); editar/cancelar ordem.
+- **Cadastros:** a API do aparelho de GPS no caminhão (Rastreadores GPS — "Usar rastreador" do
+  antigo); material precisa de outros campos (código, categoria, preço)?
+- **Ordens:** viagem junta (vários lotes no mesmo caminhão, como no antigo); o QR do link do
+  motorista; o alerta de parada prolongada (o antigo avisava com 5/10 min parado); editar/cancelar
+  ordem.
 - **Detalhe do lote:** quem muda a etapa depois de Inspeção (processo, aguardando COD, concluído
   — integração ou botão na tela)? Categorias de ocorrência definitivas? Ocorrência ganha
   "resolvida"/responsável?
@@ -523,6 +544,11 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
   etc. — só com pedido dele).
 
 ## 7. Próximo passo
+
+**Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — falta ele testar e dar o
+"sim" para o commit (§5.17; detalhes em `INTEGRACOES.md` §0.3). Com ela, as integrações que ele
+listou "por enquanto" (MoonShot, Gerenciamento, MSDC, rastreador) estão todas feitas. Ficaram para
+depois: viagem junta, aparelho de GPS no caminhão e o alerta de parada prolongada.
 
 **Dell → MoonShot está pronta** (falta ele testar e aprovar o commit nos DOIS repositórios — o do
 MoonShot está na branch `feature/ierp-2-paralelo`). Próximas integrações: os outros clientes/sistemas

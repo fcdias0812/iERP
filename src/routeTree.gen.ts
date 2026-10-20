@@ -33,6 +33,7 @@ import { Route as AppOperacaoHistoricoRouteImport } from './routes/_app/operacao
 import { Route as AppOperacaoRecebimentoRouteImport } from './routes/_app/operacao/recebimento'
 import { Route as AppOrdensAgendamentoRouteImport } from './routes/_app/ordens/agendamento'
 import { Route as AppOrdensHistoricoRouteImport } from './routes/_app/ordens/historico'
+import { Route as AppOrdensViagensRouteImport } from './routes/_app/ordens/viagens'
 import { Route as AppTransportadorasIndexRouteImport } from './routes/_app/transportadoras/index'
 import { Route as AppVeiculosIndexRouteImport } from './routes/_app/veiculos/index'
 import { Route as AppAdminUsuariosIndexRouteImport } from './routes/_app/admin/usuarios/index'
@@ -164,6 +165,11 @@ const AppOrdensHistoricoRoute = AppOrdensHistoricoRouteImport.update({
   path: '/ordens/historico',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrdensViagensRoute = AppOrdensViagensRouteImport.update({
+  id: '/ordens/viagens',
+  path: '/ordens/viagens',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTransportadorasIndexRoute = AppTransportadorasIndexRouteImport.update({
   id: '/transportadoras/',
   path: '/transportadoras/',
@@ -237,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/ordens/historico': typeof AppOrdensHistoricoRoute
+  '/ordens/viagens': typeof AppOrdensViagensRoute
   '/cadastros/': typeof AppCadastrosIndexRoute
   '/clientes/': typeof AppClientesIndexRoute
   '/motoristas/': typeof AppMotoristasIndexRoute
@@ -272,6 +279,7 @@ export interface FileRoutesByTo {
   '/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/ordens/historico': typeof AppOrdensHistoricoRoute
+  '/ordens/viagens': typeof AppOrdensViagensRoute
   '/cadastros': typeof AppCadastrosIndexRoute
   '/clientes': typeof AppClientesIndexRoute
   '/motoristas': typeof AppMotoristasIndexRoute
@@ -309,6 +317,7 @@ export interface FileRoutesById {
   '/_app/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
   '/_app/ordens/agendamento': typeof AppOrdensAgendamentoRoute
   '/_app/ordens/historico': typeof AppOrdensHistoricoRoute
+  '/_app/ordens/viagens': typeof AppOrdensViagensRoute
   '/_app/cadastros/': typeof AppCadastrosIndexRoute
   '/_app/clientes/': typeof AppClientesIndexRoute
   '/_app/motoristas/': typeof AppMotoristasIndexRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
     | '/operacao/recebimento'
     | '/ordens/agendamento'
     | '/ordens/historico'
+    | '/ordens/viagens'
     | '/cadastros/'
     | '/clientes/'
     | '/motoristas/'
@@ -381,6 +391,7 @@ export interface FileRouteTypes {
     | '/operacao/recebimento'
     | '/ordens/agendamento'
     | '/ordens/historico'
+    | '/ordens/viagens'
     | '/cadastros'
     | '/clientes'
     | '/motoristas'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/_app/operacao/recebimento'
     | '/_app/ordens/agendamento'
     | '/_app/ordens/historico'
+    | '/_app/ordens/viagens'
     | '/_app/cadastros/'
     | '/_app/clientes/'
     | '/_app/motoristas/'
@@ -609,6 +621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrdensHistoricoRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/ordens/viagens': {
+      id: '/_app/ordens/viagens'
+      path: '/ordens/viagens'
+      fullPath: '/ordens/viagens'
+      preLoaderRoute: typeof AppOrdensViagensRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/transportadoras/': {
       id: '/_app/transportadoras/'
       path: '/transportadoras'
@@ -700,6 +719,7 @@ interface AppRouteChildren {
   AppOperacaoRecebimentoRoute: typeof AppOperacaoRecebimentoRoute
   AppOrdensAgendamentoRoute: typeof AppOrdensAgendamentoRoute
   AppOrdensHistoricoRoute: typeof AppOrdensHistoricoRoute
+  AppOrdensViagensRoute: typeof AppOrdensViagensRoute
   AppCadastrosIndexRoute: typeof AppCadastrosIndexRoute
   AppClientesIndexRoute: typeof AppClientesIndexRoute
   AppMotoristasIndexRoute: typeof AppMotoristasIndexRoute
@@ -733,6 +753,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOperacaoRecebimentoRoute: AppOperacaoRecebimentoRoute,
   AppOrdensAgendamentoRoute: AppOrdensAgendamentoRoute,
   AppOrdensHistoricoRoute: AppOrdensHistoricoRoute,
+  AppOrdensViagensRoute: AppOrdensViagensRoute,
   AppCadastrosIndexRoute: AppCadastrosIndexRoute,
   AppClientesIndexRoute: AppClientesIndexRoute,
   AppMotoristasIndexRoute: AppMotoristasIndexRoute,

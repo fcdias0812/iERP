@@ -26,3 +26,4 @@ Thumbs.db
 .claude/scripts/moonshot.env.cmd
 .claude/scripts/gerenciamento.env.cmd
 .claude/scripts/msdc.env.cmd
+.claude/scripts/rastreador.env.cmd

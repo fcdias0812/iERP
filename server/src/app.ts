@@ -28,6 +28,11 @@ import { rotasSistema } from './modules/sistema/sistema.rotas.js'
 import { rotasContratoIntegracao } from './modules/integracao/contrato.rotas.js'
 import { rotasLotesDeFora } from './modules/integracao/gerenciamento.js'
 import { criarServicoIntegracoes, rotasIntegracoes } from './modules/integracao/integracao.js'
+import {
+  criarServicoViagens,
+  rotasViagens,
+  type ServicoViagens,
+} from './modules/viagens/viagens.js'
 import { rotaInexistente, tratarErros } from './shared/erros.js'
 
 /**
@@ -36,7 +41,13 @@ import { rotaInexistente, tratarErros } from './shared/erros.js'
  */
 export function criarApp(
   db: Db,
-  opcoes: { arquivosDir?: string; geo?: ServicoGeo; fetchExterno?: typeof fetch } = {},
+  opcoes: {
+    arquivosDir?: string
+    geo?: ServicoGeo
+    fetchExterno?: typeof fetch
+    /** Ordens › Viagens — o index.ts passa o MESMO serviço que escuta o rastreador ao vivo. */
+    viagens?: ServicoViagens
+  } = {},
 ) {
   const usuarios = criarServicoUsuarios(criarRepositorioUsuarios(db))
   const repoClientes = criarRepositorioClientes(db)
@@ -49,7 +60,11 @@ export function criarApp(
   const transportadoras = criarServicoTransportadoras(db)
   const motoristas = criarServicoMotoristas(db)
   const veiculos = criarServicoVeiculos(db)
-  const ordens = criarServicoOrdens(db, { pasta: opcoes.arquivosDir ?? config.arquivosDir })
+  const viagens = opcoes.viagens ?? criarServicoViagens(db, { fetch: opcoes.fetchExterno })
+  const ordens = criarServicoOrdens(db, {
+    pasta: opcoes.arquivosDir ?? config.arquivosDir,
+    viagens,
+  })
   const cadastros = criarServicoCadastros(db)
 
   const api = express.Router()
@@ -65,6 +80,7 @@ export function criarApp(
   api.use('/ordens', rotasOrdens(ordens))
   // Lote que veio de outro sistema: o espelho do que aconteceu lá (Gerenciamento de Projetos).
   api.use('/ordens', rotasLotesDeFora(db, opcoes.fetchExterno))
+  api.use('/viagens', rotasViagens(viagens, opcoes.fetchExterno))
   api.use('/dashboard', rotasDashboard(criarServicoDashboard(db)))
   api.use('/historico', rotasHistorico(criarServicoHistorico(db)))
   api.use('/materiais', rotasCadastro(cadastros.materiais))

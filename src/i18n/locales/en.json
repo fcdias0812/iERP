@@ -876,7 +876,13 @@
     "container_embarcado": "Shipped",
     "inspecao_outro": "Other",
     "coleta_prevista": "Expected date",
-    "coleta_confirmada": "Confirmed date"
+    "coleta_confirmada": "Confirmed date",
+    "viagem_aguardando_motorista": "Waiting for driver",
+    "viagem_em_rota": "On the road",
+    "viagem_chegou": "Arrived — confirm",
+    "viagem_finalizada": "Trip finished",
+    "viagem_cancelada": "Trip cancelled",
+    "viagem_emergencia": "Emergency"
   },
   "dataTable": {
     "yes": "Yes",
@@ -1330,7 +1336,17 @@
     "profileInUse": "Some users have this profile. Change their profile before deactivating it.",
     "systemInUse": "This system is already registered.",
     "externalLot": "This lot comes from another system (Project Management) and can only be changed there.",
-    "externalUnavailable": "Could not reach the system this lot came from right now."
+    "externalUnavailable": "Could not reach the system this lot came from right now.",
+    "trackerNotConfigured": "The GPS tracker is not registered in Administration › Integration.",
+    "trackerUnavailable": "The GPS tracker did not respond. Try again in a moment.",
+    "trackerUnauthorized": "The tracker refused the internal key — check it in Administration › Integration.",
+    "trackerError": "The GPS tracker refused the operation.",
+    "trackerNotFound": "Trip not found in the tracker.",
+    "tripInProgress": "This lot's trip has already started: finish it in Orders › Trips before turning tracking off.",
+    "tripReadOnly": "This trip belongs to a lot from another system — the old iERP handles it.",
+    "tripNotActive": "The trip is not in progress.",
+    "noEmergency": "There is no emergency waiting for acknowledgement on this trip.",
+    "mapUnavailable": "The map service did not respond."
   },
   "calendar": {
     "today": "Today",
@@ -1537,7 +1553,10 @@
       "tokenPainel": "Panel token",
       "chaveCriadaEm": "Key generated at",
       "ultimoAvisoEm": "Last notification delivered",
-      "caPainel": "CA certificate (optional)"
+      "caPainel": "CA certificate (optional)",
+      "urlRastreador": "Tracker address",
+      "chaveInterna": "Internal key",
+      "chaveTransito": "Traffic map key (TomTom, optional)"
     },
     "secoes": {
       "sistema": "System",
@@ -1545,7 +1564,8 @@
       "painel": "Progress panel (system → iERP)",
       "chave": "Access key (system → iERP)",
       "situacao": "Status",
-      "sincronizacao": "Synchronization"
+      "sincronizacao": "Synchronization",
+      "rastreador": "GPS tracker (tracker → iERP)"
     },
     "ajuda": {
       "sistema": "Each system belongs to a customer: where its lots go (Dell → MoonShot) or where they come from (Project Management).",
@@ -1558,7 +1578,11 @@
       "painelOrigem": "The {{sistema}} dashboard address (the same one the old iERP reads), ending in /api/integracao/painel. The iERP reads the lots every 30 seconds.",
       "tokenOrigem": "The INTEGRACAO_TOKEN from the {{sistema}} .env file.",
       "sincronizacao": "Lots come from {{sistema}}: the iERP creates and updates them on its own, and they are view only here.",
-      "caPainel": "Only if {{sistema}} uses HTTPS with a Re-Teck CA certificate: paste the CA PUBLIC certificate (ca-reteck.crt, PEM). The iERP trusts it only for connections to this system."
+      "caPainel": "Only if {{sistema}} uses HTTPS with a Re-Teck CA certificate: paste the CA PUBLIC certificate (ca-reteck.crt, PEM). The iERP trusts it only for connections to this system.",
+      "rastreador": "The GPS tracker for trips (ReTeckTracker — the same one the old iERP uses). iERP 2.0 reads the trips of its lots, records the arrival code and listens to the tracker live; the driver app opens at <address>/app/.",
+      "chaveInterna": "The tracker's INTERNAL_API_KEY (the same one the old iERP uses). Never the driver app key.",
+      "chaveTransito": "Turns on the Traffic button on the Trips map. Without it, the button does not appear.",
+      "chaveTransitoGuardada": "Traffic key saved. Leave blank to keep it; type a new one to replace it."
     },
     "gerarChave": "Generate key",
     "trocarChave": "Replace key",
@@ -2513,7 +2537,13 @@
         "recebimento_editado": "Corrected the receiving",
         "processamento": "Changed the processing phase",
         "devolucao_pedida": "Asked for the receiving to be corrected",
-        "devolucao_cancelada": "Cancelled the correction request"
+        "devolucao_cancelada": "Cancelled the correction request",
+        "viagem_iniciada": "Trip started by the driver",
+        "viagem_chegou": "Driver reported arrival",
+        "viagem_finalizada": "Trip finished",
+        "viagem_cancelada": "Trip cancelled",
+        "viagem_emergencia": "Emergency on the trip",
+        "viagem_emergencia_ciente": "Emergency acknowledged"
       },
       "campos": {
         "status": "Status",
@@ -2532,7 +2562,9 @@
         "pesoLiquido": "Net weight",
         "fotosGerais": "General photos",
         "processamento": "Processing phase",
-        "motivoDevolucao": "Correction reason"
+        "motivoDevolucao": "Correction reason",
+        "finalizadaPor": "Ended by",
+        "emergencia": "Emergency"
       }
     },
     "informacoes": {
@@ -2924,6 +2956,173 @@
       "caixotes": "Warehouse bins: material, tare, area and position.",
       "areas": "Warehouse areas where bins and pallets are kept.",
       "rastreadores": "Truck GPS trackers (they come from the GPS system)."
+    }
+  },
+  "viagens": {
+    "descricao": "Trips of the lots scheduled with tracking: the driver on the map, live.",
+    "atualizado": "Updated at {{hora}} · refreshes every 5 seconds.",
+    "semRastreador": {
+      "titulo": "GPS tracker not registered",
+      "texto": "Trips appear here, but the map and the driver link only work after registering the tracker in Administration › Integration.",
+      "acao": "Open Integration"
+    },
+    "erroRastreador": "The tracker did not respond in the last check",
+    "abas": {
+      "rotulo": "View",
+      "em-andamento": "In progress",
+      "finalizadas": "Finished"
+    },
+    "lista": "Trips in progress",
+    "buscar": "Search lot, customer or plate",
+    "semResultado": "No trip matches this search.",
+    "finalizadasVazio": "No finished trips in the period.",
+    "vazio": {
+      "titulo": "No trips in progress",
+      "texto": "When a lot is scheduled with \"Track pickup = Yes\", its trip appears here."
+    },
+    "grupos": {
+      "rotulo": "Group by",
+      "semData": "No pickup date",
+      "semCliente": "No customer",
+      "hoje": "today",
+      "amanha": "tomorrow",
+      "ontem": "yesterday",
+      "modos": {
+        "diaCliente": "Pickup date and customer",
+        "dia": "Pickup date",
+        "cliente": "Customer",
+        "nenhum": "No grouping"
+      }
+    },
+    "card": {
+      "rotulo": "Trip of lot {{code}}",
+      "motoristaADefinir": "Driver to be defined",
+      "deFora": "view only ({{sistema}})",
+      "posicao": "Last position {{quando}}",
+      "velocidade": "{{kmh}} km/h",
+      "codigoChegada": "Arrival code:",
+      "codigoAviso": "(say it at the destination — never in the link)",
+      "copiarLink": "Copy driver link",
+      "copiarCodigo": "Copy code",
+      "linkCopiado": "Driver link copied.",
+      "codigoCopiado": "Arrival code copied.",
+      "copiaFalhou": "Could not copy. Select and copy it manually.",
+      "abrirLote": "Open lot"
+    },
+    "origens": {
+      "IERP": "iERP",
+      "GERENCIAMENTO": "Project Management",
+      "MSDC": "Re-Teck MSDC"
+    },
+    "emergencia": {
+      "titulo": "Emergency",
+      "tipo": "Emergency: {{tipo}}",
+      "ciente": "Acknowledge"
+    },
+    "emergencias": {
+      "assalto": "robbery",
+      "acidente": "accident",
+      "mecanico": "mechanical problem",
+      "medica": "medical emergency",
+      "outra": "type not informed"
+    },
+    "alerta": {
+      "titulo": "Emergency on the trip of lot {{code}}: {{tipo}}",
+      "texto": "Driver {{motorista}} · plate {{placa}} · at {{hora}}.",
+      "ver": "See on map"
+    },
+    "finalizadaPor": {
+      "motorista": "Driver (arrival code)",
+      "operador": "Operator",
+      "recebimento": "Lot receiving",
+      "rastreador": "Tracker"
+    },
+    "chat": {
+      "titulo": "Chat with the driver",
+      "abrir": "Chat",
+      "erro": "Could not read the chat",
+      "vazio": "No messages yet.",
+      "remetentes": {
+        "operador": "Office",
+        "motorista": "Driver"
+      },
+      "verAnexo": "View attachment",
+      "mensagem": "Message",
+      "placeholder": "Write to the driver (Ctrl+Enter sends)",
+      "enviar": "Send",
+      "falhou": "Could not send the message"
+    },
+    "finalizar": {
+      "botao": "Finish trip",
+      "titulo": "Finish the trip of lot {{code}}?",
+      "texto": "The driver reported arrival. Finishing ends tracking in their app and saves the route.",
+      "avisoEmRota": "The driver has NOT reported arrival yet. Finishing ends tracking in their app now and saves the route so far."
+    },
+    "toast": {
+      "finalizada": "Trip of lot {{code}} finished.",
+      "ciente": "Emergency acknowledged.",
+      "falhou": "Could not complete the action on the trip"
+    },
+    "mapa": {
+      "titulo": "Trips map",
+      "daViagem": "Trip of lot {{code}}",
+      "camadas": "Map layers",
+      "transito": "Traffic",
+      "pois": "Fuel/weigh stations",
+      "pontos": "Points",
+      "verTodas": "See all",
+      "rotulo": "Map of trips in progress",
+      "poisZoom": "Zoom in to see fuel and weigh stations.",
+      "legenda": "Map legend",
+      "posto": "Fuel station",
+      "balanca": "Weigh station",
+      "poisIndisponivel": "Fuel and weigh stations unavailable right now: the public OpenStreetMap service is busy. Try again in a few minutes."
+    },
+    "painel": {
+      "motorista": "Driver",
+      "placa": "Plate",
+      "iniciada": "Start",
+      "chegou": "Reported arrival",
+      "terminada": "End",
+      "finalizadaPor": "Ended by",
+      "distancia": "Distance traveled",
+      "pontos": "GPS points",
+      "paradas": "Reported stops ({{n}})",
+      "semParadas": "The driver reported no stops.",
+      "verFoto": "View photo",
+      "rastreadorIndisponivel": "The tracker did not respond: the route may be incomplete."
+    },
+    "replay": {
+      "titulo": "Replay of the trip of lot {{code}}",
+      "mapa": "Replay map of the trip of lot {{code}}",
+      "fechar": "Close",
+      "tocar": "Play",
+      "pausar": "Pause",
+      "reiniciar": "Back to start",
+      "velocidade": "Replay speed",
+      "momento": "{{hora}} · {{kmh}} km/h",
+      "inicio": "Full route — play it to watch the truck move.",
+      "posicao": "Replay moment"
+    },
+    "cols": {
+      "lote": "Lot",
+      "status": "Status",
+      "cliente": "Customer",
+      "motorista": "Driver",
+      "placa": "Plate",
+      "iniciada": "Start",
+      "terminada": "End",
+      "finalizadaPor": "Ended by",
+      "distancia": "Distance",
+      "pontos": "GPS points"
+    },
+    "doLote": {
+      "titulo": "Trip"
+    },
+    "recebimento": {
+      "titulo": "Lot with a tracked trip",
+      "encerra": "Receiving the lot ends the trip in the driver app.",
+      "semViagem": "The driver has not started the trip yet; receiving the lot cancels the tracking."
     }
   }
 }

@@ -31,6 +31,12 @@
       "runtimeArgs": ["/c", ".claude\\scripts\\subir-msdc.cmd"],
       "port": 5013,
       "url": "https://localhost:5013"
+    },
+    {
+      "name": "rastreador",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", ".claude\\scripts\\subir-rastreador.cmd"],
+      "port": 5283
     }
   ]
 }

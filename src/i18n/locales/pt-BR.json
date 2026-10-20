@@ -876,7 +876,13 @@
     "container_embarcado": "Embarcado",
     "inspecao_outro": "Outro",
     "coleta_prevista": "Data prevista",
-    "coleta_confirmada": "Data confirmada"
+    "coleta_confirmada": "Data confirmada",
+    "viagem_aguardando_motorista": "Aguardando motorista",
+    "viagem_em_rota": "Em rota",
+    "viagem_chegou": "Chegou — confirmar",
+    "viagem_finalizada": "Viagem finalizada",
+    "viagem_cancelada": "Viagem cancelada",
+    "viagem_emergencia": "Emergência"
   },
   "dataTable": {
     "yes": "Sim",
@@ -1330,7 +1336,17 @@
     "profileInUse": "Há usuários usando este perfil. Troque o perfil deles antes de inativar.",
     "systemInUse": "Este sistema já está cadastrado.",
     "externalLot": "Este lote vem de outro sistema (Gerenciamento de Projetos) e só é alterado lá.",
-    "externalUnavailable": "Não consegui falar com o sistema de onde o lote veio agora."
+    "externalUnavailable": "Não consegui falar com o sistema de onde o lote veio agora.",
+    "trackerNotConfigured": "O rastreador de GPS não está cadastrado em Administração › Integração.",
+    "trackerUnavailable": "O rastreador de GPS não respondeu. Tente de novo em instantes.",
+    "trackerUnauthorized": "O rastreador recusou a chave interna — confira em Administração › Integração.",
+    "trackerError": "O rastreador de GPS recusou a operação.",
+    "trackerNotFound": "Viagem não encontrada no rastreador.",
+    "tripInProgress": "A viagem deste lote já começou: finalize-a em Ordens › Viagens antes de desligar o rastreio.",
+    "tripReadOnly": "Esta viagem é de um lote de outro sistema — quem cuida dela é o iERP antigo.",
+    "tripNotActive": "A viagem não está em andamento.",
+    "noEmergency": "Não há emergência esperando ciência nesta viagem.",
+    "mapUnavailable": "O serviço do mapa não respondeu."
   },
   "calendar": {
     "today": "Hoje",
@@ -1537,7 +1553,10 @@
       "tokenPainel": "Token do painel",
       "chaveCriadaEm": "Chave gerada em",
       "ultimoAvisoEm": "Último aviso entregue",
-      "caPainel": "Certificado da CA (opcional)"
+      "caPainel": "Certificado da CA (opcional)",
+      "urlRastreador": "Endereço do rastreador",
+      "chaveInterna": "Chave interna",
+      "chaveTransito": "Chave do mapa de trânsito (TomTom, opcional)"
     },
     "secoes": {
       "sistema": "Sistema",
@@ -1545,7 +1564,8 @@
       "painel": "Painel de andamento (sistema → iERP)",
       "chave": "Chave de acesso (sistema → iERP)",
       "situacao": "Situação",
-      "sincronizacao": "Sincronização"
+      "sincronizacao": "Sincronização",
+      "rastreador": "Rastreador de GPS (rastreador → iERP)"
     },
     "ajuda": {
       "sistema": "Cada sistema é de um cliente: para onde os lotes dele vão (Dell → MoonShot) ou de onde eles vêm (Gerenciamento de Projetos).",
@@ -1558,7 +1578,11 @@
       "painelOrigem": "O endereço do painel do {{sistema}} (o mesmo que o iERP antigo lê), terminando em /api/integracao/painel. O iERP lê os lotes a cada 30 segundos.",
       "tokenOrigem": "O INTEGRACAO_TOKEN do .env do {{sistema}}.",
       "sincronizacao": "Os lotes vêm do {{sistema}}: o iERP cria e atualiza sozinho, e eles ficam só para ver aqui.",
-      "caPainel": "Só se o {{sistema}} usar HTTPS com certificado da CA Re-Teck: cole o certificado PÚBLICO da CA (ca-reteck.crt, em PEM). O iERP confia nele só nas conexões com este sistema."
+      "caPainel": "Só se o {{sistema}} usar HTTPS com certificado da CA Re-Teck: cole o certificado PÚBLICO da CA (ca-reteck.crt, em PEM). O iERP confia nele só nas conexões com este sistema.",
+      "rastreador": "O rastreador de GPS das viagens (ReTeckTracker — o mesmo do iERP antigo). O iERP 2.0 lê as viagens dos lotes dele, grava o código de chegada e escuta o rastreador ao vivo; o app do motorista abre em <endereço>/app/.",
+      "chaveInterna": "A INTERNAL_API_KEY do rastreador (a mesma que o iERP antigo usa). Nunca a chave do app do motorista.",
+      "chaveTransito": "Liga o botão Trânsito no mapa de Viagens. Sem ela, o botão não aparece.",
+      "chaveTransitoGuardada": "Chave do trânsito guardada. Deixe vazio para manter; digite outra para trocar."
     },
     "gerarChave": "Gerar chave",
     "trocarChave": "Trocar chave",
@@ -2513,7 +2537,13 @@
         "recebimento_editado": "Corrigiu o recebimento",
         "processamento": "Mudou a fase do processamento",
         "devolucao_pedida": "Pediu a correção do recebimento",
-        "devolucao_cancelada": "Cancelou o pedido de correção"
+        "devolucao_cancelada": "Cancelou o pedido de correção",
+        "viagem_iniciada": "Viagem iniciada pelo motorista",
+        "viagem_chegou": "Motorista avisou a chegada",
+        "viagem_finalizada": "Viagem finalizada",
+        "viagem_cancelada": "Viagem cancelada",
+        "viagem_emergencia": "Emergência na viagem",
+        "viagem_emergencia_ciente": "Ciência da emergência"
       },
       "campos": {
         "status": "Status",
@@ -2532,7 +2562,9 @@
         "pesoLiquido": "Peso líquido",
         "fotosGerais": "Fotos gerais",
         "processamento": "Fase do processamento",
-        "motivoDevolucao": "Motivo da correção"
+        "motivoDevolucao": "Motivo da correção",
+        "finalizadaPor": "Encerrada por",
+        "emergencia": "Emergência"
       }
     },
     "informacoes": {
@@ -2924,6 +2956,173 @@
       "caixotes": "Os caixotes do estoque: material, tara, área e posição.",
       "areas": "As áreas do galpão onde os caixotes e pallets ficam.",
       "rastreadores": "Os rastreadores GPS dos caminhões (vêm do sistema de GPS)."
+    }
+  },
+  "viagens": {
+    "descricao": "As viagens dos lotes agendados com rastreio: o motorista no mapa, ao vivo.",
+    "atualizado": "Atualizado às {{hora}} · atualiza sozinho a cada 5 segundos.",
+    "semRastreador": {
+      "titulo": "Rastreador de GPS não cadastrado",
+      "texto": "As viagens aparecem aqui, mas o mapa e o link do motorista só funcionam depois de cadastrar o rastreador em Administração › Integração.",
+      "acao": "Abrir Integração"
+    },
+    "erroRastreador": "O rastreador não respondeu na última conferência",
+    "abas": {
+      "rotulo": "Visão",
+      "em-andamento": "Em andamento",
+      "finalizadas": "Finalizadas"
+    },
+    "lista": "Viagens em andamento",
+    "buscar": "Buscar lote, cliente ou placa",
+    "semResultado": "Nenhuma viagem com essa busca.",
+    "finalizadasVazio": "Nenhuma viagem finalizada no período.",
+    "vazio": {
+      "titulo": "Nenhuma viagem em andamento",
+      "texto": "Ao agendar um lote com \"Rastrear coleta = Sim\", a viagem dele aparece aqui."
+    },
+    "grupos": {
+      "rotulo": "Agrupar por",
+      "semData": "Sem data de coleta",
+      "semCliente": "Sem cliente",
+      "hoje": "hoje",
+      "amanha": "amanhã",
+      "ontem": "ontem",
+      "modos": {
+        "diaCliente": "Data de coleta e cliente",
+        "dia": "Data de coleta",
+        "cliente": "Cliente",
+        "nenhum": "Sem agrupar"
+      }
+    },
+    "card": {
+      "rotulo": "Viagem do lote {{code}}",
+      "motoristaADefinir": "Motorista a definir",
+      "deFora": "só para ver ({{sistema}})",
+      "posicao": "Última posição {{quando}}",
+      "velocidade": "{{kmh}} km/h",
+      "codigoChegada": "Código de chegada:",
+      "codigoAviso": "(fale no destino — nunca vai no link)",
+      "copiarLink": "Copiar link do motorista",
+      "copiarCodigo": "Copiar código",
+      "linkCopiado": "Link do motorista copiado.",
+      "codigoCopiado": "Código de chegada copiado.",
+      "copiaFalhou": "Não foi possível copiar. Selecione e copie manualmente.",
+      "abrirLote": "Abrir lote"
+    },
+    "origens": {
+      "IERP": "iERP",
+      "GERENCIAMENTO": "Gerenciamento de Projetos",
+      "MSDC": "Re-Teck MSDC"
+    },
+    "emergencia": {
+      "titulo": "Emergência",
+      "tipo": "Emergência: {{tipo}}",
+      "ciente": "Dar ciência"
+    },
+    "emergencias": {
+      "assalto": "assalto",
+      "acidente": "acidente",
+      "mecanico": "problema mecânico",
+      "medica": "emergência médica",
+      "outra": "sem tipo informado"
+    },
+    "alerta": {
+      "titulo": "Emergência na viagem do lote {{code}}: {{tipo}}",
+      "texto": "Motorista {{motorista}} · placa {{placa}} · às {{hora}}.",
+      "ver": "Ver no mapa"
+    },
+    "finalizadaPor": {
+      "motorista": "Motorista (código de chegada)",
+      "operador": "Operador",
+      "recebimento": "Recebimento do lote",
+      "rastreador": "Rastreador"
+    },
+    "chat": {
+      "titulo": "Conversa com o motorista",
+      "abrir": "Conversa",
+      "erro": "Não foi possível ler a conversa",
+      "vazio": "Nenhuma mensagem ainda.",
+      "remetentes": {
+        "operador": "Escritório",
+        "motorista": "Motorista"
+      },
+      "verAnexo": "Ver anexo",
+      "mensagem": "Mensagem",
+      "placeholder": "Escreva para o motorista (Ctrl+Enter envia)",
+      "enviar": "Enviar",
+      "falhou": "Não foi possível enviar a mensagem"
+    },
+    "finalizar": {
+      "botao": "Finalizar viagem",
+      "titulo": "Finalizar a viagem do lote {{code}}?",
+      "texto": "O motorista avisou a chegada. Finalizar encerra o rastreio no app dele e guarda o trajeto.",
+      "avisoEmRota": "O motorista ainda NÃO avisou a chegada. Finalizar encerra o rastreio no app dele agora e guarda o trajeto até aqui."
+    },
+    "toast": {
+      "finalizada": "Viagem do lote {{code}} finalizada.",
+      "ciente": "Ciência da emergência registrada.",
+      "falhou": "Não foi possível concluir a ação na viagem"
+    },
+    "mapa": {
+      "titulo": "Mapa das viagens",
+      "daViagem": "Viagem do lote {{code}}",
+      "camadas": "Camadas do mapa",
+      "transito": "Trânsito",
+      "pois": "Postos/balanças",
+      "pontos": "Pontos",
+      "verTodas": "Ver todas",
+      "rotulo": "Mapa das viagens em andamento",
+      "poisZoom": "Aproxime o mapa para ver os postos e as balanças.",
+      "legenda": "Legenda do mapa",
+      "posto": "Posto de combustível",
+      "balanca": "Balança",
+      "poisIndisponivel": "Postos e balanças indisponíveis agora: o serviço público do OpenStreetMap está ocupado. Tente de novo em alguns minutos."
+    },
+    "painel": {
+      "motorista": "Motorista",
+      "placa": "Placa",
+      "iniciada": "Início",
+      "chegou": "Avisou a chegada",
+      "terminada": "Fim",
+      "finalizadaPor": "Encerrada por",
+      "distancia": "Distância percorrida",
+      "pontos": "Pontos de GPS",
+      "paradas": "Paradas reportadas ({{n}})",
+      "semParadas": "O motorista não reportou paradas.",
+      "verFoto": "Ver foto",
+      "rastreadorIndisponivel": "O rastreador não respondeu: o trajeto pode estar incompleto."
+    },
+    "replay": {
+      "titulo": "Replay da viagem do lote {{code}}",
+      "mapa": "Mapa do replay da viagem do lote {{code}}",
+      "fechar": "Fechar",
+      "tocar": "Reproduzir",
+      "pausar": "Pausar",
+      "reiniciar": "Voltar ao início",
+      "velocidade": "Velocidade do replay",
+      "momento": "{{hora}} · {{kmh}} km/h",
+      "inicio": "Trajeto completo — reproduza para ver o caminhão andando.",
+      "posicao": "Momento do replay"
+    },
+    "cols": {
+      "lote": "Lote",
+      "status": "Situação",
+      "cliente": "Cliente",
+      "motorista": "Motorista",
+      "placa": "Placa",
+      "iniciada": "Início",
+      "terminada": "Fim",
+      "finalizadaPor": "Encerrada por",
+      "distancia": "Distância",
+      "pontos": "Pontos de GPS"
+    },
+    "doLote": {
+      "titulo": "Viagem"
+    },
+    "recebimento": {
+      "titulo": "Lote com viagem rastreada",
+      "encerra": "Receber o lote encerra a viagem no app do motorista.",
+      "semViagem": "O motorista ainda não iniciou a viagem; receber o lote cancela o rastreio."
     }
   }
 }

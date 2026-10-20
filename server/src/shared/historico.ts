@@ -31,6 +31,12 @@ export interface EventoHistorico {
     | 'chave_gerada'
     | 'chave_trocada'
     | 'chave_revogada'
+    | 'viagem_iniciada'
+    | 'viagem_chegou'
+    | 'viagem_finalizada'
+    | 'viagem_cancelada'
+    | 'viagem_emergencia'
+    | 'viagem_emergencia_ciente'
   mudancas?: Mudanca[]
   nota?: string
 }

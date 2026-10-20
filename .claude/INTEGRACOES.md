@@ -184,6 +184,73 @@ mesmo esquema do gerenciamento de projetos, vai ser criado o lote lá e todo o p
   certificado público da CA (`ca-reteck.crt`, com o TI). Subir antes a versão do MSDC com as rotas
   novas (sem elas, o 2.0 cria os lotes com o que o painel tem e marca "falhas" nas ordens).
 
+## 0.3 Rastreador de GPS (ReTeckTracker) → Ordens › Viagens (pronto, 20/10/2026)
+
+Sistema `C:\Trabalho\01_Sistemas\reteck-truck-tracking` (ReTeckTracker: .NET 10, API REST + hub
+SignalR `/hub/tracking`, app do motorista em `/app/` e APK). É o MESMO rastreador do iERP antigo.
+Palavras dele: "Ao agendar uma ordem, ele gera em viagens um card com a viagem do lote podendo
+acompanhar ele no mapa."
+
+- **Decisões dele (20/10/2026):** primeira entrega = viagem + mapa ao vivo, **emergência e chat**,
+  **camadas do mapa** (Trânsito, Postos/balanças, Pontos); viagem junta (vários lotes num caminhão)
+  ficou de fora; lotes do Gerenciamento/MSDC **só para ver**; **receber o lote encerra a viagem**;
+  "Usar rastreador" (aparelho no caminhão) **depois** — só o celular agora.
+- **Como funciona:** agendar com "Rastrear coleta = Sim" cria a viagem (`ordens_viagens`,
+  "Aguardando motorista") com o **código de chegada** de 6 dígitos (nunca no link — é falado no
+  destino). O link do motorista é `<rastreador>/app/?os=LOT-…&client=…&driver=…&plate=…` (**sem
+  CPF** — ele digita no app; decisão minha por LGPD, o antigo mandava). O app abre a viagem no
+  rastreador com o código do lote; o iERP a amarra (pela escuta ao vivo e pela conferência a cada
+  minuto — `GET /api/trips?serviceOrder=`), grava o código de chegada (`POST
+  /api/trips/{id}/arrival-code`) e acompanha posição, "Cheguei", emergência (ciência = `POST
+  …/emergency/ack`, cala o alarme também no antigo), conversa (`…/chat/internal`) e paradas. Termina
+  pelo código do motorista, pelo botão **Finalizar** (`POST …/end`) ou pelo **recebimento** do lote
+  (rastreador fora do ar não segura o recebimento: `encerrar_no_rastreador` tenta de novo). Ao
+  terminar, o trajeto (sem pontos repetidos), as paradas e a conversa ficam **guardados aqui**
+  (`ordens_viagens_pontos`) — o replay não depende do rastreador.
+- **O antigo não muda nada:** o 2.0 é só mais um ouvinte do hub; mexe só nas viagens dos códigos
+  dele (LOT-00001…; o antigo usa LOT-2026…); nunca chama o `DELETE`. Lotes de fora: procura a viagem
+  pelo LOT do iERP antigo, que vem no PAINEL do sistema de origem (`painel.lote` = `reteck_lote`; o
+  `lote` da ordem é o batch/PO do cliente) — só leitura, nada é gravado lá.
+- **No iERP:** `server/src/modules/viagens/` (`rastreador.ts` = cliente HTTP com a chave interna;
+  `viagens.ts` = regras, conferência, rotas `/api/viagens`; `tempo-real.ts` = SignalR,
+  `@microsoft/signalr` 10.0.11 MIT); migration `2026-10-20-03-viagens`; Administração › Integração
+  ganhou o tipo **rastreio** (sistema `RASTREADOR`: endereço, chave interna = `INTERNAL_API_KEY` de
+  lá, chave do trânsito TomTom opcional — `integracoes.chave_transito`, nunca sai do servidor).
+  Tela `src/features/viagens/` (Em andamento: cards por dia/cliente + mapa; Finalizadas: tabela +
+  replay); aviso de emergência no topo de qualquer tela; viagem do lote (card + mapa com as camadas, rota e paradas) na aba Informações enquanto espera o motorista ou está na rua; código de
+  chegada no painel de recebimento; eventos `viagem_*` no histórico do lote e de Ordens.
+- **Mapa:** Trânsito = TomTom Traffic Raster Flow (`/traffic/map/4/tile/flow/relative0/…`,
+  docs.tomtom.com) pelo servidor (sem chave o botão some); Postos/balanças = Overpass
+  (`amenity=fuel` / `amenity=weighbridge`) pelo servidor, uma consulta por região guardada um dia,
+  reserva `overpass.private.coffee` (o público principal recusa quando está cheio — visto em
+  20/10/2026); Pontos = os sites das viagens.
+- **Testado neste PC (20/10/2026)** com o rastreador de TESTE (`.claude/scripts/subir-rastreador.cmd`,
+  servidor `rastreador` do launch.json na porta 5283: banco `ReTeckTracker\ierp2-teste\rastreador.db`
+  de lá, chaves de teste em `rastreador.env.cmd`, fora do git): início ao vivo, posição, emergência +
+  ciência, conversa nos dois sentidos, parada, "Cheguei", código errado recusado e o certo aceito,
+  recebimento e Finalizar encerrando lá, lote do Gerenciamento só para ver.
+- **Revisão independente (20/10/2026, testes em `viagens.test.ts` › "concorrência"):** tudo o que
+  muda uma viagem passa por uma fila POR VIAGEM (`umDeCadaVez`) e relê a viagem antes de mudar — o
+  evento ao vivo e a conferência de minuto não se atropelam (um "viagem_finalizada" só; o código
+  de chegada gravado UMA vez, para não zerar lá o limite de 5 tentativas; "Cheguei" atrasado não
+  reabre viagem recebida). Finalizar grava aqui antes de avisar o rastreador. Emergência que chega
+  antes de a viagem ser amarrada fica guardada e é aplicada na amarração (o rastreador não devolve
+  a emergência na lista). Recebimento: grava aqui na hora e avisa o rastreador por fora; se o
+  motorista tinha saído há segundos (viagem ainda não amarrada), encerra a dele lá também.
+  Desligar o rastreio na edição pergunta antes ao rastreador. Viagem apagada lá (404) é arquivada
+  sem trajeto. Leituras do rastreador (trajeto, conversa) guardadas 10 s (o rastreador é
+  compartilhado); "parada"/"mensagem nova" ao vivo limpam esse cache. Anexo do chat só do próprio
+  rastreador. Colunas em `double precision` (PostgreSQL).
+- **Efeito no iERP antigo (não quebra, mas aparece):** a tela de viagens do antigo lista TODAS as
+  viagens do rastreador, então as do 2.0 (LOT-00001…) aparecem lá sem ordem ligada, e o antigo
+  guarda uma cópia delas no histórico dele quando terminam. Não dá para evitar sem mudar o antigo
+  (proibido). Se o rastreador usar `INTERNAL_IP` (um IP só), o 2.0 precisa sair pelo mesmo IP do
+  antigo.
+- **Para produção:** cadastrar em Administração › Integração › Rastreador de GPS o endereço público
+  do rastreador e a `INTERNAL_API_KEY` dele (a mesma do antigo; se o rastreador usar `INTERNAL_IP`,
+  o 2.0 precisa sair pelo mesmo IP). Chave da TomTom: conta no developer.tomtom.com (com o TI). A
+  escuta ao vivo (SignalR) usa certificado público; com CA própria, só a conferência por minuto vale.
+
 ## 1. O que existe hoje
 
 - **Rotas de entrada**: o contrato `/api/integracao/v1` (§0), com chave por sistema. Sistema novo
@@ -249,14 +316,11 @@ antes de começar qualquer um (e a regra de sempre: o antigo NÃO muda, o 2.0 é
 
 ### 2.4 Rastreadores GPS e Ordens › Viagens
 
-- **Onde está:** Sistema › Cadastros › Rastreadores GPS é **só tela** (tabela vazia + "Aguardando a
-  integração", `src/features/cadastros/AbaRastreadores.tsx`) — **sem tabela nem rota no servidor**.
-  Ordens › Viagens ainda está "em construção" (rota coringa). O pedido dele para Viagens: ativas/
-  aguardando + finalizadas com **replay no mapa** e as paradas do caminhão (CONTEXTO §5.10).
-- **Perguntar:** qual é o sistema/fornecedor de GPS e a API dele (documentação, autenticação,
-  limites); quais campos do rastreador aparecem na lista; como a viagem se liga ao lote (um lote,
-  várias viagens? — o pré-cálculo já calcula o **número de viagens**); de quanto em quanto tempo
-  atualizar a posição. **Pesquisar a API do fornecedor na web antes de afirmar qualquer coisa.**
+- **Viagens: pronto (§0.3)** — pelo celular do motorista. Falta o **aparelho de GPS** no caminhão
+  ("Usar rastreador" do antigo): Sistema › Cadastros › Rastreadores GPS ainda é só tela
+  (`src/features/cadastros/AbaRastreadores.tsx`). **Perguntar:** qual fornecedor/sistema do aparelho
+  e a API dele (pesquisar na web antes de afirmar). Também ficou para depois a **viagem junta**
+  (vários lotes no mesmo caminhão, como no antigo).
 
 ### 2.5 Dashboard — processos de alto valor
 

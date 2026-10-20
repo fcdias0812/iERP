@@ -44,6 +44,8 @@ export interface Integracao {
   caPainel: string | null
   /** Há token do painel guardado? (o token em si nunca sai daqui) */
   temTokenPainel: boolean
+  /** Rastreador: há chave do mapa de trânsito (TomTom)? (a chave nunca sai daqui) */
+  temChaveTransito: boolean
   status: 'ativo' | 'inativo'
   ultimoUsoEm: string | null
   ultimoAvisoEm: string | null
@@ -94,6 +96,8 @@ const schemaBase = z.object({
   urlAvisos: url,
   urlPainel: url,
   tokenPainel: z.string().trim().max(500).optional(),
+  // Rastreador: chave do mapa de trânsito (TomTom). Ausente = mantém; '' = apaga.
+  chaveTransito: z.string().trim().max(200).optional(),
   // O certificado é PÚBLICO (não é segredo): ausente = mantém; '' = apaga.
   caPainel: z
     .string()
@@ -160,6 +164,7 @@ export function criarServicoIntegracoes(db: Db) {
     urlPainel: l.urlPainel,
     caPainel: l.caPainel,
     temTokenPainel: Boolean(l.tokenPainel),
+    temChaveTransito: Boolean(l.chaveTransito),
     status: l.status as Integracao['status'],
     ultimoUsoEm: l.ultimoUsoEm,
     ultimoAvisoEm: l.ultimoAvisoEm,
@@ -245,6 +250,7 @@ export function criarServicoIntegracoes(db: Db) {
           urlPainel: v.urlPainel,
           tokenPainel: v.tokenPainel || null,
           caPainel: v.caPainel || null,
+          chaveTransito: tipoDoSistema(v.sistema) === 'rastreio' ? v.chaveTransito || null : null,
           status: 'ativo',
           ultimoUsoEm: null,
           ultimoAvisoEm: null,
@@ -290,6 +296,19 @@ export function criarServicoIntegracoes(db: Db) {
         antes: atual.caPainel ? 'definido' : null,
         depois: ca ? 'definido' : null,
       })
+    const transito =
+      tipoDoSistema(atual.sistema) !== 'rastreio'
+        ? null
+        : v.chaveTransito === undefined
+          ? atual.chaveTransito
+          : v.chaveTransito || null
+    // Também segredo (vai na URL dos tiles, mas só pelo servidor).
+    if (transito !== atual.chaveTransito)
+      mudancas.push({
+        campo: 'chaveTransito',
+        antes: atual.chaveTransito ? 'definido' : null,
+        depois: transito ? 'definido' : null,
+      })
     if (!mudancas.length) return obter(id)
     const agora = new Date().toISOString()
     await db.transaction().execute(async (trx) => {
@@ -301,6 +320,7 @@ export function criarServicoIntegracoes(db: Db) {
           urlPainel: v.urlPainel,
           tokenPainel: token,
           caPainel: ca,
+          chaveTransito: transito,
           alteradoEm: agora,
           alteradoPor: autor,
         })

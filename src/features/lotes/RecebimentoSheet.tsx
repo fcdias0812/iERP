@@ -37,6 +37,7 @@ import {
   recebimentoSchema,
   type RecebimentoForm,
 } from './recebimento-schema'
+import { CodigoDeChegada } from '@/features/viagens/CodigoDeChegada'
 import { StatusDoLote } from './StatusDoLote'
 
 /*
@@ -234,6 +235,7 @@ function Formulario({
                 {t('recebimento.loteEscolhido')}
               </p>
             )}
+            {!corrigir && loteId && <CodigoDeChegada ordemId={loteId} />}
           </CadastroSecao>
 
           <CadastroSecao titulo={t('recebimento.secoes.chegada')}>

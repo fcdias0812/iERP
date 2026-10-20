@@ -40,6 +40,12 @@ export interface EventoHistorico {
     | 'chave_gerada'
     | 'chave_trocada'
     | 'chave_revogada'
+    | 'viagem_iniciada'
+    | 'viagem_chegou'
+    | 'viagem_finalizada'
+    | 'viagem_cancelada'
+    | 'viagem_emergencia'
+    | 'viagem_emergencia_ciente'
   mudancas?: Mudanca[]
   nota?: string
 }
@@ -1118,7 +1124,7 @@ export interface EventoAuditoria extends EventoHistorico {
 /* ---------------- Administração › Integração (server/src/modules/integracao/integracao.ts) */
 
 /** processamento: os lotes daqui vão para ele (MoonShot); origem: os lotes vêm dele (Gerenciamento). */
-export type TipoSistema = 'processamento' | 'origem'
+export type TipoSistema = 'processamento' | 'origem' | 'rastreio'
 
 /** Resumo da última leitura de um sistema de origem. */
 export interface ResumoSincronizacao {
@@ -1152,6 +1158,8 @@ export interface Integracao {
   /** Certificado PÚBLICO (PEM) da CA do sistema, se ele serve HTTPS com CA própria. */
   caPainel: string | null
   temTokenPainel: boolean
+  /** Rastreador: há chave do mapa de trânsito (TomTom)? (a chave nunca vem) */
+  temChaveTransito: boolean
   status: 'ativo' | 'inativo'
   ultimoUsoEm: string | null
   ultimoAvisoEm: string | null
@@ -1188,10 +1196,116 @@ export interface IntegracaoInput {
   tokenPainel?: string
   /** Certificado da CA (PEM); '' = apaga. */
   caPainel?: string
+  /** Rastreador: chave do mapa de trânsito (TomTom). Ausente = mantém; '' = apaga. */
+  chaveTransito?: string
 }
 /** Sistemas que podem ser integrados (por cliente: Dell → MOONSHOT). */
 export interface SistemaIntegravel {
   sistema: string
   nome: string
   tipo: TipoSistema
+}
+
+/* ------------------------------------------------------------ Ordens › Viagens */
+
+/** Situação da viagem (o rastreador de GPS diz "Ativa", "AguardandoConfirmação", "Finalizada"). */
+export type StatusViagem =
+  'aguardando_motorista' | 'em_rota' | 'chegou' | 'finalizada' | 'cancelada'
+/** Quem encerrou: o motorista (código), o operador, o recebimento ou o próprio rastreador. */
+export type FinalizadaPor = 'motorista' | 'operador' | 'recebimento' | 'rastreador'
+
+export interface PosicaoViagem {
+  latitude: number
+  longitude: number
+  /** m/s */
+  velocidade: number | null
+  em: string
+}
+
+export interface EmergenciaViagem {
+  /** assalto | acidente | mecanico | medica (como o app do motorista manda) */
+  tipo: string | null
+  em: string
+  latitude: number | null
+  longitude: number | null
+  cienteEm: string | null
+  cientePor: string | null
+}
+
+export interface Viagem {
+  id: string
+  ordemId: string
+  loteCodigo: string
+  /** IERP = lote agendado aqui; senão o sistema de onde o lote veio (só para ver). */
+  origem: string
+  somenteLeitura: boolean
+  /** O código com que o motorista abre a viagem (nos lotes de fora, o LOT do iERP antigo). */
+  codigoRastreio: string
+  clienteNome: string
+  siteCodigo: string | null
+  siteEndereco: string | null
+  siteLatitude: number | null
+  siteLongitude: number | null
+  dataColeta: string | null
+  coletaConfirmada: boolean
+  motoristaNome: string | null
+  placa: string | null
+  status: StatusViagem
+  codigoChegada: string | null
+  linkMotorista: string | null
+  tripId: number | null
+  iniciadaEm: string | null
+  chegouEm: string | null
+  terminadaEm: string | null
+  finalizadaPor: FinalizadaPor | null
+  posicao: PosicaoViagem | null
+  totalPontos: number
+  distanciaMetros: number | null
+  emergencia: EmergenciaViagem | null
+}
+
+export interface PontoTrajeto {
+  latitude: number
+  longitude: number
+  velocidade: number | null
+  em: string
+}
+
+export interface ParadaViagem {
+  id: number
+  motivo: string
+  latitude: number
+  longitude: number
+  fotoUrl: string | null
+  em: string
+}
+
+export interface MensagemViagem {
+  id: number
+  remetente: 'operador' | 'motorista'
+  texto: string | null
+  midiaUrl: string | null
+  em: string
+}
+
+export interface ViagemDetalhe extends Viagem {
+  trajeto: PontoTrajeto[]
+  paradas: ParadaViagem[]
+  rastreadorIndisponivel: boolean
+}
+
+export interface ViagensResposta {
+  configurado: boolean
+  temTransito: boolean
+  viagens: Viagem[]
+  erro: string | null
+  atualizadoEm: string
+}
+
+/** Posto de combustível ou balança na estrada (OpenStreetMap). */
+export interface PoiEstrada {
+  latitude: number
+  longitude: number
+  tipo: 'posto' | 'balanca'
+  nome: string | null
 }

@@ -876,7 +876,13 @@
     "container_embarcado": "已出貨",
     "inspecao_outro": "其他",
     "coleta_prevista": "預計日期",
-    "coleta_confirmada": "已確認日期"
+    "coleta_confirmada": "已確認日期",
+    "viagem_aguardando_motorista": "等待司機",
+    "viagem_em_rota": "運送途中",
+    "viagem_chegou": "已到達－待確認",
+    "viagem_finalizada": "行程已結束",
+    "viagem_cancelada": "行程已取消",
+    "viagem_emergencia": "緊急狀況"
   },
   "dataTable": {
     "yes": "是",
@@ -1330,7 +1336,17 @@
     "profileInUse": "仍有使用者使用此設定檔。請先變更他們的設定檔再停用。",
     "systemInUse": "此系統已經登錄。",
     "externalLot": "此批次來自其他系統（專案管理），只能在那邊修改。",
-    "externalUnavailable": "目前無法連線到此批次的來源系統。"
+    "externalUnavailable": "目前無法連線到此批次的來源系統。",
+    "trackerNotConfigured": "GPS 追蹤器尚未在「管理 › 整合」登錄。",
+    "trackerUnavailable": "GPS 追蹤器沒有回應，請稍後再試。",
+    "trackerUnauthorized": "追蹤器拒絕了內部金鑰——請至「管理 › 整合」確認。",
+    "trackerError": "GPS 追蹤器拒絕了此操作。",
+    "trackerNotFound": "在追蹤器中找不到此行程。",
+    "tripInProgress": "此批次的行程已開始：請先在「訂單 › 行程」結束行程，再關閉追蹤。",
+    "tripReadOnly": "此行程屬於其他系統的批次——由舊版 iERP 處理。",
+    "tripNotActive": "行程不在進行中。",
+    "noEmergency": "此行程沒有等待確認的緊急狀況。",
+    "mapUnavailable": "地圖服務沒有回應。"
   },
   "calendar": {
     "today": "今天",
@@ -1537,7 +1553,10 @@
       "tokenPainel": "面板權杖",
       "chaveCriadaEm": "金鑰產生於",
       "ultimoAvisoEm": "最近送達的通知",
-      "caPainel": "CA 憑證（選填）"
+      "caPainel": "CA 憑證（選填）",
+      "urlRastreador": "追蹤器位址",
+      "chaveInterna": "內部金鑰",
+      "chaveTransito": "交通地圖金鑰（TomTom，選填）"
     },
     "secoes": {
       "sistema": "系統",
@@ -1545,7 +1564,8 @@
       "painel": "進度面板（系統 → iERP）",
       "chave": "存取金鑰（系統 → iERP）",
       "situacao": "狀況",
-      "sincronizacao": "同步"
+      "sincronizacao": "同步",
+      "rastreador": "GPS 追蹤器（追蹤器 → iERP）"
     },
     "ajuda": {
       "sistema": "每個系統對應一個客戶：其批次的去向（Dell → MoonShot）或來源（專案管理）。",
@@ -1558,7 +1578,11 @@
       "painelOrigem": "{{sistema}}儀表板的位址（與舊版 iERP 讀取的相同），結尾為 /api/integracao/painel。iERP 每 30 秒讀取一次批次。",
       "tokenOrigem": "{{sistema}} .env 檔中的 INTEGRACAO_TOKEN。",
       "sincronizacao": "批次來自{{sistema}}：iERP 會自動建立與更新，在這裡僅供檢視。",
-      "caPainel": "僅在{{sistema}}使用 Re-Teck CA 憑證的 HTTPS 時填寫：貼上 CA 的公開憑證（ca-reteck.crt，PEM 格式）。iERP 只在連線到此系統時信任它。"
+      "caPainel": "僅在{{sistema}}使用 Re-Teck CA 憑證的 HTTPS 時填寫：貼上 CA 的公開憑證（ca-reteck.crt，PEM 格式）。iERP 只在連線到此系統時信任它。",
+      "rastreador": "行程用的 GPS 追蹤器（ReTeckTracker，與舊版 iERP 相同）。iERP 2.0 讀取其批次的行程、記錄到達代碼並即時接收追蹤器訊息；司機 App 位於 <位址>/app/。",
+      "chaveInterna": "追蹤器的 INTERNAL_API_KEY（與舊版 iERP 使用的相同）。絕不是司機 App 的金鑰。",
+      "chaveTransito": "開啟行程地圖上的「交通」按鈕。沒有金鑰時不會顯示此按鈕。",
+      "chaveTransitoGuardada": "已儲存交通金鑰。留空即保留；輸入新的金鑰即可替換。"
     },
     "gerarChave": "產生金鑰",
     "trocarChave": "更換金鑰",
@@ -2513,7 +2537,13 @@
         "recebimento_editado": "更正了收貨",
         "processamento": "變更了處理階段",
         "devolucao_pedida": "要求更正收貨",
-        "devolucao_cancelada": "取消了更正要求"
+        "devolucao_cancelada": "取消了更正要求",
+        "viagem_iniciada": "司機開始行程",
+        "viagem_chegou": "司機回報到達",
+        "viagem_finalizada": "行程已結束",
+        "viagem_cancelada": "行程已取消",
+        "viagem_emergencia": "行程中發生緊急狀況",
+        "viagem_emergencia_ciente": "已確認緊急狀況"
       },
       "campos": {
         "status": "狀態",
@@ -2532,7 +2562,9 @@
         "pesoLiquido": "淨重",
         "fotosGerais": "一般照片",
         "processamento": "處理階段",
-        "motivoDevolucao": "更正原因"
+        "motivoDevolucao": "更正原因",
+        "finalizadaPor": "結束方式",
+        "emergencia": "緊急狀況"
       }
     },
     "informacoes": {
@@ -2924,6 +2956,173 @@
       "caixotes": "倉儲箱：物料、皮重、區域與位置。",
       "areas": "存放箱與棧板的倉庫區域。",
       "rastreadores": "卡車的 GPS 追蹤器（來自 GPS 系統）。"
+    }
+  },
+  "viagens": {
+    "descricao": "已排程且需追蹤之批次的行程：即時在地圖上查看司機。",
+    "atualizado": "更新於 {{hora}} · 每 5 秒自動更新。",
+    "semRastreador": {
+      "titulo": "尚未登錄 GPS 追蹤器",
+      "texto": "行程會顯示在這裡，但須在「管理 › 整合」登錄追蹤器後，地圖與司機連結才能使用。",
+      "acao": "開啟整合"
+    },
+    "erroRastreador": "上次檢查時追蹤器沒有回應",
+    "abas": {
+      "rotulo": "檢視",
+      "em-andamento": "進行中",
+      "finalizadas": "已結束"
+    },
+    "lista": "進行中的行程",
+    "buscar": "搜尋批次、客戶或車牌",
+    "semResultado": "沒有符合此搜尋的行程。",
+    "finalizadasVazio": "此期間沒有已結束的行程。",
+    "vazio": {
+      "titulo": "沒有進行中的行程",
+      "texto": "排程批次時若選擇「追蹤取貨 = 是」，其行程就會顯示在這裡。"
+    },
+    "grupos": {
+      "rotulo": "分組方式",
+      "semData": "無取貨日期",
+      "semCliente": "無客戶",
+      "hoje": "今天",
+      "amanha": "明天",
+      "ontem": "昨天",
+      "modos": {
+        "diaCliente": "取貨日期與客戶",
+        "dia": "取貨日期",
+        "cliente": "客戶",
+        "nenhum": "不分組"
+      }
+    },
+    "card": {
+      "rotulo": "批次 {{code}} 的行程",
+      "motoristaADefinir": "司機待定",
+      "deFora": "僅供檢視（{{sistema}}）",
+      "posicao": "最後位置 {{quando}}",
+      "velocidade": "{{kmh}} 公里/小時",
+      "codigoChegada": "到達代碼：",
+      "codigoAviso": "（到達時口頭告知，絕不放在連結中）",
+      "copiarLink": "複製司機連結",
+      "copiarCodigo": "複製代碼",
+      "linkCopiado": "已複製司機連結。",
+      "codigoCopiado": "已複製到達代碼。",
+      "copiaFalhou": "無法複製，請手動選取並複製。",
+      "abrirLote": "開啟批次"
+    },
+    "origens": {
+      "IERP": "iERP",
+      "GERENCIAMENTO": "專案管理",
+      "MSDC": "Re-Teck MSDC"
+    },
+    "emergencia": {
+      "titulo": "緊急狀況",
+      "tipo": "緊急狀況：{{tipo}}",
+      "ciente": "確認收到"
+    },
+    "emergencias": {
+      "assalto": "搶劫",
+      "acidente": "事故",
+      "mecanico": "機械故障",
+      "medica": "醫療緊急狀況",
+      "outra": "未提供類型"
+    },
+    "alerta": {
+      "titulo": "批次 {{code}} 的行程發生緊急狀況：{{tipo}}",
+      "texto": "司機 {{motorista}} · 車牌 {{placa}} · 時間 {{hora}}。",
+      "ver": "在地圖上查看"
+    },
+    "finalizadaPor": {
+      "motorista": "司機（到達代碼）",
+      "operador": "操作員",
+      "recebimento": "批次收貨",
+      "rastreador": "追蹤器"
+    },
+    "chat": {
+      "titulo": "與司機對話",
+      "abrir": "對話",
+      "erro": "無法讀取對話",
+      "vazio": "尚無訊息。",
+      "remetentes": {
+        "operador": "辦公室",
+        "motorista": "司機"
+      },
+      "verAnexo": "查看附件",
+      "mensagem": "訊息",
+      "placeholder": "寫給司機（Ctrl+Enter 送出）",
+      "enviar": "送出",
+      "falhou": "無法送出訊息"
+    },
+    "finalizar": {
+      "botao": "結束行程",
+      "titulo": "要結束批次 {{code}} 的行程嗎？",
+      "texto": "司機已回報到達。結束後將停止其 App 的追蹤並保存路線。",
+      "avisoEmRota": "司機尚未回報到達。結束後將立即停止其 App 的追蹤，並保存目前為止的路線。"
+    },
+    "toast": {
+      "finalizada": "批次 {{code}} 的行程已結束。",
+      "ciente": "已記錄確認緊急狀況。",
+      "falhou": "無法完成行程上的操作"
+    },
+    "mapa": {
+      "titulo": "行程地圖",
+      "daViagem": "批次 {{code}} 的行程",
+      "camadas": "地圖圖層",
+      "transito": "交通",
+      "pois": "加油站／地磅站",
+      "pontos": "地點",
+      "verTodas": "查看全部",
+      "rotulo": "進行中行程的地圖",
+      "poisZoom": "放大地圖以查看加油站與地磅站。",
+      "legenda": "地圖圖例",
+      "posto": "加油站",
+      "balanca": "地磅站",
+      "poisIndisponivel": "加油站與地磅站暫時無法顯示：OpenStreetMap 公共服務忙碌中，請幾分鐘後再試。"
+    },
+    "painel": {
+      "motorista": "司機",
+      "placa": "車牌",
+      "iniciada": "開始",
+      "chegou": "回報到達",
+      "terminada": "結束",
+      "finalizadaPor": "結束方式",
+      "distancia": "行駛距離",
+      "pontos": "GPS 點數",
+      "paradas": "回報的停靠（{{n}}）",
+      "semParadas": "司機沒有回報停靠。",
+      "verFoto": "查看照片",
+      "rastreadorIndisponivel": "追蹤器沒有回應：路線可能不完整。"
+    },
+    "replay": {
+      "titulo": "批次 {{code}} 行程重播",
+      "mapa": "批次 {{code}} 行程重播地圖",
+      "fechar": "關閉",
+      "tocar": "播放",
+      "pausar": "暫停",
+      "reiniciar": "回到開頭",
+      "velocidade": "重播速度",
+      "momento": "{{hora}} · {{kmh}} 公里/小時",
+      "inicio": "完整路線——播放即可看到卡車移動。",
+      "posicao": "重播時間點"
+    },
+    "cols": {
+      "lote": "批次",
+      "status": "狀況",
+      "cliente": "客戶",
+      "motorista": "司機",
+      "placa": "車牌",
+      "iniciada": "開始",
+      "terminada": "結束",
+      "finalizadaPor": "結束方式",
+      "distancia": "距離",
+      "pontos": "GPS 點數"
+    },
+    "doLote": {
+      "titulo": "行程"
+    },
+    "recebimento": {
+      "titulo": "此批次有追蹤中的行程",
+      "encerra": "收貨後將結束司機 App 中的行程。",
+      "semViagem": "司機尚未開始行程；收貨將取消追蹤。"
     }
   }
 }

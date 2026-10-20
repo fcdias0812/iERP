@@ -37,6 +37,8 @@ import {
   Scale,
   PencilLine,
   Receipt,
+  MapPinCheck,
+  Siren,
   type LucideIcon,
 } from 'lucide-react'
 import type { StatusTone } from './tones'
@@ -96,6 +98,13 @@ export const STATUS_MAP = {
   pago: { tone: 'success', icon: HandCoins, flowOrder: 120 },
   ativo: { tone: 'success', icon: CircleCheck, flowOrder: 130 },
   em_transito: { tone: 'info', icon: Truck, flowOrder: 85 },
+  // Viagem do lote no rastreador de GPS (Ordens › Viagens).
+  viagem_aguardando_motorista: { tone: 'info', icon: Clock, flowOrder: 86 },
+  viagem_em_rota: { tone: 'info', icon: Truck, flowOrder: 87 },
+  viagem_chegou: { tone: 'warning', icon: MapPinCheck, flowOrder: 88 },
+  viagem_finalizada: { tone: 'success', icon: CircleCheckBig, flowOrder: 112 },
+  viagem_cancelada: { tone: 'inactive', icon: Ban, flowOrder: 401 },
+  viagem_emergencia: { tone: 'danger', icon: Siren, flowOrder: 305 },
   autorizada: { tone: 'success', icon: FileCheck, flowOrder: 95 },
   conciliado: { tone: 'success', icon: Link2, flowOrder: 125 },
   disponivel: { tone: 'success', icon: PackageSearch, flowOrder: 132 },

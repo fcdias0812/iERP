@@ -46,6 +46,26 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.cepNotFound')
     case 'address_not_found':
       return i18n.t('apiErrors.addressNotFound')
+    case 'tracker_not_configured':
+      return i18n.t('apiErrors.trackerNotConfigured')
+    case 'tracker_unavailable':
+      return i18n.t('apiErrors.trackerUnavailable')
+    case 'tracker_unauthorized':
+      return i18n.t('apiErrors.trackerUnauthorized')
+    case 'tracker_error':
+      return i18n.t('apiErrors.trackerError')
+    case 'tracker_not_found':
+      return i18n.t('apiErrors.trackerNotFound')
+    case 'trip_in_progress':
+      return i18n.t('apiErrors.tripInProgress')
+    case 'trip_read_only':
+      return i18n.t('apiErrors.tripReadOnly')
+    case 'trip_not_active':
+      return i18n.t('apiErrors.tripNotActive')
+    case 'no_emergency':
+      return i18n.t('apiErrors.noEmergency')
+    case 'map_unavailable':
+      return i18n.t('apiErrors.mapUnavailable')
     case 'validation':
       return i18n.t('apiErrors.validation', { detail: error.message })
   }

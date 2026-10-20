@@ -9,6 +9,7 @@ import { perfisHandlers } from './perfis'
 import { relacionamentoHandlers } from './relacionamento'
 import { sistemaHandlers } from './sistema'
 import { usuariosHandlers } from './usuarios'
+import { viagensHandlers } from './viagens'
 
 /** Todos os handlers da API simulada. Módulos novos: crie o arquivo e some aqui. */
 export const handlers = [
@@ -16,6 +17,7 @@ export const handlers = [
   ...clientesHandlers,
   ...relacionamentoHandlers,
   ...ordensHandlers,
+  ...viagensHandlers,
   ...cadastrosHandlers,
   ...dashboardHandlers,
   ...usuariosHandlers,

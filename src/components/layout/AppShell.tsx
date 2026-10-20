@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { useHotkey } from '@/hooks/use-hotkey'
 import { useUiStore } from '@/stores/ui-store'
+import { AlertaEmergencias } from '@/features/viagens/AlertaEmergencias'
 import { AppBreadcrumb } from './AppBreadcrumb'
 import { AppSidebar, MobileNav } from './AppSidebar'
 import { CommandPalette } from './CommandPalette'
@@ -44,6 +45,7 @@ export function AppShell() {
       >
         <div className="mx-auto flex max-w-(--content-max-w) flex-col gap-4 px-(--page-px) py-6">
           <AppBreadcrumb />
+          <AlertaEmergencias />
           <Outlet />
         </div>
       </main>

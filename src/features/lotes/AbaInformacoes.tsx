@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { EMPTY } from '@/lib/format'
 import type { Ordem } from '@/services/types'
 import { useInformacoesDoLote } from './informacoes-lote'
+import { ViagemNoLote } from '@/features/viagens/ViagemNoLote'
 import { DadosDeFora } from './LoteDeFora'
 
 /*
@@ -21,6 +22,8 @@ export function AbaInformacoes({ o }: { o: Ordem }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <DadosDeFora o={o} />
+      {/* Rastreio esperando o motorista ou na rua: a viagem e o mapa (pedido do usuário). */}
+      {(o.rastrear || Boolean(o.externo)) && <ViagemNoLote ordemId={o.id} />}
       {o.status !== 'agendado' && !o.externo && (
         <Alert tone="info" title={t('lotes.editar.travadoTitle')} className="lg:col-span-2">
           {t('lotes.editar.travadoBody')}

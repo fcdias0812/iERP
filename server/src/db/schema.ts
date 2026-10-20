@@ -471,10 +471,60 @@ export interface IntegracoesTable {
   sincronizacao: string | null
   /** Certificado PÚBLICO (PEM) da CA do sistema, se ele serve HTTPS com CA própria. */
   caPainel: string | null
+  /** Chave do mapa de trânsito (TomTom) — só do rastreador. Nunca sai do servidor. */
+  chaveTransito: string | null
   criadoEm: string
   criadoPor: string
   alteradoEm: string
   alteradoPor: string
+}
+
+/** Viagem do lote no rastreador de GPS (Ordens › Viagens). Uma por lote. */
+export interface OrdensViagensTable {
+  id: string
+  ordemId: string
+  /** 6 dígitos, falado no destino — nunca vai no link do motorista. */
+  codigoChegada: string
+  /** aguardando_motorista | em_rota | chegou | finalizada | cancelada */
+  status: string
+  tripId: number | null
+  codigoRegistrado: number
+  encerrarNoRastreador: number
+  /** motorista | operador | recebimento | rastreador */
+  finalizadaPor: string | null
+  motoristaNome: string | null
+  placa: string | null
+  iniciadaEm: string | null
+  chegouEm: string | null
+  terminadaEm: string | null
+  ultimaLatitude: number | null
+  ultimaLongitude: number | null
+  ultimaVelocidade: number | null
+  ultimaEm: string | null
+  totalPontos: number
+  distanciaMetros: number | null
+  emergenciaTipo: string | null
+  emergenciaEm: string | null
+  emergenciaLatitude: number | null
+  emergenciaLongitude: number | null
+  emergenciaCienteEm: string | null
+  emergenciaCientePor: string | null
+  chat: string | null
+  paradas: string | null
+  arquivada: number
+  criadoEm: string
+  alteradoEm: string
+}
+
+/** Trajeto arquivado da viagem (replay). */
+export interface OrdensViagensPontosTable {
+  viagemId: string
+  seq: number
+  latitude: number
+  longitude: number
+  velocidade: number | null
+  precisao: number | null
+  registradoEm: string
 }
 
 /** Fila de avisos aos sistemas de fora. */
@@ -534,4 +584,6 @@ export interface Database {
   areasEstoque: AreasEstoqueTable
   recipientes: RecipientesTable
   perfisAcesso: PerfisAcessoTable
+  ordensViagens: OrdensViagensTable
+  ordensViagensPontos: OrdensViagensPontosTable
 }

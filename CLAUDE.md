@@ -23,8 +23,8 @@ antigo (v1) nem de outro lugar.
 - Módulos hoje: seção **Relacionamento** — **Clientes** (tudo do cliente fica em **abas** do
   detalhe — contatos, logística, documentos, configurações), **Transportadoras** (detalhe em abas:
   dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral);
-  seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento, Histórico; Viagens em
-  construção), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo detalhe de Ordens › Lotes
+  seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento, Viagens com o mapa ao
+  vivo do rastreador de GPS, Histórico), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo detalhe de Ordens › Lotes
   —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (em construção); e,
   em Sistema, **Cadastros** (submenu: Materiais, Pallets, Caixotes, Áreas do estoque, Rastreadores GPS)
   e **Administração** (Usuários, Perfis de acesso, Auditoria, Integração).
@@ -192,6 +192,15 @@ linha do tempo, recebimento), **Ocorrências** (painel
 /api/ordens/:id/recebimento` (multipart `dados` + fotos em `lacres.<i>`, `notas.<i>`,
   `pallets.<i>`, `gerais`), tabelas `ordens_recebimentos`, `ordens_lacres`, `ordens_notas_fiscais`,
   `ordens_recebimento_fotos`; receber = agendado → Inspeção; avaria/outro viram ocorrência.
+- **Ordens › Viagens** — `src/features/viagens/` (Em andamento: cards por dia da coleta e
+  cliente + mapa Leaflet ao vivo com Trânsito/Postos/Pontos; Finalizadas: tabela + replay; chat;
+  aviso de emergência no `AppShell`; `ViagemNoLote` (card + `CartaoMapa`) na aba Informações; `CodigoDeChegada` no
+  recebimento) e `server/src/modules/viagens/` (`rastreador.ts` = cliente do ReTeckTracker com a
+  chave interna; `viagens.ts` = viagem nasce no agendamento com rastreio, código de chegada,
+  conferência por minuto, arquivo do trajeto, recebimento encerra, rotas `/api/viagens`;
+  `tempo-real.ts` = SignalR, ligado no `index.ts`). Rastreador cadastrado em Administração ›
+  Integração (tipo `rastreio`, sistema `RASTREADOR`). O rastreador é o MESMO do iERP antigo: só as
+  viagens dos LOT do 2.0; nunca apagar nada lá. Detalhes em `.claude/INTEGRACOES.md` §0.3.
 - **Sistema › Cadastros** — `src/features/cadastros/` (módulo com submenu, uma rota por cadastro
   em `src/routes/_app/cadastros/` — `paginas.tsx`; painel `?aberto=novo|<id>`; listas em modo
   cliente — a API devolve a lista inteira) e

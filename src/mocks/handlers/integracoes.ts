@@ -37,6 +37,7 @@ function db(): Registro[] {
       urlPainel: 'http://localhost:5063/api/ierp2/painel',
       caPainel: null,
       temTokenPainel: false,
+      temChaveTransito: false,
       status: 'ativo',
       ultimoUsoEm: null,
       ultimoAvisoEm: null,
@@ -62,6 +63,7 @@ function db(): Registro[] {
       urlPainel: 'http://localhost:5005/api/integracao/painel',
       caPainel: null,
       temTokenPainel: true,
+      temChaveTransito: false,
       status: 'ativo',
       ultimoUsoEm: null,
       ultimoAvisoEm: null,
@@ -109,6 +111,7 @@ export const integracoesHandlers = [
       { sistema: 'MOONSHOT', nome: 'MoonShot (Dell)', tipo: 'processamento' },
       { sistema: 'GERENCIAMENTO', nome: 'Gerenciamento de Projetos', tipo: 'origem' },
       { sistema: 'MSDC', nome: 'Re-Teck MSDC (Microsoft)', tipo: 'origem' },
+      { sistema: 'RASTREADOR', nome: 'Rastreador de GPS (ReTeckTracker)', tipo: 'rastreio' },
     ]),
   ),
   http.get('*/api/integracoes', async ({ request }) => {
@@ -134,13 +137,19 @@ export const integracoesHandlers = [
       ...db()[0]!,
       id: novoId('int'),
       sistema: i.sistema ?? '',
-      tipo: i.sistema === 'GERENCIAMENTO' || i.sistema === 'MSDC' ? 'origem' : 'processamento',
+      tipo:
+        i.sistema === 'GERENCIAMENTO' || i.sistema === 'MSDC'
+          ? 'origem'
+          : i.sistema === 'RASTREADOR'
+            ? 'rastreio'
+            : 'processamento',
       caPainel: i.caPainel || null,
       sincronizacao: null,
       nome: i.nome,
       urlAvisos: i.urlAvisos,
       urlPainel: i.urlPainel,
       temTokenPainel: Boolean(i.tokenPainel),
+      temChaveTransito: Boolean(i.chaveTransito),
       chavePrefixo: null,
       chaveCriadaEm: null,
       historico: [],
@@ -160,6 +169,8 @@ export const integracoesHandlers = [
       urlAvisos: i.urlAvisos,
       urlPainel: i.urlPainel,
       temTokenPainel: i.tokenPainel === undefined ? r.temTokenPainel : Boolean(i.tokenPainel),
+      temChaveTransito:
+        i.chaveTransito === undefined ? r.temChaveTransito : Boolean(i.chaveTransito),
       alteradoEm: agora(),
       alteradoPor: autor(),
     })
