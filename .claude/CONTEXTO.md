@@ -88,6 +88,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `9cbfb1e` | Ordens › Viagens com o rastreador de GPS (mapa ao vivo, emergência, chat, replay)        |
 | `f1148dc` | Viagens finalizadas: baixar o trajeto em GPX, KML e CSV (igual ao iERP antigo)           |
 | `2cac597` | Estoque: Materiais, Assets, Peças e E-commerce lidos dos sistemas de estoque             |
+| `7430d09` | Estoque › Histórico: o iERP compara as leituras dos três sistemas                        |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
@@ -573,7 +574,7 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 
 **Estoque ← armazém, Controle de Notebooks e RTB WMS está pronto (20/10/2026)** — commit local
 `2cac597` (push só quando ele pedir; §5.18; `INTEGRACOES.md` §0.4). **Estoque › Histórico também
-pronto** (o iERP compara as leituras; aguardando o "sim" dele para o commit local). Esperando dele:
+pronto** (o iERP compara as leituras; commit local `7430d09`, push só quando ele pedir). Esperando dele:
 o sistema dos Servidores.
 
 **Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — commit local `9cbfb1e`
