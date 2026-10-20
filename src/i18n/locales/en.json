@@ -762,7 +762,8 @@
     "palletRequired": "Add at least one pallet.",
     "nameInUse": "A record with this name already exists.",
     "url": "Invalid address (start with http:// or https://).",
-    "tokenCurto": "The token must have at least 32 characters."
+    "tokenCurto": "The token must have at least 32 characters.",
+    "certificado": "Paste the certificate in PEM format (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----)."
   },
   "confirm": {
     "typeToConfirm": "To confirm, type"
@@ -1535,7 +1536,8 @@
       "urlPainel": "Panel address",
       "tokenPainel": "Panel token",
       "chaveCriadaEm": "Key generated at",
-      "ultimoAvisoEm": "Last notification delivered"
+      "ultimoAvisoEm": "Last notification delivered",
+      "caPainel": "CA certificate (optional)"
     },
     "secoes": {
       "sistema": "System",
@@ -1553,9 +1555,10 @@
       "token": "The same token configured in the system (in MoonShot: IERP_PAINEL_TOKEN), with at least {{min}} characters.",
       "tokenGuardado": "A token is already stored. Leave blank to keep it; type a new one to replace it.",
       "chave": "The key the system uses to enter the iERP (in MoonShot: IERP2_API_KEY). It is shown only once, when generated.",
-      "painelOrigem": "The Project Management dashboard address (the same one the old iERP reads), ending in /api/integracao/painel. The iERP reads the pickups every 30 seconds.",
-      "tokenOrigem": "The INTEGRACAO_TOKEN from the Project Management .env file.",
-      "sincronizacao": "Lots come from {{sistema}}: the iERP creates and updates them on its own, and they are view only here."
+      "painelOrigem": "The {{sistema}} dashboard address (the same one the old iERP reads), ending in /api/integracao/painel. The iERP reads the lots every 30 seconds.",
+      "tokenOrigem": "The INTEGRACAO_TOKEN from the {{sistema}} .env file.",
+      "sincronizacao": "Lots come from {{sistema}}: the iERP creates and updates them on its own, and they are view only here.",
+      "caPainel": "Only if {{sistema}} uses HTTPS with a Re-Teck CA certificate: paste the CA PUBLIC certificate (ca-reteck.crt, PEM). The iERP trusts it only for connections to this system."
     },
     "gerarChave": "Generate key",
     "trocarChave": "Replace key",
@@ -1597,7 +1600,8 @@
     },
     "sistemas": {
       "MOONSHOT": "MoonShot",
-      "GERENCIAMENTO": "Project Management"
+      "GERENCIAMENTO": "Project Management",
+      "MSDC": "Re-Teck MSDC (Microsoft)"
     },
     "toast": {
       "criado": "Integration {{name}} created.",
@@ -2692,7 +2696,8 @@
         "observacoes": "Notes",
         "declarado": "Declared",
         "pesado": "Weighed",
-        "seriais": "Service Tags"
+        "seriais": "Service Tags",
+        "doca": "Dock"
       },
       "cols": {
         "peso": "Weight",
@@ -2704,7 +2709,9 @@
         "tipo": "Type",
         "descricao": "Description",
         "embalagem": "Packaging"
-      }
+      },
+      "operacao": "What happened in {{sistema}}",
+      "documentosSoLa": "This lot's documents stay in {{sistema}} and only open there (with its login)."
     }
   },
   "recebimento": {

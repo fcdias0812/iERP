@@ -51,6 +51,8 @@ export type TipoSistema = 'processamento' | 'origem'
 export const SISTEMAS_CONHECIDOS: { sistema: string; nome: string; tipo: TipoSistema }[] = [
   ...DESTINOS.map((d) => ({ sistema: d.sistema, nome: d.nome, tipo: 'processamento' as const })),
   { sistema: 'GERENCIAMENTO', nome: 'Gerenciamento de Projetos', tipo: 'origem' },
+  // Re-Teck MSDC (equip-rack-2): os lotes da Microsoft nascem e são processados lá (20/10/2026).
+  { sistema: 'MSDC', nome: 'Re-Teck MSDC (Microsoft)', tipo: 'origem' },
 ]
 
 /** Os códigos de sistema conhecidos. */

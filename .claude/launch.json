@@ -24,6 +24,13 @@
       "runtimeExecutable": "cmd",
       "runtimeArgs": ["/c", ".claude\\scripts\\subir-gerenciamento.cmd"],
       "port": 5005
+    },
+    {
+      "name": "msdc",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", ".claude\\scripts\\subir-msdc.cmd"],
+      "port": 5013,
+      "url": "https://localhost:5013"
     }
   ]
 }

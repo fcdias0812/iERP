@@ -142,6 +142,48 @@ vai servir aqui apenas para visualização.**"
 - **Cuidado:** as fotos do espelho são links do Gerenciamento (ele monta com o IP da rede); com o iERP
   em HTTPS e o Gerenciamento em HTTP o navegador bloquearia — aí, servir as fotos pelo servidor do iERP.
 
+## 0.2 Re-Teck MSDC (equip-rack, Microsoft) → iERP (pronto, 20/10/2026)
+
+Sistema `C:\Trabalho\01_Sistemas\OP-Re-Teck-MSDC` (equip-rack-2, renomeado Re-Teck MSDC; Node +
+Express + Prisma/SQLite, porta 5013 em **HTTPS** com a CA Re-Teck). Palavras dele: "vai seguir o
+mesmo esquema do gerenciamento de projetos, vai ser criado o lote lá e todo o processo é feito lá."
+
+- **Decisões dele:** rota NOVA no MSDC só de leitura para o agendamento (o painel de lá não traz
+  site/doca/transportadora/datas/quantidades) — "Rota nova no MSDC"; **todos** os lotes (os
+  nascidos lá e os que chegaram pela doca do iERP antigo; lote de TESTE de lá nunca); nome
+  **"Re-Teck MSDC (Microsoft)"**.
+- **No MSDC** (só acréscimo, branch `feature/leitura-para-o-ierp-2`): `GET /api/integracao/ordens`
+  e `/ordens/:id` — o MESMO corpo que a fila manda ao iERP antigo (`ordemParaEnvio`), sem `fases`,
+  com `url` e `atualizado_em`; mesma guarda `INTEGRACAO_TOKEN` (INTEGRACAO.md §8 de lá).
+- **No iERP:** o motor do Gerenciamento ganhou ADAPTADORES por sistema (`gerenciamento.ts`:
+  `ADAPTADOR_MSDC`) — painel `lotes` (a carga ainda não contada, `aguardandoLote`/"chegada:…",
+  fica de fora; pedido com `?diasDePecas=1`), cliente fixo "Microsoft" (o cliente do iERP com
+  "Microsoft" no nome), doca pelo NÚMERO do agendamento (criada no site se faltar), fim do SLA =
+  ENCERRAMENTO lá (não há COD), link `/lotes/:id`, espelho em `{ success, data }` com o resumo da
+  desmontagem (racks, máquinas, peças) e materiais — sem pesagens e sem arquivos (o anexo de lá
+  exige o login de lá: a aba Documentos manda abrir lá).
+- **HTTPS com CA própria:** `integracao/rede.ts` (`fetchComCa`, node:https com `ca`) — a CA vale
+  SÓ nas chamadas a esse sistema; campo "Certificado da CA" em Administração › Integração
+  (`integracoes.ca_painel`, migration `2026-10-20-02-ca-do-painel`). Sem CA, é o fetch de sempre.
+- **Testado neste PC (20/10/2026)** com o MSDC de TESTE em HTTPS (`.claude/scripts/subir-msdc.cmd`,
+  servidor `msdc` do launch.json: banco `data\ierp2-teste\msdc.db` de lá, envio ao antigo
+  DESLIGADO, CA de teste em `data\ierp2-teste\ca-teste.crt`; login de teste lá admin/admin123, só
+  nesse banco): MS901 agendado → recebido → concluído, MS902 recebido, MS903 concluído; site
+  SP-HORTO e docas D2/D3 criados no cliente Microsoft; espelho em HTTPS.
+- **Revisão (20/10/2026, com testes em `msdc.test.ts`):** lote EXCLUÍDO no MSDC (some do painel e a
+  ordem lá responde 404) vira **Cancelado** aqui — lá excluir é o cancelamento (não há
+  "cancelado"); concluído excluído fica e aparece em "sumidos"; o campo da CA aceita SÓ
+  certificado de verdade (`certificadosValidos`, recusa chave privada); a CA é SOMADA às públicas;
+  resposta 204/304 em HTTPS não derruba o servidor; doca trocada lá no mesmo site chega ao lote;
+  parâmetro já escrito no endereço do painel não é repetido. **Conhecido, de lá:** chegada
+  registrada sem data depois das 21h vira o dia seguinte (o MSDC grava a hora e corta o dia em
+  UTC) — afeta o início do SLA; lote sem site lá (os de antes do agendamento e os que vieram pela
+  doca do iERP antigo) entra no site "Sem site" do cliente Microsoft.
+- **Para produção:** Administração › Integração › Re-Teck MSDC (Microsoft): endereço
+  `https://192.168.100.96:5013/api/integracao/painel`, o `INTEGRACAO_TOKEN` do `.env` de lá e o
+  certificado público da CA (`ca-reteck.crt`, com o TI). Subir antes a versão do MSDC com as rotas
+  novas (sem elas, o 2.0 cria os lotes com o que o painel tem e marca "falhas" nas ordens).
+
 ## 1. O que existe hoje
 
 - **Rotas de entrada**: o contrato `/api/integracao/v1` (§0), com chave por sistema. Sistema novo
@@ -159,7 +201,7 @@ antes de começar qualquer um (e a regra de sempre: o antigo NÃO muda, o 2.0 é
 
 | Sistema | O que é | Ligação com o iERP antigo (pelo que a doc dele diz) |
 | --- | --- | --- |
-| `OP-Re-Teck-MSDC` (equip-rack-2) | Desmontagem de racks da **Microsoft** | No iERP antigo se chama "Gerenciamento Microsoft"; **cria ordens** (LOT-) lá |
+| `OP-Re-Teck-MSDC` (equip-rack-2) | Desmontagem de racks da **Microsoft** | **Feito no 2.0 (§0.2)** — só leitura |
 | `VDAS-Gerenciamento-Ericsson` | Coletas **Ericsson, AWS, Google (Dell LATAM), Nokia** | **Feito no 2.0 (§0.1)** — só leitura |
 | `EC-Inventory-Management` | Estoque (lote, pallet, movimentação) | "Campainha" a cada escrita → aba Estoque › Materiais do iERP |
 | `EC-ControleNotebooks` | Notebooks (patrimônio e revenda) | Porta de máquina que entrega o estoque ao Estoque do iERP |

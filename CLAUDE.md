@@ -219,7 +219,9 @@ linha do tempo, recebimento), **Ocorrências** (painel
   Detalhes em `.claude/INTEGRACOES.md` §0. Sistema de ORIGEM (os lotes vêm dele, só para ver aqui):
   Gerenciamento de Projetos — `integracao/gerenciamento.ts` (lê o painel e as ordens de lá a cada
   30 s; espelho ao vivo em `GET /api/ordens/:id/externo`), lote com `externo_sistema` travado por
-  `ordens/externo.ts`, telas em `features/lotes/LoteDeFora.tsx` (§0.1).
+  `ordens/externo.ts`, telas em `features/lotes/LoteDeFora.tsx` (§0.1). O mesmo motor serve o
+  Re-Teck MSDC (Microsoft) por ADAPTADOR (`ADAPTADOR_MSDC`; HTTPS com a CA dele em
+  `integracao/rede.ts`, campo "Certificado da CA" na Integração — §0.2).
 - **Perfis de acesso e Auditoria** (Administração) — `server/src/modules/perfis/perfis.ts`
   (tabela `perfis_acesso`, permissões página → nível em JSON; `admin` fixo) e
   `server/src/modules/auditoria/auditoria.ts` (junta todos os históricos). Frontend

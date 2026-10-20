@@ -35,6 +35,7 @@ function db(): Registro[] {
       chaveCriadaEm: null,
       urlAvisos: 'http://localhost:5063/api/ierp2/avisos',
       urlPainel: 'http://localhost:5063/api/ierp2/painel',
+      caPainel: null,
       temTokenPainel: false,
       status: 'ativo',
       ultimoUsoEm: null,
@@ -59,6 +60,7 @@ function db(): Registro[] {
       chaveCriadaEm: null,
       urlAvisos: null,
       urlPainel: 'http://localhost:5005/api/integracao/painel',
+      caPainel: null,
       temTokenPainel: true,
       status: 'ativo',
       ultimoUsoEm: null,
@@ -106,6 +108,7 @@ export const integracoesHandlers = [
     HttpResponse.json([
       { sistema: 'MOONSHOT', nome: 'MoonShot (Dell)', tipo: 'processamento' },
       { sistema: 'GERENCIAMENTO', nome: 'Gerenciamento de Projetos', tipo: 'origem' },
+      { sistema: 'MSDC', nome: 'Re-Teck MSDC (Microsoft)', tipo: 'origem' },
     ]),
   ),
   http.get('*/api/integracoes', async ({ request }) => {
@@ -131,7 +134,8 @@ export const integracoesHandlers = [
       ...db()[0]!,
       id: novoId('int'),
       sistema: i.sistema ?? '',
-      tipo: i.sistema === 'GERENCIAMENTO' ? 'origem' : 'processamento',
+      tipo: i.sistema === 'GERENCIAMENTO' || i.sistema === 'MSDC' ? 'origem' : 'processamento',
+      caPainel: i.caPainel || null,
       sincronizacao: null,
       nome: i.nome,
       urlAvisos: i.urlAvisos,

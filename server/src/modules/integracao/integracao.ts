@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto'
+import { createHash, randomBytes, randomUUID, timingSafeEqual, X509Certificate } from 'node:crypto'
 import { Router } from 'express'
 import { z } from 'zod'
 import type { Db } from '../../db/database.js'
@@ -21,7 +21,9 @@ import { lerResumoGuardado, type ResumoSincronizacao } from './gerenciamento.js'
  *   GET    /api/integracoes                lista
  *   GET    /api/integracoes/:id            detalhe + histórico + últimos avisos
  *   POST   /api/integracoes                cria { sistema, nome, urlAvisos, urlPainel, tokenPainel }
- *   PUT    /api/integracoes/:id            edita (tokenPainel ausente = mantém; '' = apaga)
+ *   PUT    /api/integracoes/:id            edita (tokenPainel ausente = mantém; '' = apaga;
+ *                                           caPainel = certificado PÚBLICO da CA, se o sistema
+ *                                           serve HTTPS com CA própria — o MSDC)
  *   POST   /api/integracoes/:id/chave      gera uma chave nova → { chave } (só desta vez)
  *   DELETE /api/integracoes/:id/chave      revoga a chave
  *   POST   /api/integracoes/:id/transicao  { acao: inativar | reativar }
@@ -38,6 +40,8 @@ export interface Integracao {
   chaveCriadaEm: string | null
   urlAvisos: string | null
   urlPainel: string | null
+  /** Certificado PÚBLICO (PEM) da CA do sistema, se ele serve HTTPS com CA própria. */
+  caPainel: string | null
   /** Há token do painel guardado? (o token em si nunca sai daqui) */
   temTokenPainel: boolean
   status: 'ativo' | 'inativo'
@@ -90,7 +94,38 @@ const schemaBase = z.object({
   urlAvisos: url,
   urlPainel: url,
   tokenPainel: z.string().trim().max(500).optional(),
+  // O certificado é PÚBLICO (não é segredo): ausente = mantém; '' = apaga.
+  caPainel: z
+    .string()
+    .trim()
+    .max(20_000)
+    .refine(
+      (v) => v === '' || certificadosValidos(v),
+      'Cole só o certificado PÚBLICO da CA, em PEM (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----) — nunca a chave privada.',
+    )
+    .optional(),
 })
+
+/**
+ * O texto é SÓ certificado(s) PEM de verdade? Recusa chave privada (o `.key` da CA mora na mesma
+ * pasta do `.crt` lá, e colada aqui ela ficaria no banco e na tela) e qualquer outro bloco.
+ */
+export function certificadosValidos(texto: string) {
+  if (/PRIVATE KEY/i.test(texto)) return false
+  const blocos = texto.match(/-----BEGIN [^-]+-----[\s\S]*?-----END [^-]+-----/g) ?? []
+  if (!blocos.length) return false
+  // Fora dos blocos, só espaço.
+  if (blocos.reduce((s, b) => s.replace(b, ''), texto).trim()) return false
+  return blocos.every((b) => {
+    if (!b.startsWith('-----BEGIN CERTIFICATE-----')) return false
+    try {
+      new X509Certificate(b)
+      return true
+    } catch {
+      return false
+    }
+  })
+}
 
 /** O MoonShot recusa token curto; o Gerenciamento aceita o token que estiver no `.env` dele. */
 function conferirToken(sistema: string, token: string | undefined) {
@@ -123,6 +158,7 @@ export function criarServicoIntegracoes(db: Db) {
     chaveCriadaEm: l.chaveHash ? l.chaveCriadaEm : null,
     urlAvisos: l.urlAvisos,
     urlPainel: l.urlPainel,
+    caPainel: l.caPainel,
     temTokenPainel: Boolean(l.tokenPainel),
     status: l.status as Integracao['status'],
     ultimoUsoEm: l.ultimoUsoEm,
@@ -208,6 +244,7 @@ export function criarServicoIntegracoes(db: Db) {
           urlAvisos: v.urlAvisos,
           urlPainel: v.urlPainel,
           tokenPainel: v.tokenPainel || null,
+          caPainel: v.caPainel || null,
           status: 'ativo',
           ultimoUsoEm: null,
           ultimoAvisoEm: null,
@@ -245,6 +282,14 @@ export function criarServicoIntegracoes(db: Db) {
         antes: atual.tokenPainel ? 'definido' : null,
         depois: token ? 'definido' : null,
       })
+    const ca = v.caPainel === undefined ? atual.caPainel : v.caPainel || null
+    // O certificado é longo: o histórico diz que mudou, não o texto.
+    if (ca !== atual.caPainel)
+      mudancas.push({
+        campo: 'caPainel',
+        antes: atual.caPainel ? 'definido' : null,
+        depois: ca ? 'definido' : null,
+      })
     if (!mudancas.length) return obter(id)
     const agora = new Date().toISOString()
     await db.transaction().execute(async (trx) => {
@@ -255,6 +300,7 @@ export function criarServicoIntegracoes(db: Db) {
           urlAvisos: v.urlAvisos,
           urlPainel: v.urlPainel,
           tokenPainel: token,
+          caPainel: ca,
           alteradoEm: agora,
           alteradoPor: autor,
         })

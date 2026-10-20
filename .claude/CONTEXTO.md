@@ -463,6 +463,16 @@ canceladas ("como o iERP antigo"). Como foi feito (o 2.0 só LÊ o Gerenciamento
 **[`INTEGRACOES.md`](INTEGRACOES.md) §0.1**. Status novo do lote: **Cancelado** (só para lote de
 fora cancelado lá).
 
+### 5.16 Integração Re-Teck MSDC (equip-rack, Microsoft) → iERP (20/10/2026)
+
+Pedido dele: "Vamos agora para o próximo sistema que é o equip-rack, da microsoft. Ele vai seguir
+o mesmo esquema do gerenciamento de projetos, vai ser criado o lote lá e todo o processo é feito
+lá." Decisões (às recomendações): **rota nova no MSDC** só de leitura para o agendamento (site,
+doca, transportadora, datas, quantidades — o painel de lá não traz); **todos os lotes** (inclusive
+os que chegaram pela doca do iERP antigo; nunca os de TESTE de lá); nome **"Re-Teck MSDC
+(Microsoft)"**. O MSDC serve HTTPS com a CA Re-Teck: o certificado público é cadastrado na
+Integração e vale só para essa conexão. Como foi feito: **[`INTEGRACOES.md`](INTEGRACOES.md) §0.2**.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de

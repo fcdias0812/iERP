@@ -13,6 +13,7 @@ import { normalizar } from '../../shared/texto.js'
 import { criarRepositorioSites } from '../clientes/clientes-sites.repositorio.js'
 import { criarServicoSites } from '../clientes/clientes-sites.servico.js'
 import { criarRepositorioClientes } from '../clientes/clientes.repositorio.js'
+import { fetchComCa } from './rede.js'
 
 /*
  * GERENCIAMENTO DE PROJETOS (sistema `VDAS-Gerenciamento-Ericsson` — pedido do usuário,
@@ -41,6 +42,8 @@ import { criarRepositorioClientes } from '../clientes/clientes.repositorio.js'
  */
 
 export const SISTEMA_GERENCIAMENTO = 'GERENCIAMENTO'
+/** Re-Teck MSDC (equip-rack-2, Microsoft) — o mesmo esquema (20/10/2026). */
+export const SISTEMA_MSDC = 'MSDC'
 
 type Fetch = typeof fetch
 type Trx = Transaction<Database>
@@ -93,6 +96,10 @@ export interface OrdemGerenciamento {
   previsto_pallets?: number | null
   cod_numero?: string | null
   cod_data?: string | null
+  /** A doca (o MSDC manda a do agendamento; o Gerenciamento não tem). */
+  doca?: string | null
+  /** A tela do lote lá (o MSDC manda). */
+  url?: string | null
 }
 
 /** O que fica guardado no lote (`ordens.externo_dados`): o que veio de lá, cru. */
@@ -107,6 +114,7 @@ export interface DadosExternos {
   lote: string | null
   cliente: string | null
   site: string | null
+  doca: string | null
   endereco: string | null
   cidade: string | null
   uf: string | null
@@ -178,8 +186,15 @@ const dia = (v: unknown) => {
   const d = typeof v === 'string' ? v.slice(0, 10) : null
   return ehDia(d) ? d : null
 }
-/** O dia de lá como o iERP guarda datas: o início do dia em São Paulo. */
+/**
+ * A data de lá como o iERP guarda: o dia (AAAA-MM-DD) vira o início do dia em São Paulo; o
+ * instante com fuso (o MSDC manda ISO com Z) vale como veio.
+ */
 const instante = (v: unknown) => {
+  if (typeof v === 'string' && /T\d{2}:\d{2}.*([zZ]|[+-]\d{2}:?\d{2})$/.test(v)) {
+    const t = Date.parse(v)
+    return Number.isNaN(t) ? null : new Date(t).toISOString()
+  }
   const d = dia(v)
   return d ? inicioDoDia(d) : null
 }
@@ -231,9 +246,12 @@ function statusDoPedido(p: PedidoPainel): StatusLote {
 const codigoDoSite = (d: Pick<DadosExternos, 'site' | 'cidade'>) =>
   (d.site ?? d.cidade ?? 'Sem site').slice(0, 30).trim()
 
-/** O endereço do Gerenciamento, a partir do endereço do painel cadastrado. */
+/** O endereço do sistema, a partir do endereço do painel cadastrado (sem parâmetros). */
 export function baseDoGerenciamento(urlPainel: string) {
-  return urlPainel.replace(/\/+$/, '').replace(/\/api\/integracao\/painel$/i, '')
+  return urlPainel
+    .replace(/[?#].*$/, '')
+    .replace(/\/+$/, '')
+    .replace(/\/api\/integracao\/painel$/i, '')
 }
 
 /** O nome do cliente no Gerenciamento → o padrão do nome no cadastro do iERP. */
@@ -242,6 +260,7 @@ const PADROES: Record<string, RegExp> = {
   aws: /\baws\b|\bamazon\b/,
   google: /\bgoogle\b/,
   nokia: /\bnokia\b/,
+  microsoft: /\bmicrosoft\b/,
 }
 function padraoDoCliente(rotulo: string) {
   const n = normalizar(rotulo).trim()
@@ -271,6 +290,7 @@ export function dadosExternos(g: Guardado): DadosExternos {
     lote: texto(o?.lote) ?? texto(p.lote),
     cliente: texto(o?.cliente) ?? texto(p.cliente),
     site: texto(o?.site),
+    doca: texto(o?.doca),
     endereco: texto(o?.endereco),
     cidade: texto(o?.cidade),
     uf: texto(o?.uf),
@@ -294,7 +314,12 @@ export function dadosExternos(g: Guardado): DadosExternos {
 }
 
 /** Os campos do lote a partir do que veio de lá. */
-function camposDoLote(g: Guardado, base: string, agora: string) {
+function camposDoLote(
+  g: Guardado,
+  base: string,
+  agora: string,
+  sistema: string = SISTEMA_GERENCIAMENTO,
+) {
   const d = dadosExternos(g)
   const p = g.painel
   const status = statusDoPedido(p)
@@ -328,12 +353,12 @@ function camposDoLote(g: Guardado, base: string, agora: string) {
     qtdPallets: pallets,
     observacoes: d.observacoes,
     escopo: texto(g.ordem?.escopo_trabalho) ?? 'Recycle Only',
-    processamentoSistema: SISTEMA_GERENCIAMENTO,
+    processamentoSistema: sistema,
     processamentoEtapa: texto(p.etapa?.nome),
     processamentoIndice: numero(p.etapa?.indice),
     processamentoTotal: numero(p.etapa?.total),
     processamentoDesde: desde,
-    processamentoUrl: `${base}/coletas/${encodeURIComponent(String(p.id))}`,
+    processamentoUrl: adaptadorDe(sistema).urlDaColeta(base, String(p.id), g.ordem),
     dados: d,
   }
 }
@@ -346,6 +371,127 @@ const rotuloFase = (c: {
   c.processamentoEtapa === null && c.processamentoIndice === null
     ? null
     : `${c.processamentoIndice ?? '?'}/${c.processamentoTotal ?? '?'}${c.processamentoEtapa ? ` · ${c.processamentoEtapa}` : ''}`
+
+/* ------------------------------------------------------------------ adaptadores */
+
+type Bruto = Record<string, unknown>
+const lista = (v: unknown) => (Array.isArray(v) ? (v as Bruto[]) : [])
+
+/**
+ * O que muda de um sistema de origem para outro. O resto (cliente, site, doca, etapas, SLA,
+ * histórico, falhas) é o mesmo motor — o formato interno é o do Gerenciamento.
+ */
+interface Adaptador {
+  /**
+   * Lote que some do painel e cuja ordem lá responde 404 foi EXCLUÍDO lá. No MSDC excluir é o
+   * cancelamento (não há "cancelado" lá): o lote vira Cancelado aqui. No Gerenciamento (que tem
+   * cancelado), só o aviso de "sumidos".
+   */
+  excluidoLaCancela: boolean
+  /** O painel inteiro (com parâmetros, se o sistema os tiver). */
+  urlDoPainel(urlPainel: string): string
+  /** As coletas/lotes do painel, no formato interno. */
+  pedidos(painel: unknown): PedidoPainel[]
+  /** A ordem de lá (de `/api/integracao/ordens`), no formato interno. */
+  ordem(bruta: OrdemGerenciamento): OrdemGerenciamento
+  /** A tela da coleta/lote lá. */
+  urlDaColeta(base: string, id: string, ordem: OrdemGerenciamento | null): string
+  /** O espelho de lá (de `/ordens/:id/completa`) já desembrulhado. */
+  espelho(bruto: unknown): Omit<EspelhoExterno, 'sistema' | 'url'>
+}
+
+const ADAPTADOR_GERENCIAMENTO: Adaptador = {
+  excluidoLaCancela: false,
+  urlDoPainel: (u) => u,
+  pedidos: (painel) => {
+    const p = (painel ?? {}) as { pedidos?: unknown }
+    return (Array.isArray(p.pedidos) ? (p.pedidos as PedidoPainel[]) : []).filter(
+      (x) => x && (typeof x.id === 'string' || typeof x.id === 'number'),
+    )
+  },
+  ordem: (o) => o,
+  urlDaColeta: (base, id) => `${base}/coletas/${encodeURIComponent(id)}`,
+  espelho: (bruto) => espelhoDoGerenciamento((bruto ?? {}) as Bruto),
+}
+
+/**
+ * Re-Teck MSDC (equip-rack-2, Microsoft): o painel traz `lotes` (no topo), com a carga que o
+ * iERP antigo entregou e ainda não virou lote (`aguardandoLote`, id "chegada:…") — essa fica
+ * de fora (vira lote lá quando os racks são contados). O fim do SLA da Microsoft é o
+ * ENCERRAMENTO lá (não há COD). A ordem (rota nova lá, 20/10/2026) é o corpo da fila do iERP
+ * antigo; os pallets previstos vêm das quantidades do agendamento. O espelho vem em
+ * `{ success, data }`, sem pesagens nem arquivos (o anexo de lá exige sessão de lá).
+ */
+const ADAPTADOR_MSDC: Adaptador = {
+  excluidoLaCancela: true,
+  // Só 1 dia de peças do Harvesting: o iERP 2.0 não usa a produção, e os 35 dias são ~28 mil linhas.
+  // (Troca o parâmetro se o endereço cadastrado já o tiver — repetido, lá vira lista e dá 400.)
+  urlDoPainel: (u) => {
+    const url = new URL(u)
+    url.searchParams.set('diasDePecas', '1')
+    return url.toString()
+  },
+  pedidos: (painel) =>
+    lista((painel as { lotes?: unknown } | null)?.lotes)
+      .filter(
+        (l) =>
+          (typeof l.id === 'string' || typeof l.id === 'number') &&
+          l.aguardandoLote !== true &&
+          !String(l.id).startsWith('chegada:'),
+      )
+      .map((l) => ({
+        id: String(l.id),
+        numero: texto(l.numero),
+        lote: texto(l.lote),
+        cliente: texto(l.cliente) ?? 'Microsoft',
+        pedidoEm: texto(l.criadoEm),
+        chegadaEm: texto(l.chegadaEm),
+        codEm: texto(l.encerradoEm),
+        encerradoEm: texto(l.encerradoEm),
+        semCod: false,
+        grupo: texto(l.grupo) ?? undefined,
+        etapa: (l.etapa ?? null) as PedidoPainel['etapa'],
+        etapas: lista(l.etapas) as PedidoPainel['etapas'],
+        previstoPallets: null,
+      })),
+  ordem: (o) => {
+    const q = ((o as unknown as Bruto).agendamento as Bruto | undefined)?.quantidades as
+      Bruto | undefined
+    return { ...o, previsto_pallets: numero(q?.pallets) ?? numero(o.previsto_pallets) }
+  },
+  urlDaColeta: (base, id, ordem) =>
+    urlSegura(ordem?.url) ?? `${base}/lotes/${encodeURIComponent(id)}`,
+  espelho: (bruto) => {
+    const b = (bruto ?? {}) as Bruto
+    const d = (b.data && typeof b.data === 'object' ? b.data : b) as Bruto
+    return {
+      declarado: { pesoKg: null, pallets: null },
+      pesado: null,
+      temPesagens: false,
+      pesagens: [],
+      arquivos: null,
+      materiais: lista(d.materiais).map((m) => ({
+        tipo: texto(m.tipo),
+        descricao: texto(m.descricao),
+        embalagem: texto(m.embalagem),
+        pesoKg: numero(m.peso_kg),
+      })),
+      notas: [],
+      seriais: numero(d.seriais) ?? 0,
+      resumo: lista(d.resumo).map((r) => ({
+        rotulo: texto(r.rotulo) ?? '—',
+        valor: r.valor == null ? '—' : String(r.valor),
+        detalhe: texto(r.detalhe),
+      })),
+    }
+  },
+}
+
+const ADAPTADORES: Record<string, Adaptador> = {
+  [SISTEMA_GERENCIAMENTO]: ADAPTADOR_GERENCIAMENTO,
+  [SISTEMA_MSDC]: ADAPTADOR_MSDC,
+}
+const adaptadorDe = (sistema: string) => ADAPTADORES[sistema] ?? ADAPTADOR_GERENCIAMENTO
 
 /* ------------------------------------------------------------------ sincronização */
 
@@ -362,15 +508,20 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
       .where('clienteId', '=', clienteId)
       .execute()
     const site = existentes.find((s) => s.codigo.toLowerCase() === codigo.toLowerCase())
+    // A doca: a do agendamento lá (pelo número), se veio; senão a primeira do site.
+    const numeroDoca = d.doca?.slice(0, 20).trim() || null
     if (site) {
-      const doca = await db
+      const docas = await db
         .selectFrom('clientesDocas')
-        .select('id')
+        .select(['id', 'numero', 'ordem'])
         .where('siteId', '=', site.id)
         .orderBy('ordem')
-        .executeTakeFirst()
+        .execute()
+      const doca = numeroDoca
+        ? docas.find((x) => x.numero.toLowerCase() === numeroDoca.toLowerCase())
+        : docas[0]
       if (doca) return { siteId: site.id, docaId: doca.id }
-      // Site sem doca: acrescenta a padrão (e o histórico do cliente diz).
+      // A doca não existe no site: acrescenta (e o histórico do cliente diz).
       const docaId = randomUUID()
       await db.transaction().execute(async (trx) => {
         await trx
@@ -378,7 +529,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
           .values({
             id: docaId,
             siteId: site.id,
-            numero: DOCA_PADRAO.numero,
+            numero: numeroDoca ?? DOCA_PADRAO.numero,
             alturaMaxCaminhao: DOCA_PADRAO.alturaMaxCaminhao,
             comprimentoMaxCaminhao: null,
             dockLeveler: 0,
@@ -388,7 +539,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
             altura: null,
             voltagemShredder: null,
             pisoProtecaoObrigatorio: 0,
-            ordem: 0,
+            ordem: docas.length ? Math.max(...docas.map((x) => x.ordem)) + 1 : 0,
           })
           .execute()
         await repoClientes.registrarHistorico(trx, clienteId, {
@@ -396,7 +547,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
           em: agoraIso(),
           acao: 'site_editado',
           nota: site.codigo,
-          mudancas: [{ campo: 'docas', antes: null, depois: DOCA_PADRAO.numero }],
+          mudancas: [{ campo: 'docas', antes: null, depois: numeroDoca ?? DOCA_PADRAO.numero }],
         })
       })
       return { siteId: site.id, docaId }
@@ -418,7 +569,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
         edgeSite: false,
         contatoId: null,
         novoContato: null,
-        docas: [DOCA_PADRAO],
+        docas: [{ ...DOCA_PADRAO, numero: numeroDoca ?? DOCA_PADRAO.numero }],
       },
       autor,
     )
@@ -451,7 +602,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
   ) {
     const agora = agoraIso()
     const autor = integracao.nome
-    const c = camposDoLote(g, base, agora)
+    const c = camposDoLote(g, base, agora, integracao.sistema)
     const { siteId, docaId } = await garantirSiteEDoca(clienteId, c.dados, autor)
     const cliente = await db
       .selectFrom('clientes')
@@ -513,7 +664,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
           processamentoDesde: c.processamentoDesde,
           processamentoUrl: c.processamentoUrl,
           processamentoAtualizadoEm: agora,
-          externoSistema: SISTEMA_GERENCIAMENTO,
+          externoSistema: integracao.sistema,
           externoId: String(g.painel.id),
           externoDados: JSON.stringify(g),
           criadoEm: agora,
@@ -544,7 +695,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
   }
 
   type Ligado = Awaited<ReturnType<typeof lotesLigados>>[number]
-  const lotesLigados = () =>
+  const lotesLigados = (sistema: string) =>
     db
       .selectFrom('ordensLista')
       .select([
@@ -568,7 +719,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
         'processamentoIndice',
         'processamentoTotal',
       ])
-      .where('externoSistema', '=', SISTEMA_GERENCIAMENTO)
+      .where('externoSistema', '=', sistema)
       .execute()
 
   async function atualizarLote(
@@ -580,13 +731,16 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
   ) {
     const agora = agoraIso()
     const autor = integracao.nome
-    const c = camposDoLote(g, base, agora)
+    const c = camposDoLote(g, base, agora, integracao.sistema)
     // O site mudou LÁ? (Compara com o site de lá da leitura anterior — não com o cadastro daqui:
     // quem renomear aqui o site criado sozinho não ganha um site duplicado.)
     const codigoSite = codigoDoSite(c.dados)
-    const siteAntes = antes ? codigoDoSite(dadosExternos(antes)) : l.siteCodigo
+    const dadosAntes = antes ? dadosExternos(antes) : null
+    const siteAntes = dadosAntes ? codigoDoSite(dadosAntes) : l.siteCodigo
+    // A doca também (reagendada lá para outra doca do mesmo site, ou preenchida depois).
+    const docaMudou = (c.dados.doca ?? '').toLowerCase() !== (dadosAntes?.doca ?? '').toLowerCase()
     const novoSite =
-      codigoSite.toLowerCase() !== siteAntes.toLowerCase()
+      codigoSite.toLowerCase() !== siteAntes.toLowerCase() || (dadosAntes && docaMudou)
         ? await garantirSiteEDoca(l.clienteId, c.dados, autor)
         : null
 
@@ -600,7 +754,9 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
     comparar('dataChegada', l.dataChegada, c.dataChegada)
     comparar('pallets', l.qtdPallets, c.qtdPallets)
     comparar('observacoes', l.observacoes, c.observacoes)
-    if (novoSite) comparar('site', l.siteCodigo, codigoSite)
+    if (novoSite && codigoSite.toLowerCase() !== l.siteCodigo.toLowerCase())
+      comparar('site', l.siteCodigo, codigoSite)
+    if (novoSite && docaMudou) comparar('doca', dadosAntes?.doca ?? null, c.dados.doca)
     const etapasAntes = new Set(
       (
         await db.selectFrom('ordensEtapas').select('etapa').where('ordemId', '=', l.id).execute()
@@ -703,8 +859,11 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
       return falhar('Sem endereço ou token do painel cadastrado.')
     const base = baseDoGerenciamento(integracao.urlPainel)
     const token = integracao.tokenPainel
+    const adaptador = adaptadorDe(integracao.sistema)
+    // HTTPS com a CA do sistema (cadastrada na Integração): a confiança vale só aqui.
+    const rede = fetchComCa(integracao.caPainel, fazerFetch)
     const pedir = async <T>(url: string, espera = TIMEOUT_MS): Promise<T> => {
-      const r = await fazerFetch(url, {
+      const r = await rede(url, {
         headers: { 'X-Reteck-Token': token, 'X-Api-Key': token },
         signal: AbortSignal.timeout(espera),
       })
@@ -715,16 +874,12 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
     const anterior = lerResumoGuardado(integracao.sincronizacao)
     let pedidos: PedidoPainel[]
     try {
-      const painel = await pedir<{ pedidos?: PedidoPainel[] }>(
-        integracao.urlPainel,
-        TIMEOUT_PAINEL_MS,
-      )
-      pedidos = (Array.isArray(painel.pedidos) ? painel.pedidos : []).filter(
-        (p) => p && (typeof p.id === 'string' || typeof p.id === 'number'),
+      pedidos = adaptador.pedidos(
+        await pedir(adaptador.urlDoPainel(integracao.urlPainel), TIMEOUT_PAINEL_MS),
       )
     } catch (e) {
       // Sem o painel não há o que fazer nesta leitura (os lotes ficam como estão).
-      return falhar(`Não consegui ler o Gerenciamento: ${(e as Error).message}`)
+      return falhar(`Não consegui ler o ${integracao.nome}: ${(e as Error).message}`)
     }
 
     const falhas: ResumoSincronizacao['falhas'] = []
@@ -740,7 +895,8 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
     const ordens = new Map<string, OrdemGerenciamento>()
     const guardarOrdens = (lista: unknown) => {
       for (const o of Array.isArray(lista) ? (lista as OrdemGerenciamento[]) : [])
-        if (o && (typeof o.id === 'string' || typeof o.id === 'number')) ordens.set(String(o.id), o)
+        if (o && (typeof o.id === 'string' || typeof o.id === 'number'))
+          ordens.set(String(o.id), adaptador.ordem(o))
     }
     try {
       // As que mudaram desde ontem (o "desde" de lá é por dia).
@@ -752,7 +908,7 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
       anotar('Ordens mudadas desde ontem', e)
     }
 
-    const ligadosLista = await lotesLigados()
+    const ligadosLista = await lotesLigados(integracao.sistema)
     const ligados = new Map(ligadosLista.map((l) => [l.externoId!, l]))
     const guardado = (l: Ligado): Guardado | null => {
       try {
@@ -840,8 +996,10 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
       try {
         ordens.set(
           String(n.p.id),
-          await pedir<OrdemGerenciamento>(
-            `${base}/api/integracao/ordens/${encodeURIComponent(String(n.p.id))}`,
+          adaptador.ordem(
+            await pedir<OrdemGerenciamento>(
+              `${base}/api/integracao/ordens/${encodeURIComponent(String(n.p.id))}`,
+            ),
           ),
         )
       } catch (e) {
@@ -874,10 +1032,61 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
       }
     }
 
-    // Lotes cuja coleta não vem mais no painel (excluída lá, ou fora do Brasil): ficam como
-    // estão, e a Integração avisa para alguém conferir lá.
-    const sumidos = [...ligados.values()]
-      .filter((l) => !noPainel.has(l.externoId!))
+    // Lotes cuja coleta não vem mais no painel (excluída lá, ou fora do Brasil). No sistema em
+    // que excluir é cancelar (MSDC), confirma lá (a ordem responde 404) e o lote vira Cancelado —
+    // sem a confirmação (ou já concluído), fica como está e a Integração avisa.
+    const foraDoPainel = [...ligados.values()].filter((l) => !noPainel.has(l.externoId!))
+    const cancelados = new Set<string>()
+    if (adaptador.excluidoLaCancela)
+      for (const l of foraDoPainel
+        .filter((x) => x.status !== 'cancelado' && x.status !== 'concluido')
+        .slice(0, MAX_UMA_A_UMA)) {
+        try {
+          const r = await rede(
+            `${base}/api/integracao/ordens/${encodeURIComponent(l.externoId!)}`,
+            {
+              headers: { 'X-Reteck-Token': token, 'X-Api-Key': token },
+              signal: AbortSignal.timeout(TIMEOUT_MS),
+            },
+          )
+          if (r.status !== 404) continue
+          const agora = agoraIso()
+          await db.transaction().execute(async (trx) => {
+            await trx
+              .updateTable('ordens')
+              .set({
+                status: 'cancelado',
+                etapaDesde: agora,
+                alteradoEm: agora,
+                alteradoPor: integracao.nome,
+              })
+              .where('id', '=', l.id)
+              .execute()
+            await trx
+              .insertInto('ordensEtapas')
+              .values({
+                id: randomUUID(),
+                ordemId: l.id,
+                etapa: 'cancelado',
+                em: agora,
+                autor: integracao.nome,
+              })
+              .execute()
+            await registrarHistorico(trx, 'ordem', l.id, {
+              autor: integracao.nome,
+              em: agora,
+              acao: 'status',
+              nota: `Excluído no ${integracao.nome}.`,
+              mudancas: [{ campo: 'status', antes: l.status, depois: 'cancelado' }],
+            })
+          })
+          cancelados.add(l.id)
+        } catch (e) {
+          anotar(l.referenciaCliente ?? l.codigo, e)
+        }
+      }
+    const sumidos = foraDoPainel
+      .filter((l) => !cancelados.has(l.id) && l.status !== 'cancelado')
       .map((l) => ({ codigo: l.codigo, referencia: l.referenciaCliente }))
 
     const resumo: ResumoSincronizacao = {
@@ -954,14 +1163,17 @@ export interface EspelhoExterno {
     pesadoEm: string | null
     fotoUrl: string | null
   }[]
-  arquivos: {
-    id: string
-    tipo: string | null
-    nome: string
-    enviadoPor: string | null
-    enviadoEm: string | null
-    url: string | null
-  }[]
+  /** null = o sistema não compartilha os arquivos (o anexo de lá exige o login de lá). */
+  arquivos:
+    | {
+        id: string
+        tipo: string | null
+        nome: string
+        enviadoPor: string | null
+        enviadoEm: string | null
+        url: string | null
+      }[]
+    | null
   materiais: {
     tipo: string | null
     descricao: string | null
@@ -970,6 +1182,10 @@ export interface EspelhoExterno {
   }[]
   notas: { autor: string | null; data: string | null; texto: string }[]
   seriais: number
+  /** O sistema registra pesagens? (o Gerenciamento sim; o MSDC não). */
+  temPesagens: boolean
+  /** Resumo do que aconteceu lá, como ele escreve (MSDC: etapa, racks, máquinas, peças). */
+  resumo: { rotulo: string; valor: string; detalhe: string | null }[]
 }
 
 /** O conteúdo da pesagem: lá é uma lista em JSON (`["Rádios","Antenas"]`) → "Rádios, Antenas". */
@@ -991,10 +1207,7 @@ const urlSegura = (v: unknown) => {
   return s && /^https?:\/\//i.test(s) ? s : null
 }
 
-type Bruto = Record<string, unknown>
-const lista = (v: unknown) => (Array.isArray(v) ? (v as Bruto[]) : [])
-
-/** Busca o espelho no Gerenciamento (ao vivo; nada fica guardado aqui). */
+/** Busca o espelho no sistema de onde o lote veio (ao vivo; nada fica guardado aqui). */
 export async function espelhoDoLote(
   db: Db,
   ordemId: string,
@@ -1017,12 +1230,12 @@ export async function espelhoDoLote(
     throw new ErroApi(
       503,
       'external_unavailable',
-      'A integração com o Gerenciamento de Projetos não está configurada.',
+      'A integração com o sistema de onde o lote veio não está configurada.',
     )
   const base = baseDoGerenciamento(integracao.urlPainel)
-  let e: Bruto
+  let e: unknown
   try {
-    const r = await fazerFetch(
+    const r = await fetchComCa(integracao.caPainel, fazerFetch)(
       `${base}/api/integracao/ordens/${encodeURIComponent(o.externoId)}/completa`,
       {
         headers: { 'X-Reteck-Token': integracao.tokenPainel, 'X-Api-Key': integracao.tokenPainel },
@@ -1030,19 +1243,28 @@ export async function espelhoDoLote(
       },
     )
     if (!r.ok) throw new Error(`respondeu ${r.status}`)
-    e = (await r.json()) as Bruto
+    e = await r.json()
   } catch {
     throw new ErroApi(
       502,
       'external_unavailable',
-      'Não consegui falar com o Gerenciamento de Projetos agora.',
+      `Não consegui falar com o ${integracao.nome} agora.`,
     )
   }
-  const declarado = (e.declarado ?? {}) as Bruto
-  const pesado = e.pesado as Bruto | null
   return {
     sistema: o.externoSistema,
     url: o.processamentoUrl,
+    ...adaptadorDe(o.externoSistema).espelho(e),
+  }
+}
+
+/** O espelho do Gerenciamento (pesagens com foto, documentos, materiais, notas). */
+function espelhoDoGerenciamento(e: Bruto): Omit<EspelhoExterno, 'sistema' | 'url'> {
+  const declarado = (e.declarado ?? {}) as Bruto
+  const pesado = e.pesado as Bruto | null
+  return {
+    temPesagens: true,
+    resumo: [],
     // Lá, o declarado vazio chega como 0 (e 0 kg declarado não existe): vira "não informado".
     declarado: {
       pesoKg: numero(declarado.peso_kg) || null,

@@ -294,6 +294,7 @@ function loteDoGerenciamento(): Ordem {
       lote: 'LT-5498157',
       cliente: 'Ericsson',
       site: base.siteCodigo,
+      doca: base.docaNumero,
       endereco: null,
       cidade: 'Indaiatuba',
       uf: 'SP',
@@ -326,6 +327,66 @@ function loteDoGerenciamento(): Ordem {
 }
 
 /** O espelho do lote do Gerenciamento (o que aconteceu lá: pesagens, documentos, materiais). */
+/** Lote de demonstração do Re-Teck MSDC (ordms001, Microsoft): só para ver, sem pesagens. */
+function loteDoMsdc(): Ordem {
+  const gp = loteDoGerenciamento()
+  const url = 'https://192.168.100.96:5013/lotes/12'
+  return {
+    ...gp,
+    id: 'ordms001',
+    codigo: 'LOT-00091',
+    referenciaCliente: 'MS004',
+    processamento: {
+      ...gp.processamento!,
+      sistema: 'MSDC',
+      etapa: 'Inventário de peças',
+      indice: 6,
+      total: 8,
+      url,
+    },
+    externo: { sistema: 'MSDC', url },
+    externoDados: {
+      ...gp.externoDados!,
+      numero: 'MS004',
+      lote: 'PO-123',
+      cliente: 'Microsoft',
+      site: 'SP-HORTO',
+      doca: 'D2',
+      cidade: null,
+      uf: null,
+      pais: null,
+      transportadora: 'Carga Certa',
+      observacoes: 'Desmontagem de racks',
+      previstoPesoKg: null,
+      previstoPallets: 2,
+    },
+    historico: [
+      { id: 'h-ordms001', autor: 'Re-Teck MSDC (Microsoft)', em: gp.criadoEm, acao: 'criado' },
+    ],
+    criadoPor: 'Re-Teck MSDC (Microsoft)',
+    alteradoPor: 'Re-Teck MSDC (Microsoft)',
+  }
+}
+
+/** O espelho do MSDC: o resumo da desmontagem e os materiais (sem pesagens nem arquivos). */
+const espelhoDoMsdc = (): EspelhoExterno => ({
+  sistema: 'MSDC',
+  url: 'https://192.168.100.96:5013/lotes/12',
+  declarado: { pesoKg: null, pallets: null },
+  pesado: null,
+  pesagens: [],
+  arquivos: null,
+  materiais: [{ tipo: null, descricao: 'Memória: 120 peças', embalagem: null, pesoKg: null }],
+  notas: [],
+  seriais: 37,
+  temPesagens: false,
+  resumo: [
+    { rotulo: 'Etapa', valor: 'Inventário de peças', detalhe: '6 de 8' },
+    { rotulo: 'Racks', valor: '4', detalhe: '4 inventariado(s)' },
+    { rotulo: 'Máquinas', valor: '18', detalhe: '12 desmontada(s) · 18 em palete' },
+  ],
+})
+
 const espelhoDoGerenciamento = (): EspelhoExterno => ({
   sistema: 'GERENCIAMENTO',
   url: 'http://localhost:5005/coletas/1834',
@@ -364,6 +425,8 @@ const espelhoDoGerenciamento = (): EspelhoExterno => ({
   materiais: [{ tipo: 'Placas', descricao: 'Placas de rádio', embalagem: 'Gaylord', pesoKg: 320 }],
   notas: [{ autor: 'Bruno Lima', data: '2026-10-18', texto: 'Chegou com lacre.' }],
   seriais: 0,
+  temPesagens: true,
+  resumo: [],
 })
 
 const COLS: EngineColumn<OrdemResumo>[] = [
@@ -502,16 +565,20 @@ export const ordensHandlers = [
     if (fail) return fail
     const o =
       lotes().find((x) => x.id === params.id) ??
-      (params.id === 'ordgp001' ? loteDoGerenciamento() : undefined)
+      (params.id === 'ordgp001'
+        ? loteDoGerenciamento()
+        : params.id === 'ordms001'
+          ? loteDoMsdc()
+          : undefined)
     return o ? HttpResponse.json(o) : apiError(404, 'not_found', 'Ordem não encontrada.')
   }),
 
   http.get('*/api/ordens/:id/externo', async ({ request, params }) => {
     const fail = await simulateNetwork(request)
     if (fail) return fail
-    return params.id === 'ordgp001'
-      ? HttpResponse.json(espelhoDoGerenciamento())
-      : apiError(404, 'not_found', 'Este lote não veio de outro sistema.')
+    if (params.id === 'ordgp001') return HttpResponse.json(espelhoDoGerenciamento())
+    if (params.id === 'ordms001') return HttpResponse.json(espelhoDoMsdc())
+    return apiError(404, 'not_found', 'Este lote não veio de outro sistema.')
   }),
 
   http.post('*/api/ordens', async ({ request }) => {

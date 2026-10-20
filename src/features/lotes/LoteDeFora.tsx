@@ -24,7 +24,7 @@ import { useEspelho, useNomeDoSistema } from './lote-de-fora'
 
 type Pesagem = EspelhoExterno['pesagens'][number]
 type Material = EspelhoExterno['materiais'][number]
-type Arquivo = EspelhoExterno['arquivos'][number]
+type Arquivo = NonNullable<EspelhoExterno['arquivos']>[number]
 
 const SEM_PESAGENS: Pesagem[] = []
 const SEM_MATERIAIS: Material[] = []
@@ -91,6 +91,7 @@ export function DadosDeFora({ o }: { o: Ordem }) {
             },
             { label: c('cliente'), value: d.cliente },
             { label: c('site'), value: d.site },
+            { label: c('doca'), value: d.doca },
             {
               label: c('endereco'),
               value: [d.endereco, local].filter(Boolean).join(' – ') || null,
@@ -148,7 +149,10 @@ function EspelhoIndisponivel({ o }: { o: Ordem }) {
   )
 }
 
-/** Aba Progresso: o recebimento lá (pesagens com foto, materiais e notas). */
+/**
+ * Aba Progresso: o que aconteceu lá. No Gerenciamento, o recebimento (pesagens com foto,
+ * materiais e notas); no MSDC, o resumo da desmontagem (racks, máquinas, peças) e os materiais.
+ */
 export function RecebimentoDeFora({ o }: { o: Ordem }) {
   const { t } = useTranslation()
   const sistema = useNomeDoSistema(o)
@@ -157,7 +161,9 @@ export function RecebimentoDeFora({ o }: { o: Ordem }) {
     <Card role="region" aria-labelledby="lote-de-fora-recebimento">
       <CardHeader>
         <CardTitle id="lote-de-fora-recebimento">
-          {t('lotes.deFora.recebimento', { sistema })}
+          {q.data && !q.data.temPesagens
+            ? t('lotes.deFora.operacao', { sistema })
+            : t('lotes.deFora.recebimento', { sistema })}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
@@ -167,36 +173,54 @@ export function RecebimentoDeFora({ o }: { o: Ordem }) {
           <EspelhoIndisponivel o={o} />
         ) : (
           <>
-            <KeyValueList
-              columns={3}
-              items={[
-                {
-                  label: t('lotes.deFora.campos.declarado'),
-                  value:
-                    [
-                      kg(q.data.declarado.pesoKg),
-                      q.data.declarado.pallets != null
-                        ? t('lotes.deFora.pallets', { n: formatNumber(q.data.declarado.pallets) })
-                        : null,
-                    ]
-                      .filter((x) => x && x !== EMPTY)
-                      .join(' · ') || null,
-                },
-                {
-                  label: t('lotes.deFora.campos.pesado'),
-                  value: q.data.pesado
-                    ? `${kg(q.data.pesado.pesoKg)} · ${t('lotes.deFora.pallets', {
-                        n: formatNumber(q.data.pesado.pallets),
-                      })}`
-                    : null,
-                },
-                {
-                  label: t('lotes.deFora.campos.seriais'),
-                  value: q.data.seriais ? formatNumber(q.data.seriais) : null,
-                },
-              ]}
-            />
-            <Pesagens o={o} pesagens={q.data.pesagens} />
+            {q.data.resumo.length > 0 && (
+              <KeyValueList
+                columns={3}
+                items={[
+                  // O resumo vem escrito pelo sistema de lá (é dado dele, como o nome da fase).
+                  ...q.data.resumo.map((r) => ({
+                    label: r.rotulo,
+                    value: r.detalhe ? `${r.valor} · ${r.detalhe}` : r.valor,
+                  })),
+                  {
+                    label: t('lotes.deFora.campos.seriais'),
+                    value: q.data.seriais ? formatNumber(q.data.seriais) : null,
+                  },
+                ]}
+              />
+            )}
+            {q.data.temPesagens && (
+              <KeyValueList
+                columns={3}
+                items={[
+                  {
+                    label: t('lotes.deFora.campos.declarado'),
+                    value:
+                      [
+                        kg(q.data.declarado.pesoKg),
+                        q.data.declarado.pallets != null
+                          ? t('lotes.deFora.pallets', { n: formatNumber(q.data.declarado.pallets) })
+                          : null,
+                      ]
+                        .filter((x) => x && x !== EMPTY)
+                        .join(' · ') || null,
+                  },
+                  {
+                    label: t('lotes.deFora.campos.pesado'),
+                    value: q.data.pesado
+                      ? `${kg(q.data.pesado.pesoKg)} · ${t('lotes.deFora.pallets', {
+                          n: formatNumber(q.data.pesado.pallets),
+                        })}`
+                      : null,
+                  },
+                  {
+                    label: t('lotes.deFora.campos.seriais'),
+                    value: q.data.seriais ? formatNumber(q.data.seriais) : null,
+                  },
+                ]}
+              />
+            )}
+            {q.data.temPesagens && <Pesagens o={o} pesagens={q.data.pesagens} />}
             <Materiais o={o} materiais={q.data.materiais} />
             {q.data.notas.length > 0 && (
               <section aria-labelledby="lote-de-fora-notas" className="flex flex-col gap-2">
@@ -393,6 +417,8 @@ export function DocumentosDeFora({ o }: { o: Ordem }) {
   const q = useEspelho(o)
   const [query, setQuery] = useState<TableQuery>(POR_ENVIO)
   const arquivos = q.data?.arquivos ?? SEM_ARQUIVOS
+  // O sistema não compartilha os arquivos (o MSDC: o anexo de lá exige o login de lá).
+  const soLa = q.data?.arquivos === null
   const tipos = useMemo(
     () => [...new Set(arquivos.map((a) => a.tipo).filter(Boolean))].sort() as string[],
     [arquivos],
@@ -459,6 +485,10 @@ export function DocumentosDeFora({ o }: { o: Ordem }) {
       </div>
       {q.isError ? (
         <EspelhoIndisponivel o={o} />
+      ) : soLa ? (
+        <Alert tone="info" title={t('lotes.deFora.documentosSoLa', { sistema })}>
+          <LinkDeFora url={o.externo?.url ?? null} rotulo={t('lotes.deFora.abrir', { sistema })} />
+        </Alert>
       ) : (
         <DataTable
           id="lote-de-fora-documentos"

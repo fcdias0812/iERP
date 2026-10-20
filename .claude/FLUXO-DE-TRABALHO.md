@@ -35,6 +35,14 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
   (`INTEGRACAO_URL` vazio). Token e usuário de teste em `.claude/scripts/gerenciamento.env.cmd` (fora
   do git; o usuário está na linha `rem`). Primeira vez num PC: `npm ci` e `npm run build` lá.
   Coleta nova lá → lote aqui em até 30 s (cadastre antes os clientes com o nome certo).
+- **`msdc`** (porta **5013**, **HTTPS**, só este PC) → `.claude/scripts/subir-msdc.cmd`: roda o Re-Teck
+  MSDC da pasta ao lado (`..\OP-Re-Teck-MSDC`, backend Node + Prisma) com banco de TESTE
+  `data\ierp2-teste\msdc.db` (fora do git dele), o envio ao iERP antigo **desligado** e HTTPS com uma
+  CA de TESTE (`data\ierp2-teste\ca-teste.crt` — é ela que se cola na Integração do iERP). Senha das
+  rotas em `.claude/scripts/msdc.env.cmd` (fora do git). Login de teste lá: admin/admin123 (só nesse
+  banco). Primeira vez num PC: `npm ci` e `npx prisma generate` no `backend` de lá, e gerar a CA e o
+  certificado de `localhost` com o `openssl` (ver INTEGRACOES §0.2). O `curl` do Windows precisa de
+  `--ssl-no-revoke` para essa CA; o Node não.
 - Variáveis (todas têm padrão para desenvolvimento): servidor `PORT`, `DB_FILE`, `ARQUIVOS_DIR`,
   `GEO_CONTATO` (`server/src/config.ts`); frontend `.env.example` → `.env.local`
   (`VITE_ESRI_API_KEY`, `VITE_USE_MOCKS`). Chave de integração nova: variável de ambiente, nunca no git.

@@ -762,7 +762,8 @@
     "palletRequired": "請至少新增一個棧板。",
     "nameInUse": "已有相同名稱的資料。",
     "url": "位址無效（請以 http:// 或 https:// 開頭）。",
-    "tokenCurto": "權杖至少需要 32 個字元。"
+    "tokenCurto": "權杖至少需要 32 個字元。",
+    "certificado": "請以 PEM 格式貼上憑證（-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----）。"
   },
   "confirm": {
     "typeToConfirm": "請輸入以下文字以確認："
@@ -1535,7 +1536,8 @@
       "urlPainel": "面板位址",
       "tokenPainel": "面板權杖",
       "chaveCriadaEm": "金鑰產生於",
-      "ultimoAvisoEm": "最近送達的通知"
+      "ultimoAvisoEm": "最近送達的通知",
+      "caPainel": "CA 憑證（選填）"
     },
     "secoes": {
       "sistema": "系統",
@@ -1553,9 +1555,10 @@
       "token": "與系統中設定的權杖相同（MoonShot：IERP_PAINEL_TOKEN），至少 {{min}} 個字元。",
       "tokenGuardado": "已儲存權杖。留空即保留；輸入新的權杖即可替換。",
       "chave": "系統進入 iERP 所用的金鑰（MoonShot：IERP2_API_KEY）。只在產生時顯示一次。",
-      "painelOrigem": "專案管理儀表板的位址（與舊版 iERP 讀取的相同），結尾為 /api/integracao/painel。iERP 每 30 秒讀取一次取貨資料。",
-      "tokenOrigem": "專案管理 .env 檔中的 INTEGRACAO_TOKEN。",
-      "sincronizacao": "批次來自{{sistema}}：iERP 會自動建立與更新，在這裡僅供檢視。"
+      "painelOrigem": "{{sistema}}儀表板的位址（與舊版 iERP 讀取的相同），結尾為 /api/integracao/painel。iERP 每 30 秒讀取一次批次。",
+      "tokenOrigem": "{{sistema}} .env 檔中的 INTEGRACAO_TOKEN。",
+      "sincronizacao": "批次來自{{sistema}}：iERP 會自動建立與更新，在這裡僅供檢視。",
+      "caPainel": "僅在{{sistema}}使用 Re-Teck CA 憑證的 HTTPS 時填寫：貼上 CA 的公開憑證（ca-reteck.crt，PEM 格式）。iERP 只在連線到此系統時信任它。"
     },
     "gerarChave": "產生金鑰",
     "trocarChave": "更換金鑰",
@@ -1597,7 +1600,8 @@
     },
     "sistemas": {
       "MOONSHOT": "MoonShot",
-      "GERENCIAMENTO": "專案管理"
+      "GERENCIAMENTO": "專案管理",
+      "MSDC": "Re-Teck MSDC（Microsoft）"
     },
     "toast": {
       "criado": "已新增整合 {{name}}。",
@@ -2692,7 +2696,8 @@
         "observacoes": "備註",
         "declarado": "申報",
         "pesado": "實秤",
-        "seriais": "Service Tags"
+        "seriais": "Service Tags",
+        "doca": "月台"
       },
       "cols": {
         "peso": "重量",
@@ -2704,7 +2709,9 @@
         "tipo": "類型",
         "descricao": "說明",
         "embalagem": "包裝"
-      }
+      },
+      "operacao": "{{sistema}}中的作業",
+      "documentosSoLa": "此批次的文件存放在{{sistema}}，只能在那邊開啟（需那邊的登入）。"
     }
   },
   "recebimento": {

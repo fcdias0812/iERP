@@ -762,7 +762,8 @@
     "palletRequired": "Informe pelo menos um pallet.",
     "nameInUse": "Já existe um cadastro com este nome.",
     "url": "Endereço inválido (comece com http:// ou https://).",
-    "tokenCurto": "O token precisa ter pelo menos 32 caracteres."
+    "tokenCurto": "O token precisa ter pelo menos 32 caracteres.",
+    "certificado": "Cole o certificado em formato PEM (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----)."
   },
   "confirm": {
     "typeToConfirm": "Para confirmar, digite"
@@ -1535,7 +1536,8 @@
       "urlPainel": "Endereço do painel",
       "tokenPainel": "Token do painel",
       "chaveCriadaEm": "Chave gerada em",
-      "ultimoAvisoEm": "Último aviso entregue"
+      "ultimoAvisoEm": "Último aviso entregue",
+      "caPainel": "Certificado da CA (opcional)"
     },
     "secoes": {
       "sistema": "Sistema",
@@ -1553,9 +1555,10 @@
       "token": "O mesmo token configurado no sistema (no MoonShot: IERP_PAINEL_TOKEN), com pelo menos {{min}} caracteres.",
       "tokenGuardado": "Já há um token guardado. Deixe em branco para manter; escreva um novo para trocar.",
       "chave": "A chave com que o sistema entra no iERP (no MoonShot: IERP2_API_KEY). Ela aparece uma vez só, ao ser gerada.",
-      "painelOrigem": "O endereço do painel do Gerenciamento de Projetos (o mesmo que o iERP antigo lê), terminando em /api/integracao/painel. O iERP lê as coletas a cada 30 segundos.",
-      "tokenOrigem": "O INTEGRACAO_TOKEN do .env do Gerenciamento de Projetos.",
-      "sincronizacao": "Os lotes vêm do {{sistema}}: o iERP cria e atualiza sozinho, e eles ficam só para ver aqui."
+      "painelOrigem": "O endereço do painel do {{sistema}} (o mesmo que o iERP antigo lê), terminando em /api/integracao/painel. O iERP lê os lotes a cada 30 segundos.",
+      "tokenOrigem": "O INTEGRACAO_TOKEN do .env do {{sistema}}.",
+      "sincronizacao": "Os lotes vêm do {{sistema}}: o iERP cria e atualiza sozinho, e eles ficam só para ver aqui.",
+      "caPainel": "Só se o {{sistema}} usar HTTPS com certificado da CA Re-Teck: cole o certificado PÚBLICO da CA (ca-reteck.crt, em PEM). O iERP confia nele só nas conexões com este sistema."
     },
     "gerarChave": "Gerar chave",
     "trocarChave": "Trocar chave",
@@ -1597,7 +1600,8 @@
     },
     "sistemas": {
       "MOONSHOT": "MoonShot",
-      "GERENCIAMENTO": "Gerenciamento de Projetos"
+      "GERENCIAMENTO": "Gerenciamento de Projetos",
+      "MSDC": "Re-Teck MSDC (Microsoft)"
     },
     "toast": {
       "criado": "Integração {{name}} cadastrada.",
@@ -2692,7 +2696,8 @@
         "observacoes": "Observações",
         "declarado": "Declarado",
         "pesado": "Pesado",
-        "seriais": "Service Tags"
+        "seriais": "Service Tags",
+        "doca": "Doca"
       },
       "cols": {
         "peso": "Peso",
@@ -2704,7 +2709,9 @@
         "tipo": "Tipo",
         "descricao": "Descrição",
         "embalagem": "Embalagem"
-      }
+      },
+      "operacao": "O que aconteceu no {{sistema}}",
+      "documentosSoLa": "Os documentos deste lote ficam no {{sistema}} e só abrem lá (com o login de lá)."
     }
   },
   "recebimento": {

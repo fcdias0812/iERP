@@ -560,6 +560,7 @@ export interface DadosExternos {
   lote: string | null
   cliente: string | null
   site: string | null
+  doca: string | null
   endereco: string | null
   cidade: string | null
   uf: string | null
@@ -595,14 +596,17 @@ export interface EspelhoExterno {
     pesadoEm: string | null
     fotoUrl: string | null
   }[]
-  arquivos: {
-    id: string
-    tipo: string | null
-    nome: string
-    enviadoPor: string | null
-    enviadoEm: string | null
-    url: string | null
-  }[]
+  /** null = o sistema não compartilha os arquivos (o anexo de lá exige o login de lá). */
+  arquivos:
+    | {
+        id: string
+        tipo: string | null
+        nome: string
+        enviadoPor: string | null
+        enviadoEm: string | null
+        url: string | null
+      }[]
+    | null
   materiais: {
     tipo: string | null
     descricao: string | null
@@ -611,6 +615,10 @@ export interface EspelhoExterno {
   }[]
   notas: { autor: string | null; data: string | null; texto: string }[]
   seriais: number
+  /** O sistema registra pesagens? (o Gerenciamento sim; o MSDC não). */
+  temPesagens: boolean
+  /** Resumo do que aconteceu lá, como ele escreve (MSDC: etapa, racks, máquinas, peças). */
+  resumo: { rotulo: string; valor: string; detalhe: string | null }[]
 }
 
 export interface ProcessamentoExterno {
@@ -1141,6 +1149,8 @@ export interface Integracao {
   chaveCriadaEm: string | null
   urlAvisos: string | null
   urlPainel: string | null
+  /** Certificado PÚBLICO (PEM) da CA do sistema, se ele serve HTTPS com CA própria. */
+  caPainel: string | null
   temTokenPainel: boolean
   status: 'ativo' | 'inativo'
   ultimoUsoEm: string | null
@@ -1176,6 +1186,8 @@ export interface IntegracaoInput {
   urlPainel: string | null
   /** Ausente = mantém o guardado; '' = apaga. */
   tokenPainel?: string
+  /** Certificado da CA (PEM); '' = apaga. */
+  caPainel?: string
 }
 /** Sistemas que podem ser integrados (por cliente: Dell → MOONSHOT). */
 export interface SistemaIntegravel {

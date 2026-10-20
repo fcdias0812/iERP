@@ -469,6 +469,8 @@ export interface IntegracoesTable {
   ultimoErroEm: string | null
   /** Resumo da última sincronização (JSON) — sistemas de onde os lotes vêm. */
   sincronizacao: string | null
+  /** Certificado PÚBLICO (PEM) da CA do sistema, se ele serve HTTPS com CA própria. */
+  caPainel: string | null
   criadoEm: string
   criadoPor: string
   alteradoEm: string

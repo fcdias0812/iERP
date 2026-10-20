@@ -56,6 +56,8 @@ const TODAS = [
   '/operacao/lotes/ordgp001',
   '/operacao/lotes/ordgp001?aba=progresso',
   '/operacao/lotes/ordgp001?aba=documentos',
+  '/operacao/lotes/ordms001?aba=progresso',
+  '/operacao/lotes/ordms001?aba=documentos',
   '/admin/integracao?aberto=int00002',
   // Operação: ainda "em construção" (menu já montado).
   '/estoque/materiais',

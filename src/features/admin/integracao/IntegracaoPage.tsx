@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dialog'
 import { RhfField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { CopyableId, KeyValueList } from '@/components/ui/metadata'
 import {
   Select,
@@ -67,7 +68,12 @@ const SEM_AVISOS: AvisoIntegracao[] = []
 const STATUS = ['ativo', 'inativo']
 const MIN_TOKEN = 32
 /** Sistemas de onde os lotes VÊM (= `tipo: 'origem'` em server/.../integracao/destinos.ts). */
-const SISTEMAS_ORIGEM = ['GERENCIAMENTO']
+const SISTEMAS_ORIGEM = ['GERENCIAMENTO', 'MSDC']
+/** Exemplo do endereço do painel de cada sistema de origem. */
+const EXEMPLO_PAINEL: Record<string, string> = {
+  GERENCIAMENTO: 'http://192.168.0.10:5005/api/integracao/painel',
+  MSDC: 'https://192.168.100.96:5013/api/integracao/painel',
+}
 
 export function IntegracaoPage() {
   return (
@@ -213,6 +219,19 @@ const schema = z
     urlAvisos: url,
     urlPainel: url,
     tokenPainel: z.string().trim().max(500),
+    caPainel: z
+      .string()
+      .trim()
+      .max(20_000)
+      .refine(
+        // A conferência completa (certificado de verdade) é do servidor; aqui, o formato e a
+        // recusa da chave privada.
+        (v) =>
+          v === '' ||
+          (!/PRIVATE KEY/i.test(v) &&
+            /-----BEGIN CERTIFICATE-----[\s\S]+-----END CERTIFICATE-----/.test(v)),
+        'validation.certificado',
+      ),
   })
   // O MoonShot recusa token curto; o Gerenciamento usa o token que estiver no `.env` dele.
   .superRefine((v, ctx) => {
@@ -243,6 +262,7 @@ function IntegracaoFormulario({
       urlAvisos: integracao?.urlAvisos ?? '',
       urlPainel: integracao?.urlPainel ?? '',
       tokenPainel: '',
+      caPainel: integracao?.caPainel ?? '',
     },
   })
 
@@ -255,6 +275,7 @@ function IntegracaoFormulario({
         urlPainel: v.urlPainel || null,
         // Vazio = mantém o token guardado (ele nunca volta para a tela).
         ...(v.tokenPainel ? { tokenPainel: v.tokenPainel } : {}),
+        caPainel: v.caPainel,
       })
       .catch(() => null)
     if (!salvo) return
@@ -264,7 +285,10 @@ function IntegracaoFormulario({
 
   const rotulos = useRotulosIntegracao()
   // De onde os lotes vêm (Gerenciamento): só painel e token — sem avisos e sem chave.
-  const origem = SISTEMAS_ORIGEM.includes(useWatch({ control: form.control, name: 'sistema' }))
+  const sistemaEscolhido = useWatch({ control: form.control, name: 'sistema' })
+  const origem = SISTEMAS_ORIGEM.includes(sistemaEscolhido)
+  const nomeDoSistema =
+    sistemas.data?.find((s) => s.sistema === sistemaEscolhido)?.nome ?? integracao?.nome ?? ''
 
   return (
     <CadastroSheet
@@ -388,7 +412,11 @@ function IntegracaoFormulario({
 
           <CadastroSecao
             titulo={t('integracao.secoes.painel')}
-            descricao={origem ? t('integracao.ajuda.painelOrigem') : t('integracao.ajuda.painel')}
+            descricao={
+              origem
+                ? t('integracao.ajuda.painelOrigem', { sistema: nomeDoSistema })
+                : t('integracao.ajuda.painel')
+            }
             colunas={1}
           >
             <RhfField
@@ -405,7 +433,7 @@ function IntegracaoFormulario({
                   className="font-mono"
                   placeholder={
                     origem
-                      ? 'http://192.168.0.10:5005/api/integracao/painel'
+                      ? (EXEMPLO_PAINEL[sistemaEscolhido] ?? EXEMPLO_PAINEL.GERENCIAMENTO)
                       : 'http://192.168.0.10:5063/api/ierp2/painel'
                   }
                 />
@@ -419,7 +447,7 @@ function IntegracaoFormulario({
                 integracao?.temTokenPainel
                   ? t('integracao.ajuda.tokenGuardado')
                   : origem
-                    ? t('integracao.ajuda.tokenOrigem')
+                    ? t('integracao.ajuda.tokenOrigem', { sistema: nomeDoSistema })
                     : t('integracao.ajuda.token', { min: MIN_TOKEN })
               }
             >
@@ -433,6 +461,25 @@ function IntegracaoFormulario({
                 />
               )}
             </RhfField>
+            {origem && (
+              <RhfField
+                control={form.control}
+                name="caPainel"
+                label={t('integracao.campos.caPainel')}
+                help={t('integracao.ajuda.caPainel', { sistema: nomeDoSistema })}
+              >
+                {({ field, control }) => (
+                  <Textarea
+                    {...control}
+                    {...field}
+                    rows={4}
+                    spellCheck={false}
+                    className="font-mono"
+                    placeholder={'-----BEGIN CERTIFICATE-----\n…\n-----END CERTIFICATE-----'}
+                  />
+                )}
+              </RhfField>
+            )}
           </CadastroSecao>
 
           {integracao && !origem && <SecaoChave integracao={integracao} />}
@@ -732,6 +779,7 @@ function useRotulosIntegracao() {
         urlAvisos: t('integracao.campos.urlAvisos'),
         urlPainel: t('integracao.campos.urlPainel'),
         tokenPainel: t('integracao.campos.tokenPainel'),
+        caPainel: t('integracao.campos.caPainel'),
         chave: t('integracao.cols.chave'),
         status: t('integracao.cols.status'),
       },
