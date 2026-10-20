@@ -11,6 +11,7 @@ import { useLote } from '@/features/ordens/use-ordens'
 import { apiErrorMessage } from '@/lib/api-errors'
 import { cn } from '@/lib/utils'
 import type { DashboardOperacao, Ordem } from '@/services/types'
+import { StatusDoLote } from '@/features/lotes/StatusDoLote'
 
 /*
  * Card de uma coleta no Forecast (Operação › Dashboard). Borda TRACEJADA = só a coleta prevista;
@@ -96,7 +97,7 @@ function Conteudo({ o, confirmada }: { o: Ordem; confirmada: boolean }) {
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={confirmada ? 'coleta_confirmada' : 'coleta_prevista'} />
-          <StatusBadge status={o.status} />
+          <StatusDoLote lote={o} />
         </div>
       </div>
       <div className="flex flex-col gap-4 p-4">

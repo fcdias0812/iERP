@@ -18,6 +18,7 @@ export type Entidade =
   | 'area'
   | 'recipiente'
   | 'perfil'
+  | 'integracao'
 type Conexao = Db | Transaction<Database>
 
 export async function registrarHistorico(

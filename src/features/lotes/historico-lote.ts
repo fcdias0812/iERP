@@ -25,6 +25,9 @@ export const ACOES_LOTE = [
   'documento_removido',
   'recebido',
   'recebimento_editado',
+  'processamento',
+  'devolucao_pedida',
+  'devolucao_cancelada',
 ] as const
 
 /** Campos das ocorrências e dos documentos (rótulos do lote). */
@@ -44,6 +47,8 @@ const CAMPOS_LOTE = [
   'pesoBruto',
   'pesoLiquido',
   'fotosGerais',
+  'processamento',
+  'motivoDevolucao',
 ] as const
 
 /** Campos da edição do lote (mesmos rótulos do Agendamento). */

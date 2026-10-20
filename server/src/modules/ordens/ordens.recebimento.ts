@@ -6,6 +6,7 @@ import type { Transaction } from 'kysely'
 import multer from 'multer'
 import { z } from 'zod'
 import type { Db } from '../../db/database.js'
+import { enfileirarAviso } from '../integracao/sincronizacao.js'
 import type { Database } from '../../db/schema.js'
 import { extensaoDe, MAX_BYTES, nomeSeguro } from '../../shared/arquivos.js'
 import { autorDa } from '../../shared/autor.js'
@@ -308,10 +309,13 @@ export function criarServicoRecebimento(db: Db, opcoes: { pasta: string }) {
   ) {
     const ordem = await db
       .selectFrom('ordens')
-      .select(['id', 'status'])
+      .select(['id', 'status', 'devolucaoEm'])
       .where('id', '=', ordemId)
       .executeTakeFirst()
     if (!ordem) throw naoEncontrado('Lote não encontrado.')
+    // Com DEVOLUÇÃO pedida pelo sistema de fora (MoonShot), a correção vale mesmo depois de o
+    // processamento ter começado lá: é justamente o que ele pediu.
+    const devolvido = Boolean(ordem.devolucaoEm)
     const existente = await db
       .selectFrom('ordensRecebimentos')
       .selectAll()
@@ -319,7 +323,7 @@ export function criarServicoRecebimento(db: Db, opcoes: { pasta: string }) {
       .executeTakeFirst()
     if (modo === 'receber' && (ordem.status !== 'agendado' || existente))
       throw new ErroApi(409, 'invalid_transition', 'Só lote agendado pode ser recebido.')
-    if (modo === 'corrigir' && (ordem.status !== 'inspecao' || !existente))
+    if (modo === 'corrigir' && ((ordem.status !== 'inspecao' && !devolvido) || !existente))
       throw new ErroApi(
         409,
         'invalid_transition',
@@ -602,9 +606,17 @@ export function criarServicoRecebimento(db: Db, opcoes: { pasta: string }) {
         const mudancas = Object.keys(depois)
           .filter((k) => (antes![k] ?? null) !== (depois[k] ?? null))
           .map((k) => ({ campo: k, antes: antes![k] ?? null, depois: depois[k] ?? null }))
+        // Corrigido: a devolução pedida pelo sistema de fora está atendida (ele destrava sozinho
+        // ao reler o lote, com o `devolucao` vazio).
         await trx
           .updateTable('ordens')
-          .set({ alteradoEm: agora, alteradoPor: autor })
+          .set({
+            alteradoEm: agora,
+            alteradoPor: autor,
+            devolucaoMotivo: null,
+            devolucaoPedidoPor: null,
+            devolucaoEm: null,
+          })
           .where('id', '=', ordemId)
           .execute()
         if (mudancas.length)
@@ -620,6 +632,8 @@ export function criarServicoRecebimento(db: Db, opcoes: { pasta: string }) {
       throw e
     }
     await Promise.all(removidas.map((f) => rm(caminho(ordemId, f.id), { force: true })))
+    // Lote que vai para um sistema de fora (Dell → MoonShot): avisa (ele busca o lote).
+    await enfileirarAviso(db, ordemId, modo === 'receber' ? 'ordem.recebida' : 'ordem.editada')
   }
 
   return {

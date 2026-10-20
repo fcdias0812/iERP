@@ -698,7 +698,8 @@
       "title": "系統管理",
       "usuarios": "使用者",
       "perfis": "存取權限設定檔",
-      "auditoria": "稽核紀錄"
+      "auditoria": "稽核紀錄",
+      "integracao": "系統整合"
     },
     "perfil": "我的個人資料",
     "configuracoes": "設定",
@@ -759,7 +760,9 @@
     "tareGreater": "皮重不得大於毛重。",
     "futureDate": "日期不得為未來日期。",
     "palletRequired": "請至少新增一個棧板。",
-    "nameInUse": "已有相同名稱的資料。"
+    "nameInUse": "已有相同名稱的資料。",
+    "url": "位址無效（請以 http:// 或 https:// 開頭）。",
+    "tokenCurto": "權杖至少需要 32 個字元。"
   },
   "confirm": {
     "typeToConfirm": "請輸入以下文字以確認："
@@ -863,6 +866,13 @@
     "registrada": "已登記",
     "inspecao_bom": "良好",
     "inspecao_avaria": "損壞",
+    "balanco_aguardando": "等待秤重",
+    "balanco_parcial": "部分",
+    "balanco_fechado": "平衡",
+    "balanco_fora": "超出容許誤差",
+    "container_aberto": "開啟",
+    "container_fechado": "已封閉",
+    "container_embarcado": "已出貨",
     "inspecao_outro": "其他",
     "coleta_prevista": "預計日期",
     "coleta_confirmada": "已確認日期"
@@ -1316,7 +1326,8 @@
     "scopeRequired": "請填寫工作範圍，或至少附上一份文件。",
     "nameInUse": "已有相同名稱的資料。",
     "fixedProfile": "管理員設定檔為固定設定檔：無法編輯或停用。",
-    "profileInUse": "仍有使用者使用此設定檔。請先變更他們的設定檔再停用。"
+    "profileInUse": "仍有使用者使用此設定檔。請先變更他們的設定檔再停用。",
+    "systemInUse": "此系統已經登錄。"
   },
   "calendar": {
     "today": "今天",
@@ -1493,7 +1504,99 @@
       "recipiente": "箱 / 棧板",
       "area": "倉儲區域",
       "usuario": "使用者",
-      "perfil": "存取權限設定檔"
+      "perfil": "存取權限設定檔",
+      "integracao": "系統整合"
+    }
+  },
+  "integracao": {
+    "descricaoPagina": "與 iERP 連線的外部系統（目前為處理 Dell 批次的 MoonShot）：存取金鑰、通知與進度面板。",
+    "descricaoPainel": "系統的存取金鑰、通知位址與進度面板。",
+    "novo": "新增整合",
+    "vazio": "沒有已整合的系統。",
+    "semChave": "無金鑰",
+    "escolherSistema": "選擇系統",
+    "ultimoErro": "最近的錯誤（{{quando}}）",
+    "cols": {
+      "nome": "名稱",
+      "sistema": "系統",
+      "chave": "金鑰",
+      "ultimoUsoEm": "最近連線",
+      "ultimoPainelEm": "面板讀取於",
+      "avisosPendentes": "佇列中的通知",
+      "status": "狀態"
+    },
+    "campos": {
+      "nome": "名稱",
+      "chave": "金鑰",
+      "status": "狀態",
+      "urlAvisos": "通知位址",
+      "urlPainel": "面板位址",
+      "tokenPainel": "面板權杖",
+      "chaveCriadaEm": "金鑰產生於",
+      "ultimoAvisoEm": "最近送達的通知"
+    },
+    "secoes": {
+      "sistema": "系統",
+      "avisos": "通知（iERP → 系統）",
+      "painel": "進度面板（系統 → iERP）",
+      "chave": "存取金鑰（系統 → iERP）",
+      "situacao": "狀況"
+    },
+    "ajuda": {
+      "sistema": "每個系統處理一個客戶的批次（Dell → MoonShot）。",
+      "avisos": "客戶的批次收貨或更正時，iERP 會通知該系統，系統再用金鑰讀取批次。若系統離線，通知會留在佇列並重新傳送。",
+      "urlAvisos": "MoonShot：http://<MoonShot 位址>/api/ierp2/avisos",
+      "painel": "iERP 每 30 秒讀取一次每個批次在那裡的階段（「處理中 2/4 · 零件讀取」）。",
+      "token": "與系統中設定的權杖相同（MoonShot：IERP_PAINEL_TOKEN），至少 {{min}} 個字元。",
+      "tokenGuardado": "已儲存權杖。留空即保留；輸入新的權杖即可替換。",
+      "chave": "系統進入 iERP 所用的金鑰（MoonShot：IERP2_API_KEY）。只在產生時顯示一次。"
+    },
+    "gerarChave": "產生金鑰",
+    "trocarChave": "更換金鑰",
+    "revogarChave": "撤銷金鑰",
+    "confirmTrocar": {
+      "title": "要更換金鑰嗎？",
+      "body": "{{name}} 目前的金鑰會立即失效。請隨即在系統中設定新金鑰。"
+    },
+    "confirmRevogar": {
+      "title": "要撤銷金鑰嗎？",
+      "body": "在取得新金鑰之前，{{name}} 將無法讀取批次或傳送進度。"
+    },
+    "chaveNova": {
+      "title": "已產生金鑰",
+      "body": "請複製金鑰並在 {{name}} 系統中設定。",
+      "aviso": "請立即複製：基於安全，金鑰不會再次顯示。",
+      "copiei": "我已複製"
+    },
+    "confirm": {
+      "inativar": "系統將不再收到通知，也無法進入 iERP。資料與歷史紀錄會保留。",
+      "reativar": "系統將再次收到通知，並可用金鑰進入。"
+    },
+    "avisos": {
+      "titulo": "最近的通知",
+      "vazio": "尚未傳送任何通知。",
+      "pendente": "佇列中",
+      "cols": {
+        "criadoEm": "建立於",
+        "lote": "批次",
+        "enviadoEm": "送達於",
+        "tentativas": "嘗試次數",
+        "erro": "錯誤"
+      }
+    },
+    "historico": {
+      "chave_gerada": "產生了金鑰",
+      "chave_trocada": "更換了金鑰",
+      "chave_revogada": "撤銷了金鑰"
+    },
+    "sistemas": {
+      "MOONSHOT": "MoonShot"
+    },
+    "toast": {
+      "criado": "已新增整合 {{name}}。",
+      "salvo": "已儲存整合 {{name}}。",
+      "falhou": "無法儲存整合。",
+      "chaveRevogada": "已撤銷 {{name}} 的金鑰。"
     }
   },
   "clientes": {
@@ -2379,7 +2482,10 @@
         "documento_adicionado": "新增了文件",
         "documento_removido": "移除了文件",
         "recebido": "收取了批次",
-        "recebimento_editado": "更正了收貨"
+        "recebimento_editado": "更正了收貨",
+        "processamento": "變更了處理階段",
+        "devolucao_pedida": "要求更正收貨",
+        "devolucao_cancelada": "取消了更正要求"
       },
       "campos": {
         "status": "狀態",
@@ -2396,7 +2502,9 @@
         "palletsRecebidos": "已收棧板",
         "pesoBruto": "毛重",
         "pesoLiquido": "淨重",
-        "fotosGerais": "一般照片"
+        "fotosGerais": "一般照片",
+        "processamento": "處理階段",
+        "motivoDevolucao": "更正原因"
       }
     },
     "informacoes": {
@@ -2464,6 +2572,64 @@
         "salvo": "已更新批次 {{code}}。",
         "falhou": "無法儲存批次。"
       }
+    },
+    "processamento": {
+      "rotulo": "處理中 {{i}}/{{n}} · {{etapa}}",
+      "rotuloSemEtapa": "處理中 {{i}}/{{n}}",
+      "titulo": "在 {{sistema}} 的處理",
+      "aguardando": "批次已交給 {{sistema}}。在那裡有第一個動作之前，它會留在「已收貨」。",
+      "fase": "階段",
+      "desde": "進入此階段於",
+      "atualizado": "更新於",
+      "abrir": "在 {{sistema}} 開啟"
+    },
+    "balanco": {
+      "titulo": "質量平衡",
+      "origem": "{{sistema}} 的秤重 · 更新於 {{quando}} · 容許誤差 ±{{tolerancia}}",
+      "situacoes": {
+        "aguardando": "尚無法計算：缺少批次毛重或包材重量。",
+        "parcial": "部分計算：批次仍在處理中，差異會隨著零件讀取與廢料分揀而減少。",
+        "fechado": "平衡已達成：差異在 ±{{tolerancia}} 容許誤差內。",
+        "fora": "差異超出 ±{{tolerancia}} 容許誤差。請與作業人員核對秤重。"
+      },
+      "campos": {
+        "entrada": "淨輸入",
+        "lido": "已讀取零件",
+        "scrap": "已分揀廢料",
+        "diferenca": "差異"
+      },
+      "entradaDetalhe": "毛重 {{bruto}} − 包材 {{embalagem}}",
+      "lidoDetalhe": "已讀取 {{pecas}} 件",
+      "scrapDetalhe": "來自已收廢料 {{recebido}}",
+      "semScrap": "此批次無廢料",
+      "diferencaDetalhe": "佔淨輸入的 {{percentual}}",
+      "explicam": "部分差異的原因：{{semPeso}} 件已讀取但無重量，{{foraDaLista}} 個標籤不在清單中。",
+      "commodities": "各商品類別重量",
+      "commoditiesVazioTitle": "尚無各商品類別重量",
+      "commoditiesVazioBody": "零件讀取與廢料分揀完成分類後顯示。",
+      "containers": "批次太空袋",
+      "containersAjuda": "一個太空袋會裝多個批次的材料：「本批次」欄位是此批次的部分。",
+      "containersVazioTitle": "尚無太空袋",
+      "containersVazioBody": "此批次材料放入太空袋後顯示。",
+      "cols": {
+        "commodity": "商品類別",
+        "codigo": "代碼",
+        "peso": "重量",
+        "participacao": "佔比",
+        "container": "太空袋",
+        "situacao": "狀態",
+        "desteLote": "本批次",
+        "bruto": "太空袋毛重",
+        "destino": "目的地",
+        "fechadoEm": "封袋時間",
+        "embarcadoEm": "出貨時間"
+      }
+    },
+    "devolucao": {
+      "titulo": "{{sistema}} 要求更正收貨",
+      "motivo": "原因",
+      "pedidoPor": "由 {{quem}} 於 {{quando}} 提出。",
+      "oQueFazer": "請更正收貨（「更正收貨」按鈕）：{{sistema}} 會自動繼續處理此批次。"
     }
   },
   "recebimento": {

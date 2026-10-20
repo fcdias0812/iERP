@@ -16,7 +16,6 @@ import { DetailPage } from '@/components/patterns/DetailPage'
 import { Button } from '@/components/ui/button'
 import { AuditInfo, CopyableId } from '@/components/ui/metadata'
 import { Skeleton } from '@/components/ui/skeleton'
-import { StatusBadge } from '@/components/ui/status-badge'
 import { useLote } from '@/features/ordens/use-ordens'
 import { AppError, NotFoundContent } from '@/features/system/ErrorPages'
 import { ApiError } from '@/services/http'
@@ -32,6 +31,8 @@ import { RecebimentoSheet } from './RecebimentoSheet'
 import type { LoteSearch } from './lote-search'
 import { OcorrenciaSheet } from './OcorrenciaSheet'
 import type { AbaLote, OrigemLote } from './origem'
+import { AvisoDevolucao } from './ProcessamentoExterno'
+import { StatusDoLote } from './StatusDoLote'
 
 /**
  * Detalhe do lote (padrão Detalhe), aberto de Ordens › Lotes ou de Operação › Lotes: abas
@@ -92,7 +93,9 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
   const editavel = o.status === 'agendado'
   // Recebimento (Operação): receber o agendado; corrigir enquanto em Inspeção.
   const podeReceber = o.status === 'agendado'
-  const podeCorrigirRecebimento = o.status === 'inspecao' && Boolean(o.recebimento)
+  // Com devolução pedida pelo sistema de fora (MoonShot), a correção vale em qualquer etapa.
+  const podeCorrigirRecebimento =
+    (o.status === 'inspecao' || Boolean(o.devolucao)) && Boolean(o.recebimento)
 
   return (
     <>
@@ -103,7 +106,8 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
           site: o.siteCodigo,
           doca: o.docaNumero,
         })}
-        status={<StatusBadge status={o.status} />}
+        status={<StatusDoLote lote={o} />}
+        alerts={o.devolucao ? <AvisoDevolucao o={o} /> : undefined}
         tab={aba}
         onTabChange={(nova) => ir({ aba: abaUrl(nova as AbaLote) }, true)}
         meta={

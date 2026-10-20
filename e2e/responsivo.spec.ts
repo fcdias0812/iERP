@@ -31,6 +31,8 @@ const ROTAS = [
   '/admin/perfis',
   '/admin/perfis?aberto=operacao',
   '/admin/auditoria',
+  '/admin/integracao',
+  '/admin/integracao?aberto=int00001',
   '/perfil',
 ]
 

@@ -81,13 +81,14 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `0ccce04` | Administração › Perfis de acesso e Auditoria                                             |
 | `2fd305d` | Região do site em lista; mapa (cinza, cidade); coleta prevista obrigatória; Forecast     |
 | `38d6264` | Busca do topo (Ctrl+K) encontra todos os registros                                       |
-| (última)  | Documentação para continuar em outro PC (integrações: `.claude/INTEGRACOES.md`)          |
+| `9360749` | Documentação para continuar em outro PC (integrações: `.claude/INTEGRACOES.md`)          |
+| (local)   | Integração Dell → MoonShot (contrato do iERP antigo); Administração › Integração         |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
-formatação, build. Tudo enviado ao GitHub (inclusive esta documentação).
+formatação, build (em 19/10/2026, com a integração: 99 testes do servidor, MoonShot 780/780).
 
-**Troca de computador (19/10/2026, definitiva):** "acho que ele está pronto para fazer as
+**Troca de computador (19/10/2026) — CANCELADA:** ele decidiu continuar neste PC ("vamos tentar continuar aqui mesmo"). O que foi escrito para o outro PC continua valendo se ele mudar de ideia. "acho que ele está pronto para fazer as
 integrações. Elas eu irei fazer em outro PC." No PC novo: clonar https://github.com/fcdias0812/iERP,
 abrir a pasta no Claude Code e rodar `/retomar`; a próxima etapa está em
 [`INTEGRACOES.md`](INTEGRACOES.md). O banco de desenvolvimento do PC antigo (`C:\Trabalho\01_Sistemas\iERP`,
@@ -123,6 +124,7 @@ Limpo e Cinza.
 |                | Administração › Usuários                                                   | **pronto** (perfil vem de Perfis de acesso)   |
 |                | Administração › **Perfis de acesso**                                       | **pronto** (nível por página)                 |
 |                | Administração › **Auditoria**                                              | **pronto** (histórico do sistema inteiro)     |
+|                | Administração › **Integração**                                             | **pronto** (MoonShot: chave, avisos, painel)  |
 
 A seção e um item se chamam "Operação" (aparece **Operação › Operação**). O usuário foi avisado; ainda
 não respondeu se quer trocar o nome da seção.
@@ -428,6 +430,23 @@ estoque**, usuários e **perfis de acesso**. A tela (`CommandPalette`) monta o l
 esconde o que o perfil não pode ver (lote: Ordens ou, sem acesso, Operação). **Viagens** entram
 quando o módulo existir (ainda em construção).
 
+### 5.14 Integração Dell → MoonShot (19/10/2026)
+
+Pedido dele: "vamos separar os sistemas por cliente, começando pela Dell, com o sistema
+`C:\Trabalho\01_Sistemas\BD-Moonshot-Operation-Scan`" — fluxo, decisões, o que foi feito nos dois
+sistemas e como configurar em produção: **[`INTEGRACOES.md`](INTEGRACOES.md) §0**. Regras dele que
+valem para tudo daqui em diante: o **iERP antigo e o 2.0 rodam juntos** até o 2.0 substituir o
+antigo (integrações só por **acréscimo**); **todos os lotes da Dell, e só eles**, vão para o
+MoonShot; o lote fica em **Recebidos** até a 1ª ação lá e depois mostra **"Processamento i/N"**.
+
+20/10/2026: o **balanço de massa** que o MoonShot manda aparece na aba **Progresso** do lote,
+abaixo do quadro do processamento ("ache um lugar bom e prático… tem que combinar com tudo"):
+entrada líquida, peças lidas, scrap triado e diferença contra a tolerância, com selo (aguardando,
+parcial, fechou, fora da tolerância), e as tabelas de peso por commodity e bigbags. Lote de teste
+finalizado no banco de dev: LOT-00006. Também: documento anexado num lote já recebido avisa o
+MoonShot (é como a planilha da Dell anexada depois chega lá). Em aberto: exigir a planilha .xlsx
+no Agendamento da Dell? apagar o LOT-00004 de teste dos dois bancos?
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -478,7 +497,9 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 
 ## 7. Próximo passo
 
-**Integrações** (pedido dele em 19/10/2026), no outro PC. Comece por
+**Dell → MoonShot está pronta** (falta ele testar e aprovar o commit nos DOIS repositórios — o do
+MoonShot está na branch `feature/ierp-2-paralelo`). Próximas integrações: os outros clientes/sistemas
+(perguntar quais) — **Integrações** (pedido dele em 19/10/2026), neste PC. Comece por
 [`INTEGRACOES.md`](INTEGRACOES.md): pergunte **qual integração primeiro** (recomendação: as etapas
 do lote, que acendem Dashboard, Progresso, Operação › Lotes e Histórico) e as perguntas daquela
 integração antes de construir. Outras frentes já levantadas, se ele preferir: Ordens › Viagens

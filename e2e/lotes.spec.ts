@@ -43,6 +43,14 @@ test('progresso: etapa atual, pallets, peso bruto e linha do tempo', async ({ pa
   await expect(linha.locator('[aria-current="step"]')).toContainText('Processo')
   await expect(linha.getByRole('listitem')).toHaveCount(5)
   await expect(page.getByText('Servidores rack 1U')).toBeVisible()
+
+  // Balanço de massa do MoonShot (parcial: o lote ainda está em processo).
+  const balanco = page.getByRole('region', { name: 'Balanço de massa' })
+  await expect(balanco).toContainText('Parcial')
+  await expect(balanco).toContainText('931,5 kg')
+  await expect(balanco).toContainText('Bruto 1.028 kg − embalagem 96,5 kg')
+  await expect(balanco.getByRole('table').first()).toContainText('Placas de circuito')
+  await expect(balanco.getByRole('table').last()).toContainText('BB-0102')
   expect(await violacoes(page)).toEqual([])
 })
 

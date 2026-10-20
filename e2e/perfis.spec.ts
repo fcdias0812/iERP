@@ -28,11 +28,11 @@ test('perfil novo por página; trocar de perfil esconde o que ele não acessa', 
   await painel.getByLabel(/^Nome/).fill('Recebimento')
   await nivel(page, 'Operação Recebimento', 'Editar')
   await nivel(page, 'Operação Lotes', 'Visualizar')
-  await expect(painel).toContainText('Acesso a 2 de 27 páginas · edita 1.')
+  await expect(painel).toContainText('Acesso a 2 de 28 páginas · edita 1.')
   expect(await violacoes(page)).toEqual([])
   await painel.getByRole('button', { name: 'Salvar' }).click()
   await expect(page.getByText('Perfil Recebimento cadastrado.')).toBeVisible()
-  await expect(page.locator('main tbody tr', { hasText: 'Recebimento' })).toContainText('2 de 27')
+  await expect(page.locator('main tbody tr', { hasText: 'Recebimento' })).toContainText('2 de 28')
 
   // O perfil novo já aparece na escolha do perfil do usuário.
   await irSemRecarregar(page, '/admin/usuarios?aberto=novo')

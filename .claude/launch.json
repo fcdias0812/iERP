@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "5173", "--strictPort"],
       "port": 5173
+    },
+    {
+      "name": "moonshot",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", ".claude\\scripts\\subir-moonshot.cmd"],
+      "port": 5063
     }
   ]
 }

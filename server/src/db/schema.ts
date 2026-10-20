@@ -257,6 +257,19 @@ export interface OrdensTable extends Controle {
   /** Entrou na etapa (status) atual. */
   etapaDesde: string | null
   codEmitidoEm: string | null
+  /** Processamento num sistema de fora (MoonShot): fase atual "i/N · nome". */
+  processamentoSistema: string | null
+  processamentoEtapa: string | null
+  processamentoIndice: number | null
+  processamentoTotal: number | null
+  processamentoDesde: string | null
+  /** Tela do lote no sistema de fora. */
+  processamentoUrl: string | null
+  processamentoAtualizadoEm: string | null
+  /** Pedido de devolução ao recebimento (o sistema de fora achou erro no recebimento). */
+  devolucaoMotivo: string | null
+  devolucaoPedidoPor: string | null
+  devolucaoEm: string | null
 }
 
 export interface OrdensListaView extends OrdensTable {
@@ -271,6 +284,8 @@ export interface OrdensListaView extends OrdensTable {
 
 export interface OrdensAnexosTable {
   id: string
+  /** Número sequencial (o contrato de integração identifica o anexo por número). */
+  numero: number | null
   ordemId: string
   secao: string
   /** escopo | nota_fiscal | mtr | cdf | foto | outro */
@@ -428,6 +443,51 @@ export interface PerfisAcessoTable {
   alteradoPor: string
 }
 
+/** Sistema de fora integrado (MoonShot…): chave, avisos e painel. */
+export interface IntegracoesTable {
+  id: string
+  sistema: string
+  nome: string
+  chaveHash: string | null
+  chavePrefixo: string | null
+  chaveCriadaEm: string | null
+  urlAvisos: string | null
+  urlPainel: string | null
+  tokenPainel: string | null
+  status: string
+  ultimoUsoEm: string | null
+  ultimoAvisoEm: string | null
+  ultimoPainelEm: string | null
+  ultimoErro: string | null
+  ultimoErroEm: string | null
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+
+/** Fila de avisos aos sistemas de fora. */
+export interface IntegracoesAvisosTable {
+  id: string
+  integracaoId: string
+  ordemId: string
+  codigo: string
+  evento: string
+  tentativas: number
+  proximaEm: string
+  erro: string | null
+  criadoEm: string
+  enviadoEm: string | null
+}
+
+/** Último balanço de massa que o sistema de fora mandou (retrato). */
+export interface OrdensBalancosTable {
+  ordemId: string
+  sistema: string
+  payload: string
+  recebidoEm: string
+}
+
 export interface Database {
   usuarios: UsuariosTable
   usuariosHistorico: UsuariosHistoricoTable
@@ -448,6 +508,9 @@ export interface Database {
   ordens: OrdensTable
   ordensLista: OrdensListaView
   ordensAnexos: OrdensAnexosTable
+  ordensBalancos: OrdensBalancosTable
+  integracoes: IntegracoesTable
+  integracoesAvisos: IntegracoesAvisosTable
   ordensEtapas: OrdensEtapasTable
   ordensPallets: OrdensPalletsTable
   ordensOcorrencias: OrdensOcorrenciasTable

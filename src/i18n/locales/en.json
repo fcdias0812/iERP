@@ -698,7 +698,8 @@
       "title": "Administration",
       "usuarios": "Users",
       "perfis": "Access profiles",
-      "auditoria": "Audit log"
+      "auditoria": "Audit log",
+      "integracao": "Integration"
     },
     "perfil": "My profile",
     "configuracoes": "Settings",
@@ -759,7 +760,9 @@
     "tareGreater": "The tare cannot exceed the gross weight.",
     "futureDate": "The date cannot be in the future.",
     "palletRequired": "Add at least one pallet.",
-    "nameInUse": "A record with this name already exists."
+    "nameInUse": "A record with this name already exists.",
+    "url": "Invalid address (start with http:// or https://).",
+    "tokenCurto": "The token must have at least 32 characters."
   },
   "confirm": {
     "typeToConfirm": "To confirm, type"
@@ -863,6 +866,13 @@
     "registrada": "Logged",
     "inspecao_bom": "Good",
     "inspecao_avaria": "Damaged",
+    "balanco_aguardando": "Awaiting weights",
+    "balanco_parcial": "Partial",
+    "balanco_fechado": "Balanced",
+    "balanco_fora": "Out of tolerance",
+    "container_aberto": "Open",
+    "container_fechado": "Closed",
+    "container_embarcado": "Shipped",
     "inspecao_outro": "Other",
     "coleta_prevista": "Expected date",
     "coleta_confirmada": "Confirmed date"
@@ -1316,7 +1326,8 @@
     "scopeRequired": "Write the scope of work or attach at least one document.",
     "nameInUse": "A record with this name already exists.",
     "fixedProfile": "The Administrator profile is fixed: it cannot be edited or deactivated.",
-    "profileInUse": "Some users have this profile. Change their profile before deactivating it."
+    "profileInUse": "Some users have this profile. Change their profile before deactivating it.",
+    "systemInUse": "This system is already registered."
   },
   "calendar": {
     "today": "Today",
@@ -1493,7 +1504,99 @@
       "recipiente": "Crate / pallet",
       "area": "Stock area",
       "usuario": "User",
-      "perfil": "Access profile"
+      "perfil": "Access profile",
+      "integracao": "Integration"
+    }
+  },
+  "integracao": {
+    "descricaoPagina": "The external systems that talk to the iERP (today MoonShot, which processes the Dell lots): access key, notifications and progress panel.",
+    "descricaoPainel": "Access key, notification address and progress panel of the system.",
+    "novo": "New integration",
+    "vazio": "No integrated systems.",
+    "semChave": "No key",
+    "escolherSistema": "Choose the system",
+    "ultimoErro": "Last error ({{quando}})",
+    "cols": {
+      "nome": "Name",
+      "sistema": "System",
+      "chave": "Key",
+      "ultimoUsoEm": "Last contact",
+      "ultimoPainelEm": "Panel read at",
+      "avisosPendentes": "Queued notifications",
+      "status": "Status"
+    },
+    "campos": {
+      "nome": "Name",
+      "chave": "Key",
+      "status": "Status",
+      "urlAvisos": "Notification address",
+      "urlPainel": "Panel address",
+      "tokenPainel": "Panel token",
+      "chaveCriadaEm": "Key generated at",
+      "ultimoAvisoEm": "Last notification delivered"
+    },
+    "secoes": {
+      "sistema": "System",
+      "avisos": "Notifications (iERP → system)",
+      "painel": "Progress panel (system → iERP)",
+      "chave": "Access key (system → iERP)",
+      "situacao": "Status"
+    },
+    "ajuda": {
+      "sistema": "Each system processes the lots of one customer (Dell → MoonShot).",
+      "avisos": "When a lot of the customer is received or corrected, the iERP notifies the system, which fetches the lot with the key. If it is offline, the notification stays queued and is resent.",
+      "urlAvisos": "In MoonShot: http://<MoonShot address>/api/ierp2/avisos",
+      "painel": "Every 30 seconds the iERP reads which phase each lot is in there (\"Processing 2/4 · Parts reading\").",
+      "token": "The same token configured in the system (in MoonShot: IERP_PAINEL_TOKEN), with at least {{min}} characters.",
+      "tokenGuardado": "A token is already stored. Leave blank to keep it; type a new one to replace it.",
+      "chave": "The key the system uses to enter the iERP (in MoonShot: IERP2_API_KEY). It is shown only once, when generated."
+    },
+    "gerarChave": "Generate key",
+    "trocarChave": "Replace key",
+    "revogarChave": "Revoke key",
+    "confirmTrocar": {
+      "title": "Replace the key?",
+      "body": "The current key of {{name}} stops working right away. Configure the new one in the system right after."
+    },
+    "confirmRevogar": {
+      "title": "Revoke the key?",
+      "body": "{{name}} can no longer read lots or send progress until it gets a new key."
+    },
+    "chaveNova": {
+      "title": "Key generated",
+      "body": "Copy the key and configure it in {{name}}.",
+      "aviso": "Copy it now: for security, the key is not shown again.",
+      "copiei": "I copied it"
+    },
+    "confirm": {
+      "inativar": "The system stops receiving notifications and can no longer enter the iERP. The record and history are kept.",
+      "reativar": "The system receives notifications and can enter with the key again."
+    },
+    "avisos": {
+      "titulo": "Latest notifications",
+      "vazio": "No notifications sent yet.",
+      "pendente": "Queued",
+      "cols": {
+        "criadoEm": "Created at",
+        "lote": "Lot",
+        "enviadoEm": "Delivered at",
+        "tentativas": "Attempts",
+        "erro": "Error"
+      }
+    },
+    "historico": {
+      "chave_gerada": "Generated the key",
+      "chave_trocada": "Replaced the key",
+      "chave_revogada": "Revoked the key"
+    },
+    "sistemas": {
+      "MOONSHOT": "MoonShot"
+    },
+    "toast": {
+      "criado": "Integration {{name}} created.",
+      "salvo": "Integration {{name}} saved.",
+      "falhou": "Could not save the integration.",
+      "chaveRevogada": "Key of {{name}} revoked."
     }
   },
   "clientes": {
@@ -2379,7 +2482,10 @@
         "documento_adicionado": "Added document",
         "documento_removido": "Removed document",
         "recebido": "Received the lot",
-        "recebimento_editado": "Corrected the receiving"
+        "recebimento_editado": "Corrected the receiving",
+        "processamento": "Changed the processing phase",
+        "devolucao_pedida": "Asked for the receiving to be corrected",
+        "devolucao_cancelada": "Cancelled the correction request"
       },
       "campos": {
         "status": "Status",
@@ -2396,7 +2502,9 @@
         "palletsRecebidos": "Pallets received",
         "pesoBruto": "Gross weight",
         "pesoLiquido": "Net weight",
-        "fotosGerais": "General photos"
+        "fotosGerais": "General photos",
+        "processamento": "Processing phase",
+        "motivoDevolucao": "Correction reason"
       }
     },
     "informacoes": {
@@ -2464,6 +2572,64 @@
         "salvo": "Lot {{code}} updated.",
         "falhou": "Could not save the lot."
       }
+    },
+    "processamento": {
+      "rotulo": "Processing {{i}}/{{n}} · {{etapa}}",
+      "rotuloSemEtapa": "Processing {{i}}/{{n}}",
+      "titulo": "Processing in {{sistema}}",
+      "aguardando": "The lot was handed to {{sistema}}. It stays in Received until the first action there.",
+      "fase": "Phase",
+      "desde": "In this phase since",
+      "atualizado": "Updated at",
+      "abrir": "Open in {{sistema}}"
+    },
+    "balanco": {
+      "titulo": "Mass balance",
+      "origem": "Weights from {{sistema}} · updated {{quando}} · tolerance ±{{tolerancia}}",
+      "situacoes": {
+        "aguardando": "No balance yet: the lot gross weight or the packaging weight is missing.",
+        "parcial": "Partial balance: the lot is still being processed, and the difference shrinks as parts are scanned and scrap is sorted.",
+        "fechado": "The balance closed: the difference is within the ±{{tolerancia}} tolerance.",
+        "fora": "The difference exceeds the ±{{tolerancia}} tolerance. Check the weighings with operations."
+      },
+      "campos": {
+        "entrada": "Net input",
+        "lido": "Scanned parts",
+        "scrap": "Sorted scrap",
+        "diferenca": "Difference"
+      },
+      "entradaDetalhe": "Gross {{bruto}} − packaging {{embalagem}}",
+      "lidoDetalhe": "{{pecas}} parts scanned",
+      "scrapDetalhe": "Of {{recebido}} scrap received",
+      "semScrap": "No scrap in this lot",
+      "diferencaDetalhe": "{{percentual}} of net input",
+      "explicam": "Partly explained by: {{semPeso}} part(s) scanned without weight and {{foraDaLista}} tag(s) not on the list.",
+      "commodities": "Weight by commodity",
+      "commoditiesVazioTitle": "No weight by commodity yet",
+      "commoditiesVazioBody": "Shown once scanned parts and sorted scrap are classified.",
+      "containers": "Lot bigbags",
+      "containersAjuda": "A bigbag holds material from several lots: the \"This lot\" column is this lot's share.",
+      "containersVazioTitle": "No bigbags yet",
+      "containersVazioBody": "Shown once this lot's material goes into a bigbag.",
+      "cols": {
+        "commodity": "Commodity",
+        "codigo": "Code",
+        "peso": "Weight",
+        "participacao": "Share",
+        "container": "Bigbag",
+        "situacao": "Status",
+        "desteLote": "This lot",
+        "bruto": "Bigbag gross weight",
+        "destino": "Destination",
+        "fechadoEm": "Closed at",
+        "embarcadoEm": "Shipped at"
+      }
+    },
+    "devolucao": {
+      "titulo": "{{sistema}} asked for the receiving to be corrected",
+      "motivo": "Reason",
+      "pedidoPor": "Requested by {{quem}} on {{quando}}.",
+      "oQueFazer": "Correct the receiving (\"Correct receiving\" button): {{sistema}} resumes the lot on its own."
     }
   },
   "recebimento": {

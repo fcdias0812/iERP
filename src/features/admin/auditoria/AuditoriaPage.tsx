@@ -43,6 +43,7 @@ const TIPOS: TipoRegistroAuditoria[] = [
   'area',
   'usuario',
   'perfil',
+  'integracao',
 ]
 
 /** Onde estão os rótulos dos campos de cada tipo (o lote e o perfil têm os seus). */
@@ -55,6 +56,7 @@ const PREFIXO_CAMPOS: Partial<Record<TipoRegistroAuditoria, string>> = {
   area: 'cadastros.areas.cols',
   recipiente: 'cadastros.recipientes.cols',
   usuario: 'usuarios.cols',
+  integracao: 'integracao.campos',
 }
 
 /** Ações próprias de cada tipo (as comuns — criado, editado, status — valem para todos). */
@@ -101,6 +103,9 @@ function Auditoria() {
       ...Object.fromEntries(
         ACOES_CLIENTE.map((a) => [a, t(`clientes.history.${a as 'site_criado'}`)]),
       ),
+      chave_gerada: t('integracao.historico.chave_gerada'),
+      chave_trocada: t('integracao.historico.chave_trocada'),
+      chave_revogada: t('integracao.historico.chave_revogada'),
       criado: t('historico.acoes.criado'),
       editado: t('historico.acoes.editado'),
       status: t('historico.acoes.status'),
@@ -264,6 +269,12 @@ function LinkRegistro({ r }: { r: RegistroDaLinha }) {
     case 'perfil':
       return (
         <Link to="/admin/perfis" search={{ aberto: id }} className={LINK}>
+          {rotulo}
+        </Link>
+      )
+    case 'integracao':
+      return (
+        <Link to="/admin/integracao" search={{ aberto: id }} className={LINK}>
           {rotulo}
         </Link>
       )

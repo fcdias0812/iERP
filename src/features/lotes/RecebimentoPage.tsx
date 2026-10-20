@@ -25,7 +25,9 @@ import { RecebimentoSheet } from './RecebimentoSheet'
  */
 
 const A_RECEBER: StatusOrdem[] = ['agendado']
-const RECEBIDOS: StatusOrdem[] = ['inspecao', 'processo', 'aguardando_cod', 'concluido']
+// Recebidos = chegou e o processamento ainda não começou (o lote da Dell fica aqui até a 1ª
+// ação no MoonShot — pedido do usuário, 19/10/2026).
+const RECEBIDOS: StatusOrdem[] = ['inspecao']
 
 export function RecebimentoPage() {
   return (

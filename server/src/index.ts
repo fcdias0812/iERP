@@ -2,6 +2,7 @@ import { criarApp } from './app.js'
 import { config } from './config.js'
 import { criarDb } from './db/database.js'
 import { migrarParaUltima } from './db/migrate.js'
+import { iniciarSincronizacao } from './modules/integracao/sincronizacao.js'
 
 /* Sobe o servidor: aplica as migrations pendentes e abre a porta. */
 
@@ -12,8 +13,11 @@ if (aplicadas.length) console.log(`Migrations aplicadas: ${aplicadas.join(', ')}
 const servidor = criarApp(db).listen(config.port, () => {
   console.log(`iERP API em http://localhost:${config.port}/api (banco: ${config.dbFile})`)
 })
+// Integrações (MoonShot…): fila de avisos e leitura do painel de andamento.
+const pararSincronizacao = iniciarSincronizacao(db)
 
 const encerrar = () => {
+  pararSincronizacao()
   servidor.close(() => void db.destroy().then(() => process.exit(0)))
 }
 process.on('SIGINT', encerrar)

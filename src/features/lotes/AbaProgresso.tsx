@@ -21,10 +21,14 @@ import type {
 } from '@/services/types'
 import { FotoMiniatura } from './FotoMiniatura'
 import { ETAPAS_LOTE } from './origem'
+import { CardBalanco } from './BalancoDeMassa'
+import { CardProcessamento } from './ProcessamentoExterno'
+import { StatusDoLote } from './StatusDoLote'
 
 /*
  * Progresso do lote: etapa atual, pallets recebidos e peso bruto; linha do tempo das etapas
- * (feitas, atual, a fazer); e o recebimento pallet a pallet. Os dados do agendamento ficam
+ * (feitas, atual, a fazer); o processamento e o BALANÇO DE MASSA do sistema de fora (Dell →
+ * MoonShot); e o recebimento pallet a pallet. Os dados do agendamento ficam
  * na aba Informações.
  * Etapas e pallets vêm de Operação › Recebimento ou da integração com os sistemas de produção.
  */
@@ -50,7 +54,7 @@ export function AbaProgresso({ o }: { o: Ordem }) {
                   {t('lotes.progresso.etapaAtual')}
                 </span>
                 <span>
-                  <StatusBadge status={o.status} />
+                  <StatusDoLote lote={o} />
                 </span>
                 <span className="type-caption text-muted-foreground">
                   {o.etapaDesde
@@ -76,6 +80,8 @@ export function AbaProgresso({ o }: { o: Ordem }) {
           </li>
         </ul>
       </section>
+      <CardProcessamento o={o} />
+      <CardBalanco o={o} />
 
       <LinhaDoTempo o={o} />
       {o.recebimento && <DadosRecebimento o={o} />}

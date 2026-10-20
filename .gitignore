@@ -21,3 +21,6 @@ Thumbs.db
 
 # Prints do script de validação no Chrome
 .claude/scripts/prints/
+
+# Variáveis de teste da integração com o MoonShot (geradas; têm chave e token)
+.claude/scripts/moonshot.env.cmd

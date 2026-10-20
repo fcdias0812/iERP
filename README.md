@@ -323,6 +323,28 @@ Erros seguem `{ code, message, details? }` (ex.: `validation` 422, `email_in_use
 Páginas aceitas: `server/src/shared/paginas.ts` (as outras são ignoradas). Nome repetido: 409
 `name_in_use`. Usuário só recebe perfil ativo (422).
 
+## API de integração com os sistemas de fora (contrato v1)
+
+O MESMO contrato do iERP antigo — os sistemas de fora (hoje o MoonShot, da Dell) falam com os dois
+iERPs ao mesmo tempo. Autenticação `X-Api-Key` (gerada em Administração › Integração; só o hash fica
+guardado). Respostas `{ success: true, data }` ou `{ success: false, error: { message, code } }`. Cada
+chave só vê os lotes do seu sistema (`server/src/modules/integracao/destinos.ts`).
+
+| Método e caminho                                       | O que faz                                                         |
+| ------------------------------------------------------ | ----------------------------------------------------------------- |
+| `GET /api/integracao/v1/ping`                          | confere a chave                                                   |
+| `GET /api/integracao/v1/ordens?desde=<ISO>`            | ordens que mudaram, paginadas: `{ lotes, temMais, proximoDesde }` |
+| `GET /api/integracao/v1/ordens/:codigo`                | a ordem (pallets com `destino`, recebimento, anexos por número)   |
+| `GET /api/integracao/v1/ordens/:codigo/anexos/:numero` | o arquivo (a planilha do escopo)                                  |
+| `POST /api/integracao/v1/ordens/:codigo/balanco`       | retrato do balanço de massa (o último vence) + a fase             |
+| `POST /api/integracao/v1/ordens/:codigo/devolucao`     | pede a correção do recebimento `{ motivo, pedidoPor }`            |
+| `DELETE /api/integracao/v1/ordens/:codigo/devolucao`   | desiste do pedido                                                 |
+
+Do iERP para o sistema: **aviso** `POST <endereço dos avisos> { codigo, evento }` (fila com reenvio)
+e leitura do **painel** `GET <endereço do painel>` a cada 30 s (token em `X-Reteck-Token`). Tela de
+cadastro: `GET/POST/PUT /api/integracoes`, `POST|DELETE /api/integracoes/:id/chave`,
+`POST /api/integracoes/:id/transicao`.
+
 ## Pendências conhecidas
 
 - **Integrações** (próxima etapa): etapas do lote depois da Inspeção, pallets de outros sistemas,

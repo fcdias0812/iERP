@@ -25,6 +25,8 @@ import { criarRepositorioUsuarios } from './modules/usuarios/usuarios.repositori
 import { rotasUsuarios } from './modules/usuarios/usuarios.rotas.js'
 import { criarServicoUsuarios } from './modules/usuarios/usuarios.servico.js'
 import { rotasSistema } from './modules/sistema/sistema.rotas.js'
+import { rotasContratoIntegracao } from './modules/integracao/contrato.rotas.js'
+import { criarServicoIntegracoes, rotasIntegracoes } from './modules/integracao/integracao.js'
 import { rotaInexistente, tratarErros } from './shared/erros.js'
 
 /**
@@ -64,6 +66,12 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   api.use('/recipientes', rotasCadastro(cadastros.recipientes, 'tipo'))
   api.use('/perfis', rotasPerfis(criarServicoPerfis(db)))
   api.use('/auditoria', rotasAuditoria(criarServicoAuditoria(db)))
+  api.use('/integracoes', rotasIntegracoes(criarServicoIntegracoes(db)))
+  // Contrato com os sistemas de fora (o mesmo do iERP antigo): autenticado por X-Api-Key.
+  api.use(
+    '/integracao/v1',
+    rotasContratoIntegracao(db, (ordemId, anexoId) => ordens.arquivo(ordemId, anexoId)),
+  )
   api.use(rotasSistema(db, { usuarios, clientes, transportadoras, motoristas }))
   api.use(rotaInexistente)
 

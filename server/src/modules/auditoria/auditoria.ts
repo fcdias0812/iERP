@@ -23,6 +23,7 @@ export const TIPOS_REGISTRO = [
   'material',
   'area',
   'recipiente',
+  'integracao',
 ] as const
 export type TipoRegistro = (typeof TIPOS_REGISTRO)[number]
 
@@ -54,7 +55,7 @@ export function criarServicoAuditoria(db: Db) {
       linhas.forEach((l) =>
         mapa.set(`${tipo}:${l.id}`, { rotulo: l.rotulo, subtipo: l.subtipo ?? null }),
       )
-    const [usuarios, perfis, clientes, transp, motor, veic, ordens, mat, areas, recip] =
+    const [usuarios, perfis, clientes, transp, motor, veic, ordens, mat, areas, recip, integ] =
       await Promise.all([
         db.selectFrom('usuarios').select(['id', 'nome as rotulo']).execute(),
         db.selectFrom('perfisAcesso').select(['id', 'nomeOrdem as rotulo']).execute(),
@@ -69,6 +70,7 @@ export function criarServicoAuditoria(db: Db) {
           .selectFrom('recipientes')
           .select(['id', 'codigo as rotulo', 'tipo as subtipo'])
           .execute(),
+        db.selectFrom('integracoes').select(['id', 'nome as rotulo']).execute(),
       ])
     por('usuario', usuarios)
     por('perfil', perfis)
@@ -80,6 +82,7 @@ export function criarServicoAuditoria(db: Db) {
     por('material', mat)
     por('area', areas)
     por('recipiente', recip)
+    por('integracao', integ)
     return mapa
   }
 

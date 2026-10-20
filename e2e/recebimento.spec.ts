@@ -18,7 +18,9 @@ async function anexarFoto(bloco: Locator, nome: string) {
 
 test('lista A receber e Recebidos; painel do recebimento acessível', async ({ page }) => {
   await abrir(page, '/operacao/recebimento?visao=recebidos')
-  await expect(page.locator('main tbody tr', { hasText: 'LOT-00001' })).toBeVisible()
+  // Recebidos = chegou e o processamento ainda não começou (Inspeção). O LOT-00001 de
+  // demonstração já está em processamento: não aparece mais aqui.
+  await expect(page.locator('main tbody tr', { hasText: 'LOT-00001' })).toHaveCount(0)
   await page.getByRole('button', { name: 'A receber' }).click()
   await expect(page.getByText('Nenhum lote a receber')).toBeVisible()
   await page.getByRole('button', { name: 'Receber lote' }).first().click()

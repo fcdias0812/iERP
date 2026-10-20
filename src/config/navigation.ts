@@ -165,6 +165,7 @@ export const MODULES = {
       leaf('admin', 'usuarios', 'nav.admin.usuarios', '/admin/usuarios'),
       leaf('admin', 'perfis', 'nav.admin.perfis', '/admin/perfis'),
       leaf('admin', 'auditoria', 'nav.admin.auditoria', '/admin/auditoria'),
+      leaf('admin', 'integracao', 'nav.admin.integracao', '/admin/integracao'),
     ],
   },
 } satisfies Record<string, NavItem>

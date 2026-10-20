@@ -9,6 +9,8 @@ interface StatusBadgeProps {
   variant?: 'subtle' | 'solid'
   size?: 'sm' | 'md'
   className?: string
+  /** Texto no lugar do rótulo padrão (cor e ícone continuam os do status). */
+  label?: string
 }
 
 /** Selo de status de negócio. Cor, ícone e rótulo vêm SEMPRE do statusMap. */
@@ -17,6 +19,7 @@ export function StatusBadge({
   variant = 'subtle',
   size = 'md',
   className,
+  label,
 }: StatusBadgeProps) {
   const { t } = useTranslation()
   const def = STATUS_MAP[status]
@@ -35,7 +38,7 @@ export function StatusBadge({
       )}
     >
       <Icon className={size === 'sm' ? 'size-3' : 'size-3.5'} aria-hidden />
-      {t(`status.${status}`)}
+      {label ?? t(`status.${status}`)}
     </span>
   )
 }

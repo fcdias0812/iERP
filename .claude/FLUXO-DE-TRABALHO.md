@@ -23,6 +23,12 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
   - **`web`** → Vite na porta **5173** (encaminha `/api` para a 3001). O Vite escuta em `[::1]`
     (IPv6): use `http://localhost:5173`.
 - Demonstração sem backend: `VITE_USE_MOCKS=true npm run dev` (API simulada MSW em `src/mocks/`).
+- **`moonshot`** (porta **5063**, só este PC) → `.claude/scripts/subir-moonshot.cmd`: roda o MoonShot
+  da pasta ao lado (`..\BD-Moonshot-Operation-Scan`, ou `MOONSHOT_DIR`) com banco de TESTE em
+  `data\raw\moonshot-dev` (fora do git dele) e `DOTNET_ROLL_FORWARD=Major` (ele é .NET 8; este PC só
+  tem o .NET 10). As variáveis da integração vêm de `.claude/scripts/moonshot.env.cmd` (gerado, fora do
+  git: `IERP2_BASE_URL`, `IERP2_API_KEY`, `IERP_PAINEL_TOKEN`, `IERP_PUBLIC_URL`). Usuário de teste do
+  MoonShot (login dele é pelo Portal; sem portal, só senha local): `data\raw\moonshot-dev\USUARIO-DE-TESTE.txt`.
 - Variáveis (todas têm padrão para desenvolvimento): servidor `PORT`, `DB_FILE`, `ARQUIVOS_DIR`,
   `GEO_CONTATO` (`server/src/config.ts`); frontend `.env.example` → `.env.local`
   (`VITE_ESRI_API_KEY`, `VITE_USE_MOCKS`). Chave de integração nova: variável de ambiente, nunca no git.
@@ -164,6 +170,20 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
   conteúdo fica fora do teclado/leitor de tela — o gatilho precisa ser um link para as mesmas
   informações). Use `side="bottom"` e `max-h` com `--radix-hover-card-content-available-height`.
 - e2e: `loteAgendado` só abre o sistema na primeira vez (recarregar zera a API simulada).
+
+**MoonShot (outro repositório, .NET)**
+
+- Arquivos em **UTF-8 com BOM e CRLF** — edite preservando (script que lê/grava bytes).
+- **Não há `dotnet ef`** neste PC: migration escrita à mão (`.cs` + `.Designer.cs` = o snapshot novo
+  com `[Migration("…")]`) e o `MoonShotDbContextModelSnapshot.cs` atualizado junto.
+- MoonShot rodando **trava as DLLs**: pare o `moonshot` antes de `dotnet build`/`dotnet test`.
+- Testes: `DOTNET_ROLL_FORWARD=Major dotnet test` em `src/dotnet/MoonShot` (repositório sem `.sln` na
+  raiz). Construtores ganharam parâmetro OPCIONAL no fim (`IerpFontes? fontes = null`) para os testes
+  antigos continuarem compilando sem mudança.
+- Convenções dele: branch `feature/…`/`fix/…` (nunca direto na `main`), comentários e commits em
+  português, toda entrega com os comandos de build/execução. Variável nova lida pelo programa tem de
+  estar no `docker-compose.yml` (há teste: `DockerSetupTests`).
+- `/api/ierp/lotes` do MoonShot pede login; o painel (`/api/ierp/painel` do iERP antigo, `/api/ierp2/painel` do 2.0) pede o token.
 
 ## 6. Commits e GitHub
 

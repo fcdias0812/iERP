@@ -34,6 +34,7 @@ import {
   PackageCheck,
   PackageMinus,
   PackageOpen,
+  Scale,
   PencilLine,
   Receipt,
   type LucideIcon,
@@ -66,6 +67,15 @@ export const STATUS_MAP = {
   inspecao_bom: { tone: 'success', icon: CircleCheck, flowOrder: 61 },
   inspecao_outro: { tone: 'warning', icon: CircleHelp, flowOrder: 202 },
   inspecao_avaria: { tone: 'alert', icon: TriangleAlert, flowOrder: 203 },
+  // Balanço de massa do lote (sistema de fora): sem medição, parcial, fechou, fora da tolerância.
+  balanco_aguardando: { tone: 'inactive', icon: CircleDashed, flowOrder: 426 },
+  balanco_parcial: { tone: 'info', icon: Hourglass, flowOrder: 69 },
+  balanco_fechado: { tone: 'success', icon: Scale, flowOrder: 111 },
+  balanco_fora: { tone: 'alert', icon: TriangleAlert, flowOrder: 206 },
+  // Container (bigbag) do sistema de fora.
+  container_aberto: { tone: 'info', icon: PackageOpen, flowOrder: 81 },
+  container_fechado: { tone: 'success', icon: PackageCheck, flowOrder: 101 },
+  container_embarcado: { tone: 'success', icon: Truck, flowOrder: 102 },
   aguardando_aprovacao: { tone: 'warning', icon: Hourglass, flowOrder: 40 },
   em_revisao: { tone: 'warning', icon: Eye, flowOrder: 50 },
   aprovado: { tone: 'success', icon: CircleCheck, flowOrder: 60 },

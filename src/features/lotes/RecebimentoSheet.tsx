@@ -15,7 +15,6 @@ import { SeletorIdiomaTexto } from '@/components/ui/localized-text'
 import { NumberInput } from '@/components/ui/masked-input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Skeleton } from '@/components/ui/skeleton'
-import { StatusBadge } from '@/components/ui/status-badge'
 import { Textarea } from '@/components/ui/textarea'
 import { CadastroSecao, CadastroSheet } from '@/features/comum/CadastroSheet'
 import { useSalvarRecebimento } from '@/features/ordens/use-ordens'
@@ -38,6 +37,7 @@ import {
   recebimentoSchema,
   type RecebimentoForm,
 } from './recebimento-schema'
+import { StatusDoLote } from './StatusDoLote'
 
 /*
  * Receber lote / corrigir recebimento (painel lateral — padrão de cadastro; decisão do usuário).
@@ -117,7 +117,8 @@ function Formulario({
   const { t } = useTranslation()
   const corrigir = Boolean(lote?.recebimento)
   // Só se recebe lote agendado; só se corrige recebimento de lote em Inspeção.
-  const bloqueado = lote && (corrigir ? lote.status !== 'inspecao' : lote.status !== 'agendado')
+  const bloqueado =
+    lote && (corrigir ? lote.status !== 'inspecao' && !lote.devolucao : lote.status !== 'agendado')
   const salvar = useSalvarRecebimento()
   const traducao = useTraducao()
   // Lista de lotes atualizada a cada abertura do painel (o recebido sai da lista).
@@ -165,7 +166,7 @@ function Formulario({
           : t('recebimento.receberTitulo')
       }
       descricao={corrigir ? t('recebimento.corrigirDescricao') : t('recebimento.descricao')}
-      status={lote ? <StatusBadge status={lote.status} /> : undefined}
+      status={lote ? <StatusDoLote lote={lote} /> : undefined}
       formId="form-recebimento"
       salvando={form.formState.isSubmitting}
       sujo={form.formState.isDirty}

@@ -25,6 +25,12 @@ export interface EventoHistorico {
     | 'ocorrencia_cancelada'
     | 'recebido'
     | 'recebimento_editado'
+    | 'processamento'
+    | 'devolucao_pedida'
+    | 'devolucao_cancelada'
+    | 'chave_gerada'
+    | 'chave_trocada'
+    | 'chave_revogada'
   mudancas?: Mudanca[]
   nota?: string
 }

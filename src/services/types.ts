@@ -34,6 +34,12 @@ export interface EventoHistorico {
     | 'ocorrencia_cancelada'
     | 'recebido'
     | 'recebimento_editado'
+    | 'processamento'
+    | 'devolucao_pedida'
+    | 'devolucao_cancelada'
+    | 'chave_gerada'
+    | 'chave_trocada'
+    | 'chave_revogada'
   mudancas?: Mudanca[]
   nota?: string
 }
@@ -528,6 +534,28 @@ export interface OrdemResumo {
   etapaDesde: string | null
   codEmitidoEm: string | null
   criadoEm: string
+  /** Andamento num sistema de fora (MoonShot): "Processamento 2/4 · Leitura das peças". */
+  processamento: ProcessamentoExterno | null
+  /** O sistema de fora pediu a correção do recebimento (null = nada pendente). */
+  devolucao: DevolucaoAoRecebimento | null
+}
+
+export interface ProcessamentoExterno {
+  /** Código do sistema (MOONSHOT). */
+  sistema: string
+  etapa: string | null
+  indice: number | null
+  total: number | null
+  desde: string | null
+  /** Tela do lote no sistema de fora. */
+  url: string | null
+  atualizadoEm: string | null
+}
+
+export interface DevolucaoAoRecebimento {
+  motivo: string | null
+  pedidoPor: string | null
+  em: string
 }
 
 export interface Ordem extends OrdemResumo {
@@ -552,6 +580,55 @@ export interface Ordem extends OrdemResumo {
   ocorrencias: OcorrenciaLote[]
   /** Recebimento (Operação › Recebimento); null = ainda não recebido. */
   recebimento: RecebimentoLote | null
+  /** Balanço de massa mandado pelo sistema de fora (MoonShot); null = ainda nenhum. */
+  balanco: BalancoDeMassa | null
+}
+
+/* ---------------- Balanço de massa (server/src/modules/integracao/balanco.ts) */
+
+/** aguardando = sem bruto/embalagem; parcial = lote ainda não concluído. */
+export type SituacaoBalanco = 'aguardando' | 'parcial' | 'fechado' | 'fora'
+
+export interface CommodityBalanco {
+  codigo: string
+  rotulo: string
+  pesoKg: number
+}
+
+export interface ContainerBalanco {
+  codigo: string
+  categoria: string | null
+  categoriaRotulo: string | null
+  /** aberto | fechado | embarcado */
+  situacao: string
+  brutoKg: number | null
+  taraKg: number | null
+  /** Peso DESTE lote no container (o bigbag junta vários lotes). */
+  desteLoteKg: number
+  destino: string | null
+  fechadoEm: string | null
+  embarcadoEm: string | null
+}
+
+export interface BalancoDeMassa {
+  sistema: string
+  recebidoEm: string
+  brutoKg: number | null
+  embalagemKg: number | null
+  lidoKg: number | null
+  scrapRecebidoKg: number | null
+  scrapTriadoKg: number | null
+  toleranciaPercent: number | null
+  pecasLidas: number
+  pecasSemPeso: number
+  foraDaLista: number
+  liquidoKg: number | null
+  contabilizadoKg: number | null
+  diferencaKg: number | null
+  diferencaPercent: number | null
+  situacao: SituacaoBalanco
+  commodities: CommodityBalanco[]
+  containers: ContainerBalanco[]
 }
 
 /* ---------------- Recebimento (server/src/modules/ordens/ordens.recebimento.ts) */
@@ -944,6 +1021,7 @@ export type TipoRegistroAuditoria =
   | 'material'
   | 'area'
   | 'recipiente'
+  | 'integracao'
 
 /** Evento da Auditoria: o evento + o registro (tipo, id e nome/código). */
 export interface EventoAuditoria extends EventoHistorico {
@@ -952,4 +1030,57 @@ export interface EventoAuditoria extends EventoHistorico {
   registroRotulo: string
   /** Caixote ou pallet (recipientes). */
   registroSubtipo: string | null
+}
+
+/* ---------------- Administração › Integração (server/src/modules/integracao/integracao.ts) */
+
+export interface Integracao {
+  id: string
+  /** Código do sistema (MOONSHOT): vai no `destino` dos pallets do contrato. */
+  sistema: string
+  nome: string
+  /** Começo da chave, para reconhecer (null = sem chave). */
+  chavePrefixo: string | null
+  chaveCriadaEm: string | null
+  urlAvisos: string | null
+  urlPainel: string | null
+  temTokenPainel: boolean
+  status: 'ativo' | 'inativo'
+  ultimoUsoEm: string | null
+  ultimoAvisoEm: string | null
+  ultimoPainelEm: string | null
+  ultimoErro: string | null
+  ultimoErroEm: string | null
+  avisosPendentes: number
+  criadoEm: string
+  criadoPor: string
+  alteradoEm: string
+  alteradoPor: string
+}
+export interface AvisoIntegracao {
+  id: string
+  codigo: string
+  evento: string
+  tentativas: number
+  erro: string | null
+  criadoEm: string
+  enviadoEm: string | null
+}
+export interface IntegracaoDetalhe extends Integracao {
+  historico: EventoHistorico[]
+  avisos: AvisoIntegracao[]
+  acoesPermitidas: AcaoCadastro[]
+}
+export interface IntegracaoInput {
+  sistema?: string
+  nome: string
+  urlAvisos: string | null
+  urlPainel: string | null
+  /** Ausente = mantém o guardado; '' = apaga. */
+  tokenPainel?: string
+}
+/** Sistemas que podem ser integrados (por cliente: Dell → MOONSHOT). */
+export interface SistemaIntegravel {
+  sistema: string
+  nome: string
 }

@@ -4,6 +4,7 @@ import { dashboardHandlers } from './dashboard'
 import { clientesAbasHandlers } from './clientes-abas'
 import { ordensHandlers } from './ordens'
 import { perfilHandlers } from './perfil'
+import { integracoesHandlers } from './integracoes'
 import { perfisHandlers } from './perfis'
 import { relacionamentoHandlers } from './relacionamento'
 import { sistemaHandlers } from './sistema'
@@ -19,6 +20,7 @@ export const handlers = [
   ...dashboardHandlers,
   ...usuariosHandlers,
   ...perfisHandlers,
+  ...integracoesHandlers,
   ...sistemaHandlers,
   ...perfilHandlers,
 ]

@@ -29,7 +29,15 @@ export interface EventoHistoricoModulo extends EventoHistorico {
 /** Ações de lote de cada módulo (as de ocorrência dependem do momento). */
 const ACOES: Record<ModuloHistorico, string[]> = {
   ordens: ['criado', 'editado', 'documento_adicionado', 'documento_removido'],
-  operacao: ['criado', 'recebido', 'recebimento_editado', 'status'],
+  operacao: [
+    'criado',
+    'recebido',
+    'recebimento_editado',
+    'status',
+    'processamento',
+    'devolucao_pedida',
+    'devolucao_cancelada',
+  ],
 }
 const ACOES_OCORRENCIA = ['ocorrencia_registrada', 'ocorrencia_editada', 'ocorrencia_cancelada']
 const MOMENTOS: Record<ModuloHistorico, string[]> = {

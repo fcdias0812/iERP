@@ -63,6 +63,8 @@ const TODAS = [
   '/admin/perfis?aberto=admin',
   '/admin/perfis?aberto=operacao',
   '/admin/auditoria',
+  '/admin/integracao',
+  '/admin/integracao?aberto=int00001',
   '/perfil',
   '/configuracoes',
   '/login',

@@ -698,7 +698,8 @@
       "title": "Administração",
       "usuarios": "Usuários",
       "perfis": "Perfis de acesso",
-      "auditoria": "Auditoria"
+      "auditoria": "Auditoria",
+      "integracao": "Integração"
     },
     "perfil": "Meu perfil",
     "configuracoes": "Configurações",
@@ -759,7 +760,9 @@
     "tareGreater": "A tara não pode ser maior que o peso bruto.",
     "futureDate": "A data não pode ser no futuro.",
     "palletRequired": "Informe pelo menos um pallet.",
-    "nameInUse": "Já existe um cadastro com este nome."
+    "nameInUse": "Já existe um cadastro com este nome.",
+    "url": "Endereço inválido (comece com http:// ou https://).",
+    "tokenCurto": "O token precisa ter pelo menos 32 caracteres."
   },
   "confirm": {
     "typeToConfirm": "Para confirmar, digite"
@@ -863,6 +866,13 @@
     "registrada": "Registrada",
     "inspecao_bom": "Bom",
     "inspecao_avaria": "Avaria",
+    "balanco_aguardando": "Aguardando medições",
+    "balanco_parcial": "Parcial",
+    "balanco_fechado": "Fechou",
+    "balanco_fora": "Fora da tolerância",
+    "container_aberto": "Aberto",
+    "container_fechado": "Fechado",
+    "container_embarcado": "Embarcado",
     "inspecao_outro": "Outro",
     "coleta_prevista": "Data prevista",
     "coleta_confirmada": "Data confirmada"
@@ -1316,7 +1326,8 @@
     "scopeRequired": "Escreva o escopo de trabalho ou anexe pelo menos um documento.",
     "nameInUse": "Já existe um cadastro com este nome.",
     "fixedProfile": "O perfil Administrador é fixo: não se edita nem inativa.",
-    "profileInUse": "Há usuários usando este perfil. Troque o perfil deles antes de inativar."
+    "profileInUse": "Há usuários usando este perfil. Troque o perfil deles antes de inativar.",
+    "systemInUse": "Este sistema já está cadastrado."
   },
   "calendar": {
     "today": "Hoje",
@@ -1493,7 +1504,99 @@
       "recipiente": "Caixote / pallet",
       "area": "Área do estoque",
       "usuario": "Usuário",
-      "perfil": "Perfil de acesso"
+      "perfil": "Perfil de acesso",
+      "integracao": "Integração"
+    }
+  },
+  "integracao": {
+    "descricaoPagina": "Os sistemas de fora que conversam com o iERP (hoje o MoonShot, que processa os lotes da Dell): a chave de acesso, os avisos e o painel de andamento.",
+    "descricaoPainel": "Chave de acesso, endereço dos avisos e painel de andamento do sistema.",
+    "novo": "Nova integração",
+    "vazio": "Nenhum sistema integrado.",
+    "semChave": "Sem chave",
+    "escolherSistema": "Escolha o sistema",
+    "ultimoErro": "Último erro ({{quando}})",
+    "cols": {
+      "nome": "Nome",
+      "sistema": "Sistema",
+      "chave": "Chave",
+      "ultimoUsoEm": "Último contato",
+      "ultimoPainelEm": "Painel lido em",
+      "avisosPendentes": "Avisos na fila",
+      "status": "Status"
+    },
+    "campos": {
+      "nome": "Nome",
+      "chave": "Chave",
+      "status": "Status",
+      "urlAvisos": "Endereço dos avisos",
+      "urlPainel": "Endereço do painel",
+      "tokenPainel": "Token do painel",
+      "chaveCriadaEm": "Chave gerada em",
+      "ultimoAvisoEm": "Último aviso entregue"
+    },
+    "secoes": {
+      "sistema": "Sistema",
+      "avisos": "Avisos (iERP → sistema)",
+      "painel": "Painel de andamento (sistema → iERP)",
+      "chave": "Chave de acesso (sistema → iERP)",
+      "situacao": "Situação"
+    },
+    "ajuda": {
+      "sistema": "Cada sistema processa os lotes de um cliente (Dell → MoonShot).",
+      "avisos": "Quando um lote do cliente é recebido ou corrigido, o iERP avisa o sistema, que busca o lote com a chave. Se ele estiver fora do ar, o aviso fica na fila e é reenviado.",
+      "urlAvisos": "No MoonShot: http://<endereço do MoonShot>/api/ierp2/avisos",
+      "painel": "A cada 30 segundos o iERP lê em que fase está cada lote lá (\"Processamento 2/4 · Leitura das peças\").",
+      "token": "O mesmo token configurado no sistema (no MoonShot: IERP_PAINEL_TOKEN), com pelo menos {{min}} caracteres.",
+      "tokenGuardado": "Já há um token guardado. Deixe em branco para manter; escreva um novo para trocar.",
+      "chave": "A chave com que o sistema entra no iERP (no MoonShot: IERP2_API_KEY). Ela aparece uma vez só, ao ser gerada."
+    },
+    "gerarChave": "Gerar chave",
+    "trocarChave": "Trocar chave",
+    "revogarChave": "Revogar chave",
+    "confirmTrocar": {
+      "title": "Trocar a chave?",
+      "body": "A chave atual de {{name}} para de funcionar na hora. Configure a nova no sistema logo em seguida."
+    },
+    "confirmRevogar": {
+      "title": "Revogar a chave?",
+      "body": "{{name}} deixa de conseguir ler os lotes e enviar o andamento até ganhar uma chave nova."
+    },
+    "chaveNova": {
+      "title": "Chave gerada",
+      "body": "Copie a chave e configure no sistema {{name}}.",
+      "aviso": "Copie agora: por segurança, a chave não aparece de novo.",
+      "copiei": "Já copiei"
+    },
+    "confirm": {
+      "inativar": "O sistema deixa de receber avisos e de conseguir entrar no iERP. O cadastro e o histórico são mantidos.",
+      "reativar": "O sistema volta a receber avisos e a entrar com a chave."
+    },
+    "avisos": {
+      "titulo": "Últimos avisos",
+      "vazio": "Nenhum aviso enviado ainda.",
+      "pendente": "Na fila",
+      "cols": {
+        "criadoEm": "Criado em",
+        "lote": "Lote",
+        "enviadoEm": "Entregue em",
+        "tentativas": "Tentativas",
+        "erro": "Erro"
+      }
+    },
+    "historico": {
+      "chave_gerada": "Gerou a chave",
+      "chave_trocada": "Trocou a chave",
+      "chave_revogada": "Revogou a chave"
+    },
+    "sistemas": {
+      "MOONSHOT": "MoonShot"
+    },
+    "toast": {
+      "criado": "Integração {{name}} cadastrada.",
+      "salvo": "Integração {{name}} salva.",
+      "falhou": "Não foi possível salvar a integração.",
+      "chaveRevogada": "Chave de {{name}} revogada."
     }
   },
   "clientes": {
@@ -2379,7 +2482,10 @@
         "documento_adicionado": "Adicionou documento",
         "documento_removido": "Removeu documento",
         "recebido": "Recebeu o lote",
-        "recebimento_editado": "Corrigiu o recebimento"
+        "recebimento_editado": "Corrigiu o recebimento",
+        "processamento": "Mudou a fase do processamento",
+        "devolucao_pedida": "Pediu a correção do recebimento",
+        "devolucao_cancelada": "Cancelou o pedido de correção"
       },
       "campos": {
         "status": "Status",
@@ -2396,7 +2502,9 @@
         "palletsRecebidos": "Pallets recebidos",
         "pesoBruto": "Peso bruto",
         "pesoLiquido": "Peso líquido",
-        "fotosGerais": "Fotos gerais"
+        "fotosGerais": "Fotos gerais",
+        "processamento": "Fase do processamento",
+        "motivoDevolucao": "Motivo da correção"
       }
     },
     "informacoes": {
@@ -2464,6 +2572,64 @@
         "salvo": "Lote {{code}} atualizado.",
         "falhou": "Não foi possível salvar o lote."
       }
+    },
+    "processamento": {
+      "rotulo": "Processamento {{i}}/{{n}} · {{etapa}}",
+      "rotuloSemEtapa": "Processamento {{i}}/{{n}}",
+      "titulo": "Processamento no {{sistema}}",
+      "aguardando": "O lote já foi entregue ao {{sistema}}. Ele continua em Recebidos até a primeira ação lá.",
+      "fase": "Fase",
+      "desde": "Na fase desde",
+      "atualizado": "Atualizado em",
+      "abrir": "Abrir no {{sistema}}"
+    },
+    "balanco": {
+      "titulo": "Balanço de massa",
+      "origem": "Medições do {{sistema}} · atualizado em {{quando}} · tolerância ±{{tolerancia}}",
+      "situacoes": {
+        "aguardando": "Ainda não há conta: faltam o peso bruto do lote ou o peso da embalagem.",
+        "parcial": "Conta parcial: o lote ainda está em processamento, e a diferença diminui conforme as peças são lidas e o scrap é triado.",
+        "fechado": "O balanço fechou: a diferença ficou dentro da tolerância de ±{{tolerancia}}.",
+        "fora": "A diferença passou da tolerância de ±{{tolerancia}}. Confira as pesagens com a operação."
+      },
+      "campos": {
+        "entrada": "Entrada líquida",
+        "lido": "Peças lidas",
+        "scrap": "Scrap triado",
+        "diferenca": "Diferença"
+      },
+      "entradaDetalhe": "Bruto {{bruto}} − embalagem {{embalagem}}",
+      "lidoDetalhe": "{{pecas}} peças lidas",
+      "scrapDetalhe": "De {{recebido}} de scrap recebido",
+      "semScrap": "Sem scrap neste lote",
+      "diferencaDetalhe": "{{percentual}} da entrada líquida",
+      "explicam": "Explicam parte da diferença: {{semPeso}} peça(s) lida(s) sem peso e {{foraDaLista}} etiqueta(s) fora da lista.",
+      "commodities": "Peso por commodity",
+      "commoditiesVazioTitle": "Nenhum peso por commodity ainda",
+      "commoditiesVazioBody": "Aparece quando as peças lidas e o scrap triado forem classificados.",
+      "containers": "Bigbags do lote",
+      "containersAjuda": "Um bigbag junta material de vários lotes: a coluna \"Deste lote\" é a parte deste lote.",
+      "containersVazioTitle": "Nenhum bigbag ainda",
+      "containersVazioBody": "Aparece quando o material deste lote for lançado num bigbag.",
+      "cols": {
+        "commodity": "Commodity",
+        "codigo": "Código",
+        "peso": "Peso",
+        "participacao": "Participação",
+        "container": "Bigbag",
+        "situacao": "Situação",
+        "desteLote": "Deste lote",
+        "bruto": "Peso bruto do bigbag",
+        "destino": "Destino",
+        "fechadoEm": "Fechado em",
+        "embarcadoEm": "Embarcado em"
+      }
+    },
+    "devolucao": {
+      "titulo": "O {{sistema}} pediu a correção do recebimento",
+      "motivo": "Motivo",
+      "pedidoPor": "Pedido por {{quem}} em {{quando}}.",
+      "oQueFazer": "Corrija o recebimento (botão \"Corrigir recebimento\"): o {{sistema}} volta a trabalhar no lote sozinho."
     }
   },
   "recebimento": {

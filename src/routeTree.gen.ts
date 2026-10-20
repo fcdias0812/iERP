@@ -18,6 +18,7 @@ import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoes'
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
 import { Route as AppAdminAuditoriaRouteImport } from './routes/_app/admin/auditoria'
+import { Route as AppAdminIntegracaoRouteImport } from './routes/_app/admin/integracao'
 import { Route as AppAdminPerfisRouteImport } from './routes/_app/admin/perfis'
 import { Route as AppCadastrosIndexRouteImport } from './routes/_app/cadastros/index'
 import { Route as AppCadastrosAreasRouteImport } from './routes/_app/cadastros/areas'
@@ -85,6 +86,11 @@ const AppPerfilRoute = AppPerfilRouteImport.update({
 const AppAdminAuditoriaRoute = AppAdminAuditoriaRouteImport.update({
   id: '/admin/auditoria',
   path: '/admin/auditoria',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminIntegracaoRoute = AppAdminIntegracaoRouteImport.update({
+  id: '/admin/integracao',
+  path: '/admin/integracao',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminPerfisRoute = AppAdminPerfisRouteImport.update({
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
   '/admin/auditoria': typeof AppAdminAuditoriaRoute
+  '/admin/integracao': typeof AppAdminIntegracaoRoute
   '/admin/perfis': typeof AppAdminPerfisRoute
   '/cadastros/areas': typeof AppCadastrosAreasRoute
   '/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AppPerfilRoute
   '/': typeof AppIndexRoute
   '/admin/auditoria': typeof AppAdminAuditoriaRoute
+  '/admin/integracao': typeof AppAdminIntegracaoRoute
   '/admin/perfis': typeof AppAdminPerfisRoute
   '/cadastros/areas': typeof AppCadastrosAreasRoute
   '/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
@@ -289,6 +297,7 @@ export interface FileRoutesById {
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/auditoria': typeof AppAdminAuditoriaRoute
+  '/_app/admin/integracao': typeof AppAdminIntegracaoRoute
   '/_app/admin/perfis': typeof AppAdminPerfisRoute
   '/_app/cadastros/areas': typeof AppCadastrosAreasRoute
   '/_app/cadastros/caixotes': typeof AppCadastrosCaixotesRoute
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/perfil'
     | '/admin/auditoria'
+    | '/admin/integracao'
     | '/admin/perfis'
     | '/cadastros/areas'
     | '/cadastros/caixotes'
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/'
     | '/admin/auditoria'
+    | '/admin/integracao'
     | '/admin/perfis'
     | '/cadastros/areas'
     | '/cadastros/caixotes'
@@ -394,6 +405,7 @@ export interface FileRouteTypes {
     | '/_app/perfil'
     | '/_app/'
     | '/_app/admin/auditoria'
+    | '/_app/admin/integracao'
     | '/_app/admin/perfis'
     | '/_app/cadastros/areas'
     | '/_app/cadastros/caixotes'
@@ -490,6 +502,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/auditoria'
       fullPath: '/admin/auditoria'
       preLoaderRoute: typeof AppAdminAuditoriaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/integracao': {
+      id: '/_app/admin/integracao'
+      path: '/admin/integracao'
+      fullPath: '/admin/integracao'
+      preLoaderRoute: typeof AppAdminIntegracaoRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/perfis': {
@@ -669,6 +688,7 @@ interface AppRouteChildren {
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
   AppAdminAuditoriaRoute: typeof AppAdminAuditoriaRoute
+  AppAdminIntegracaoRoute: typeof AppAdminIntegracaoRoute
   AppAdminPerfisRoute: typeof AppAdminPerfisRoute
   AppCadastrosAreasRoute: typeof AppCadastrosAreasRoute
   AppCadastrosCaixotesRoute: typeof AppCadastrosCaixotesRoute
@@ -701,6 +721,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
   AppAdminAuditoriaRoute: AppAdminAuditoriaRoute,
+  AppAdminIntegracaoRoute: AppAdminIntegracaoRoute,
   AppAdminPerfisRoute: AppAdminPerfisRoute,
   AppCadastrosAreasRoute: AppCadastrosAreasRoute,
   AppCadastrosCaixotesRoute: AppCadastrosCaixotesRoute,

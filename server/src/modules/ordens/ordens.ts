@@ -2,10 +2,11 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { Router } from 'express'
-import { sql } from 'kysely'
+import { sql, type Transaction } from 'kysely'
 import multer from 'multer'
 import { z } from 'zod'
 import type { Db } from '../../db/database.js'
+import type { Database } from '../../db/schema.js'
 import { EXTENSOES, extensaoDe, MAX_BYTES, nomeSeguro } from '../../shared/arquivos.js'
 import { autorDa } from '../../shared/autor.js'
 import { codigoCom, proximoNumero } from '../../shared/cadastro.js'
@@ -20,6 +21,8 @@ import { ErroApi, naoEncontrado } from '../../shared/erros.js'
 import type { EventoHistorico, Mudanca } from '../../shared/historico.js'
 import { listarHistorico, registrarHistorico } from '../../shared/historico.repositorio.js'
 import { normalizar } from '../../shared/texto.js'
+import { balancoDoLote, type BalancoDeMassa } from '../integracao/balanco.js'
+import { enfileirarAviso } from '../integracao/sincronizacao.js'
 import {
   calcularOs,
   SemVeiculoError,
@@ -125,6 +128,27 @@ export interface OrdemResumo {
   etapaDesde: string | null
   codEmitidoEm: string | null
   criadoEm: string
+  /** Andamento num sistema de fora (MoonShot): "Processamento 2/4 · Leitura das peças". */
+  processamento: ProcessamentoExterno | null
+  /** O sistema de fora pediu a correção do recebimento (null = nada pendente). */
+  devolucao: DevolucaoAoRecebimento | null
+}
+
+export interface ProcessamentoExterno {
+  sistema: string
+  etapa: string | null
+  indice: number | null
+  total: number | null
+  desde: string | null
+  /** Tela do lote no sistema de fora. */
+  url: string | null
+  atualizadoEm: string | null
+}
+
+export interface DevolucaoAoRecebimento {
+  motivo: string | null
+  pedidoPor: string | null
+  em: string
 }
 
 export interface Ordem extends OrdemResumo {
@@ -159,6 +183,8 @@ export interface Ordem extends OrdemResumo {
   ocorrencias: OcorrenciaLote[]
   /** Recebimento (Operação › Recebimento); null = ainda não recebido. */
   recebimento: RecebimentoLote | null
+  /** Balanço de massa mandado pelo sistema de fora (MoonShot); null = ainda nenhum. */
+  balanco: BalancoDeMassa | null
 }
 
 /* ------------------------------------------------------------ regras */
@@ -322,11 +348,37 @@ const paraResumo = (l: Linha): OrdemResumo => ({
   etapaDesde: l.etapaDesde,
   codEmitidoEm: l.codEmitidoEm,
   criadoEm: l.criadoEm,
+  processamento: l.processamentoSistema
+    ? {
+        sistema: l.processamentoSistema,
+        etapa: l.processamentoEtapa,
+        indice: l.processamentoIndice,
+        total: l.processamentoTotal,
+        desde: l.processamentoDesde,
+        url: l.processamentoUrl,
+        atualizadoEm: l.processamentoAtualizadoEm,
+      }
+    : null,
+  devolucao: l.devolucaoEm
+    ? { motivo: l.devolucaoMotivo, pedidoPor: l.devolucaoPedidoPor, em: l.devolucaoEm }
+    : null,
 })
 
 export interface ArquivoEnviado {
   nomeOriginal: string
   conteudo: Buffer
+}
+
+/**
+ * Próximo número de anexo (sequência única de todos os lotes). O contrato de integração
+ * identifica o anexo por número — o id aqui é UUID.
+ */
+export async function proximoNumeroAnexo(cx: Db | Transaction<Database>): Promise<number> {
+  const r = await cx
+    .selectFrom('ordensAnexos')
+    .select(sql<number | null>`max(numero)`.as('n'))
+    .executeTakeFirst()
+  return Number(r?.n ?? 0) + 1
 }
 
 export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
@@ -335,10 +387,30 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
   const lote = criarServicoLote(db, opcoes)
   const recebimento = criarServicoRecebimento(db, opcoes)
 
+  /**
+   * Documento entrou ou saiu de um lote JÁ RECEBIDO: o sistema de fora do cliente (Dell →
+   * MoonShot) relê o lote. É o caminho da planilha da Dell anexada depois do recebimento —
+   * sem o aviso, o MoonShot nunca saberia que ela chegou.
+   */
+  async function avisarSistemaDeFora(ordemId: string, autor: string, agora: string) {
+    const o = await db
+      .selectFrom('ordens')
+      .select('status')
+      .where('id', '=', ordemId)
+      .executeTakeFirst()
+    if (!o || o.status === 'agendado' || o.status === 'cancelado') return
+    await db
+      .updateTable('ordens')
+      .set({ alteradoEm: agora, alteradoPor: autor })
+      .where('id', '=', ordemId)
+      .execute()
+    await enfileirarAviso(db, ordemId, 'ordem.editada')
+  }
+
   async function obter(id: string): Promise<Ordem> {
     const l = await linhaDe(db, id)
     if (!l) throw naoEncontrado('Ordem não encontrada.')
-    const [anexos, historico, doLote, recebido] = await Promise.all([
+    const [anexos, historico, doLote, recebido, balanco] = await Promise.all([
       db
         .selectFrom('ordensAnexos')
         .selectAll()
@@ -348,6 +420,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
       listarHistorico(db, 'ordem', id),
       lote.dados(id),
       recebimento.dados(id),
+      balancoDoLote(db, id, l.status === 'concluido'),
     ])
     return {
       ...paraResumo(l),
@@ -385,6 +458,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
       historico,
       ...doLote,
       recebimento: recebido,
+      balanco,
     }
   }
 
@@ -624,12 +698,14 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
               alteradoPor: autor,
             })
             .execute()
+          const primeiro = await proximoNumeroAnexo(trx)
           if (todos.length)
             await trx
               .insertInto('ordensAnexos')
               .values(
-                todos.map((a) => ({
+                todos.map((a, i) => ({
                   id: a.id,
+                  numero: primeiro + i,
                   ordemId: id,
                   secao: a.secao,
                   tipo: a.secao === 'escopo' ? 'escopo' : 'outro',
@@ -692,11 +768,13 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
           gravados.push(destino)
         }
         await db.transaction().execute(async (trx) => {
+          const primeiro = await proximoNumeroAnexo(trx)
           await trx
             .insertInto('ordensAnexos')
             .values(
-              novos.map((a) => ({
+              novos.map((a, i) => ({
                 id: a.id,
+                numero: primeiro + i,
                 ordemId,
                 secao: 'lote',
                 tipo,
@@ -721,6 +799,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
         await Promise.all(gravados.map((g) => rm(g, { force: true })))
         throw e
       }
+      await avisarSistemaDeFora(ordemId, autor, agora)
       return obter(ordemId)
     },
 
@@ -765,6 +844,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
         })
       })
       await rm(caminho(ordemId, anexoId), { force: true })
+      await avisarSistemaDeFora(ordemId, autor, agora)
       return obter(ordemId)
     },
 

@@ -31,6 +31,7 @@ export const PAGINAS = [
   'admin.usuarios',
   'admin.perfis',
   'admin.auditoria',
+  'admin.integracao',
 ] as const
 export type Pagina = (typeof PAGINAS)[number]
 

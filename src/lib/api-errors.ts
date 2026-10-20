@@ -28,6 +28,8 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.fixedProfile')
     case 'profile_in_use':
       return i18n.t('apiErrors.profileInUse')
+    case 'system_in_use':
+      return i18n.t('apiErrors.systemInUse')
     case 'site_code_in_use':
       return i18n.t('apiErrors.siteCodeInUse')
     case 'file_too_large':

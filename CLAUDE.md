@@ -27,7 +27,7 @@ antigo (v1) nem de outro lugar.
   construção), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo detalhe de Ordens › Lotes
   —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (em construção); e,
   em Sistema, **Cadastros** (submenu: Materiais, Pallets, Caixotes, Áreas do estoque, Rastreadores GPS)
-  e **Administração** (Usuários, Perfis de acesso, Auditoria).
+  e **Administração** (Usuários, Perfis de acesso, Auditoria, Integração).
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
   cada registro, nunca num módulo à parte) e "não está na lista? cadastre aqui mesmo".
 - Regra da organização: pesquisar na web antes de afirmar fato técnico (versão, API, menu).
@@ -176,7 +176,8 @@ O layout não muda. Modelos completos para copiar:
 - **Lotes** (Ordens › Lotes = Operação › Lotes) — `src/features/lotes/`: a mesma lista e o mesmo
   detalhe nos dois módulos (`origem` = `ordens` | `operacao` decide rota, caminho e permissão
   `<origem>.lotes.ver`/`<origem>.lotes.editar`). Detalhe com abas na URL (`?aba=`): **Informações** (padrão),
-  **Progresso** (etapa, pallets, peso bruto, linha do tempo, recebimento), **Ocorrências** (painel
+  **Progresso** (etapa, pallets, peso bruto, processamento e **balanço de massa** do MoonShot,
+linha do tempo, recebimento), **Ocorrências** (painel
   `?ocorrencia=nova|<id>`, texto traduzível, fotos), **Documentos** (do agendamento + adicionados
   depois, com tipo e remoção) e **Histórico**. **Editar** (só enquanto agendado, cliente fixo,
   refaz o pré-cálculo): `LoteSheet` com os campos do Agendamento
@@ -211,6 +212,11 @@ O layout não muda. Modelos completos para copiar:
   da aba Informações). Data da coleta = `dataColeta` (confirmada) ou `coletaPrevista` (obrigatória). SLA = `slaDias`
   do cliente; etapas do lote no `status` da ordem (`inspecao`, `processo`, `aguardando_cod`,
   `concluido`).
+- **Integração** (Administração) e o contrato com os sistemas de fora — `server/src/modules/integracao/`
+  (`contrato.rotas.ts` = `/api/integracao/v1`, o MESMO contrato do iERP antigo; `sincronizacao.ts` =
+  avisos + painel → "Processamento i/N"; `destinos.ts` = cliente → sistema, hoje Dell → MOONSHOT) e
+  `src/features/admin/integracao/`. O iERP antigo e o 2.0 rodam JUNTOS: integração só por acréscimo.
+  Detalhes em `.claude/INTEGRACOES.md` §0.
 - **Perfis de acesso e Auditoria** (Administração) — `server/src/modules/perfis/perfis.ts`
   (tabela `perfis_acesso`, permissões página → nível em JSON; `admin` fixo) e
   `server/src/modules/auditoria/auditoria.ts` (junta todos os históricos). Frontend
