@@ -84,6 +84,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `9360749` | Documentação para continuar em outro PC (integrações: `.claude/INTEGRACOES.md`)          |
 | `3acdebb` | Integração Dell → MoonShot, Administração › Integração e balanço de massa                |
 | `c5e7c3e` | Gerenciamento de Projetos → iERP (lotes só para ver, espelho de lá, status Cancelado)    |
+| `1cf2c3d` | Re-Teck MSDC (Microsoft) → iERP (lotes só para ver, HTTPS com a CA de lá)                |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
