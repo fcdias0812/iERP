@@ -495,6 +495,12 @@ viagem (código de chegada, link, conversa, finalizar) e o MESMO mapa de Viagens
 camadas, rota, paradas, resumo) só com a viagem do lote; terminada, some dali (o replay fica em
 Ordens › Viagens). O card que estava na aba Progresso saiu (um lugar só).
 
+Ajuste dele (20/10/2026): "Nas viagens finalizadas, precisamos disponibilizar o download dos
+arquivos, igual o iERP versão 1 tem." Feito: **Baixar GPX / KML / CSV** no replay e no menu ⋯ de
+cada linha das Finalizadas — o mesmo formato do antigo (`exportarViagem.js` portado para
+`server/src/modules/viagens/exportar.ts`, com os mesmos testes), a partir do trajeto guardado
+aqui; a precisão do GPS de cada ponto passou a ser guardada (coluna `accuracy_m` do CSV).
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -547,7 +553,7 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 ## 7. Próximo passo
 
 **Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — commit local `9cbfb1e`
-(ainda NÃO enviado ao GitHub: push só quando ele pedir; §5.17; detalhes em `INTEGRACOES.md` §0.3). Com ela, as integrações que ele
+(no GitHub desde 20/10/2026, com `50052ff`; §5.17; detalhes em `INTEGRACOES.md` §0.3). Com ela, as integrações que ele
 listou "por enquanto" (MoonShot, Gerenciamento, MSDC, rastreador) estão todas feitas. Ficaram para
 depois: viagem junta, aparelho de GPS no caminhão e o alerta de parada prolongada.
 

@@ -11,6 +11,7 @@ import { normalizar } from '../../shared/texto.js'
 import type { EventoHistorico, Mudanca } from '../../shared/historico.js'
 import { registrarHistorico } from '../../shared/historico.repositorio.js'
 import type { Guardado } from '../integracao/gerenciamento.js'
+import { FORMATOS, formatoValido, nomeBaseDoArquivo } from './exportar.js'
 import {
   baseDoRastreador,
   campo,
@@ -122,6 +123,8 @@ export interface PontoTrajeto {
   latitude: number
   longitude: number
   velocidade: number | null
+  /** Precisão do GPS (m), quando o app manda. */
+  precisao: number | null
   em: string
 }
 
@@ -196,6 +199,7 @@ export function trajetoDe(pontos: PontoRastreador[]): PontoTrajeto[] {
       latitude: p.latitude,
       longitude: p.longitude,
       velocidade: p.speedMps ?? null,
+      precisao: p.accuracyM ?? null,
       em: p.recordedAt,
     })
   }
@@ -826,7 +830,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
               latitude: p.latitude,
               longitude: p.longitude,
               velocidade: p.velocidade,
-              precisao: null,
+              precisao: p.precisao,
               registradoEm: p.em,
             })),
           )
@@ -1364,7 +1368,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     if (l.arquivada) {
       const pontos = await db
         .selectFrom('ordensViagensPontos')
-        .select(['latitude', 'longitude', 'velocidade', 'registradoEm'])
+        .select(['latitude', 'longitude', 'velocidade', 'precisao', 'registradoEm'])
         .where('viagemId', '=', id)
         .orderBy('seq')
         .execute()
@@ -1374,6 +1378,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
           latitude: p.latitude,
           longitude: p.longitude,
           velocidade: p.velocidade,
+          precisao: p.precisao,
           em: p.registradoEm,
         })),
         paradas: l.paradas ? (JSON.parse(l.paradas) as ParadaViagem[]) : [],
@@ -1500,6 +1505,44 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
   }
 
   /** Viagem do lote (detalhe do lote e painel de recebimento). */
+  /**
+   * Os arquivos do trajeto (GPX, KML, CSV — como no iERP antigo) de uma viagem TERMINADA: o
+   * trajeto guardado aqui (não depende do rastreador).
+   */
+  async function exportar(id: string, formato: string) {
+    const f = formato.toLowerCase()
+    if (!formatoValido(f))
+      throw new ErroApi(422, 'validation', 'Formato inválido — use gpx, kml ou csv.')
+    if (id.startsWith(PREFIXO_DE_FORA)) throw naoEncontrado('Viagem não encontrada.')
+    const l = await daqui(id)
+    if (!l.arquivada)
+      throw new ErroApi(
+        409,
+        'trip_not_finished',
+        'O trajeto só é baixado depois que a viagem termina.',
+      )
+    const pontos = await db
+      .selectFrom('ordensViagensPontos')
+      .select(['latitude', 'longitude', 'velocidade', 'precisao', 'registradoEm'])
+      .where('viagemId', '=', id)
+      .orderBy('seq')
+      .execute()
+    if (!pontos.length)
+      throw new ErroApi(409, 'trip_no_points', 'Esta viagem não tem pontos para exportar.')
+    const viagem = {
+      codigoLote: l.loteCodigo,
+      cliente: l.clienteNome,
+      placa: l.placa ?? l.placaCadastro,
+      iniciadaEm: l.iniciadaEm,
+    }
+    const { gerar, contentType } = FORMATOS[f]
+    return {
+      nome: `${nomeBaseDoArquivo(viagem)}.${f}`,
+      contentType,
+      conteudo: gerar(viagem, pontos),
+    }
+  }
+
   async function doLote(ordemId: string): Promise<Viagem | null> {
     const l = await linhaDaViagem(db).where('v.ordemId', '=', ordemId).executeTakeFirst()
     if (l) {
@@ -1524,6 +1567,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     finalizar,
     cienteEmergencia,
     doLote,
+    exportar,
   }
 }
 
@@ -1675,6 +1719,13 @@ export function rotasViagens(servico: ServicoViagens, fazerFetch: Fetch = fetch)
   })
   r.get('/:id', async (req, res) => {
     res.json(await servico.obter(String(req.params.id)))
+  })
+  r.get('/:id/exportar/:formato', async (req, res) => {
+    const a = await servico.exportar(String(req.params.id), String(req.params.formato))
+    res.setHeader('Content-Type', a.contentType)
+    res.setHeader('X-Content-Type-Options', 'nosniff')
+    res.attachment(a.nome)
+    res.send(a.conteudo)
   })
   r.get('/:id/chat', async (req, res) => {
     res.json(await servico.chat(String(req.params.id)))

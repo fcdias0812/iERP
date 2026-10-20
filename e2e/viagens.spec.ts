@@ -118,3 +118,19 @@ test('lote com viagem na rua: card da viagem e mapa na aba Informações', async
   await expect(page.getByText('Paradas reportadas (1)')).toBeVisible()
   expect(await violacoes(page)).toEqual([])
 })
+
+test('viagem finalizada: baixa o trajeto em GPX, KML e CSV (no replay e no menu da linha)', async ({
+  page,
+}) => {
+  await abrir(page, '/ordens/viagens?aba=finalizadas&viagem=vg00001')
+  const gpx = page.getByRole('link', { name: 'Baixar GPX' })
+  await expect(gpx).toHaveAttribute('href', /\/viagens\/vg00001\/exportar\/gpx$/)
+  await expect(gpx).toHaveAttribute('download', '')
+  await expect(page.getByRole('link', { name: 'Baixar KML' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Baixar CSV' })).toBeVisible()
+
+  expect(await violacoes(page)).toEqual([])
+
+  await page.locator('main tbody tr', { hasText: 'LOT-00001' }).getByRole('button').last().click()
+  await expect(page.getByRole('menuitem', { name: 'Baixar GPX' })).toBeVisible()
+})

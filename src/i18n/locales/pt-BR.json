@@ -3123,6 +3123,9 @@
       "titulo": "Lote com viagem rastreada",
       "encerra": "Receber o lote encerra a viagem no app do motorista.",
       "semViagem": "O motorista ainda não iniciou a viagem; receber o lote cancela o rastreio."
+    },
+    "baixar": {
+      "botao": "Baixar {{formato}}"
     }
   }
 }

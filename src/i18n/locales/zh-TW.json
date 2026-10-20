@@ -3123,6 +3123,9 @@
       "titulo": "此批次有追蹤中的行程",
       "encerra": "收貨後將結束司機 App 中的行程。",
       "semViagem": "司機尚未開始行程；收貨將取消追蹤。"
+    },
+    "baixar": {
+      "botao": "下載 {{formato}}"
     }
   }
 }

@@ -37,5 +37,11 @@ export const poisDaEstrada = (
   signal?: AbortSignal,
 ) => api<PoiEstrada[]>('/viagens/mapa/pois', { query: caixa, signal })
 
+/** Arquivos do trajeto de uma viagem terminada (como no iERP antigo). */
+export const FORMATOS_TRAJETO = ['gpx', 'kml', 'csv'] as const
+export type FormatoTrajeto = (typeof FORMATOS_TRAJETO)[number]
+export const urlExportarViagem = (id: string, formato: FormatoTrajeto) =>
+  `${API_BASE}/viagens/${encodeURIComponent(id)}/exportar/${formato}`
+
 /** Tiles do trânsito (TomTom) pelo servidor, que guarda a chave. */
 export const URL_TRANSITO = `${API_BASE}/viagens/mapa/transito/{z}/{x}/{y}.png`

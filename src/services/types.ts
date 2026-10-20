@@ -1268,6 +1268,8 @@ export interface PontoTrajeto {
   latitude: number
   longitude: number
   velocidade: number | null
+  /** Precisão do GPS (m), quando o app manda. */
+  precisao: number | null
   em: string
 }
 

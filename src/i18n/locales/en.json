@@ -3123,6 +3123,9 @@
       "titulo": "Lot with a tracked trip",
       "encerra": "Receiving the lot ends the trip in the driver app.",
       "semViagem": "The driver has not started the trip yet; receiving the lot cancels the tracking."
+    },
+    "baixar": {
+      "botao": "Download {{formato}}"
     }
   }
 }

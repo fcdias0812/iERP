@@ -35,10 +35,12 @@ import {
   MODOS,
   type ModoAgrupar,
 } from './agrupar'
+import { BaixarTrajeto } from './BaixarTrajeto'
 import { CardViagem } from './CardViagem'
 import { CartaoMapa } from './CartaoMapa'
 import { ChatViagemSheet } from './ChatViagemSheet'
 import { PainelViagem } from './PainelViagem'
+import { temTrajeto } from './formato'
 import { useReplay } from './use-replay'
 import { useCienteEmergencia, useFinalizarViagem, useViagem, useViagens } from './use-viagens'
 import type { AbaViagens } from './viagens-search'
@@ -496,6 +498,7 @@ function Finalizadas({
         error={erro}
         onRetry={onRetry}
         onRowClick={(r) => onEscolher(r.id === escolhidaId ? undefined : r.id)}
+        rowActions={(r) => (temTrajeto(r) ? <BaixarTrajeto viagem={r} comoMenu /> : null)}
         highlightRow={(r) => r.id === escolhidaId}
         empty={{ title: t('viagens.finalizadasVazio') }}
       />
@@ -522,6 +525,7 @@ function ReplayDaViagem({
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
         <CardTitle>{t('viagens.replay.titulo', { code: viagem.loteCodigo })}</CardTitle>
         <div className="flex flex-wrap gap-2">
+          <BaixarTrajeto viagem={viagem} />
           {viagem.tripId !== null && (
             <Button size="sm" variant="secondary" onClick={onChat}>
               {t('viagens.chat.abrir')}

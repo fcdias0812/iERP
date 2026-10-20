@@ -25,6 +25,7 @@ function trajeto(inicio: number, n: number): PontoTrajeto[] {
     latitude: -23.55 + i * 0.004,
     longitude: -46.7 + i * 0.006,
     velocidade: 12 + (i % 5),
+    precisao: 5,
     em: minutos(inicio - i * 2),
   }))
 }

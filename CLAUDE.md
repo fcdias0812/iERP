@@ -193,7 +193,7 @@ linha do tempo, recebimento), **Ocorrências** (painel
   `pallets.<i>`, `gerais`), tabelas `ordens_recebimentos`, `ordens_lacres`, `ordens_notas_fiscais`,
   `ordens_recebimento_fotos`; receber = agendado → Inspeção; avaria/outro viram ocorrência.
 - **Ordens › Viagens** — `src/features/viagens/` (Em andamento: cards por dia da coleta e
-  cliente + mapa Leaflet ao vivo com Trânsito/Postos/Pontos; Finalizadas: tabela + replay; chat;
+  cliente + mapa Leaflet ao vivo com Trânsito/Postos/Pontos; Finalizadas: tabela + replay + `BaixarTrajeto` GPX/KML/CSV; chat;
   aviso de emergência no `AppShell`; `ViagemNoLote` (card + `CartaoMapa`) na aba Informações; `CodigoDeChegada` no
   recebimento) e `server/src/modules/viagens/` (`rastreador.ts` = cliente do ReTeckTracker com a
   chave interna; `viagens.ts` = viagem nasce no agendamento com rastreio, código de chegada,

@@ -592,6 +592,33 @@ describe('viagens › do agendamento ao arquivo', () => {
     assert.equal(d.paradas.length, 1)
     assert.equal((await api(`/viagens/${v.id}/chat`)).body.length, 1)
     assert.equal((await api(`/viagens/${v.id}/finalizar`, { method: 'POST' })).status, 409)
+
+    // Os arquivos do trajeto (como no iERP antigo), do que ficou guardado aqui.
+    rastreador.foraDoAr = true
+    const gpx = await fetch(`${base}/viagens/${v.id}/exportar/gpx`)
+    assert.equal(gpx.status, 200)
+    assert.match(gpx.headers.get('content-type') ?? '', /application\/gpx\+xml/)
+    assert.match(
+      gpx.headers.get('content-disposition') ?? '',
+      /attachment; filename="?.*_LOT-\d{5}\.gpx/,
+    )
+    assert.match(await gpx.text(), /<trkpt lat="-23.55" lon="-46.63">/)
+    const csv = await (await fetch(`${base}/viagens/${v.id}/exportar/csv`)).text()
+    assert.equal(csv.split('\n').length, 3)
+    assert.equal((await fetch(`${base}/viagens/${v.id}/exportar/kml`)).status, 200)
+    rastreador.foraDoAr = false
+    assert.equal((await api(`/viagens/${v.id}/exportar/pdf`)).status, 422)
+  })
+
+  it('viagem ainda na rua não baixa arquivo', async () => {
+    const outro = await criarOrdem()
+    trip(outro.codigo)
+    await servico.sincronizar()
+    const v = (await viagemDoLote(outro.codigo))!
+    const r = await api(`/viagens/${v.id}/exportar/gpx`)
+    assert.equal(r.status, 409)
+    assert.equal(r.body.code, 'trip_not_finished')
+    await api(`/viagens/${v.id}/finalizar`, { method: 'POST' })
   })
 
   it('o motorista encerra com o código depois do "Cheguei": arquiva e diz que foi ele', async () => {

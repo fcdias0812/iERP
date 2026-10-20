@@ -1,5 +1,5 @@
 import { formatNumber } from '@/lib/format'
-import type { PontoTrajeto } from '@/services/types'
+import type { PontoTrajeto, Viagem } from '@/services/types'
 
 /** Velocidade do GPS (m/s) em km/h, sem casas. */
 export const kmh = (v: number | null) =>
@@ -22,3 +22,7 @@ export function distanciaDoTrajeto(t: PontoTrajeto[]) {
   }
   return total
 }
+
+/** A viagem tem arquivo do trajeto para baixar? (terminada aqui, com pontos guardados) */
+export const temTrajeto = (v: Viagem) =>
+  v.status === 'finalizada' && !v.somenteLeitura && v.totalPontos > 0

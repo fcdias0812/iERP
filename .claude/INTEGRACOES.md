@@ -219,6 +219,9 @@ acompanhar ele no mapa."
   Tela `src/features/viagens/` (Em andamento: cards por dia/cliente + mapa; Finalizadas: tabela +
   replay); aviso de emergência no topo de qualquer tela; viagem do lote (card + mapa com as camadas, rota e paradas) na aba Informações enquanto espera o motorista ou está na rua; código de
   chegada no painel de recebimento; eventos `viagem_*` no histórico do lote e de Ordens.
+- **Arquivos do trajeto (igual ao antigo):** `GET /api/viagens/:id/exportar/gpx|kml|csv` — só de
+  viagem terminada e guardada aqui; mesmo formato e nome de arquivo do iERP antigo
+  (cliente_placa_dia_lote). Na tela: Baixar GPX/KML/CSV no replay e no menu ⋯ das Finalizadas.
 - **Mapa:** Trânsito = TomTom Traffic Raster Flow (`/traffic/map/4/tile/flow/relative0/…`,
   docs.tomtom.com) pelo servidor (sem chave o botão some); Postos/balanças = Overpass
   (`amenity=fuel` / `amenity=weighbridge`) pelo servidor, uma consulta por região guardada um dia,
