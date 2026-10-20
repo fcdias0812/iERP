@@ -85,6 +85,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `3acdebb` | Integração Dell → MoonShot, Administração › Integração e balanço de massa                |
 | `c5e7c3e` | Gerenciamento de Projetos → iERP (lotes só para ver, espelho de lá, status Cancelado)    |
 | `1cf2c3d` | Re-Teck MSDC (Microsoft) → iERP (lotes só para ver, HTTPS com a CA de lá)                |
+| `9cbfb1e` | Ordens › Viagens com o rastreador de GPS (mapa ao vivo, emergência, chat, replay)        |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
@@ -545,8 +546,8 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 
 ## 7. Próximo passo
 
-**Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — falta ele testar e dar o
-"sim" para o commit (§5.17; detalhes em `INTEGRACOES.md` §0.3). Com ela, as integrações que ele
+**Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — commit local `9cbfb1e`
+(ainda NÃO enviado ao GitHub: push só quando ele pedir; §5.17; detalhes em `INTEGRACOES.md` §0.3). Com ela, as integrações que ele
 listou "por enquanto" (MoonShot, Gerenciamento, MSDC, rastreador) estão todas feitas. Ficaram para
 depois: viagem junta, aparelho de GPS no caminhão e o alerta de parada prolongada.
 
