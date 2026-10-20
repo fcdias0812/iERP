@@ -26,6 +26,7 @@ import { rotasUsuarios } from './modules/usuarios/usuarios.rotas.js'
 import { criarServicoUsuarios } from './modules/usuarios/usuarios.servico.js'
 import { rotasSistema } from './modules/sistema/sistema.rotas.js'
 import { rotasContratoIntegracao } from './modules/integracao/contrato.rotas.js'
+import { rotasLotesDeFora } from './modules/integracao/gerenciamento.js'
 import { criarServicoIntegracoes, rotasIntegracoes } from './modules/integracao/integracao.js'
 import { rotaInexistente, tratarErros } from './shared/erros.js'
 
@@ -33,7 +34,10 @@ import { rotaInexistente, tratarErros } from './shared/erros.js'
  * Aplicação Express (sem abrir porta — usada pelo index.ts e pelos testes).
  * Cada módulo: repositório (banco) → serviço (regras) → rotas (HTTP).
  */
-export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGeo } = {}) {
+export function criarApp(
+  db: Db,
+  opcoes: { arquivosDir?: string; geo?: ServicoGeo; fetchExterno?: typeof fetch } = {},
+) {
   const usuarios = criarServicoUsuarios(criarRepositorioUsuarios(db))
   const repoClientes = criarRepositorioClientes(db)
   const clientes = criarServicoClientes(repoClientes)
@@ -59,6 +63,8 @@ export function criarApp(db: Db, opcoes: { arquivosDir?: string; geo?: ServicoGe
   api.use('/motoristas', rotasMotoristas(motoristas))
   api.use('/veiculos', rotasVeiculos(veiculos))
   api.use('/ordens', rotasOrdens(ordens))
+  // Lote que veio de outro sistema: o espelho do que aconteceu lá (Gerenciamento de Projetos).
+  api.use('/ordens', rotasLotesDeFora(db, opcoes.fetchExterno))
   api.use('/dashboard', rotasDashboard(criarServicoDashboard(db)))
   api.use('/historico', rotasHistorico(criarServicoHistorico(db)))
   api.use('/materiais', rotasCadastro(cadastros.materiais))

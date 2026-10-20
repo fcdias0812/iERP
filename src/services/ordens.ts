@@ -3,6 +3,7 @@ import type { TableQuery } from '@/components/data-table/types'
 import { api, buildUrl } from './http'
 import type {
   CalculoOs,
+  EspelhoExterno,
   OcorrenciaInput,
   Ordem,
   OrdemInput,
@@ -21,6 +22,7 @@ export const ordensKeys = {
   all: ['ordens'] as const,
   lista: (query: TableQuery) => ['ordens', 'lista', query] as const,
   detalhe: (id: string) => ['ordens', 'detalhe', id] as const,
+  espelho: (id: string) => ['ordens', 'espelho', id] as const,
 }
 
 export const listarOrdens = (query: TableQuery, signal?: AbortSignal) =>
@@ -39,6 +41,10 @@ export async function listarTodasOrdens(query: TableQuery): Promise<OrdemResumo[
 
 export const obterOrdem = (id: string, signal?: AbortSignal) =>
   api<Ordem>(`/ordens/${id}`, { signal })
+
+/** O que aconteceu no sistema de onde o lote veio (ao vivo: pesagens, documentos, materiais). */
+export const obterEspelhoDoLote = (id: string, signal?: AbortSignal) =>
+  api<EspelhoExterno>(`/ordens/${id}/externo`, { signal })
 
 /** Pré-cálculo (não grava nada). */
 export const preCalcularOrdem = (dados: {

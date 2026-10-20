@@ -29,6 +29,12 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
   tem o .NET 10). As variáveis da integração vêm de `.claude/scripts/moonshot.env.cmd` (gerado, fora do
   git: `IERP2_BASE_URL`, `IERP2_API_KEY`, `IERP_PAINEL_TOKEN`, `IERP_PUBLIC_URL`). Usuário de teste do
   MoonShot (login dele é pelo Portal; sem portal, só senha local): `data\raw\moonshot-dev\USUARIO-DE-TESTE.txt`.
+- **`gerenciamento`** (porta **5005**, só este PC) → `.claude/scripts/subir-gerenciamento.cmd`: roda o
+  Gerenciamento de Projetos da pasta ao lado (`..\VDAS-Gerenciamento-Ericsson`, Node) com banco de
+  TESTE `data\coletas-ierp2-teste.db` (fora do git dele) e o envio ao iERP antigo **desligado**
+  (`INTEGRACAO_URL` vazio). Token e usuário de teste em `.claude/scripts/gerenciamento.env.cmd` (fora
+  do git; o usuário está na linha `rem`). Primeira vez num PC: `npm ci` e `npm run build` lá.
+  Coleta nova lá → lote aqui em até 30 s (cadastre antes os clientes com o nome certo).
 - Variáveis (todas têm padrão para desenvolvimento): servidor `PORT`, `DB_FILE`, `ARQUIVOS_DIR`,
   `GEO_CONTATO` (`server/src/config.ts`); frontend `.env.example` → `.env.local`
   (`VITE_ESRI_API_KEY`, `VITE_USE_MOCKS`). Chave de integração nova: variável de ambiente, nunca no git.

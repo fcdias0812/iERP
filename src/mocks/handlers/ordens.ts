@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw/http'
 import { runQuery, type EngineColumn } from '@/components/data-table/engine'
 import { searchToQuery, tableSearchSchema } from '@/components/data-table/url-state'
 import type {
+  EspelhoExterno,
   AvisoCalculo,
   CalculoOs,
   Doca,
@@ -96,6 +97,8 @@ function semente(): Ordem {
     codEmitidoEm: null,
     processamento: null,
     devolucao: null,
+    externo: null,
+    externoDados: null,
     criadoEm: quando(8, 12),
     criadoPor: 'Sistema',
     alteradoEm: quando(4, 12),
@@ -254,6 +257,115 @@ function lotes(): Ordem[] {
   return ordens
 }
 
+/**
+ * Lote de demonstração do Gerenciamento de Projetos (ordgp001): só para ver — abre pelo endereço
+ * (fica fora da lista para não mudar a numeração dos lotes que os testes criam).
+ */
+function loteDoGerenciamento(): Ordem {
+  const base = semente()
+  const url = 'http://localhost:5005/coletas/1834'
+  return {
+    ...base,
+    id: 'ordgp001',
+    codigo: 'LOT-00090',
+    status: 'processo',
+    referenciaCliente: 'ECO_2608_5498157_BR',
+    transportadoraId: null,
+    transportadoraNome: null,
+    rastrear: false,
+    calculo: null,
+    pallets: [],
+    ocorrencias: [],
+    recebimento: null,
+    balanco: null,
+    anexos: [],
+    processamento: {
+      sistema: 'GERENCIAMENTO',
+      etapa: 'Processando',
+      indice: 6,
+      total: 8,
+      desde: base.etapaDesde,
+      url,
+      atualizadoEm: base.alteradoEm,
+    },
+    externo: { sistema: 'GERENCIAMENTO', url },
+    externoDados: {
+      numero: 'ECO_2608_5498157_BR',
+      lote: 'LT-5498157',
+      cliente: 'Ericsson',
+      site: base.siteCodigo,
+      endereco: null,
+      cidade: 'Indaiatuba',
+      uf: 'SP',
+      pais: 'Brazil',
+      transportadora: 'Transportadora Alfa',
+      observacoes: 'Coleta na doca 3',
+      pedidoEm: base.criadoEm,
+      coletaAgendadaEm: base.coletaPrevista,
+      coletaPrevistaEm: base.coletaPrevista,
+      chegadaEm: base.recebidoEm,
+      previstoPesoKg: 4959.6,
+      previstoPallets: 17,
+      previstoUnidades: null,
+      codNumero: null,
+      codEm: null,
+      semCod: false,
+      etapas: [
+        { nome: 'Solicitada', desde: base.criadoEm, estado: 'feita' },
+        { nome: 'Recebida', desde: base.recebidoEm, estado: 'feita' },
+        { nome: 'Processando', desde: base.etapaDesde, estado: 'atual' },
+        { nome: 'Aguardando COD', desde: null, estado: 'pendente' },
+      ],
+    },
+    historico: [
+      { id: 'h-ordgp001', autor: 'Gerenciamento de Projetos', em: base.criadoEm, acao: 'criado' },
+    ],
+    criadoPor: 'Gerenciamento de Projetos',
+    alteradoPor: 'Gerenciamento de Projetos',
+  }
+}
+
+/** O espelho do lote do Gerenciamento (o que aconteceu lá: pesagens, documentos, materiais). */
+const espelhoDoGerenciamento = (): EspelhoExterno => ({
+  sistema: 'GERENCIAMENTO',
+  url: 'http://localhost:5005/coletas/1834',
+  declarado: { pesoKg: 4959.6, pallets: 17 },
+  pesado: { pesoKg: 1212.5, pallets: 4, pesagens: 2, fotos: 0 },
+  pesagens: [
+    {
+      id: '7',
+      pesoKg: 612.5,
+      pallets: 2,
+      conteudo: 'Rádios',
+      pesadoPor: 'Ana Souza',
+      pesadoEm: '2026-10-18T13:00:00.000Z',
+      fotoUrl: null,
+    },
+    {
+      id: '8',
+      pesoKg: 600,
+      pallets: 2,
+      conteudo: 'Antenas',
+      pesadoPor: 'Ana Souza',
+      pesadoEm: '2026-10-18T13:20:00.000Z',
+      fotoUrl: null,
+    },
+  ],
+  arquivos: [
+    {
+      id: '3',
+      tipo: 'laudo',
+      nome: 'Laudo de recebimento.pdf',
+      enviadoPor: 'Bruno Lima',
+      enviadoEm: '2026-10-18T15:00:00.000Z',
+      url: 'http://localhost:5005/api/collections/1834/laudo/foto/laudo.pdf',
+    },
+  ],
+  materiais: [{ tipo: 'Placas', descricao: 'Placas de rádio', embalagem: 'Gaylord', pesoKg: 320 }],
+  notas: [{ autor: 'Bruno Lima', data: '2026-10-18', texto: 'Chegou com lacre.' }],
+  seriais: 0,
+})
+
 const COLS: EngineColumn<OrdemResumo>[] = [
   { id: 'codigo', type: 'unique-text', accessor: (r) => r.codigo },
   { id: 'clienteNome', type: 'unique-text', accessor: (r) => r.clienteNome },
@@ -268,6 +380,7 @@ const COLS: EngineColumn<OrdemResumo>[] = [
   { id: 'totalVolumes', type: 'number', accessor: (r) => r.totalVolumes },
   { id: 'status', type: 'status', accessor: (r) => r.status },
   { id: 'criadoEm', type: 'date', accessor: (r) => r.criadoEm },
+  { id: 'origem', type: 'enum', accessor: (r) => r.externo?.sistema ?? 'IERP' },
 ]
 
 function acharDoca(docaId: string): { doca: Doca; siteId: string; clienteId: string } | null {
@@ -387,8 +500,18 @@ export const ordensHandlers = [
   http.get('*/api/ordens/:id', async ({ request, params }) => {
     const fail = await simulateNetwork(request)
     if (fail) return fail
-    const o = lotes().find((x) => x.id === params.id)
+    const o =
+      lotes().find((x) => x.id === params.id) ??
+      (params.id === 'ordgp001' ? loteDoGerenciamento() : undefined)
     return o ? HttpResponse.json(o) : apiError(404, 'not_found', 'Ordem não encontrada.')
+  }),
+
+  http.get('*/api/ordens/:id/externo', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    return params.id === 'ordgp001'
+      ? HttpResponse.json(espelhoDoGerenciamento())
+      : apiError(404, 'not_found', 'Este lote não veio de outro sistema.')
   }),
 
   http.post('*/api/ordens', async ({ request }) => {
@@ -459,6 +582,8 @@ export const ordensHandlers = [
       codEmitidoEm: null,
       processamento: null,
       devolucao: null,
+      externo: null,
+      externoDados: null,
       criadoEm: agora,
       criadoPor: autor(),
       alteradoEm: agora,

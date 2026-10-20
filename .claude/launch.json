@@ -18,6 +18,12 @@
       "runtimeExecutable": "cmd",
       "runtimeArgs": ["/c", ".claude\\scripts\\subir-moonshot.cmd"],
       "port": 5063
+    },
+    {
+      "name": "gerenciamento",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", ".claude\\scripts\\subir-gerenciamento.cmd"],
+      "port": 5005
     }
   ]
 }

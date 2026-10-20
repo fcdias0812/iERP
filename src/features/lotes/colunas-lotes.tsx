@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { DataTableColumn } from '@/components/data-table'
 import { SERVICOS } from '@/features/ordens/agendamento-schema'
 import type { OrdemResumo } from '@/services/types'
-import { ETAPAS_LOTE } from './origem'
+import { STATUS_LOTE } from './origem'
 import { rotuloDoStatus } from './status-do-lote'
 import { StatusDoLote } from './StatusDoLote'
 
@@ -102,7 +102,7 @@ export function useColunasLotes(): DataTableColumn<OrdemResumo>[] {
         accessor: (r) => r.status,
         size: 170,
         mobile: 'badge',
-        options: ETAPAS_LOTE.map((e) => ({ value: e, label: e })),
+        options: STATUS_LOTE.map((e) => ({ value: e, label: e })),
         // Processado lá fora (MoonShot): "Processamento 2/4 · Leitura das peças".
         cell: (r) => <StatusDoLote lote={r} size="sm" />,
         exportValue: (r) => rotuloDoStatus(t, r),

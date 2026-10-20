@@ -2,9 +2,9 @@
 
 Em 19/10/2026 o usuário disse que o iERP "está pronto para fazer as integrações". Primeiro ia
 fazê-las em outro PC; depois decidiu **continuar neste mesmo PC**. Pediu para **separar os sistemas
-por cliente, começando pela Dell** — e a primeira integração (Dell → MoonShot) está **pronta**
-(§0). O resto deste arquivo é o que ainda espera dado de fora, onde cada dado entra e o que
-**perguntar** antes de construir.
+por cliente, começando pela Dell** — a primeira integração (Dell → MoonShot) está **pronta** (§0) e a
+segunda (Gerenciamento de Projetos → iERP, só para ver) também (§0.1). O resto deste arquivo é o que
+ainda espera dado de fora, onde cada dado entra e o que **perguntar** antes de construir.
 
 > Regra de sempre (CONTEXTO §2): **não decidir pelo usuário.** Antes de cada integração, pergunte
 > (com opções e uma recomendação) e siga o rito do [`FLUXO-DE-TRABALHO.md`](FLUXO-DE-TRABALHO.md) §2.
@@ -85,6 +85,63 @@ proximoDesde}`; ordem por código; anexo por número; balanço; devolução POST
   (`desteLoteKg` = a parte do lote no bigbag). Lote de teste no banco de dev: **LOT-00006**
   (Dell, concluído, balanço fechando em 1,3%).
 
+## 0.1 Gerenciamento de Projetos → iERP (pronto, 20/10/2026)
+
+Sistema `C:\Trabalho\01_Sistemas\VDAS-Gerenciamento-Ericsson` ("pode colocar como Gerenciamento de
+Projetos"; Node + Express + `node:sqlite`, porta 5005). Palavras dele: "quem vai controlar tudo é o
+Gerenciamento de Projetos. Ele vai criar a ordem (não tem processamento nenhum), e quando chegar o
+lote na empresa, eles vão fazer o recebimento e o Gerenciamento de Projetos vai fazer o COD. **O iERP
+vai servir aqui apenas para visualização.**"
+
+- **Como ele fala com o iERP ANTIGO** (`INTEGRACAO.md` dele): EMPURRA cada ordem nova/alterada
+  (webhook para `…/api/integracao/v1/ordens` do antigo, que cria o lote e devolve o código —
+  guardado em `collections.reteck_lote`); e o antigo LÊ `GET /api/integracao/painel` (etapa, datas,
+  COD) e `GET /api/integracao/ordens/:id/completa` (o "espelho": pesagens com foto, documentos,
+  materiais, notas). Token `INTEGRACAO_TOKEN` (cabeçalho `X-Reteck-Token`/`X-Api-Key`). Só Brasil.
+- **Como o 2.0 faz (nada muda no Gerenciamento nem no antigo):** o 2.0 só **LÊ**, com o mesmo token,
+  as rotas que já existem — a cada 30 s o painel + `GET /api/integracao/ordens?desde=<ontem>` (e
+  `/ordens/:id`, ou a lista inteira na 1ª carga); o espelho só ao abrir o lote. Código:
+  `server/src/modules/integracao/gerenciamento.ts` (ligado em `lerPaineis`, `sincronizacao.ts`).
+- **Decisões dele:** todos os clientes (Ericsson, AWS, Google, Nokia), **só Brasil**, e **TODAS as
+  coletas** já na 1ª leitura — inclusive concluídas e canceladas, "como o iERP antigo" (a cancelada
+  vira lote Cancelado; sem o dia do cancelamento lá, a tela não inventa data); recebimento e
+  COD **lá** — no iERP o lote é **só para ver** (sem Editar, Receber, ocorrência nem documento:
+  `ordens/externo.ts` recusa com 409 `external_lot`); etapas **espelham** as de lá (antes →
+  agendado, inspecao → inspeção, processo, aguardandoCod, encerrado → concluído no COD, cancelado →
+  **cancelado** — status novo do lote, fora da linha do tempo); o **cliente é o cadastrado no iERP**
+  (com CNPJ), achado pelo nome (ericsson / aws|amazon / google / nokia — `PADROES` em
+  `gerenciamento.ts`); sem cliente (ou com mais de um), a coleta **espera** e Administração ›
+  Integração avisa; **site e doca** que faltarem são **criados sozinhos** nesse cliente (doca
+  "Principal" com 4,40 m — limite legal, Resolução CONTRAN 210/2006 —, para ajustar no cadastro).
+- **No lote:** `ordens.externo_sistema/externo_id/externo_dados` (migration
+  `2026-10-20-01-lotes-de-fora`; view `ordens_lista` com `origem` = IERP | sistema); referência do
+  cliente = número da ordem lá; `recebido_em` = chegada lá (início do SLA), `cod_emitido_em` = COD
+  (encerrada sem COD fica fora do SLA). Telas: aviso "Lote do Gerenciamento de Projetos" com link,
+  aba Informações › "Ordem no Gerenciamento", Progresso › "Recebimento no Gerenciamento" (pesagens
+  com foto, materiais, notas; os cartões de pallets/peso usam o pesado lá) e Documentos lá
+  (`features/lotes/LoteDeFora.tsx`, espelho por `GET /api/ordens/:id/externo`). Recebimento ›
+  A receber/Recebidos mostra só `origem = IERP`. O contrato do MoonShot ignora lotes de fora
+  (`sistemaDoLote`): "Google (Dell LATAM)" não vai para o MoonShot.
+- **Administração › Integração:** sistema de tipo **origem** (`SISTEMAS_CONHECIDOS` em
+  `destinos.ts`): só endereço do painel (`http://<Gerenciamento>:5005/api/integracao/painel`) e o
+  token (qualquer tamanho); seção Sincronização com coletas lidas, ligadas e as pendências de cliente.
+- **Testado neste PC (20/10/2026)** com o Gerenciamento de TESTE (`.claude/scripts/subir-gerenciamento.cmd`,
+  servidor `gerenciamento` do launch.json: banco `data\coletas-ierp2-teste.db` de lá, envio ao antigo
+  DESLIGADO; usuário de teste na linha `rem` do `gerenciamento.env.cmd`, fora do git): 4 coletas
+  fictícias → LOT-00007 (Ericsson, processo 6/8), LOT-00008 (Ericsson, concluído no COD), LOT-00009
+  (AWS, agendado, site GRU60 e doca criados) e a da Nokia esperando o cadastro.
+- **Robustez (revisão de 20/10/2026, com testes em `gerenciamento.test.ts`):** erro numa coleta não
+  trava as outras (fica em "falhas" na Integração e tenta de novo na leitura seguinte); erro nas
+  listas de ordens não trava a mudança de etapa dos lotes; fase desconhecida lá não mexe no lote;
+  datas do SLA nunca são inventadas nem andam sozinhas; Concluído = dia do COD (o painel de lá, no
+  COD, ainda diz "Processando" com o dia do início — achado no teste real); etapas puladas entre
+  leituras entram com o dia de lá; coleta restaurada da Lixeira (id novo, mesmo número) religa o
+  lote; coleta que some do painel deixa o lote como está e aparece em "sumidos"; a lista inteira
+  de ordens é relida de 6 em 6 h; o site é comparado com o de lá (renomear aqui não duplica);
+  cliente só inativo aparece como "inativo"; Gerenciamento e MoonShot são lidos em paralelo.
+- **Cuidado:** as fotos do espelho são links do Gerenciamento (ele monta com o IP da rede); com o iERP
+  em HTTPS e o Gerenciamento em HTTP o navegador bloquearia — aí, servir as fotos pelo servidor do iERP.
+
 ## 1. O que existe hoje
 
 - **Rotas de entrada**: o contrato `/api/integracao/v1` (§0), com chave por sistema. Sistema novo
@@ -103,7 +160,7 @@ antes de começar qualquer um (e a regra de sempre: o antigo NÃO muda, o 2.0 é
 | Sistema | O que é | Ligação com o iERP antigo (pelo que a doc dele diz) |
 | --- | --- | --- |
 | `OP-Re-Teck-MSDC` (equip-rack-2) | Desmontagem de racks da **Microsoft** | No iERP antigo se chama "Gerenciamento Microsoft"; **cria ordens** (LOT-) lá |
-| `VDAS-Gerenciamento-Ericsson` | Coletas **Ericsson, AWS, Google (Dell LATAM), Nokia** | Só as coletas do **Brasil** vão para o iERP |
+| `VDAS-Gerenciamento-Ericsson` | Coletas **Ericsson, AWS, Google (Dell LATAM), Nokia** | **Feito no 2.0 (§0.1)** — só leitura |
 | `EC-Inventory-Management` | Estoque (lote, pallet, movimentação) | "Campainha" a cada escrita → aba Estoque › Materiais do iERP |
 | `EC-ControleNotebooks` | Notebooks (patrimônio e revenda) | Porta de máquina que entrega o estoque ao Estoque do iERP |
 | `TI-Triagem-ITAD`, `saas` | — | 1 menção cada (ver antes de afirmar) |

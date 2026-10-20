@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { EMPTY } from '@/lib/format'
 import type { Ordem } from '@/services/types'
 import { useInformacoesDoLote } from './informacoes-lote'
+import { DadosDeFora } from './LoteDeFora'
 
 /*
  * Informações do lote (primeira aba): tudo o que foi agendado — cliente e local da coleta
@@ -19,7 +20,8 @@ export function AbaInformacoes({ o }: { o: Ordem }) {
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {o.status !== 'agendado' && (
+      <DadosDeFora o={o} />
+      {o.status !== 'agendado' && !o.externo && (
         <Alert tone="info" title={t('lotes.editar.travadoTitle')} className="lg:col-span-2">
           {t('lotes.editar.travadoBody')}
         </Alert>

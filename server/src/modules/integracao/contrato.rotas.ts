@@ -5,6 +5,7 @@ import type { IntegracoesTable } from '../../db/schema.js'
 import { ErroApi } from '../../shared/erros.js'
 import { registrarHistorico } from '../../shared/historico.repositorio.js'
 import { ordemNoContrato } from './contrato.js'
+import { sistemaDoLote } from './destinos.js'
 import { autenticarChave } from './integracao.js'
 import { aplicarAndamento } from './sincronizacao.js'
 
@@ -85,7 +86,9 @@ export function rotasContratoIntegracao(
     // Todas as ordens que mudaram desde o instante (na ordem em que mudaram) e são deste sistema.
     let consulta = db
       .selectFrom('ordensLista')
-      .select(['id', 'alteradoEm', 'clienteNome'])
+      .select(['id', 'alteradoEm', 'clienteNome', 'externoSistema'])
+      // Lote que veio de outro sistema (Gerenciamento de Projetos) nunca vai para um de fora.
+      .where('origem', '=', 'IERP')
       .orderBy('alteradoEm')
       .orderBy('id')
     if (desde) consulta = consulta.where('alteradoEm', '>', desde)
@@ -94,6 +97,8 @@ export function rotasContratoIntegracao(
     let ultimo: string | null = null
     let temMais = false
     for (const l of linhas) {
+      // Só monta o corpo dos lotes deste sistema (o nome do cliente decide).
+      if (sistemaDoLote(l) !== req.integracao!.sistema) continue
       const c = await ordemNoContrato(db, l.id)
       if (c?.sistema !== req.integracao!.sistema) continue
       if (lotes.length === POR_PAGINA) {

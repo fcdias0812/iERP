@@ -216,7 +216,10 @@ linha do tempo, recebimento), **Ocorrências** (painel
   (`contrato.rotas.ts` = `/api/integracao/v1`, o MESMO contrato do iERP antigo; `sincronizacao.ts` =
   avisos + painel → "Processamento i/N"; `destinos.ts` = cliente → sistema, hoje Dell → MOONSHOT) e
   `src/features/admin/integracao/`. O iERP antigo e o 2.0 rodam JUNTOS: integração só por acréscimo.
-  Detalhes em `.claude/INTEGRACOES.md` §0.
+  Detalhes em `.claude/INTEGRACOES.md` §0. Sistema de ORIGEM (os lotes vêm dele, só para ver aqui):
+  Gerenciamento de Projetos — `integracao/gerenciamento.ts` (lê o painel e as ordens de lá a cada
+  30 s; espelho ao vivo em `GET /api/ordens/:id/externo`), lote com `externo_sistema` travado por
+  `ordens/externo.ts`, telas em `features/lotes/LoteDeFora.tsx` (§0.1).
 - **Perfis de acesso e Auditoria** (Administração) — `server/src/modules/perfis/perfis.ts`
   (tabela `perfis_acesso`, permissões página → nível em JSON; `admin` fixo) e
   `server/src/modules/auditoria/auditoria.ts` (junta todos os históricos). Frontend

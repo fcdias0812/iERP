@@ -30,6 +30,10 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.profileInUse')
     case 'system_in_use':
       return i18n.t('apiErrors.systemInUse')
+    case 'external_lot':
+      return i18n.t('apiErrors.externalLot')
+    case 'external_unavailable':
+      return i18n.t('apiErrors.externalUnavailable')
     case 'site_code_in_use':
       return i18n.t('apiErrors.siteCodeInUse')
     case 'file_too_large':

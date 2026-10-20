@@ -1327,7 +1327,9 @@
     "nameInUse": "A record with this name already exists.",
     "fixedProfile": "The Administrator profile is fixed: it cannot be edited or deactivated.",
     "profileInUse": "Some users have this profile. Change their profile before deactivating it.",
-    "systemInUse": "This system is already registered."
+    "systemInUse": "This system is already registered.",
+    "externalLot": "This lot comes from another system (Project Management) and can only be changed there.",
+    "externalUnavailable": "Could not reach the system this lot came from right now."
   },
   "calendar": {
     "today": "Today",
@@ -1510,7 +1512,7 @@
   },
   "integracao": {
     "descricaoPagina": "The external systems that talk to the iERP (today MoonShot, which processes the Dell lots): access key, notifications and progress panel.",
-    "descricaoPainel": "Access key, notification address and progress panel of the system.",
+    "descricaoPainel": "How the iERP talks to the system: the dashboard and token; and, if it processes lots from here, the key and notifications.",
     "novo": "New integration",
     "vazio": "No integrated systems.",
     "semChave": "No key",
@@ -1540,16 +1542,20 @@
       "avisos": "Notifications (iERP → system)",
       "painel": "Progress panel (system → iERP)",
       "chave": "Access key (system → iERP)",
-      "situacao": "Status"
+      "situacao": "Status",
+      "sincronizacao": "Synchronization"
     },
     "ajuda": {
-      "sistema": "Each system processes the lots of one customer (Dell → MoonShot).",
+      "sistema": "Each system belongs to a customer: where its lots go (Dell → MoonShot) or where they come from (Project Management).",
       "avisos": "When a lot of the customer is received or corrected, the iERP notifies the system, which fetches the lot with the key. If it is offline, the notification stays queued and is resent.",
       "urlAvisos": "In MoonShot: http://<MoonShot address>/api/ierp2/avisos",
       "painel": "Every 30 seconds the iERP reads which phase each lot is in there (\"Processing 2/4 · Parts reading\").",
       "token": "The same token configured in the system (in MoonShot: IERP_PAINEL_TOKEN), with at least {{min}} characters.",
       "tokenGuardado": "A token is already stored. Leave blank to keep it; type a new one to replace it.",
-      "chave": "The key the system uses to enter the iERP (in MoonShot: IERP2_API_KEY). It is shown only once, when generated."
+      "chave": "The key the system uses to enter the iERP (in MoonShot: IERP2_API_KEY). It is shown only once, when generated.",
+      "painelOrigem": "The Project Management dashboard address (the same one the old iERP reads), ending in /api/integracao/painel. The iERP reads the pickups every 30 seconds.",
+      "tokenOrigem": "The INTEGRACAO_TOKEN from the Project Management .env file.",
+      "sincronizacao": "Lots come from {{sistema}}: the iERP creates and updates them on its own, and they are view only here."
     },
     "gerarChave": "Generate key",
     "trocarChave": "Replace key",
@@ -1590,13 +1596,28 @@
       "chave_revogada": "Revoked the key"
     },
     "sistemas": {
-      "MOONSHOT": "MoonShot"
+      "MOONSHOT": "MoonShot",
+      "GERENCIAMENTO": "Project Management"
     },
     "toast": {
       "criado": "Integration {{name}} created.",
       "salvo": "Integration {{name}} saved.",
       "falhou": "Could not save the integration.",
       "chaveRevogada": "Key of {{name}} revoked."
+    },
+    "sincronizacao": {
+      "coletas": "Brazil pickups there",
+      "ligadas": "Pickups with a lot in the iERP",
+      "criados": "Lots created in the last read",
+      "sem_cliente": "Customer {{cliente}} is not registered in the iERP: {{n}} pickup(s) waiting",
+      "sem_clienteAjuda": "Register the customer with \"{{cliente}}\" in the name (in Customers). The lots show up on their own in the next read.",
+      "varios_clientes": "More than one customer with \"{{cliente}}\" in the name: {{n}} pickup(s) waiting",
+      "varios_clientesAjuda": "Keep only one active customer with \"{{cliente}}\" in the name, so the iERP knows which one to link the lots to.",
+      "falhas": "{{n}} pickup(s) failed in the last read — they retry in the next one, without blocking the others",
+      "cliente_inativo": "Customer {{cliente}} is inactive in the iERP: {{n}} pickup(s) waiting",
+      "cliente_inativoAjuda": "Reactivate the customer with \"{{cliente}}\" in the name (in Customers). The lots show up on their own in the next read.",
+      "sumidos": "{{n}} lot(s) no longer come in the Project Management dashboard",
+      "sumidosAjuda": "The pickup was deleted in {{sistema}} or moved outside Brazil. The lot stays as it was here — check there:"
     }
   },
   "clientes": {
@@ -2390,7 +2411,10 @@
         "atual": "Current stage",
         "pendente": "To do"
       },
-      "etapasAjuda": "The stage changes when the lot is received (Operations › Receiving) and then through the integration with the production systems."
+      "etapasAjuda": "The stage changes when the lot is received (Operations › Receiving) and then through the integration with the production systems.",
+      "cancelado": "Cancelled on {{data}}, in the system the lot came from.",
+      "etapasAjudaDeFora": "The stages come from {{sistema}}: the lot is received and closed there.",
+      "canceladoSemData": "Cancelled in the system the lot came from."
     },
     "recebimento": {
       "titulo": "Receiving",
@@ -2630,6 +2654,57 @@
       "motivo": "Reason",
       "pedidoPor": "Requested by {{quem}} on {{quando}}.",
       "oQueFazer": "Correct the receiving (\"Correct receiving\" button): {{sistema}} resumes the lot on its own."
+    },
+    "deFora": {
+      "titulo": "Lot from {{sistema}}",
+      "texto": "This lot is created, received and closed in {{sistema}}: here it is view only. Changes there show up here on their own within 30 seconds.",
+      "abrir": "Open in {{sistema}}",
+      "dados": "Order in {{sistema}}",
+      "andamento": "Progress in {{sistema}}",
+      "recebimento": "Receiving in {{sistema}}",
+      "documentos": "Documents in {{sistema}}",
+      "documentosAjuda": "The documents stay in {{sistema}} and open there (it may ask for its login).",
+      "documentosVazio": "{{sistema}} has no documents for this lot yet.",
+      "foraDoAr": "Could not reach {{sistema}} right now",
+      "foraDoArBody": "Weighings and documents show up here when it is back. The rest of the lot stays the same.",
+      "pallets": "{{n}} pallet(s)",
+      "semCod": "Closed without COD",
+      "pesagens": "Weighings",
+      "pesagensVazioTitle": "No weighings yet",
+      "pesagensVazioBody": "Receiving weighings show up here as soon as they are entered there.",
+      "materiais": "Materials",
+      "notas": "Notes",
+      "fotoTitulo": "Weighing of {{peso}} for {{lote}}",
+      "campos": {
+        "numero": "Order number",
+        "lote": "Customer lot",
+        "cliente": "Customer there",
+        "site": "Site",
+        "endereco": "Address",
+        "pais": "Country",
+        "transportadora": "Carrier",
+        "pedidoEm": "Ordered on",
+        "coletaAgendadaEm": "Scheduled pickup",
+        "coletaPrevistaEm": "Expected pickup",
+        "chegadaEm": "Arrival",
+        "previsto": "Expected",
+        "cod": "COD",
+        "observacoes": "Notes",
+        "declarado": "Declared",
+        "pesado": "Weighed",
+        "seriais": "Service Tags"
+      },
+      "cols": {
+        "peso": "Weight",
+        "pallets": "Pallets",
+        "conteudo": "Contents",
+        "pesadoPor": "Weighed by",
+        "pesadoEm": "Weighed at",
+        "foto": "Photo",
+        "tipo": "Type",
+        "descricao": "Description",
+        "embalagem": "Packaging"
+      }
     }
   },
   "recebimento": {

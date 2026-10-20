@@ -16,6 +16,7 @@ const ROTAS = [
   '/ordens/lotes',
   '/operacao/lotes/ord00001',
   '/operacao/lotes/ord00001?aba=progresso',
+  '/operacao/lotes/ordgp001?aba=progresso',
   '/operacao/lotes/ord00001?aba=ocorrencias',
   '/operacao/recebimento',
   '/operacao/historico',

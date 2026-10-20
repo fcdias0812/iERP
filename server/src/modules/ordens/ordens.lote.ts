@@ -10,6 +10,7 @@ import { autorDa } from '../../shared/autor.js'
 import { ErroApi, naoEncontrado } from '../../shared/erros.js'
 import type { Mudanca } from '../../shared/historico.js'
 import { registrarHistorico } from '../../shared/historico.repositorio.js'
+import { garantirLoteDaqui } from './externo.js'
 
 /*
  * Detalhe do lote (Ordens › Lotes e Operação › Lotes) — o que acontece com o lote depois do
@@ -302,6 +303,7 @@ export function criarServicoLote(db: Db, opcoes: { pasta: string }) {
 
     async registrar(ordemId: string, dadosBrutos: unknown, fotos: FotoEnviada[], autor: string) {
       await exigirOrdem(ordemId)
+      await garantirLoteDaqui(db, ordemId)
       const v = ocorrenciaSchema.parse(dadosBrutos)
       if (fotos.length > MAX_FOTOS)
         throw new ErroApi(422, 'validation', `Envie até ${MAX_FOTOS} fotos por ocorrência.`)
@@ -377,6 +379,7 @@ export function criarServicoLote(db: Db, opcoes: { pasta: string }) {
       autor: string,
     ) {
       const oc = await exigirOcorrencia(ordemId, ocId)
+      await garantirLoteDaqui(db, ordemId)
       if (oc.status !== 'registrada')
         throw new ErroApi(409, 'invalid_transition', 'Ocorrência cancelada não pode ser alterada.')
       const v = edicaoSchema.parse(dadosBrutos)
@@ -470,6 +473,7 @@ export function criarServicoLote(db: Db, opcoes: { pasta: string }) {
 
     async cancelar(ordemId: string, ocId: string, autor: string) {
       const oc = await exigirOcorrencia(ordemId, ocId)
+      await garantirLoteDaqui(db, ordemId)
       if (oc.status !== 'registrada')
         throw new ErroApi(409, 'invalid_transition', 'A ocorrência já está cancelada.')
       const agora = new Date().toISOString()

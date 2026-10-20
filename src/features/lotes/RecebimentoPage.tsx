@@ -65,6 +65,8 @@ function Recebimento() {
       filters: [
         ...query.filters.filter((f) => f.id !== 'status' || recebidos),
         { id: 'status', kind: 'in', values: recebidos ? RECEBIDOS : A_RECEBER },
+        // Só os lotes agendados aqui: os do Gerenciamento de Projetos são recebidos lá.
+        { id: 'origem', kind: 'in', values: ['IERP'] },
       ],
     }),
     [query, recebidos],

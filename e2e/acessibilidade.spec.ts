@@ -52,6 +52,11 @@ const TODAS = [
   '/operacao/lotes/ord00001?aba=ocorrencias&ocorrencia=oco00001',
   '/operacao/lotes/ord00001?aba=documentos',
   '/operacao/lotes/ord00001?aba=historico',
+  // Lote do Gerenciamento de Projetos: só para ver (espelho de lá).
+  '/operacao/lotes/ordgp001',
+  '/operacao/lotes/ordgp001?aba=progresso',
+  '/operacao/lotes/ordgp001?aba=documentos',
+  '/admin/integracao?aberto=int00002',
   // Operação: ainda "em construção" (menu já montado).
   '/estoque/materiais',
   '/admin/usuarios',

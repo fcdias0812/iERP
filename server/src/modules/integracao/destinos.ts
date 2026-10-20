@@ -32,5 +32,30 @@ export function sistemaDoCliente(nomeCliente: string): string | null {
   return DESTINOS.find((d) => d.doCliente(nomeCliente))?.sistema ?? null
 }
 
+/**
+ * Sistema de fora que processa ESTE lote. Lote que nasceu num sistema de fora (Gerenciamento de
+ * Projetos) nunca vai para outro: ele é só para ver aqui (ex.: "Google (Dell LATAM)" não vai para
+ * o MoonShot por ter "Dell" no nome).
+ */
+export function sistemaDoLote(l: { clienteNome: string; externoSistema: string | null }) {
+  return l.externoSistema ? null : sistemaDoCliente(l.clienteNome)
+}
+
+/**
+ * Os sistemas que se cadastram em Administração › Integração:
+ *  - processamento: os lotes daqui VÃO para ele (chave, avisos e painel — MoonShot);
+ *  - origem: os lotes VÊM dele, e o iERP só mostra (painel e token — Gerenciamento de Projetos,
+ *    pedido do usuário, 20/10/2026).
+ */
+export type TipoSistema = 'processamento' | 'origem'
+export const SISTEMAS_CONHECIDOS: { sistema: string; nome: string; tipo: TipoSistema }[] = [
+  ...DESTINOS.map((d) => ({ sistema: d.sistema, nome: d.nome, tipo: 'processamento' as const })),
+  { sistema: 'GERENCIAMENTO', nome: 'Gerenciamento de Projetos', tipo: 'origem' },
+]
+
 /** Os códigos de sistema conhecidos. */
-export const SISTEMAS = DESTINOS.map((d) => d.sistema)
+export const SISTEMAS = SISTEMAS_CONHECIDOS.map((d) => d.sistema)
+
+/** O tipo do sistema (desconhecido = processamento, o caso antigo). */
+export const tipoDoSistema = (sistema: string): TipoSistema =>
+  SISTEMAS_CONHECIDOS.find((d) => d.sistema === sistema)?.tipo ?? 'processamento'

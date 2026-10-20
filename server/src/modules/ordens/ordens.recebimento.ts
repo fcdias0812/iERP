@@ -14,6 +14,7 @@ import { diaNoFuso, ehDia, inicioDoDia } from '../../shared/datas.js'
 import { ErroApi, naoEncontrado } from '../../shared/erros.js'
 import type { Mudanca } from '../../shared/historico.js'
 import { registrarHistorico } from '../../shared/historico.repositorio.js'
+import { garantirLoteDaqui } from './externo.js'
 import {
   enviarImagem,
   original,
@@ -313,6 +314,7 @@ export function criarServicoRecebimento(db: Db, opcoes: { pasta: string }) {
       .where('id', '=', ordemId)
       .executeTakeFirst()
     if (!ordem) throw naoEncontrado('Lote não encontrado.')
+    await garantirLoteDaqui(db, ordemId)
     // Com DEVOLUÇÃO pedida pelo sistema de fora (MoonShot), a correção vale mesmo depois de o
     // processamento ter começado lá: é justamente o que ele pediu.
     const devolvido = Boolean(ordem.devolucaoEm)

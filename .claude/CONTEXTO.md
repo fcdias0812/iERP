@@ -83,6 +83,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `38d6264` | Busca do topo (Ctrl+K) encontra todos os registros                                       |
 | `9360749` | Documentação para continuar em outro PC (integrações: `.claude/INTEGRACOES.md`)          |
 | `3acdebb` | Integração Dell → MoonShot, Administração › Integração e balanço de massa                |
+| (local)   | Gerenciamento de Projetos → iERP (lotes só para ver, espelho de lá, status Cancelado)    |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
@@ -446,6 +447,21 @@ parcial, fechou, fora da tolerância), e as tabelas de peso por commodity e bigb
 finalizado no banco de dev: LOT-00006. Também: documento anexado num lote já recebido avisa o
 MoonShot (é como a planilha da Dell anexada depois chega lá). Em aberto: exigir a planilha .xlsx
 no Agendamento da Dell? apagar o LOT-00004 de teste dos dois bancos?
+
+### 5.15 Integração Gerenciamento de Projetos → iERP (20/10/2026)
+
+Pedido dele: "Vamos agora com o programa gerenciamento ericsson (pode colocar como gerenciamento de
+projetos) … quem vai controlar tudo é o gerenciamento de projetos. Ele vai criar a ordem (não tem
+processamento nenhum), e quando chegar o lote na empresa, eles vão fazer o recebimento e o
+gerenciamento de projetos vai fazer o COD. O iERP vai servir aqui apenas para visualização."
+Decisões (respostas dele às recomendações): todos os clientes do Gerenciamento, só Brasil;
+recebimento e COD lá, lote **só para ver** aqui; etapas **espelham** as de lá ("se ambos têm a fase
+processando, por que pular?"); o cliente é o **cadastrado no iERP** ("só porque foi criado o lote lá
+não significa que os clientes também serão de lá"); site/doca que faltarem são **criados sozinhos**
+nesse cliente; na 1ª leitura, **todas** as coletas do Brasil viram lote, inclusive concluídas e
+canceladas ("como o iERP antigo"). Como foi feito (o 2.0 só LÊ o Gerenciamento; nada muda lá nem no antigo):
+**[`INTEGRACOES.md`](INTEGRACOES.md) §0.1**. Status novo do lote: **Cancelado** (só para lote de
+fora cancelado lá).
 
 ### 5.6 Cálculo da OS (pré-cálculo)
 

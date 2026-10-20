@@ -17,6 +17,9 @@ export const ETAPAS_LOTE: StatusOrdem[] = [
   'concluido',
 ]
 
+/** Todos os status do lote: as etapas e, fora do fluxo, cancelado (lote de outro sistema). */
+export const STATUS_LOTE: StatusOrdem[] = [...ETAPAS_LOTE, 'cancelado']
+
 /** Abas do detalhe do lote (`?aba=` na URL). */
 export const ABAS_LOTE = [
   'informacoes',

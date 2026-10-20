@@ -270,9 +270,16 @@ export interface OrdensTable extends Controle {
   devolucaoMotivo: string | null
   devolucaoPedidoPor: string | null
   devolucaoEm: string | null
+  /** Lote que nasceu num sistema de fora (Gerenciamento de Projetos): o sistema e o id lá. */
+  externoSistema: string | null
+  externoId: string | null
+  /** O que o sistema de fora disse da ordem (JSON, só para mostrar). */
+  externoDados: string | null
 }
 
 export interface OrdensListaView extends OrdensTable {
+  /** IERP (agendado aqui) ou o sistema de onde o lote veio. */
+  origem: string
   clienteNome: string
   clienteSlaDias: number | null
   siteCodigo: string
@@ -460,6 +467,8 @@ export interface IntegracoesTable {
   ultimoPainelEm: string | null
   ultimoErro: string | null
   ultimoErroEm: string | null
+  /** Resumo da última sincronização (JSON) — sistemas de onde os lotes vêm. */
+  sincronizacao: string | null
   criadoEm: string
   criadoPor: string
   alteradoEm: string

@@ -1,6 +1,6 @@
 import type { Db } from '../../db/database.js'
 import { diaNoFuso } from '../../shared/datas.js'
-import { sistemaDoCliente } from './destinos.js'
+import { sistemaDoLote } from './destinos.js'
 
 /*
  * A ORDEM no formato do contrato de integração — o MESMO do iERP antigo
@@ -49,6 +49,7 @@ export async function ordemNoContrato(db: Db, ordemId: string) {
       'o.codigo',
       'o.status',
       'o.clienteNome',
+      'o.externoSistema',
       'c.cnpj as clienteCnpj',
       's.codigo as siteCodigo',
       's.endereco as siteEndereco',
@@ -79,7 +80,7 @@ export async function ordemNoContrato(db: Db, ordemId: string) {
     .where('o.id', '=', ordemId)
     .executeTakeFirst()
   if (!o) return null
-  const sistema = sistemaDoCliente(o.clienteNome)
+  const sistema = sistemaDoLote(o)
 
   const [recebimento, pallets, lacres, notas, anexos] = await Promise.all([
     db

@@ -10,7 +10,8 @@ import { apiError, simulateNetwork } from '../config'
 
 /*
  * API SIMULADA de Administração › Integração (mesmo contrato de
- * server/src/modules/integracao/integracao.ts). Começa com o MoonShot cadastrado, sem chave.
+ * server/src/modules/integracao/integracao.ts). Começa com o MoonShot cadastrado, sem chave, e o
+ * Gerenciamento de Projetos (de onde os lotes vêm) com uma coleta esperando o cliente Nokia.
  */
 
 const autor = () => useSessionStore.getState().user.name
@@ -28,6 +29,7 @@ function db(): Registro[] {
     {
       id: 'int00001',
       sistema: 'MOONSHOT',
+      tipo: 'processamento',
       nome: 'MoonShot (Dell)',
       chavePrefixo: null,
       chaveCriadaEm: null,
@@ -41,9 +43,43 @@ function db(): Registro[] {
       ultimoErro: null,
       ultimoErroEm: null,
       avisosPendentes: 0,
+      sincronizacao: null,
       criadoEm: '2026-10-19T12:00:00.000Z',
       criadoPor: 'Sistema',
       alteradoEm: '2026-10-19T12:00:00.000Z',
+      alteradoPor: 'Sistema',
+      historico: [],
+    },
+    {
+      id: 'int00002',
+      sistema: 'GERENCIAMENTO',
+      tipo: 'origem',
+      nome: 'Gerenciamento de Projetos',
+      chavePrefixo: null,
+      chaveCriadaEm: null,
+      urlAvisos: null,
+      urlPainel: 'http://localhost:5005/api/integracao/painel',
+      temTokenPainel: true,
+      status: 'ativo',
+      ultimoUsoEm: null,
+      ultimoAvisoEm: null,
+      ultimoPainelEm: '2026-10-20T12:00:00.000Z',
+      ultimoErro: null,
+      ultimoErroEm: null,
+      avisosPendentes: 0,
+      sincronizacao: {
+        em: '2026-10-20T12:00:00.000Z',
+        coletas: 12,
+        ligadas: 9,
+        criados: 0,
+        pendencias: [{ cliente: 'Nokia', coletas: 3, motivo: 'sem_cliente' }],
+        falhas: [],
+        sumidos: [],
+        cargaCompletaEm: '2026-10-20T12:00:00.000Z',
+      },
+      criadoEm: '2026-10-20T11:00:00.000Z',
+      criadoPor: 'Sistema',
+      alteradoEm: '2026-10-20T11:00:00.000Z',
       alteradoPor: 'Sistema',
       historico: [],
     },
@@ -67,7 +103,10 @@ const evento = (r: Registro, e: Omit<EventoHistorico, 'id' | 'autor' | 'em'>) =>
 
 export const integracoesHandlers = [
   http.get('*/api/integracoes/sistemas', () =>
-    HttpResponse.json([{ sistema: 'MOONSHOT', nome: 'MoonShot (Dell)' }]),
+    HttpResponse.json([
+      { sistema: 'MOONSHOT', nome: 'MoonShot (Dell)', tipo: 'processamento' },
+      { sistema: 'GERENCIAMENTO', nome: 'Gerenciamento de Projetos', tipo: 'origem' },
+    ]),
   ),
   http.get('*/api/integracoes', async ({ request }) => {
     const fail = await simulateNetwork(request)
@@ -92,6 +131,8 @@ export const integracoesHandlers = [
       ...db()[0]!,
       id: novoId('int'),
       sistema: i.sistema ?? '',
+      tipo: i.sistema === 'GERENCIAMENTO' ? 'origem' : 'processamento',
+      sincronizacao: null,
       nome: i.nome,
       urlAvisos: i.urlAvisos,
       urlPainel: i.urlPainel,

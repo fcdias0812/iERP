@@ -41,6 +41,8 @@ export function CardProcessamento({ o }: { o: Ordem }) {
   const p = o.processamento
   if (!p) return null
   const sistema = nomeDoSistema(t as (k: string) => string, p.sistema)
+  // Lote do Gerenciamento de Projetos: é o andamento LÁ (criado, recebido e concluído lá).
+  const deFora = Boolean(o.externo)
   const fase =
     p.indice != null
       ? `${p.indice}/${p.total ?? '?'}${p.etapa ? ` · ${p.etapa}` : ''}`
@@ -49,11 +51,13 @@ export function CardProcessamento({ o }: { o: Ordem }) {
     <Card role="region" aria-labelledby="lote-processamento">
       <CardHeader>
         <CardTitle id="lote-processamento">
-          {t('lotes.processamento.titulo', { sistema })}
+          {deFora
+            ? t('lotes.deFora.andamento', { sistema })
+            : t('lotes.processamento.titulo', { sistema })}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        {o.status === 'inspecao' && (
+        {o.status === 'inspecao' && !deFora && (
           <p className="type-body text-muted-foreground">
             {t('lotes.processamento.aguardando', { sistema })}
           </p>

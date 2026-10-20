@@ -1327,7 +1327,9 @@
     "nameInUse": "Já existe um cadastro com este nome.",
     "fixedProfile": "O perfil Administrador é fixo: não se edita nem inativa.",
     "profileInUse": "Há usuários usando este perfil. Troque o perfil deles antes de inativar.",
-    "systemInUse": "Este sistema já está cadastrado."
+    "systemInUse": "Este sistema já está cadastrado.",
+    "externalLot": "Este lote vem de outro sistema (Gerenciamento de Projetos) e só é alterado lá.",
+    "externalUnavailable": "Não consegui falar com o sistema de onde o lote veio agora."
   },
   "calendar": {
     "today": "Hoje",
@@ -1510,7 +1512,7 @@
   },
   "integracao": {
     "descricaoPagina": "Os sistemas de fora que conversam com o iERP (hoje o MoonShot, que processa os lotes da Dell): a chave de acesso, os avisos e o painel de andamento.",
-    "descricaoPainel": "Chave de acesso, endereço dos avisos e painel de andamento do sistema.",
+    "descricaoPainel": "Como o iERP conversa com o sistema: o painel e o token; e, se ele processa os lotes daqui, a chave e os avisos.",
     "novo": "Nova integração",
     "vazio": "Nenhum sistema integrado.",
     "semChave": "Sem chave",
@@ -1540,16 +1542,20 @@
       "avisos": "Avisos (iERP → sistema)",
       "painel": "Painel de andamento (sistema → iERP)",
       "chave": "Chave de acesso (sistema → iERP)",
-      "situacao": "Situação"
+      "situacao": "Situação",
+      "sincronizacao": "Sincronização"
     },
     "ajuda": {
-      "sistema": "Cada sistema processa os lotes de um cliente (Dell → MoonShot).",
+      "sistema": "Cada sistema é de um cliente: para onde os lotes dele vão (Dell → MoonShot) ou de onde eles vêm (Gerenciamento de Projetos).",
       "avisos": "Quando um lote do cliente é recebido ou corrigido, o iERP avisa o sistema, que busca o lote com a chave. Se ele estiver fora do ar, o aviso fica na fila e é reenviado.",
       "urlAvisos": "No MoonShot: http://<endereço do MoonShot>/api/ierp2/avisos",
       "painel": "A cada 30 segundos o iERP lê em que fase está cada lote lá (\"Processamento 2/4 · Leitura das peças\").",
       "token": "O mesmo token configurado no sistema (no MoonShot: IERP_PAINEL_TOKEN), com pelo menos {{min}} caracteres.",
       "tokenGuardado": "Já há um token guardado. Deixe em branco para manter; escreva um novo para trocar.",
-      "chave": "A chave com que o sistema entra no iERP (no MoonShot: IERP2_API_KEY). Ela aparece uma vez só, ao ser gerada."
+      "chave": "A chave com que o sistema entra no iERP (no MoonShot: IERP2_API_KEY). Ela aparece uma vez só, ao ser gerada.",
+      "painelOrigem": "O endereço do painel do Gerenciamento de Projetos (o mesmo que o iERP antigo lê), terminando em /api/integracao/painel. O iERP lê as coletas a cada 30 segundos.",
+      "tokenOrigem": "O INTEGRACAO_TOKEN do .env do Gerenciamento de Projetos.",
+      "sincronizacao": "Os lotes vêm do {{sistema}}: o iERP cria e atualiza sozinho, e eles ficam só para ver aqui."
     },
     "gerarChave": "Gerar chave",
     "trocarChave": "Trocar chave",
@@ -1590,13 +1596,28 @@
       "chave_revogada": "Revogou a chave"
     },
     "sistemas": {
-      "MOONSHOT": "MoonShot"
+      "MOONSHOT": "MoonShot",
+      "GERENCIAMENTO": "Gerenciamento de Projetos"
     },
     "toast": {
       "criado": "Integração {{name}} cadastrada.",
       "salvo": "Integração {{name}} salva.",
       "falhou": "Não foi possível salvar a integração.",
       "chaveRevogada": "Chave de {{name}} revogada."
+    },
+    "sincronizacao": {
+      "coletas": "Coletas do Brasil lá",
+      "ligadas": "Coletas com lote no iERP",
+      "criados": "Lotes criados na última leitura",
+      "sem_cliente": "Cliente {{cliente}} não cadastrado no iERP: {{n}} coleta(s) esperando",
+      "sem_clienteAjuda": "Cadastre o cliente com \"{{cliente}}\" no nome (em Clientes). Os lotes aparecem sozinhos na próxima leitura.",
+      "varios_clientes": "Mais de um cliente com \"{{cliente}}\" no nome: {{n}} coleta(s) esperando",
+      "varios_clientesAjuda": "Deixe só um cliente ativo com \"{{cliente}}\" no nome, para o iERP saber a qual ligar os lotes.",
+      "falhas": "{{n}} coleta(s) com erro na última leitura — tentam de novo na próxima, sem travar as outras",
+      "cliente_inativo": "Cliente {{cliente}} está inativo no iERP: {{n}} coleta(s) esperando",
+      "cliente_inativoAjuda": "Reative o cliente com \"{{cliente}}\" no nome (em Clientes). Os lotes aparecem sozinhos na próxima leitura.",
+      "sumidos": "{{n}} lote(s) não vêm mais no painel do Gerenciamento",
+      "sumidosAjuda": "A coleta foi excluída no {{sistema}} ou mudou para fora do Brasil. O lote fica como estava aqui — confira lá:"
     }
   },
   "clientes": {
@@ -2390,7 +2411,10 @@
         "atual": "Etapa atual",
         "pendente": "A fazer"
       },
-      "etapasAjuda": "A etapa muda ao receber o lote (Operação › Recebimento) e, depois, pela integração com os sistemas de produção."
+      "etapasAjuda": "A etapa muda ao receber o lote (Operação › Recebimento) e, depois, pela integração com os sistemas de produção.",
+      "cancelado": "Cancelado em {{data}}, no sistema de onde o lote veio.",
+      "etapasAjudaDeFora": "As etapas vêm do {{sistema}}: o lote é recebido e concluído lá.",
+      "canceladoSemData": "Cancelado no sistema de onde o lote veio."
     },
     "recebimento": {
       "titulo": "Recebimento",
@@ -2630,6 +2654,57 @@
       "motivo": "Motivo",
       "pedidoPor": "Pedido por {{quem}} em {{quando}}.",
       "oQueFazer": "Corrija o recebimento (botão \"Corrigir recebimento\"): o {{sistema}} volta a trabalhar no lote sozinho."
+    },
+    "deFora": {
+      "titulo": "Lote do {{sistema}}",
+      "texto": "Este lote é criado, recebido e concluído no {{sistema}}: aqui é só para ver. O que muda lá aparece aqui sozinho, em até 30 segundos.",
+      "abrir": "Abrir no {{sistema}}",
+      "dados": "Ordem no {{sistema}}",
+      "andamento": "Andamento no {{sistema}}",
+      "recebimento": "Recebimento no {{sistema}}",
+      "documentos": "Documentos no {{sistema}}",
+      "documentosAjuda": "Os documentos ficam no {{sistema}} e abrem lá (pode pedir o login de lá).",
+      "documentosVazio": "O {{sistema}} ainda não tem documentos deste lote.",
+      "foraDoAr": "Não consegui falar com o {{sistema}} agora",
+      "foraDoArBody": "As pesagens e os documentos aparecem aqui quando ele voltar. O resto do lote continua igual.",
+      "pallets": "{{n}} pallet(s)",
+      "semCod": "Encerrada sem COD",
+      "pesagens": "Pesagens",
+      "pesagensVazioTitle": "Nenhuma pesagem ainda",
+      "pesagensVazioBody": "As pesagens do recebimento aparecem aqui assim que forem lançadas lá.",
+      "materiais": "Materiais",
+      "notas": "Notas",
+      "fotoTitulo": "Pesagem de {{peso}} do {{lote}}",
+      "campos": {
+        "numero": "Número da ordem",
+        "lote": "Lote do cliente",
+        "cliente": "Cliente lá",
+        "site": "Site",
+        "endereco": "Endereço",
+        "pais": "País",
+        "transportadora": "Transportadora",
+        "pedidoEm": "Pedido em",
+        "coletaAgendadaEm": "Coleta agendada",
+        "coletaPrevistaEm": "Coleta prevista",
+        "chegadaEm": "Chegada",
+        "previsto": "Previsto",
+        "cod": "COD",
+        "observacoes": "Observações",
+        "declarado": "Declarado",
+        "pesado": "Pesado",
+        "seriais": "Service Tags"
+      },
+      "cols": {
+        "peso": "Peso",
+        "pallets": "Pallets",
+        "conteudo": "Conteúdo",
+        "pesadoPor": "Pesado por",
+        "pesadoEm": "Pesado em",
+        "foto": "Foto",
+        "tipo": "Tipo",
+        "descricao": "Descrição",
+        "embalagem": "Embalagem"
+      }
     }
   },
   "recebimento": {

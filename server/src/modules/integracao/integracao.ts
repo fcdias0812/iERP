@@ -7,7 +7,8 @@ import { autorDa } from '../../shared/autor.js'
 import { ErroApi, naoEncontrado } from '../../shared/erros.js'
 import type { EventoHistorico, Mudanca } from '../../shared/historico.js'
 import { listarHistorico, registrarHistorico } from '../../shared/historico.repositorio.js'
-import { DESTINOS, SISTEMAS } from './destinos.js'
+import { SISTEMAS, SISTEMAS_CONHECIDOS, tipoDoSistema, type TipoSistema } from './destinos.js'
+import { lerResumoGuardado, type ResumoSincronizacao } from './gerenciamento.js'
 
 /*
  * Administração › Integração (pedido do usuário, 19/10/2026): os sistemas de fora que
@@ -29,6 +30,8 @@ import { DESTINOS, SISTEMAS } from './destinos.js'
 export interface Integracao {
   id: string
   sistema: string
+  /** processamento: os lotes vão para ele (MoonShot); origem: os lotes vêm dele (Gerenciamento). */
+  tipo: TipoSistema
   nome: string
   /** Começo da chave (para reconhecer); null = sem chave. */
   chavePrefixo: string | null
@@ -44,6 +47,8 @@ export interface Integracao {
   ultimoErro: string | null
   ultimoErroEm: string | null
   avisosPendentes: number
+  /** Última leitura de um sistema de origem (coletas, ligadas, pendências). */
+  sincronizacao: ResumoSincronizacao | null
   criadoEm: string
   criadoPor: string
   alteradoEm: string
@@ -84,16 +89,18 @@ const schemaBase = z.object({
   nome: z.string().trim().min(1, 'Informe o nome do sistema.').max(80),
   urlAvisos: url,
   urlPainel: url,
-  tokenPainel: z
-    .string()
-    .trim()
-    .max(500)
-    .refine(
-      (v) => v === '' || v.length >= TOKEN_PAINEL_MIN,
+  tokenPainel: z.string().trim().max(500).optional(),
+})
+
+/** O MoonShot recusa token curto; o Gerenciamento aceita o token que estiver no `.env` dele. */
+function conferirToken(sistema: string, token: string | undefined) {
+  if (tipoDoSistema(sistema) === 'processamento' && token && token.length < TOKEN_PAINEL_MIN)
+    throw new ErroApi(
+      422,
+      'validation',
       `O token do painel precisa ter pelo menos ${TOKEN_PAINEL_MIN} caracteres.`,
     )
-    .optional(),
-})
+}
 const schemaNovo = schemaBase.extend({
   sistema: z.enum(SISTEMAS as [string, ...string[]], 'Escolha o sistema.'),
 })
@@ -110,6 +117,7 @@ export function criarServicoIntegracoes(db: Db) {
   const linhaParaIntegracao = (l: IntegracoesTable, pendentes: number): Integracao => ({
     id: l.id,
     sistema: l.sistema,
+    tipo: tipoDoSistema(l.sistema),
     nome: l.nome,
     chavePrefixo: l.chaveHash ? l.chavePrefixo : null,
     chaveCriadaEm: l.chaveHash ? l.chaveCriadaEm : null,
@@ -123,6 +131,8 @@ export function criarServicoIntegracoes(db: Db) {
     ultimoErro: l.ultimoErro,
     ultimoErroEm: l.ultimoErroEm,
     avisosPendentes: pendentes,
+    // `falhas` entrou depois: resumo gravado antes dele vem sem a lista.
+    sincronizacao: lerResumoGuardado(l.sincronizacao),
     criadoEm: l.criadoEm,
     criadoPor: l.criadoPor,
     alteradoEm: l.alteradoEm,
@@ -176,6 +186,7 @@ export function criarServicoIntegracoes(db: Db) {
 
   async function criar(corpo: unknown, autor: string) {
     const v = schemaNovo.parse(corpo)
+    conferirToken(v.sistema, v.tokenPainel)
     const existe = await db
       .selectFrom('integracoes')
       .select('id')
@@ -203,6 +214,7 @@ export function criarServicoIntegracoes(db: Db) {
           ultimoPainelEm: null,
           ultimoErro: null,
           ultimoErroEm: null,
+          sincronizacao: null,
           criadoEm: agora,
           criadoPor: autor,
           alteradoEm: agora,
@@ -217,6 +229,7 @@ export function criarServicoIntegracoes(db: Db) {
   async function atualizar(id: string, corpo: unknown, autor: string) {
     const v = schemaBase.parse(corpo)
     const atual = await linha(id)
+    conferirToken(atual.sistema, v.tokenPainel)
     const mudancas: Mudanca[] = []
     const comparar = (campo: string, antes: string | null, depois: string | null) => {
       if ((antes ?? null) !== (depois ?? null)) mudancas.push({ campo, antes, depois })
@@ -362,7 +375,7 @@ export async function autenticarChave(db: Db, chave: string | undefined) {
 export function rotasIntegracoes(servico: ServicoIntegracoes) {
   const r = Router()
   r.get('/sistemas', (_req, res) => {
-    res.json(DESTINOS.map((d) => ({ sistema: d.sistema, nome: d.nome })))
+    res.json(SISTEMAS_CONHECIDOS)
   })
   r.get('/', async (_req, res) => {
     res.json(await servico.listar())

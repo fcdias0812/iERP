@@ -30,17 +30,20 @@ const SEM_OCORRENCIAS: OcorrenciaLote[] = []
 export function AbaOcorrencias({
   o,
   permissao,
+  somenteLeitura = false,
   onAbrir,
 }: {
   o: Ordem
   /** Permissão de registrar/corrigir/cancelar (segue o módulo de origem). */
   permissao: string
+  /** Lote de outro sistema (Gerenciamento de Projetos): nada se registra aqui. */
+  somenteLeitura?: boolean
   /** Abre o painel: "nova" ou o id. */
   onAbrir: (ocorrencia: string) => void
 }) {
   const { t } = useTranslation()
   const idioma = useUiStore((s) => s.language)
-  const podeEditar = useCan(permissao)
+  const podeEditar = useCan(permissao) && !somenteLeitura
   const [query, setQuery] = useState<TableQuery>(ORDEM_INICIAL)
   const [cancelar, setCancelar] = useState<OcorrenciaLote | null>(null)
   const cancelamento = useCancelarOcorrencia(o.id)
@@ -200,7 +203,7 @@ export function AbaOcorrencias({
           </div>
         )}
         rowActions={(r) =>
-          r.status === 'registrada' ? (
+          r.status === 'registrada' && podeEditar ? (
             <Can permission={permissao}>
               <>
                 <DropdownMenuItem onSelect={() => onAbrir(r.id)}>

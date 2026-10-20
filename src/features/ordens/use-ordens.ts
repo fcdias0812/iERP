@@ -12,6 +12,7 @@ import {
   criarOrdem,
   editarOrdem,
   listarOrdens,
+  obterEspelhoDoLote,
   obterOrdem,
   ordensKeys,
   preCalcularOrdem,
@@ -83,6 +84,19 @@ export function useCriarOrdem() {
 /** Detalhe do lote (etapas, pallets, ocorrências e histórico vêm juntos). */
 export const useLote = (id: string) =>
   useQuery({ queryKey: ordensKeys.detalhe(id), queryFn: ({ signal }) => obterOrdem(id, signal) })
+
+/**
+ * O espelho do lote que veio de outro sistema (Gerenciamento de Projetos): buscado ao vivo lá, só
+ * quando o lote é de fora. Sem nova tentativa — fora do ar, a tela diz e segue.
+ */
+export const useEspelhoDoLote = (id: string, deFora: boolean) =>
+  useQuery({
+    queryKey: ordensKeys.espelho(id),
+    queryFn: ({ signal }) => obterEspelhoDoLote(id, signal),
+    enabled: deFora,
+    retry: false,
+    staleTime: 30_000,
+  })
 
 /** Grava o lote devolvido pela API no cache e atualiza as listas. */
 function useAtualizarLote() {

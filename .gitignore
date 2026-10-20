@@ -24,3 +24,4 @@ Thumbs.db
 
 # Variáveis de teste da integração com o MoonShot (geradas; têm chave e token)
 .claude/scripts/moonshot.env.cmd
+.claude/scripts/gerenciamento.env.cmd

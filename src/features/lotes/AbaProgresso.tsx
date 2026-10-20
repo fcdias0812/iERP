@@ -20,6 +20,8 @@ import type {
   StatusOrdem,
 } from '@/services/types'
 import { FotoMiniatura } from './FotoMiniatura'
+import { useNomeDoSistema, usePesadoDeFora } from './lote-de-fora'
+import { RecebimentoDeFora } from './LoteDeFora'
 import { ETAPAS_LOTE } from './origem'
 import { CardBalanco } from './BalancoDeMassa'
 import { CardProcessamento } from './ProcessamentoExterno'
@@ -37,8 +39,16 @@ const ORDEM_PALLETS: TableQuery = { ...EMPTY_QUERY, sort: [{ id: 'numero', desc:
 
 export function AbaProgresso({ o }: { o: Ordem }) {
   const { t } = useTranslation()
+  const deFora = Boolean(o.externo)
+  // Lote do Gerenciamento de Projetos: os pallets e o peso são os pesados lá.
+  const { pesado } = usePesadoDeFora(o)
   const pesos = o.pallets.map((p) => p.pesoKg).filter((p): p is number => p !== null)
-  const pesoBruto = pesos.length ? pesos.reduce((a, b) => a + b, 0) : null
+  const pesoBruto = deFora
+    ? (pesado?.pesoKg ?? null)
+    : pesos.length
+      ? pesos.reduce((a, b) => a + b, 0)
+      : null
+  const pallets = deFora ? (pesado?.pallets ?? 0) : o.pallets.length
 
   return (
     <div className="flex flex-col gap-4">
@@ -68,7 +78,7 @@ export function AbaProgresso({ o }: { o: Ordem }) {
             <KpiCard
               className="h-full"
               label={t('lotes.progresso.palletsRecebidos')}
-              value={o.pallets.length ? formatNumber(o.pallets.length) : EMPTY}
+              value={pallets ? formatNumber(pallets) : EMPTY}
             />
           </li>
           <li>
@@ -84,8 +94,14 @@ export function AbaProgresso({ o }: { o: Ordem }) {
       <CardBalanco o={o} />
 
       <LinhaDoTempo o={o} />
-      {o.recebimento && <DadosRecebimento o={o} />}
-      <Recebimento o={o} />
+      {deFora ? (
+        <RecebimentoDeFora o={o} />
+      ) : (
+        <>
+          {o.recebimento && <DadosRecebimento o={o} />}
+          <Recebimento o={o} />
+        </>
+      )}
     </div>
   )
 }
@@ -96,6 +112,9 @@ type EstadoEtapa = 'feita' | 'atual' | 'pendente'
 
 function LinhaDoTempo({ o }: { o: Ordem }) {
   const { t } = useTranslation()
+  const nomeSistema = useNomeDoSistema(o)
+  // O dia do cancelamento só quando o sistema de fora o diz (senão seria o dia da leitura).
+  const diaCancelado = o.externo ? o.processamento?.desde : o.etapaDesde
   const atual = ETAPAS_LOTE.indexOf(o.status)
   const quando = (etapa: StatusOrdem) => o.etapas.findLast((e) => e.etapa === etapa)?.em ?? null
   // A última etapa (concluído) já é o fim: aparece como feita.
@@ -168,7 +187,15 @@ function LinhaDoTempo({ o }: { o: Ordem }) {
             )
           })}
         </ol>
-        <p className="type-caption text-muted-foreground">{t('lotes.progresso.etapasAjuda')}</p>
+        <p className="type-caption text-muted-foreground">
+          {o.status === 'cancelado'
+            ? diaCancelado
+              ? t('lotes.progresso.cancelado', { data: formatDate(diaCancelado) })
+              : t('lotes.progresso.canceladoSemData')
+            : o.externo
+              ? t('lotes.progresso.etapasAjudaDeFora', { sistema: nomeSistema })
+              : t('lotes.progresso.etapasAjuda')}
+        </p>
       </CardContent>
     </Card>
   )

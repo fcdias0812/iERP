@@ -3,7 +3,8 @@ import { sql } from 'kysely'
 import type { Db } from '../../db/database.js'
 import type { IntegracoesTable } from '../../db/schema.js'
 import { registrarHistorico } from '../../shared/historico.repositorio.js'
-import { sistemaDoCliente } from './destinos.js'
+import { sistemaDoLote, tipoDoSistema } from './destinos.js'
+import { criarSincronizacaoGerenciamento } from './gerenciamento.js'
 
 /*
  * Conversa com os sistemas de fora (hoje o MoonShot, da Dell) — o mesmo protocolo do iERP
@@ -159,11 +160,11 @@ export async function aplicarAndamento(
 export async function enfileirarAviso(db: Db, ordemId: string, evento: string) {
   const o = await db
     .selectFrom('ordensLista')
-    .select(['codigo', 'clienteNome'])
+    .select(['codigo', 'clienteNome', 'externoSistema'])
     .where('id', '=', ordemId)
     .executeTakeFirst()
   if (!o) return
-  const sistema = sistemaDoCliente(o.clienteNome)
+  const sistema = sistemaDoLote(o)
   if (!sistema) return
   const integracao = await db
     .selectFrom('integracoes')
@@ -324,7 +325,7 @@ export async function lerPainel(
   const ordens = codigos.length
     ? await db
         .selectFrom('ordensLista')
-        .select(['id', 'codigo', 'clienteNome'])
+        .select(['id', 'codigo', 'clienteNome', 'externoSistema'])
         .where('codigo', 'in', codigos)
         .execute()
     : []
@@ -333,7 +334,7 @@ export async function lerPainel(
   for (const l of lotes) {
     const o = l.lote ? porCodigo.get(l.lote) : undefined
     // Só os lotes DESTE iERP que vão para ESTE sistema (o painel traz também os do iERP antigo).
-    if (!o || sistemaDoCliente(o.clienteNome) !== integracao.sistema) continue
+    if (!o || sistemaDoLote(o) !== integracao.sistema) continue
     const mudou = await aplicarAndamento(db, o.id, integracao, {
       etapa: l.etapa?.nome ?? null,
       indice: typeof l.etapa?.indice === 'number' ? l.etapa.indice : null,
@@ -356,7 +357,11 @@ export async function lerPainel(
   return { ok: true, lotes: lotes.length, atualizados }
 }
 
-/** Lê o painel de todas as integrações ativas que têm painel. */
+/**
+ * Lê o painel de todas as integrações ativas que têm painel: dos sistemas que PROCESSAM os lotes
+ * daqui (MoonShot), o andamento; dos sistemas de onde os lotes VÊM (Gerenciamento de Projetos),
+ * os lotes inteiros (`gerenciamento.ts`).
+ */
 export async function lerPaineis(db: Db, fazerFetch: Fetch = fetch) {
   const integracoes = await db
     .selectFrom('integracoes')
@@ -365,7 +370,26 @@ export async function lerPaineis(db: Db, fazerFetch: Fetch = fetch) {
     .where('urlPainel', 'is not', null)
     .where('tokenPainel', 'is not', null)
     .execute()
-  for (const i of integracoes) await lerPainel(db, i, fazerFetch)
+  const gerenciamento = criarSincronizacaoGerenciamento(db, fazerFetch)
+  // Cada sistema por conta própria, em paralelo: um lento ou com erro não segura o outro.
+  const resultados = await Promise.allSettled(
+    integracoes.map((i) =>
+      tipoDoSistema(i.sistema) === 'origem'
+        ? gerenciamento.sincronizar(i)
+        : lerPainel(db, i, fazerFetch),
+    ),
+  )
+  for (const [n, r] of resultados.entries())
+    if (r.status === 'rejected') {
+      const erro = r.reason instanceof Error ? r.reason.message : String(r.reason)
+      console.error(`[integracao] ${integracoes[n]!.nome}:`, r.reason)
+      await db
+        .updateTable('integracoes')
+        .set({ ultimoErro: `Painel: ${erro}`, ultimoErroEm: new Date().toISOString() })
+        .where('id', '=', integracoes[n]!.id)
+        .execute()
+        .catch(() => undefined)
+    }
 }
 
 /**

@@ -23,6 +23,8 @@ import { listarHistorico, registrarHistorico } from '../../shared/historico.repo
 import { normalizar } from '../../shared/texto.js'
 import { balancoDoLote, type BalancoDeMassa } from '../integracao/balanco.js'
 import { enfileirarAviso } from '../integracao/sincronizacao.js'
+import { dadosExternos, type DadosExternos } from '../integracao/gerenciamento.js'
+import { garantirLoteDaqui } from './externo.js'
 import {
   calcularOs,
   SemVeiculoError,
@@ -69,7 +71,12 @@ import {
  * (COD emitido). Hoje só o Agendamento cria (agendado); as outras virão da integração.
  */
 export const ETAPAS = ['agendado', 'inspecao', 'processo', 'aguardando_cod', 'concluido'] as const
-export type StatusOrdem = (typeof ETAPAS)[number]
+/**
+ * Status do lote: as etapas e, fora do fluxo, CANCELADO (lote de um sistema de fora cancelado lá —
+ * Gerenciamento de Projetos, 20/10/2026; aqui nenhum lote é cancelado pela tela).
+ */
+export const STATUS_LOTE = [...ETAPAS, 'cancelado'] as const
+export type StatusOrdem = (typeof STATUS_LOTE)[number]
 /** Ordem do fluxo (= flowOrder do statusMap do frontend). */
 export const ORDEM_ETAPAS: Record<StatusOrdem, number> = {
   agendado: 65,
@@ -77,6 +84,7 @@ export const ORDEM_ETAPAS: Record<StatusOrdem, number> = {
   processo: 67,
   aguardando_cod: 68,
   concluido: 110,
+  cancelado: 400,
 }
 /** escopo/observacoes = enviados no agendamento; lote = adicionados depois, na aba Documentos. */
 export type SecaoAnexo = 'escopo' | 'observacoes' | 'lote'
@@ -132,6 +140,15 @@ export interface OrdemResumo {
   processamento: ProcessamentoExterno | null
   /** O sistema de fora pediu a correção do recebimento (null = nada pendente). */
   devolucao: DevolucaoAoRecebimento | null
+  /** Lote que nasceu num sistema de fora e só é alterado lá (null = agendado aqui). */
+  externo: LoteExterno | null
+}
+
+export interface LoteExterno {
+  /** Código do sistema (GERENCIAMENTO). */
+  sistema: string
+  /** Tela da ordem no sistema de fora. */
+  url: string | null
 }
 
 export interface ProcessamentoExterno {
@@ -185,6 +202,8 @@ export interface Ordem extends OrdemResumo {
   recebimento: RecebimentoLote | null
   /** Balanço de massa mandado pelo sistema de fora (MoonShot); null = ainda nenhum. */
   balanco: BalancoDeMassa | null
+  /** O que o sistema de onde o lote veio disse da ordem (só para mostrar). */
+  externoDados: DadosExternos | null
 }
 
 /* ------------------------------------------------------------ regras */
@@ -297,6 +316,8 @@ export const COLUNAS_ORDEM: ColunaConsulta[] = [
   { id: 'status', tipo: 'status', ordem: ORDEM_ETAPAS },
   { id: 'recebidoEm', tipo: 'date' },
   { id: 'criadoEm', tipo: 'date' },
+  // IERP ou o sistema de onde o lote veio (Recebimento mostra só os agendados aqui).
+  { id: 'origem', tipo: 'enum' },
 ]
 
 /* ------------------------------------------------------------ serviço */
@@ -362,6 +383,7 @@ const paraResumo = (l: Linha): OrdemResumo => ({
   devolucao: l.devolucaoEm
     ? { motivo: l.devolucaoMotivo, pedidoPor: l.devolucaoPedidoPor, em: l.devolucaoEm }
     : null,
+  externo: l.externoSistema ? { sistema: l.externoSistema, url: l.processamentoUrl } : null,
 })
 
 export interface ArquivoEnviado {
@@ -459,6 +481,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
       ...doLote,
       recebimento: recebido,
       balanco,
+      externoDados: l.externoDados ? dadosExternos(JSON.parse(l.externoDados)) : null,
     }
   }
 
@@ -692,6 +715,9 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
                 ].join(' '),
               ),
               etapaDesde: agora,
+              externoSistema: null,
+              externoId: null,
+              externoDados: null,
               criadoEm: agora,
               criadoPor: autor,
               alteradoEm: agora,
@@ -747,6 +773,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
         .where('id', '=', ordemId)
         .executeTakeFirst()
       if (!existe) throw naoEncontrado('Lote não encontrado.')
+      await garantirLoteDaqui(db, ordemId)
       if (!arquivos.length) throw new ErroApi(422, 'validation', 'Envie pelo menos um arquivo.')
       const novos = arquivos.map((a) => {
         const nome = nomeSeguro(a.nomeOriginal)
@@ -812,6 +839,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
         .where('ordemId', '=', ordemId)
         .executeTakeFirst()
       if (!a) throw naoEncontrado('Documento não encontrado.')
+      await garantirLoteDaqui(db, ordemId)
       if (a.tipo === 'escopo') {
         const ordem = await db
           .selectFrom('ordens')
@@ -855,6 +883,7 @@ export function criarServicoOrdens(db: Db, opcoes: { pasta: string }) {
     async editar(id: string, dadosBrutos: unknown, autor: string): Promise<Ordem> {
       const atual = await linhaDe(db, id)
       if (!atual) throw naoEncontrado('Lote não encontrado.')
+      await garantirLoteDaqui(db, id)
       if (atual.status !== 'agendado')
         throw new ErroApi(
           409,

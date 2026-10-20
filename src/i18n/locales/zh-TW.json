@@ -1327,7 +1327,9 @@
     "nameInUse": "已有相同名稱的資料。",
     "fixedProfile": "管理員設定檔為固定設定檔：無法編輯或停用。",
     "profileInUse": "仍有使用者使用此設定檔。請先變更他們的設定檔再停用。",
-    "systemInUse": "此系統已經登錄。"
+    "systemInUse": "此系統已經登錄。",
+    "externalLot": "此批次來自其他系統（專案管理），只能在那邊修改。",
+    "externalUnavailable": "目前無法連線到此批次的來源系統。"
   },
   "calendar": {
     "today": "今天",
@@ -1510,7 +1512,7 @@
   },
   "integracao": {
     "descricaoPagina": "與 iERP 連線的外部系統（目前為處理 Dell 批次的 MoonShot）：存取金鑰、通知與進度面板。",
-    "descricaoPainel": "系統的存取金鑰、通知位址與進度面板。",
+    "descricaoPainel": "iERP 與系統的連線方式：儀表板與權杖；若該系統處理這裡的批次，還有金鑰與通知。",
     "novo": "新增整合",
     "vazio": "沒有已整合的系統。",
     "semChave": "無金鑰",
@@ -1540,16 +1542,20 @@
       "avisos": "通知（iERP → 系統）",
       "painel": "進度面板（系統 → iERP）",
       "chave": "存取金鑰（系統 → iERP）",
-      "situacao": "狀況"
+      "situacao": "狀況",
+      "sincronizacao": "同步"
     },
     "ajuda": {
-      "sistema": "每個系統處理一個客戶的批次（Dell → MoonShot）。",
+      "sistema": "每個系統對應一個客戶：其批次的去向（Dell → MoonShot）或來源（專案管理）。",
       "avisos": "客戶的批次收貨或更正時，iERP 會通知該系統，系統再用金鑰讀取批次。若系統離線，通知會留在佇列並重新傳送。",
       "urlAvisos": "MoonShot：http://<MoonShot 位址>/api/ierp2/avisos",
       "painel": "iERP 每 30 秒讀取一次每個批次在那裡的階段（「處理中 2/4 · 零件讀取」）。",
       "token": "與系統中設定的權杖相同（MoonShot：IERP_PAINEL_TOKEN），至少 {{min}} 個字元。",
       "tokenGuardado": "已儲存權杖。留空即保留；輸入新的權杖即可替換。",
-      "chave": "系統進入 iERP 所用的金鑰（MoonShot：IERP2_API_KEY）。只在產生時顯示一次。"
+      "chave": "系統進入 iERP 所用的金鑰（MoonShot：IERP2_API_KEY）。只在產生時顯示一次。",
+      "painelOrigem": "專案管理儀表板的位址（與舊版 iERP 讀取的相同），結尾為 /api/integracao/painel。iERP 每 30 秒讀取一次取貨資料。",
+      "tokenOrigem": "專案管理 .env 檔中的 INTEGRACAO_TOKEN。",
+      "sincronizacao": "批次來自{{sistema}}：iERP 會自動建立與更新，在這裡僅供檢視。"
     },
     "gerarChave": "產生金鑰",
     "trocarChave": "更換金鑰",
@@ -1590,13 +1596,28 @@
       "chave_revogada": "撤銷了金鑰"
     },
     "sistemas": {
-      "MOONSHOT": "MoonShot"
+      "MOONSHOT": "MoonShot",
+      "GERENCIAMENTO": "專案管理"
     },
     "toast": {
       "criado": "已新增整合 {{name}}。",
       "salvo": "已儲存整合 {{name}}。",
       "falhou": "無法儲存整合。",
       "chaveRevogada": "已撤銷 {{name}} 的金鑰。"
+    },
+    "sincronizacao": {
+      "coletas": "那邊的巴西取貨",
+      "ligadas": "已在 iERP 建立批次的取貨",
+      "criados": "上次讀取建立的批次",
+      "sem_cliente": "客戶 {{cliente}} 尚未在 iERP 中建立：{{n}} 筆取貨等待中",
+      "sem_clienteAjuda": "請在「客戶」中建立名稱含「{{cliente}}」的客戶。下次讀取時批次會自動出現。",
+      "varios_clientes": "有多個名稱含「{{cliente}}」的客戶：{{n}} 筆取貨等待中",
+      "varios_clientesAjuda": "請只保留一個名稱含「{{cliente}}」的啟用客戶，讓 iERP 知道要將批次連結到哪一個。",
+      "falhas": "上次讀取有 {{n}} 筆取貨出錯——下次讀取會重試，不影響其他取貨",
+      "cliente_inativo": "客戶 {{cliente}} 在 iERP 中已停用：{{n}} 筆取貨等待中",
+      "cliente_inativoAjuda": "請在「客戶」中重新啟用名稱含「{{cliente}}」的客戶。下次讀取時批次會自動出現。",
+      "sumidos": "{{n}} 個批次已不在專案管理儀表板中",
+      "sumidosAjuda": "該取貨已在{{sistema}}中刪除或改為巴西以外。批次在這裡維持原狀——請到那邊確認："
     }
   },
   "clientes": {
@@ -2390,7 +2411,10 @@
         "atual": "目前階段",
         "pendente": "待進行"
       },
-      "etapasAjuda": "收貨（營運 › 收貨）時階段會變更，之後透過與生產系統的整合推進。"
+      "etapasAjuda": "收貨（營運 › 收貨）時階段會變更，之後透過與生產系統的整合推進。",
+      "cancelado": "已於 {{data}} 在批次來源系統中取消。",
+      "etapasAjudaDeFora": "階段來自{{sistema}}：批次在那邊收貨與結案。",
+      "canceladoSemData": "已在批次來源系統中取消。"
     },
     "recebimento": {
       "titulo": "收貨",
@@ -2630,6 +2654,57 @@
       "motivo": "原因",
       "pedidoPor": "由 {{quem}} 於 {{quando}} 提出。",
       "oQueFazer": "請更正收貨（「更正收貨」按鈕）：{{sistema}} 會自動繼續處理此批次。"
+    },
+    "deFora": {
+      "titulo": "來自{{sistema}}的批次",
+      "texto": "此批次在{{sistema}}中建立、收貨與結案：這裡僅供檢視。那邊的變更會在 30 秒內自動顯示在這裡。",
+      "abrir": "在{{sistema}}中開啟",
+      "dados": "{{sistema}}中的訂單",
+      "andamento": "{{sistema}}中的進度",
+      "recebimento": "{{sistema}}中的收貨",
+      "documentos": "{{sistema}}中的文件",
+      "documentosAjuda": "文件存放在{{sistema}}，並在那邊開啟（可能需要那邊的登入）。",
+      "documentosVazio": "{{sistema}}尚無此批次的文件。",
+      "foraDoAr": "目前無法連線到{{sistema}}",
+      "foraDoArBody": "恢復連線後，秤重與文件會顯示在這裡。批次的其他資料不受影響。",
+      "pallets": "{{n}} 個棧板",
+      "semCod": "已結案（無 COD）",
+      "pesagens": "秤重",
+      "pesagensVazioTitle": "尚無秤重",
+      "pesagensVazioBody": "那邊登錄收貨秤重後，會立即顯示在這裡。",
+      "materiais": "材料",
+      "notas": "備註",
+      "fotoTitulo": "{{lote}} 的 {{peso}} 秤重",
+      "campos": {
+        "numero": "訂單編號",
+        "lote": "客戶批號",
+        "cliente": "那邊的客戶",
+        "site": "站點",
+        "endereco": "地址",
+        "pais": "國家",
+        "transportadora": "貨運公司",
+        "pedidoEm": "下單日期",
+        "coletaAgendadaEm": "預約取貨",
+        "coletaPrevistaEm": "預計取貨",
+        "chegadaEm": "到貨",
+        "previsto": "預估",
+        "cod": "COD",
+        "observacoes": "備註",
+        "declarado": "申報",
+        "pesado": "實秤",
+        "seriais": "Service Tags"
+      },
+      "cols": {
+        "peso": "重量",
+        "pallets": "棧板",
+        "conteudo": "內容物",
+        "pesadoPor": "秤重人員",
+        "pesadoEm": "秤重時間",
+        "foto": "照片",
+        "tipo": "類型",
+        "descricao": "說明",
+        "embalagem": "包裝"
+      }
     }
   },
   "recebimento": {

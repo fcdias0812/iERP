@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
@@ -55,6 +55,9 @@ import {
  *  - a CHAVE com que o sistema entra aqui (aparece uma vez só, ao gerar);
  *  - o endereço dos AVISOS ("chegou o lote LOT-00001": ele busca o lote com a chave);
  *  - o PAINEL de andamento que o iERP lê a cada 30 s (fase "Processamento i/N").
+ * Sistema de ORIGEM (Gerenciamento de Projetos, 20/10/2026): os lotes vêm dele e o iERP só mostra
+ * — basta o endereço do painel e o token dele (sem chave e sem avisos); a seção Sincronização
+ * mostra as coletas lidas e as que esperam o cliente ser cadastrado.
  */
 
 const ORDEM: TableQuery = { ...EMPTY_QUERY, sort: [{ id: 'nome', desc: false }] }
@@ -63,6 +66,8 @@ const VAZIO: Integracao[] = []
 const SEM_AVISOS: AvisoIntegracao[] = []
 const STATUS = ['ativo', 'inativo']
 const MIN_TOKEN = 32
+/** Sistemas de onde os lotes VÊM (= `tipo: 'origem'` em server/.../integracao/destinos.ts). */
+const SISTEMAS_ORIGEM = ['GERENCIAMENTO']
 
 export function IntegracaoPage() {
   return (
@@ -108,7 +113,9 @@ function Integracoes() {
         accessor: (r) => r.chavePrefixo,
         size: 150,
         cell: (r) =>
-          r.chavePrefixo ? (
+          r.tipo === 'origem' ? (
+            EMPTY
+          ) : r.chavePrefixo ? (
             <span className="font-mono">{`${r.chavePrefixo}…`}</span>
           ) : (
             <span className="text-muted-foreground">{t('integracao.semChave')}</span>
@@ -199,17 +206,19 @@ const url = z
   .max(500)
   .refine((v) => v === '' || /^https?:\/\/\S+$/i.test(v), 'validation.url')
 
-const schema = z.object({
-  sistema: z.string().min(1, 'validation.required'),
-  nome: z.string().trim().min(1, 'validation.required').max(80),
-  urlAvisos: url,
-  urlPainel: url,
-  tokenPainel: z
-    .string()
-    .trim()
-    .max(500)
-    .refine((v) => v === '' || v.length >= MIN_TOKEN, 'validation.tokenCurto'),
-})
+const schema = z
+  .object({
+    sistema: z.string().min(1, 'validation.required'),
+    nome: z.string().trim().min(1, 'validation.required').max(80),
+    urlAvisos: url,
+    urlPainel: url,
+    tokenPainel: z.string().trim().max(500),
+  })
+  // O MoonShot recusa token curto; o Gerenciamento usa o token que estiver no `.env` dele.
+  .superRefine((v, ctx) => {
+    if (!SISTEMAS_ORIGEM.includes(v.sistema) && v.tokenPainel && v.tokenPainel.length < MIN_TOKEN)
+      ctx.addIssue({ code: 'custom', path: ['tokenPainel'], message: 'validation.tokenCurto' })
+  })
 type Form = z.input<typeof schema>
 
 function IntegracaoFormulario({
@@ -254,6 +263,8 @@ function IntegracaoFormulario({
   })
 
   const rotulos = useRotulosIntegracao()
+  // De onde os lotes vêm (Gerenciamento): só painel e token — sem avisos e sem chave.
+  const origem = SISTEMAS_ORIGEM.includes(useWatch({ control: form.control, name: 'sistema' }))
 
   return (
     <CadastroSheet
@@ -349,33 +360,35 @@ function IntegracaoFormulario({
             </RhfField>
           </CadastroSecao>
 
-          <CadastroSecao
-            titulo={t('integracao.secoes.avisos')}
-            descricao={t('integracao.ajuda.avisos')}
-            colunas={1}
-          >
-            <RhfField
-              control={form.control}
-              name="urlAvisos"
-              label={t('integracao.campos.urlAvisos')}
-              help={t('integracao.ajuda.urlAvisos')}
+          {!origem && (
+            <CadastroSecao
+              titulo={t('integracao.secoes.avisos')}
+              descricao={t('integracao.ajuda.avisos')}
+              colunas={1}
             >
-              {({ field, control }) => (
-                <Input
-                  {...control}
-                  {...field}
-                  inputMode="url"
-                  autoComplete="off"
-                  className="font-mono"
-                  placeholder="http://192.168.0.10:5063/api/ierp2/avisos"
-                />
-              )}
-            </RhfField>
-          </CadastroSecao>
+              <RhfField
+                control={form.control}
+                name="urlAvisos"
+                label={t('integracao.campos.urlAvisos')}
+                help={t('integracao.ajuda.urlAvisos')}
+              >
+                {({ field, control }) => (
+                  <Input
+                    {...control}
+                    {...field}
+                    inputMode="url"
+                    autoComplete="off"
+                    className="font-mono"
+                    placeholder="http://192.168.0.10:5063/api/ierp2/avisos"
+                  />
+                )}
+              </RhfField>
+            </CadastroSecao>
+          )}
 
           <CadastroSecao
             titulo={t('integracao.secoes.painel')}
-            descricao={t('integracao.ajuda.painel')}
+            descricao={origem ? t('integracao.ajuda.painelOrigem') : t('integracao.ajuda.painel')}
             colunas={1}
           >
             <RhfField
@@ -390,7 +403,11 @@ function IntegracaoFormulario({
                   inputMode="url"
                   autoComplete="off"
                   className="font-mono"
-                  placeholder="http://192.168.0.10:5063/api/ierp2/painel"
+                  placeholder={
+                    origem
+                      ? 'http://192.168.0.10:5005/api/integracao/painel'
+                      : 'http://192.168.0.10:5063/api/ierp2/painel'
+                  }
                 />
               )}
             </RhfField>
@@ -401,7 +418,9 @@ function IntegracaoFormulario({
               help={
                 integracao?.temTokenPainel
                   ? t('integracao.ajuda.tokenGuardado')
-                  : t('integracao.ajuda.token', { min: MIN_TOKEN })
+                  : origem
+                    ? t('integracao.ajuda.tokenOrigem')
+                    : t('integracao.ajuda.token', { min: MIN_TOKEN })
               }
             >
               {({ field, control }) => (
@@ -416,8 +435,9 @@ function IntegracaoFormulario({
             </RhfField>
           </CadastroSecao>
 
-          {integracao && <SecaoChave integracao={integracao} />}
-          {integracao && <SecaoSituacao integracao={integracao} />}
+          {integracao && !origem && <SecaoChave integracao={integracao} />}
+          {integracao && !origem && <SecaoSituacao integracao={integracao} />}
+          {integracao && origem && <SecaoSincronizacao integracao={integracao} />}
         </form>
       }
     />
@@ -613,6 +633,83 @@ function SecaoSituacao({ integracao }: { integracao: IntegracaoDetalhe }) {
         exportName="avisos-integracao"
         empty={{ title: t('integracao.avisos.vazio') }}
       />
+    </CadastroSecao>
+  )
+}
+
+/**
+ * Sistema de origem (Gerenciamento de Projetos): a última leitura e as coletas que esperam o
+ * cliente ser cadastrado aqui ("não está na lista? cadastre" — os lotes aparecem sozinhos).
+ */
+function SecaoSincronizacao({ integracao }: { integracao: IntegracaoDetalhe }) {
+  const { t } = useTranslation()
+  const s = integracao.sincronizacao
+  return (
+    <CadastroSecao
+      titulo={t('integracao.secoes.sincronizacao')}
+      descricao={t('integracao.ajuda.sincronizacao', { sistema: integracao.nome })}
+      colunas={1}
+    >
+      <KeyValueList
+        columns={2}
+        items={[
+          {
+            label: t('integracao.cols.ultimoPainelEm'),
+            value: integracao.ultimoPainelEm ? formatDateTime(integracao.ultimoPainelEm) : EMPTY,
+          },
+          {
+            label: t('integracao.sincronizacao.coletas'),
+            value: s ? <span className="num">{formatNumber(s.coletas)}</span> : EMPTY,
+          },
+          {
+            label: t('integracao.sincronizacao.ligadas'),
+            value: s ? <span className="num">{formatNumber(s.ligadas)}</span> : EMPTY,
+          },
+          {
+            label: t('integracao.sincronizacao.criados'),
+            value: s ? <span className="num">{formatNumber(s.criados)}</span> : EMPTY,
+          },
+        ]}
+      />
+      {s && s.falhas.length > 0 && (
+        <Alert
+          tone="danger"
+          title={t('integracao.sincronizacao.falhas', { n: formatNumber(s.falhas.length) })}
+        >
+          <ul className="flex flex-col gap-1">
+            {s.falhas.map((f) => (
+              <li key={f.coleta}>
+                <span className="font-mono">{f.coleta}</span>: {f.erro}
+              </li>
+            ))}
+          </ul>
+        </Alert>
+      )}
+      {s && s.sumidos.length > 0 && (
+        <Alert
+          tone="warning"
+          title={t('integracao.sincronizacao.sumidos', { n: formatNumber(s.sumidos.length) })}
+        >
+          <p>{t('integracao.sincronizacao.sumidosAjuda', { sistema: integracao.nome })}</p>
+          <p className="font-mono">
+            {s.sumidos
+              .map((x) => (x.referencia ? `${x.codigo} (${x.referencia})` : x.codigo))
+              .join(', ')}
+          </p>
+        </Alert>
+      )}
+      {s?.pendencias.map((p) => (
+        <Alert
+          key={p.cliente}
+          tone="warning"
+          title={t(`integracao.sincronizacao.${p.motivo}`, {
+            cliente: p.cliente,
+            n: formatNumber(p.coletas),
+          })}
+        >
+          {t(`integracao.sincronizacao.${p.motivo}Ajuda`, { cliente: p.cliente })}
+        </Alert>
+      ))}
     </CadastroSecao>
   )
 }

@@ -448,8 +448,12 @@ export type PaginaVeiculos = TablePage<Veiculo> & {
 
 /* ------------------------------------------------------------ ordens (agendamento / lotes) */
 
-/** Etapas do lote: agendado → inspeção (recebido) → processo → aguardando COD → concluído. */
-export type StatusOrdem = 'agendado' | 'inspecao' | 'processo' | 'aguardando_cod' | 'concluido'
+/**
+ * Etapas do lote: agendado → inspeção (recebido) → processo → aguardando COD → concluído. Fora do
+ * fluxo, cancelado (lote de outro sistema cancelado lá — Gerenciamento de Projetos).
+ */
+export type StatusOrdem =
+  'agendado' | 'inspecao' | 'processo' | 'aguardando_cod' | 'concluido' | 'cancelado'
 /** escopo/observacoes = enviados no agendamento; lote = adicionados depois (aba Documentos). */
 export type SecaoAnexo = 'escopo' | 'observacoes' | 'lote'
 
@@ -538,6 +542,75 @@ export interface OrdemResumo {
   processamento: ProcessamentoExterno | null
   /** O sistema de fora pediu a correção do recebimento (null = nada pendente). */
   devolucao: DevolucaoAoRecebimento | null
+  /** Lote que nasceu num sistema de fora e só é alterado lá (null = agendado aqui). */
+  externo: LoteExterno | null
+}
+
+/** De onde o lote veio (Gerenciamento de Projetos — só para ver aqui). */
+export interface LoteExterno {
+  /** Código do sistema (GERENCIAMENTO). */
+  sistema: string
+  /** Tela da ordem no sistema de fora. */
+  url: string | null
+}
+
+/** O que o sistema de onde o lote veio disse da ordem (server/src/modules/integracao/gerenciamento.ts). */
+export interface DadosExternos {
+  numero: string | null
+  lote: string | null
+  cliente: string | null
+  site: string | null
+  endereco: string | null
+  cidade: string | null
+  uf: string | null
+  pais: string | null
+  transportadora: string | null
+  observacoes: string | null
+  pedidoEm: string | null
+  coletaAgendadaEm: string | null
+  coletaPrevistaEm: string | null
+  chegadaEm: string | null
+  previstoPesoKg: number | null
+  previstoPallets: number | null
+  previstoUnidades: number | null
+  codNumero: string | null
+  codEm: string | null
+  /** Encerrada lá sem COD registrado. */
+  semCod: boolean
+  etapas: { nome: string; desde: string | null; estado: string | null }[]
+}
+
+/** O que aconteceu lá — pesagens com foto, documentos e materiais (ao vivo, ao abrir o lote). */
+export interface EspelhoExterno {
+  sistema: string
+  url: string | null
+  declarado: { pesoKg: number | null; pallets: number | null }
+  pesado: { pesoKg: number; pallets: number; pesagens: number; fotos: number } | null
+  pesagens: {
+    id: string
+    pesoKg: number | null
+    pallets: number | null
+    conteudo: string | null
+    pesadoPor: string | null
+    pesadoEm: string | null
+    fotoUrl: string | null
+  }[]
+  arquivos: {
+    id: string
+    tipo: string | null
+    nome: string
+    enviadoPor: string | null
+    enviadoEm: string | null
+    url: string | null
+  }[]
+  materiais: {
+    tipo: string | null
+    descricao: string | null
+    embalagem: string | null
+    pesoKg: number | null
+  }[]
+  notas: { autor: string | null; data: string | null; texto: string }[]
+  seriais: number
 }
 
 export interface ProcessamentoExterno {
@@ -582,6 +655,8 @@ export interface Ordem extends OrdemResumo {
   recebimento: RecebimentoLote | null
   /** Balanço de massa mandado pelo sistema de fora (MoonShot); null = ainda nenhum. */
   balanco: BalancoDeMassa | null
+  /** O que o sistema de onde o lote veio disse da ordem (só para mostrar). */
+  externoDados: DadosExternos | null
 }
 
 /* ---------------- Balanço de massa (server/src/modules/integracao/balanco.ts) */
@@ -1034,10 +1109,32 @@ export interface EventoAuditoria extends EventoHistorico {
 
 /* ---------------- Administração › Integração (server/src/modules/integracao/integracao.ts) */
 
+/** processamento: os lotes daqui vão para ele (MoonShot); origem: os lotes vêm dele (Gerenciamento). */
+export type TipoSistema = 'processamento' | 'origem'
+
+/** Resumo da última leitura de um sistema de origem. */
+export interface ResumoSincronizacao {
+  em: string
+  coletas: number
+  ligadas: number
+  criados: number
+  pendencias: {
+    cliente: string
+    coletas: number
+    motivo: 'sem_cliente' | 'varios_clientes' | 'cliente_inativo'
+  }[]
+  /** Coletas que deram erro na última leitura (tentam de novo na próxima). */
+  falhas: { coleta: string; erro: string }[]
+  /** Lotes cuja coleta não vem mais no painel de lá (excluída, ou fora do Brasil). */
+  sumidos: { codigo: string; referencia: string | null }[]
+  cargaCompletaEm: string | null
+}
+
 export interface Integracao {
   id: string
   /** Código do sistema (MOONSHOT): vai no `destino` dos pallets do contrato. */
   sistema: string
+  tipo: TipoSistema
   nome: string
   /** Começo da chave, para reconhecer (null = sem chave). */
   chavePrefixo: string | null
@@ -1052,6 +1149,7 @@ export interface Integracao {
   ultimoErro: string | null
   ultimoErroEm: string | null
   avisosPendentes: number
+  sincronizacao: ResumoSincronizacao | null
   criadoEm: string
   criadoPor: string
   alteradoEm: string
@@ -1083,4 +1181,5 @@ export interface IntegracaoInput {
 export interface SistemaIntegravel {
   sistema: string
   nome: string
+  tipo: TipoSistema
 }
