@@ -254,6 +254,53 @@ acompanhar ele no mapa."
   o 2.0 precisa sair pelo mesmo IP). Chave da TomTom: conta no developer.tomtom.com (com o TI). A
   escuta ao vivo (SignalR) usa certificado público; com CA própria, só a conferência por minuto vale.
 
+## 0.4 Estoque ← armazém, Controle de Notebooks e RTB WMS (pronto, 20/10/2026)
+
+Palavras dele: "Vamos agora integrar três sistemas: C:\Trabalho\01_Sistemas\EC-Inventory-Management,
+C:\Trabalho\01_Sistemas\EC-ControleNotebooks e C:\Trabalho\01_Sistemas\EC-rtb-sistema-armazem. Eles
+vão ser parte do estoque, respectivamente: Materiais, Assets, Peças e E-commerce."
+
+- **Quem alimenta cada tela:** Materiais ← ARMAZÉM (EC-Inventory-Management, paletes); Assets ←
+  CONTROLE DE NOTEBOOKS (Notebook, Desktop, AIO **e Servidor**); Peças ← CONTROLE DE NOTEBOOKS (o
+  tipo "Peça"); E-commerce ← RTB WMS (EC-rtb-sistema-armazem, SKU × prateleira). A tela
+  **Servidores** continua esperando — "Servidor será um sistema separado" (palavras dele).
+- **Decisões dele:** a MESMA chave do iERP antigo no Notebooks e no RTB WMS (eles aceitam uma só,
+  a `INTEGRACAO_CHAVE` do .env); no armazém, uma chave PRÓPRIA do 2.0 (lá se geram várias, em
+  Sistema › Ajustes › chaves de integração); "Abrir no sistema" vai para a tela geral (os sistemas
+  não mandam o número interno — no Notebooks, a lista já buscada pelo serial); leitura AO VIVO
+  com 1 minuto guardado (igual ao antigo) e o botão Atualizar.
+- **Como funciona:** o 2.0 lê a MESMA porta do antigo, `GET /api/integracao/estoque?pagina=&porPagina=500`
+  (cabeçalho `X-Chave-Integracao`, `{ success, data }`), até 8 páginas (4.000 linhas; acima disso
+  a tela diz "mostrando N de M"), descartando a linha que reaparece na página seguinte. **Nada
+  muda nos três sistemas nem no antigo** (só leitura; a campainha do armazém continua indo só para
+  o antigo). Endereço (a RAIZ do sistema) e chave em Administração › Integração (tipo **estoque**:
+  `ARMAZEM`, `NOTEBOOKS`, `RTB_WMS`); a última leitura/erro aparece lá.
+- **No iERP:** `server/src/modules/estoque/estoque.ts` (`GET /api/estoque/:aba`, tradução de cada
+  fonte, cache por sistema que se refaz quando o cadastro muda, uma leitura por vez por sistema,
+  "Atualizar" só refaz após 15 s, 15 s de teto para a leitura inteira, sem seguir
+  redirecionamento, nunca lança) e `src/features/estoque/` (`EstoqueDeFora` = moldura com
+  avisos/Atualizar/Abrir; `paginas.tsx` = colunas; `tons.ts` = a cor de cada estado de lá pelo
+  significado — selos `estoque_*` do statusMap com o rótulo de lá; estados do armazém nos 3
+  idiomas que ele manda; status/preparo/tipo do Notebooks traduzidos aqui).
+- **Testado neste PC (20/10/2026)** com os três de TESTE: `.claude/scripts/subir-armazem-teste.cmd`
+  (modo ensaio dele, porta 4010, dados em `.claude/dados-teste/armazem`, campainha desligada;
+  login de teste admin/admin123 só lá), `subir-notebooks-teste.cmd` (porta 5231, banco
+  `data/teste-ierp2.db` de lá — modo ensaio, sem backup), `subir-wms-teste.cmd` (portas 5020/5021,
+  banco `RtbWms/data/teste-ierp2.db`; ele é .NET 8 e roda no .NET 10 por `DOTNET_ROLL_FORWARD`);
+  chaves de teste em `estoque.env.cmd` (fora do git). Leu 6 paletes, 3 computadores (com o
+  servidor), 1 peça e 2 produtos; a máquina vendida não vem (o Notebooks tira vendido, descartado
+  e uso interno da lista).
+- **Revisão independente (20/10/2026, testes em `estoque.test.ts`):** falha ao ler o banco não
+  derruba o servidor; "Atualizar" apertado várias vezes não vira várias leituras (cada página
+  custa ao armazém uma conferência bcrypt); teto de 15 s para a leitura inteira (não por página);
+  página HTML no lugar do JSON = "erro de formato"; "próxima página" que não anda não prende;
+  a chave não segue redirecionamento; Peças/Assets com lista incompleta não mostram o total de
+  todas as máquinas; filtros das colunas com os valores que vieram; filtros e ordem na URL.
+- **Para produção:** Administração › Integração: ARMAZEM = `http://<servidor>:4000` + chave gerada
+  no armazém para o 2.0; NOTEBOOKS = `http://<servidor>:5012` + a `INTEGRACAO_CHAVE` de lá (a
+  mesma do antigo); RTB_WMS = `http://<servidor>:5010` + a `INTEGRACAO_CHAVE` dele (a mesma do
+  antigo). Trocar a chave do Notebooks ou do RTB WMS = trocar nos dois iERPs.
+
 ## 1. O que existe hoje
 
 - **Rotas de entrada**: o contrato `/api/integracao/v1` (§0), com chave por sistema. Sistema novo
@@ -333,10 +380,11 @@ antes de começar qualquer um (e a regra de sempre: o antigo NÃO muda, o 2.0 é
   ITAD novo" (palavras dele).
 - **Perguntar:** qual sistema de ITAD, quais números entram em cada card.
 
-### 2.6 Estoque (Materiais, Assets, Servidores, E-commerce, Peças) e Operação › Chamados internos
+### 2.6 Estoque e Operação › Chamados internos
 
-- Todos "em construção". **Perguntar** de qual sistema vêm os dados, o que se cadastra no próprio
-  iERP e a diferença entre Materiais, Assets, Servidores, E-commerce e Peças.
+- **Materiais, Assets, Peças e E-commerce: prontos (§0.4).** Falta **Servidores** ("será um sistema
+  separado" — perguntar qual, quando ele trouxer) e **Estoque › Histórico** (de onde vêm as
+  movimentações?). Operação › Chamados internos: "em construção" — perguntar de qual sistema.
 
 ### 2.7 Login / SSO e permissões no servidor
 

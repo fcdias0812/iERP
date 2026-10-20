@@ -370,8 +370,11 @@ export async function lerPaineis(db: Db, fazerFetch: Fetch = fetch) {
     .where('urlPainel', 'is not', null)
     .where('tokenPainel', 'is not', null)
     .execute()
-    // O rastreador de GPS tem a sincronização dele (`modules/viagens/`).
-    .then((l) => l.filter((i) => tipoDoSistema(i.sistema) !== 'rastreio'))
+    // Só os sistemas de lotes: o rastreador (`modules/viagens/`) e os de estoque
+    // (`modules/estoque/`, lidos ao abrir a tela) têm o caminho deles.
+    .then((l) =>
+      l.filter((i) => ['processamento', 'origem'].includes(tipoDoSistema(i.sistema))),
+    )
   const gerenciamento = criarSincronizacaoGerenciamento(db, fazerFetch)
   // Cada sistema por conta própria, em paralelo: um lento ou com erro não segura o outro.
   const resultados = await Promise.allSettled(

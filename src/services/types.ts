@@ -1124,7 +1124,7 @@ export interface EventoAuditoria extends EventoHistorico {
 /* ---------------- Administração › Integração (server/src/modules/integracao/integracao.ts) */
 
 /** processamento: os lotes daqui vão para ele (MoonShot); origem: os lotes vêm dele (Gerenciamento). */
-export type TipoSistema = 'processamento' | 'origem' | 'rastreio'
+export type TipoSistema = 'processamento' | 'origem' | 'rastreio' | 'estoque'
 
 /** Resumo da última leitura de um sistema de origem. */
 export interface ResumoSincronizacao {
@@ -1310,4 +1310,99 @@ export interface PoiEstrada {
   longitude: number
   tipo: 'posto' | 'balanca'
   nome: string | null
+}
+
+/* ------------------------------------------------------------ Estoque (sistemas de fora) */
+
+/** Materiais ← armazém; Assets/Peças ← Controle de Notebooks; E-commerce ← RTB WMS. */
+export type SistemaEstoque = 'ARMAZEM' | 'NOTEBOOKS' | 'RTB_WMS'
+export type AbaEstoque = 'materiais' | 'assets' | 'pecas' | 'ecommerce'
+export type MotivoEstoque = 'nao_configurado' | 'chave_recusada' | 'sem_resposta' | 'erro'
+
+/** Estado de lá com o rótulo de lá (o armazém manda nos 3 idiomas). */
+export interface StatusDeFora {
+  codigo: string
+  rotulo: string
+  rotuloEn: string | null
+  rotuloZh: string | null
+}
+
+export interface MaterialDeFora {
+  id: string
+  lote: string
+  palete: string | null
+  /** ECOMMERCE | ITAD | PROJETO | PECAS | EWASTE */
+  categoriaNegocio: string | null
+  origem: string | null
+  cliente: string | null
+  projeto: string | null
+  tipoMercadoria: string | null
+  categoriaProduto: string | null
+  quantidade: number | null
+  quantidadeEstimada: boolean
+  pesoKg: number | null
+  statusFisico: StatusDeFora | null
+  statusVenda: StatusDeFora | null
+  area: string | null
+  posicao: string | null
+  dataEntrada: string | null
+  itens: number | null
+  fotos: number | null
+}
+
+export interface MaquinaDeFora {
+  id: string
+  serial: string
+  semSerial: boolean
+  /** Notebook | Desktop | AIO | Servidor | Peça */
+  tipo: string | null
+  marca: string | null
+  modelo: string | null
+  grade: string | null
+  cor: string | null
+  cpu: string | null
+  memoria: string | null
+  disco: string | null
+  tela: string | null
+  gpu: string | null
+  so: string | null
+  acessorios: string | null
+  resumo: string | null
+  status: { codigo: number; nome: string } | null
+  preparo: { codigo: number; nome: string } | null
+  lote: string | null
+  /** Dias (`AAAA-MM-DD`). */
+  dataEntrada: string | null
+  dataTriagem: string | null
+  link: string | null
+}
+
+export interface PosicaoEcommerce {
+  id: string
+  sku: string
+  descricao: string | null
+  cor: string | null
+  produtoAtivo: boolean | null
+  posicao: string
+  apelido: string | null
+  tipoPosicao: string | null
+  zona: string | null
+  categoria: string | null
+  quantidade: number | null
+  ultimaEntrada: string | null
+}
+
+export interface EstoqueDeFora<T> {
+  sistema: SistemaEstoque
+  nome: string
+  configurado: boolean
+  indisponivel: boolean
+  motivo: MotivoEstoque | null
+  detalhe: string | null
+  linhas: T[]
+  /** null = não se sabe (Assets/Peças com a lista incompleta). */
+  total: number | null
+  incompleto: boolean
+  urlSistema: string | null
+  lidoEm: string
 }

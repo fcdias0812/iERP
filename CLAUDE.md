@@ -25,7 +25,8 @@ antigo (v1) nem de outro lugar.
   dados, contatos, motoristas, histórico), **Veículos** e **Motoristas** (lista + painel lateral);
   seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento, Viagens com o mapa ao
   vivo do rastreador de GPS, Histórico), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo detalhe de Ordens › Lotes
-  —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (em construção); e,
+  —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (Materiais, Assets,
+  Peças e E-commerce lidos ao vivo dos sistemas de estoque; Servidores e Histórico em construção); e,
   em Sistema, **Cadastros** (submenu: Materiais, Pallets, Caixotes, Áreas do estoque, Rastreadores GPS)
   e **Administração** (Usuários, Perfis de acesso, Auditoria, Integração).
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
@@ -201,6 +202,12 @@ linha do tempo, recebimento), **Ocorrências** (painel
   `tempo-real.ts` = SignalR, ligado no `index.ts`). Rastreador cadastrado em Administração ›
   Integração (tipo `rastreio`, sistema `RASTREADOR`). O rastreador é o MESMO do iERP antigo: só as
   viagens dos LOT do 2.0; nunca apagar nada lá. Detalhes em `.claude/INTEGRACOES.md` §0.3.
+- **Estoque** (Materiais ← armazém/EC-Inventory-Management; Assets e Peças ← Controle de
+  Notebooks; E-commerce ← RTB WMS) — `server/src/modules/estoque/estoque.ts` (`GET
+  /api/estoque/:aba`: lê ao vivo a MESMA porta `/api/integracao/estoque` do iERP antigo, guarda 1
+  minuto, nunca lança) e `src/features/estoque/` (`EstoqueDeFora` + `paginas.tsx`; cor dos estados
+  de lá em `tons.ts`). Só para ver. Sistemas cadastrados em Administração › Integração (tipo
+  `estoque`). Detalhes em `.claude/INTEGRACOES.md` §0.4.
 - **Sistema › Cadastros** — `src/features/cadastros/` (módulo com submenu, uma rota por cadastro
   em `src/routes/_app/cadastros/` — `paginas.tsx`; painel `?aberto=novo|<id>`; listas em modo
   cliente — a API devolve a lista inteira) e

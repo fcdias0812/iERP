@@ -33,6 +33,11 @@ import {
   rotasViagens,
   type ServicoViagens,
 } from './modules/viagens/viagens.js'
+import {
+  criarServicoEstoque,
+  rotasEstoque,
+  type ServicoEstoque,
+} from './modules/estoque/estoque.js'
 import { rotaInexistente, tratarErros } from './shared/erros.js'
 
 /**
@@ -47,6 +52,8 @@ export function criarApp(
     fetchExterno?: typeof fetch
     /** Ordens › Viagens — o index.ts passa o MESMO serviço que escuta o rastreador ao vivo. */
     viagens?: ServicoViagens
+    /** Estoque — os testes passam o deles (sem a espera do "Atualizar"). */
+    estoque?: ServicoEstoque
   } = {},
 ) {
   const usuarios = criarServicoUsuarios(criarRepositorioUsuarios(db))
@@ -81,6 +88,10 @@ export function criarApp(
   // Lote que veio de outro sistema: o espelho do que aconteceu lá (Gerenciamento de Projetos).
   api.use('/ordens', rotasLotesDeFora(db, opcoes.fetchExterno))
   api.use('/viagens', rotasViagens(viagens, opcoes.fetchExterno))
+  api.use(
+    '/estoque',
+    rotasEstoque(opcoes.estoque ?? criarServicoEstoque(db, { fetch: opcoes.fetchExterno })),
+  )
   api.use('/dashboard', rotasDashboard(criarServicoDashboard(db)))
   api.use('/historico', rotasHistorico(criarServicoHistorico(db)))
   api.use('/materiais', rotasCadastro(cadastros.materiais))

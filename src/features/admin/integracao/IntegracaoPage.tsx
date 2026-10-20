@@ -71,6 +71,14 @@ const MIN_TOKEN = 32
 const SISTEMAS_ORIGEM = ['GERENCIAMENTO', 'MSDC']
 /** O rastreador de GPS das viagens (= `tipo: 'rastreio'`): endereço + chave interna. */
 const SISTEMAS_RASTREIO = ['RASTREADOR']
+/** Os sistemas de estoque (= `tipo: 'estoque'`): endereço + a chave de integração deles. */
+const SISTEMAS_ESTOQUE = ['ARMAZEM', 'NOTEBOOKS', 'RTB_WMS']
+/** Exemplo do endereço (a RAIZ do sistema) de cada sistema de estoque. */
+const EXEMPLO_ESTOQUE: Record<string, string> = {
+  ARMAZEM: 'http://192.168.0.10:4000',
+  NOTEBOOKS: 'http://192.168.0.10:5012',
+  RTB_WMS: 'http://192.168.0.10:5010',
+}
 /** Exemplo do endereço do painel de cada sistema de origem. */
 const EXEMPLO_PAINEL: Record<string, string> = {
   GERENCIAMENTO: 'http://192.168.0.10:5005/api/integracao/painel',
@@ -238,7 +246,10 @@ const schema = z
   })
   // O MoonShot recusa token curto; o Gerenciamento e o rastreador usam o que estiver no `.env`.
   .superRefine((v, ctx) => {
-    const semMinimo = SISTEMAS_ORIGEM.includes(v.sistema) || SISTEMAS_RASTREIO.includes(v.sistema)
+    const semMinimo =
+      SISTEMAS_ORIGEM.includes(v.sistema) ||
+      SISTEMAS_RASTREIO.includes(v.sistema) ||
+      SISTEMAS_ESTOQUE.includes(v.sistema)
     if (!semMinimo && v.tokenPainel && v.tokenPainel.length < MIN_TOKEN)
       ctx.addIssue({ code: 'custom', path: ['tokenPainel'], message: 'validation.tokenCurto' })
   })
@@ -295,6 +306,10 @@ function IntegracaoFormulario({
   const origem = SISTEMAS_ORIGEM.includes(sistemaEscolhido)
   // O rastreador de GPS (Ordens › Viagens): endereço, chave interna e a chave do trânsito.
   const rastreio = SISTEMAS_RASTREIO.includes(sistemaEscolhido)
+  // Os sistemas de estoque (Estoque › Materiais, Assets, Peças, E-commerce): endereço e chave.
+  const estoque = SISTEMAS_ESTOQUE.includes(sistemaEscolhido)
+  // Sem avisos e sem a chave do iERP: o iERP é que lê deles.
+  const soLeitura = origem || rastreio || estoque
   const nomeDoSistema =
     sistemas.data?.find((s) => s.sistema === sistemaEscolhido)?.nome ?? integracao?.nome ?? ''
 
@@ -392,7 +407,7 @@ function IntegracaoFormulario({
             </RhfField>
           </CadastroSecao>
 
-          {!origem && !rastreio && (
+          {!soLeitura && (
             <CadastroSecao
               titulo={t('integracao.secoes.avisos')}
               descricao={t('integracao.ajuda.avisos')}
@@ -419,13 +434,21 @@ function IntegracaoFormulario({
           )}
 
           <CadastroSecao
-            titulo={rastreio ? t('integracao.secoes.rastreador') : t('integracao.secoes.painel')}
+            titulo={
+              estoque
+                ? t('integracao.secoes.estoque')
+                : rastreio
+                  ? t('integracao.secoes.rastreador')
+                  : t('integracao.secoes.painel')
+            }
             descricao={
-              rastreio
-                ? t('integracao.ajuda.rastreador')
-                : origem
-                  ? t('integracao.ajuda.painelOrigem', { sistema: nomeDoSistema })
-                  : t('integracao.ajuda.painel')
+              estoque
+                ? t('integracao.ajuda.estoque')
+                : rastreio
+                  ? t('integracao.ajuda.rastreador')
+                  : origem
+                    ? t('integracao.ajuda.painelOrigem', { sistema: nomeDoSistema })
+                    : t('integracao.ajuda.painel')
             }
             colunas={1}
           >
@@ -433,7 +456,11 @@ function IntegracaoFormulario({
               control={form.control}
               name="urlPainel"
               label={
-                rastreio ? t('integracao.campos.urlRastreador') : t('integracao.campos.urlPainel')
+                estoque
+                  ? t('integracao.campos.urlSistema')
+                  : rastreio
+                    ? t('integracao.campos.urlRastreador')
+                    : t('integracao.campos.urlPainel')
               }
             >
               {({ field, control }) => (
@@ -444,11 +471,13 @@ function IntegracaoFormulario({
                   autoComplete="off"
                   className="font-mono"
                   placeholder={
-                    rastreio
-                      ? 'https://rastreador.exemplo.com.br'
-                      : origem
-                        ? (EXEMPLO_PAINEL[sistemaEscolhido] ?? EXEMPLO_PAINEL.GERENCIAMENTO)
-                        : 'http://192.168.0.10:5063/api/ierp2/painel'
+                    estoque
+                      ? EXEMPLO_ESTOQUE[sistemaEscolhido]
+                      : rastreio
+                        ? 'https://rastreador.exemplo.com.br'
+                        : origem
+                          ? (EXEMPLO_PAINEL[sistemaEscolhido] ?? EXEMPLO_PAINEL.GERENCIAMENTO)
+                          : 'http://192.168.0.10:5063/api/ierp2/painel'
                   }
                 />
               )}
@@ -457,16 +486,22 @@ function IntegracaoFormulario({
               control={form.control}
               name="tokenPainel"
               label={
-                rastreio ? t('integracao.campos.chaveInterna') : t('integracao.campos.tokenPainel')
+                estoque
+                  ? t('integracao.campos.chaveIntegracao')
+                  : rastreio
+                    ? t('integracao.campos.chaveInterna')
+                    : t('integracao.campos.tokenPainel')
               }
               help={
                 integracao?.temTokenPainel
                   ? t('integracao.ajuda.tokenGuardado')
-                  : rastreio
-                    ? t('integracao.ajuda.chaveInterna')
-                    : origem
-                      ? t('integracao.ajuda.tokenOrigem', { sistema: nomeDoSistema })
-                      : t('integracao.ajuda.token', { min: MIN_TOKEN })
+                  : estoque
+                    ? t(`integracao.ajuda.chave${sistemaEscolhido as 'ARMAZEM'}`)
+                    : rastreio
+                      ? t('integracao.ajuda.chaveInterna')
+                      : origem
+                        ? t('integracao.ajuda.tokenOrigem', { sistema: nomeDoSistema })
+                        : t('integracao.ajuda.token', { min: MIN_TOKEN })
               }
             >
               {({ field, control }) => (
@@ -501,7 +536,7 @@ function IntegracaoFormulario({
                 )}
               </RhfField>
             )}
-            {(origem || rastreio) && (
+            {soLeitura && (
               <RhfField
                 control={form.control}
                 name="caPainel"
@@ -522,8 +557,8 @@ function IntegracaoFormulario({
             )}
           </CadastroSecao>
 
-          {integracao && !origem && !rastreio && <SecaoChave integracao={integracao} />}
-          {integracao && !origem && !rastreio && <SecaoSituacao integracao={integracao} />}
+          {integracao && !soLeitura && <SecaoChave integracao={integracao} />}
+          {integracao && !soLeitura && <SecaoSituacao integracao={integracao} />}
           {integracao && origem && <SecaoSincronizacao integracao={integracao} />}
         </form>
       }

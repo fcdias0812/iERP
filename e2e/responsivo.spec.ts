@@ -26,6 +26,8 @@ const ROTAS = [
   '/operacao/recebimento?aberto=novo',
   '/ordens/agendamento',
   '/ordens/viagens',
+  '/estoque/materiais',
+  '/estoque/assets',
   '/ordens/viagens?viagem=vg00002',
   '/ordens/viagens?aba=finalizadas&viagem=vg00001',
   '/operacao/dashboard',

@@ -64,8 +64,11 @@ const TODAS = [
   '/operacao/lotes/ordms001?aba=progresso',
   '/operacao/lotes/ordms001?aba=documentos',
   '/admin/integracao?aberto=int00002',
-  // Operação: ainda "em construção" (menu já montado).
+  // Estoque: as listas dos sistemas de fora (Materiais, Assets, Peças, E-commerce).
   '/estoque/materiais',
+  '/estoque/assets',
+  '/estoque/pecas',
+  '/estoque/ecommerce',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
   '/admin/usuarios/usr00001?editar=true',

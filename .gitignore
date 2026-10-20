@@ -27,3 +27,6 @@ Thumbs.db
 .claude/scripts/gerenciamento.env.cmd
 .claude/scripts/msdc.env.cmd
 .claude/scripts/rastreador.env.cmd
+.claude/scripts/estoque.env.cmd
+# Bancos de TESTE dos sistemas de estoque (armazém) para testar a integração
+.claude/dados-teste/

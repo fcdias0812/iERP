@@ -37,6 +37,24 @@
       "runtimeExecutable": "cmd",
       "runtimeArgs": ["/c", ".claude\\scripts\\subir-rastreador.cmd"],
       "port": 5283
+    },
+    {
+      "name": "armazem-teste",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", ".claude\\scripts\\subir-armazem-teste.cmd"],
+      "port": 4010
+    },
+    {
+      "name": "notebooks-teste",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", ".claude\\scripts\\subir-notebooks-teste.cmd"],
+      "port": 5231
+    },
+    {
+      "name": "wms-teste",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", ".claude\\scripts\\subir-wms-teste.cmd"],
+      "port": 5020
     }
   ]
 }

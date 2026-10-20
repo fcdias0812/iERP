@@ -105,6 +105,12 @@ export const STATUS_MAP = {
   viagem_finalizada: { tone: 'success', icon: CircleCheckBig, flowOrder: 112 },
   viagem_cancelada: { tone: 'inactive', icon: Ban, flowOrder: 401 },
   viagem_emergencia: { tone: 'danger', icon: Siren, flowOrder: 305 },
+  // Estados que vêm dos sistemas de estoque (o rótulo é o de lá; a cor, pelo significado).
+  estoque_ok: { tone: 'success', icon: CircleCheck, flowOrder: 140 },
+  estoque_info: { tone: 'info', icon: CircleDot, flowOrder: 141 },
+  estoque_atencao: { tone: 'warning', icon: Clock, flowOrder: 142 },
+  estoque_problema: { tone: 'alert', icon: TriangleAlert, flowOrder: 143 },
+  estoque_encerrado: { tone: 'inactive', icon: CircleMinus, flowOrder: 430 },
   autorizada: { tone: 'success', icon: FileCheck, flowOrder: 95 },
   conciliado: { tone: 'success', icon: Link2, flowOrder: 125 },
   disponivel: { tone: 'success', icon: PackageSearch, flowOrder: 132 },

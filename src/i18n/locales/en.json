@@ -882,7 +882,12 @@
     "viagem_chegou": "Arrived — confirm",
     "viagem_finalizada": "Trip finished",
     "viagem_cancelada": "Trip cancelled",
-    "viagem_emergencia": "Emergency"
+    "viagem_emergencia": "Emergency",
+    "estoque_ok": "Ok",
+    "estoque_info": "Information",
+    "estoque_atencao": "Attention",
+    "estoque_problema": "Problem",
+    "estoque_encerrado": "Closed"
   },
   "dataTable": {
     "yes": "Yes",
@@ -1556,7 +1561,9 @@
       "caPainel": "CA certificate (optional)",
       "urlRastreador": "Tracker address",
       "chaveInterna": "Internal key",
-      "chaveTransito": "Traffic map key (TomTom, optional)"
+      "chaveTransito": "Traffic map key (TomTom, optional)",
+      "urlSistema": "System address",
+      "chaveIntegracao": "Integration key"
     },
     "secoes": {
       "sistema": "System",
@@ -1565,7 +1572,8 @@
       "chave": "Access key (system → iERP)",
       "situacao": "Status",
       "sincronizacao": "Synchronization",
-      "rastreador": "GPS tracker (tracker → iERP)"
+      "rastreador": "GPS tracker (tracker → iERP)",
+      "estoque": "Stock (system → iERP)"
     },
     "ajuda": {
       "sistema": "Each system belongs to a customer: where its lots go (Dell → MoonShot) or where they come from (Project Management).",
@@ -1582,7 +1590,11 @@
       "rastreador": "The GPS tracker for trips (ReTeckTracker — the same one the old iERP uses). iERP 2.0 reads the trips of its lots, records the arrival code and listens to the tracker live; the driver app opens at <address>/app/.",
       "chaveInterna": "The tracker's INTERNAL_API_KEY (the same one the old iERP uses). Never the driver app key.",
       "chaveTransito": "Turns on the Traffic button on the Trips map. Without it, the button does not appear.",
-      "chaveTransitoGuardada": "Traffic key saved. Leave blank to keep it; type a new one to replace it."
+      "chaveTransitoGuardada": "Traffic key saved. Leave blank to keep it; type a new one to replace it.",
+      "estoque": "iERP 2.0 reads this system's stock list live (the same /api/integracao/estoque port the old iERP uses; nothing changes there). Address = the system root, without a path.",
+      "chaveARMAZEM": "Generate a key for iERP 2.0 in Inventory-Management (System › Settings › integration keys). It is shown only once.",
+      "chaveNOTEBOOKS": "The INTEGRACAO_CHAVE from Notebook Control's .env — the same one the old iERP uses.",
+      "chaveRTB_WMS": "RTB WMS's INTEGRACAO_CHAVE — the same one the old iERP uses."
     },
     "gerarChave": "Generate key",
     "trocarChave": "Replace key",
@@ -3127,5 +3139,118 @@
     "baixar": {
       "botao": "Download {{formato}}"
     }
+  },
+  "estoque": {
+    "atualizar": "Refresh",
+    "atualizarFalhou": "Could not refresh the list",
+    "abrirNo": "Open in {{sistema}}",
+    "lidoAs": "Read from {{sistema}} at {{hora}} · view only (stock is managed there).",
+    "detalhe": "Detail: {{detalhe}}",
+    "incompleto": "Showing {{n}} of {{total}} items from {{sistema}} (the list is too large to bring in full).",
+    "estimada": "Quantity estimated by the operator",
+    "semSerial": "Temporary serial (the machine arrived without one)",
+    "produtoInativo": "Inactive product",
+    "zonaGeral": "General",
+    "sistemas": {
+      "ARMAZEM": "Warehouse",
+      "NOTEBOOKS": "Notebook Control",
+      "RTB_WMS": "RTB WMS"
+    },
+    "descricoes": {
+      "materiais": "Warehouse pallets (Inventory-Management), read live — view only.",
+      "assets": "Computers from Notebook Control, read live — view only.",
+      "pecas": "Parts from Notebook Control, read live — view only.",
+      "ecommerce": "E-commerce stock by SKU and shelf (RTB WMS), read live — view only."
+    },
+    "vazio": {
+      "materiais": "No pallets in the warehouse.",
+      "assets": "No computers in stock.",
+      "pecas": "No parts in stock.",
+      "ecommerce": "No products on the shelves."
+    },
+    "naoConfigurado": {
+      "titulo": "{{sistema}} not registered",
+      "texto": "Register the address and integration key of {{sistema}} in Administration › Integration for the list to appear here.",
+      "acao": "Open Integration"
+    },
+    "motivos": {
+      "nao_configurado": "{{sistema}} is not registered",
+      "chave_recusada": "{{sistema}} refused the integration key — check it in Administration › Integration",
+      "sem_resposta": "{{sistema}} did not respond — try refreshing in a moment",
+      "erro": "{{sistema}} responded with an error"
+    },
+    "categoriasNegocio": {
+      "ECOMMERCE": "E-commerce",
+      "ITAD": "ITAD",
+      "PROJETO": "Project",
+      "PECAS": "Parts",
+      "EWASTE": "E-waste"
+    },
+    "tipos": {
+      "Notebook": "Notebook",
+      "Desktop": "Desktop",
+      "AIO": "All-in-one",
+      "Servidor": "Server"
+    },
+    "statusMaquina": {
+      "1": "Received",
+      "2": "Ready for sale",
+      "3": "Listed",
+      "4": "Reserved",
+      "5": "Sold",
+      "6": "Returned — under review",
+      "7": "In internal use",
+      "8": "Maintenance",
+      "9": "Discarded",
+      "10": "Internal reserve"
+    },
+    "preparo": {
+      "1": "Preparing",
+      "2": "Ready for e-commerce",
+      "3": "For B2B",
+      "4": "Internal reserve"
+    },
+    "cols": {
+      "lote": "Lot",
+      "palete": "Pallet",
+      "categoriaNegocio": "Business",
+      "tipoMercadoria": "Goods",
+      "categoriaProduto": "Category",
+      "cliente": "Customer",
+      "quantidade": "Quantity",
+      "pesoKg": "Weight (kg)",
+      "statusFisico": "Physical state",
+      "statusVenda": "Sale",
+      "area": "Area",
+      "posicao": "Position",
+      "dataEntrada": "Entry",
+      "projeto": "Project",
+      "origem": "Origin",
+      "fotos": "Photos",
+      "serial": "Serial",
+      "tipo": "Type",
+      "marca": "Brand",
+      "modelo": "Model",
+      "descricaoPeca": "Part",
+      "grade": "Grade",
+      "cpu": "Processor",
+      "memoria": "Memory",
+      "disco": "Storage",
+      "status": "Status",
+      "preparo": "Preparation",
+      "loteDeLa": "Source lot",
+      "dataTriagem": "Triage",
+      "resumo": "Summary",
+      "so": "Operating system",
+      "sku": "SKU",
+      "produto": "Product",
+      "cor": "Color",
+      "apelido": "Alias",
+      "zona": "Zone",
+      "categoriaPosicao": "Position category",
+      "produtoAtivo": "Active product",
+      "ultimaEntrada": "Last entry"
+    },
+    "incompletoSemTotal": "Showing {{n}} items from {{sistema}} — the list is too large to bring in full."
   }
 }

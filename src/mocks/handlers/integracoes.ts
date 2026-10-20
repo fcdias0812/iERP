@@ -112,6 +112,9 @@ export const integracoesHandlers = [
       { sistema: 'GERENCIAMENTO', nome: 'Gerenciamento de Projetos', tipo: 'origem' },
       { sistema: 'MSDC', nome: 'Re-Teck MSDC (Microsoft)', tipo: 'origem' },
       { sistema: 'RASTREADOR', nome: 'Rastreador de GPS (ReTeckTracker)', tipo: 'rastreio' },
+      { sistema: 'ARMAZEM', nome: 'Armazém (Inventory-Management)', tipo: 'estoque' },
+      { sistema: 'NOTEBOOKS', nome: 'Controle de Notebooks', tipo: 'estoque' },
+      { sistema: 'RTB_WMS', nome: 'RTB WMS (e-commerce)', tipo: 'estoque' },
     ]),
   ),
   http.get('*/api/integracoes', async ({ request }) => {
@@ -142,7 +145,9 @@ export const integracoesHandlers = [
           ? 'origem'
           : i.sistema === 'RASTREADOR'
             ? 'rastreio'
-            : 'processamento',
+            : ['ARMAZEM', 'NOTEBOOKS', 'RTB_WMS'].includes(i.sistema ?? '')
+              ? 'estoque'
+              : 'processamento',
       caPainel: i.caPainel || null,
       sincronizacao: null,
       nome: i.nome,

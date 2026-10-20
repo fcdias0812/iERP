@@ -123,7 +123,8 @@ Limpo e Cinza.
 |                | Operação › **Recebimento**                                                 | **pronto** (A receber / Recebidos + painel)   |
 |                | Operação › **Histórico**                                                   | **pronto** (auditoria do módulo)              |
 |                | Operação › Chamados internos                                               | em construção                                 |
-|                | Estoque › Materiais · Assets · Servidores · E-commerce · Peças · Histórico | em construção                                 |
+|                | Estoque › **Materiais · Assets · E-commerce · Peças**                      | **pronto** (lidos ao vivo dos 3 sistemas)     |
+|                | Estoque › Servidores · Histórico                                           | em construção                                 |
 | Sistema        | **Cadastros** › Materiais · Pallets · Caixotes · Áreas · Rastreadores GPS  | **pronto** (Rastreadores aguardam a API)      |
 |                | Administração › Usuários                                                   | **pronto** (perfil vem de Perfis de acesso)   |
 |                | Administração › **Perfis de acesso**                                       | **pronto** (nível por página)                 |
@@ -502,6 +503,16 @@ cada linha das Finalizadas — o mesmo formato do antigo (`exportarViagem.js` po
 `server/src/modules/viagens/exportar.ts`, com os mesmos testes), a partir do trajeto guardado
 aqui; a precisão do GPS de cada ponto passou a ser guardada (coluna `accuracy_m` do CSV).
 
+### 5.18 Estoque ← armazém, Controle de Notebooks e RTB WMS (20/10/2026)
+
+Pedido dele: "Vamos agora integrar três sistemas … Eles vão ser parte do estoque, respectivamente:
+Materiais, Assets, Peças e E-commerce. Quero que você faça a integração com eles, igual todos os
+outros, sem afetar a integração já feita com a 1.0." Decisões: o Controle de Notebooks alimenta
+**Assets e Peças** ("Servidor será um sistema separado" — servidor do Notebooks fica em Assets);
+a **mesma chave** do antigo no Notebooks e no RTB WMS (chave própria no armazém); "Abrir no
+sistema" para a **tela geral**; leitura **ao vivo com 1 minuto guardado**. Como foi feito:
+**[`INTEGRACOES.md`](INTEGRACOES.md) §0.4**.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -552,6 +563,10 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
   etc. — só com pedido dele).
 
 ## 7. Próximo passo
+
+**Estoque ← armazém, Controle de Notebooks e RTB WMS está pronto (20/10/2026)** — falta ele testar e
+dar o "sim" para o commit (§5.18; `INTEGRACOES.md` §0.4). Esperando dele: o sistema dos
+Servidores e de onde vem o Histórico do estoque.
 
 **Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — commit local `9cbfb1e`
 (no GitHub desde 20/10/2026, com `50052ff`; §5.17; detalhes em `INTEGRACOES.md` §0.3). Com ela, as integrações que ele

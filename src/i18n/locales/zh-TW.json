@@ -882,7 +882,12 @@
     "viagem_chegou": "已到達－待確認",
     "viagem_finalizada": "行程已結束",
     "viagem_cancelada": "行程已取消",
-    "viagem_emergencia": "緊急狀況"
+    "viagem_emergencia": "緊急狀況",
+    "estoque_ok": "正常",
+    "estoque_info": "資訊",
+    "estoque_atencao": "注意",
+    "estoque_problema": "問題",
+    "estoque_encerrado": "已結束"
   },
   "dataTable": {
     "yes": "是",
@@ -1556,7 +1561,9 @@
       "caPainel": "CA 憑證（選填）",
       "urlRastreador": "追蹤器位址",
       "chaveInterna": "內部金鑰",
-      "chaveTransito": "交通地圖金鑰（TomTom，選填）"
+      "chaveTransito": "交通地圖金鑰（TomTom，選填）",
+      "urlSistema": "系統位址",
+      "chaveIntegracao": "整合金鑰"
     },
     "secoes": {
       "sistema": "系統",
@@ -1565,7 +1572,8 @@
       "chave": "存取金鑰（系統 → iERP）",
       "situacao": "狀況",
       "sincronizacao": "同步",
-      "rastreador": "GPS 追蹤器（追蹤器 → iERP）"
+      "rastreador": "GPS 追蹤器（追蹤器 → iERP）",
+      "estoque": "庫存（系統 → iERP）"
     },
     "ajuda": {
       "sistema": "每個系統對應一個客戶：其批次的去向（Dell → MoonShot）或來源（專案管理）。",
@@ -1582,7 +1590,11 @@
       "rastreador": "行程用的 GPS 追蹤器（ReTeckTracker，與舊版 iERP 相同）。iERP 2.0 讀取其批次的行程、記錄到達代碼並即時接收追蹤器訊息；司機 App 位於 <位址>/app/。",
       "chaveInterna": "追蹤器的 INTERNAL_API_KEY（與舊版 iERP 使用的相同）。絕不是司機 App 的金鑰。",
       "chaveTransito": "開啟行程地圖上的「交通」按鈕。沒有金鑰時不會顯示此按鈕。",
-      "chaveTransitoGuardada": "已儲存交通金鑰。留空即保留；輸入新的金鑰即可替換。"
+      "chaveTransitoGuardada": "已儲存交通金鑰。留空即保留；輸入新的金鑰即可替換。",
+      "estoque": "iERP 2.0 即時讀取此系統的庫存清單（與舊版 iERP 相同的 /api/integracao/estoque 介面；該系統不做任何變更）。位址 = 系統根目錄，不含路徑。",
+      "chaveARMAZEM": "在 Inventory-Management（系統 › 設定 › 整合金鑰）為 iERP 2.0 產生一組金鑰。金鑰只會顯示一次。",
+      "chaveNOTEBOOKS": "筆電管理 .env 中的 INTEGRACAO_CHAVE——與舊版 iERP 使用的相同。",
+      "chaveRTB_WMS": "RTB WMS 的 INTEGRACAO_CHAVE——與舊版 iERP 使用的相同。"
     },
     "gerarChave": "產生金鑰",
     "trocarChave": "更換金鑰",
@@ -3127,5 +3139,118 @@
     "baixar": {
       "botao": "下載 {{formato}}"
     }
+  },
+  "estoque": {
+    "atualizar": "重新整理",
+    "atualizarFalhou": "無法重新整理清單",
+    "abrirNo": "在 {{sistema}} 開啟",
+    "lidoAs": "於 {{hora}} 從 {{sistema}} 讀取 · 僅供檢視（庫存由該系統管理）。",
+    "detalhe": "詳細資訊：{{detalhe}}",
+    "incompleto": "顯示 {{sistema}} 的 {{total}} 項中的 {{n}} 項（清單過大，無法全部載入）。",
+    "estimada": "數量由操作員估計",
+    "semSerial": "臨時序號（機器到貨時沒有序號）",
+    "produtoInativo": "商品已停用",
+    "zonaGeral": "一般",
+    "sistemas": {
+      "ARMAZEM": "倉庫",
+      "NOTEBOOKS": "筆電管理",
+      "RTB_WMS": "RTB WMS"
+    },
+    "descricoes": {
+      "materiais": "倉庫的棧板（Inventory-Management），即時讀取——僅供檢視。",
+      "assets": "筆電管理的電腦，即時讀取——僅供檢視。",
+      "pecas": "筆電管理的零件，即時讀取——僅供檢視。",
+      "ecommerce": "電商庫存（依 SKU 與貨架，RTB WMS），即時讀取——僅供檢視。"
+    },
+    "vazio": {
+      "materiais": "倉庫中沒有棧板。",
+      "assets": "沒有電腦庫存。",
+      "pecas": "沒有零件庫存。",
+      "ecommerce": "貨架上沒有商品。"
+    },
+    "naoConfigurado": {
+      "titulo": "{{sistema}} 尚未登錄",
+      "texto": "請在「管理 › 整合」登錄 {{sistema}} 的位址與整合金鑰，清單才會顯示在這裡。",
+      "acao": "開啟整合"
+    },
+    "motivos": {
+      "nao_configurado": "{{sistema}} 尚未登錄",
+      "chave_recusada": "{{sistema}} 拒絕了整合金鑰——請至「管理 › 整合」確認",
+      "sem_resposta": "{{sistema}} 沒有回應——請稍後再重新整理",
+      "erro": "{{sistema}} 回應錯誤"
+    },
+    "categoriasNegocio": {
+      "ECOMMERCE": "電商",
+      "ITAD": "ITAD",
+      "PROJETO": "專案",
+      "PECAS": "零件",
+      "EWASTE": "電子廢棄物"
+    },
+    "tipos": {
+      "Notebook": "筆電",
+      "Desktop": "桌機",
+      "AIO": "一體機",
+      "Servidor": "伺服器"
+    },
+    "statusMaquina": {
+      "1": "已收貨",
+      "2": "可銷售",
+      "3": "已刊登",
+      "4": "已保留",
+      "5": "已售出",
+      "6": "退回——分析中",
+      "7": "內部使用中",
+      "8": "維修中",
+      "9": "已報廢",
+      "10": "內部保留"
+    },
+    "preparo": {
+      "1": "準備中",
+      "2": "可上架電商",
+      "3": "供 B2B",
+      "4": "內部保留"
+    },
+    "cols": {
+      "lote": "批次",
+      "palete": "棧板",
+      "categoriaNegocio": "業務",
+      "tipoMercadoria": "貨物",
+      "categoriaProduto": "類別",
+      "cliente": "客戶",
+      "quantidade": "數量",
+      "pesoKg": "重量（公斤）",
+      "statusFisico": "實體狀態",
+      "statusVenda": "銷售",
+      "area": "區域",
+      "posicao": "位置",
+      "dataEntrada": "入庫",
+      "projeto": "專案",
+      "origem": "來源",
+      "fotos": "照片",
+      "serial": "序號",
+      "tipo": "類型",
+      "marca": "品牌",
+      "modelo": "型號",
+      "descricaoPeca": "零件",
+      "grade": "等級",
+      "cpu": "處理器",
+      "memoria": "記憶體",
+      "disco": "儲存空間",
+      "status": "狀況",
+      "preparo": "整備",
+      "loteDeLa": "來源批次",
+      "dataTriagem": "分類",
+      "resumo": "摘要",
+      "so": "作業系統",
+      "sku": "SKU",
+      "produto": "商品",
+      "cor": "顏色",
+      "apelido": "別名",
+      "zona": "區",
+      "categoriaPosicao": "位置類別",
+      "produtoAtivo": "商品啟用",
+      "ultimaEntrada": "最近入庫"
+    },
+    "incompletoSemTotal": "顯示 {{sistema}} 的 {{n}} 項——清單過大，無法全部載入。"
   }
 }

@@ -882,7 +882,12 @@
     "viagem_chegou": "Chegou — confirmar",
     "viagem_finalizada": "Viagem finalizada",
     "viagem_cancelada": "Viagem cancelada",
-    "viagem_emergencia": "Emergência"
+    "viagem_emergencia": "Emergência",
+    "estoque_ok": "Ok",
+    "estoque_info": "Informação",
+    "estoque_atencao": "Atenção",
+    "estoque_problema": "Problema",
+    "estoque_encerrado": "Encerrado"
   },
   "dataTable": {
     "yes": "Sim",
@@ -1556,7 +1561,9 @@
       "caPainel": "Certificado da CA (opcional)",
       "urlRastreador": "Endereço do rastreador",
       "chaveInterna": "Chave interna",
-      "chaveTransito": "Chave do mapa de trânsito (TomTom, opcional)"
+      "chaveTransito": "Chave do mapa de trânsito (TomTom, opcional)",
+      "urlSistema": "Endereço do sistema",
+      "chaveIntegracao": "Chave de integração"
     },
     "secoes": {
       "sistema": "Sistema",
@@ -1565,7 +1572,8 @@
       "chave": "Chave de acesso (sistema → iERP)",
       "situacao": "Situação",
       "sincronizacao": "Sincronização",
-      "rastreador": "Rastreador de GPS (rastreador → iERP)"
+      "rastreador": "Rastreador de GPS (rastreador → iERP)",
+      "estoque": "Estoque (sistema → iERP)"
     },
     "ajuda": {
       "sistema": "Cada sistema é de um cliente: para onde os lotes dele vão (Dell → MoonShot) ou de onde eles vêm (Gerenciamento de Projetos).",
@@ -1582,7 +1590,11 @@
       "rastreador": "O rastreador de GPS das viagens (ReTeckTracker — o mesmo do iERP antigo). O iERP 2.0 lê as viagens dos lotes dele, grava o código de chegada e escuta o rastreador ao vivo; o app do motorista abre em <endereço>/app/.",
       "chaveInterna": "A INTERNAL_API_KEY do rastreador (a mesma que o iERP antigo usa). Nunca a chave do app do motorista.",
       "chaveTransito": "Liga o botão Trânsito no mapa de Viagens. Sem ela, o botão não aparece.",
-      "chaveTransitoGuardada": "Chave do trânsito guardada. Deixe vazio para manter; digite outra para trocar."
+      "chaveTransitoGuardada": "Chave do trânsito guardada. Deixe vazio para manter; digite outra para trocar.",
+      "estoque": "O iERP 2.0 lê a lista de estoque deste sistema ao vivo (a mesma porta /api/integracao/estoque que o iERP antigo usa; nada muda lá). Endereço = a raiz do sistema, sem caminho.",
+      "chaveARMAZEM": "Gere uma chave para o iERP 2.0 no Inventory-Management (Sistema › Ajustes › chaves de integração). Ela aparece uma vez só.",
+      "chaveNOTEBOOKS": "A INTEGRACAO_CHAVE do .env do Controle de Notebooks — a mesma que o iERP antigo usa.",
+      "chaveRTB_WMS": "A INTEGRACAO_CHAVE do RTB WMS — a mesma que o iERP antigo usa."
     },
     "gerarChave": "Gerar chave",
     "trocarChave": "Trocar chave",
@@ -3127,5 +3139,118 @@
     "baixar": {
       "botao": "Baixar {{formato}}"
     }
+  },
+  "estoque": {
+    "atualizar": "Atualizar",
+    "atualizarFalhou": "Não foi possível atualizar a lista",
+    "abrirNo": "Abrir no {{sistema}}",
+    "lidoAs": "Lido do {{sistema}} às {{hora}} · só para ver (o estoque é cuidado lá).",
+    "detalhe": "Detalhe: {{detalhe}}",
+    "incompleto": "Mostrando {{n}} de {{total}} itens do {{sistema}} (a lista é grande demais para trazer inteira).",
+    "estimada": "Quantidade estimada pelo operador",
+    "semSerial": "Serial provisório (a máquina chegou sem serial)",
+    "produtoInativo": "Produto inativo",
+    "zonaGeral": "Geral",
+    "sistemas": {
+      "ARMAZEM": "Armazém",
+      "NOTEBOOKS": "Controle de Notebooks",
+      "RTB_WMS": "RTB WMS"
+    },
+    "descricoes": {
+      "materiais": "Os paletes do armazém (Inventory-Management), lidos ao vivo — só para ver.",
+      "assets": "Os computadores do Controle de Notebooks, lidos ao vivo — só para ver.",
+      "pecas": "As peças do Controle de Notebooks, lidas ao vivo — só para ver.",
+      "ecommerce": "O estoque do e-commerce por SKU e prateleira (RTB WMS), lido ao vivo — só para ver."
+    },
+    "vazio": {
+      "materiais": "Nenhum palete no armazém.",
+      "assets": "Nenhum computador em estoque.",
+      "pecas": "Nenhuma peça em estoque.",
+      "ecommerce": "Nenhum produto nas prateleiras."
+    },
+    "naoConfigurado": {
+      "titulo": "{{sistema}} não cadastrado",
+      "texto": "Cadastre o endereço e a chave de integração do {{sistema}} em Administração › Integração para a lista aparecer aqui.",
+      "acao": "Abrir Integração"
+    },
+    "motivos": {
+      "nao_configurado": "O {{sistema}} não está cadastrado",
+      "chave_recusada": "O {{sistema}} recusou a chave de integração — confira em Administração › Integração",
+      "sem_resposta": "O {{sistema}} não respondeu — tente atualizar em instantes",
+      "erro": "O {{sistema}} respondeu com erro"
+    },
+    "categoriasNegocio": {
+      "ECOMMERCE": "E-commerce",
+      "ITAD": "ITAD",
+      "PROJETO": "Projeto",
+      "PECAS": "Peças",
+      "EWASTE": "E-waste"
+    },
+    "tipos": {
+      "Notebook": "Notebook",
+      "Desktop": "Desktop",
+      "AIO": "All-in-one",
+      "Servidor": "Servidor"
+    },
+    "statusMaquina": {
+      "1": "Recebido",
+      "2": "Pronto para venda",
+      "3": "Anunciado",
+      "4": "Reservado",
+      "5": "Vendido",
+      "6": "Devolvido — em análise",
+      "7": "Em uso interno",
+      "8": "Manutenção",
+      "9": "Descartado",
+      "10": "Reserva interna"
+    },
+    "preparo": {
+      "1": "Preparando",
+      "2": "Pronto para e-commerce",
+      "3": "Para B2B",
+      "4": "Reserva interna"
+    },
+    "cols": {
+      "lote": "Lote",
+      "palete": "Palete",
+      "categoriaNegocio": "Negócio",
+      "tipoMercadoria": "Mercadoria",
+      "categoriaProduto": "Categoria",
+      "cliente": "Cliente",
+      "quantidade": "Quantidade",
+      "pesoKg": "Peso (kg)",
+      "statusFisico": "Estado físico",
+      "statusVenda": "Venda",
+      "area": "Área",
+      "posicao": "Posição",
+      "dataEntrada": "Entrada",
+      "projeto": "Projeto",
+      "origem": "Origem",
+      "fotos": "Fotos",
+      "serial": "Serial",
+      "tipo": "Tipo",
+      "marca": "Marca",
+      "modelo": "Modelo",
+      "descricaoPeca": "Peça",
+      "grade": "Grade",
+      "cpu": "Processador",
+      "memoria": "Memória",
+      "disco": "Armazenamento",
+      "status": "Situação",
+      "preparo": "Preparo",
+      "loteDeLa": "Lote de lá",
+      "dataTriagem": "Triagem",
+      "resumo": "Resumo",
+      "so": "Sistema operacional",
+      "sku": "SKU",
+      "produto": "Produto",
+      "cor": "Cor",
+      "apelido": "Apelido",
+      "zona": "Zona",
+      "categoriaPosicao": "Categoria da posição",
+      "produtoAtivo": "Produto ativo",
+      "ultimaEntrada": "Última entrada"
+    },
+    "incompletoSemTotal": "Mostrando {{n}} itens do {{sistema}} — a lista é grande demais para trazer inteira."
   }
 }

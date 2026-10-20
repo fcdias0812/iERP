@@ -1,6 +1,7 @@
 import { cadastrosHandlers } from './cadastros'
 import { clientesHandlers } from './clientes'
 import { dashboardHandlers } from './dashboard'
+import { estoqueHandlers } from './estoque'
 import { clientesAbasHandlers } from './clientes-abas'
 import { ordensHandlers } from './ordens'
 import { perfilHandlers } from './perfil'
@@ -18,6 +19,7 @@ export const handlers = [
   ...relacionamentoHandlers,
   ...ordensHandlers,
   ...viagensHandlers,
+  ...estoqueHandlers,
   ...cadastrosHandlers,
   ...dashboardHandlers,
   ...usuariosHandlers,

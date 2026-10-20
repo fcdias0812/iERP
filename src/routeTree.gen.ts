@@ -27,6 +27,10 @@ import { Route as AppCadastrosMateriaisRouteImport } from './routes/_app/cadastr
 import { Route as AppCadastrosPalletsRouteImport } from './routes/_app/cadastros/pallets'
 import { Route as AppCadastrosRastreadoresRouteImport } from './routes/_app/cadastros/rastreadores'
 import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
+import { Route as AppEstoqueAssetsRouteImport } from './routes/_app/estoque/assets'
+import { Route as AppEstoqueEcommerceRouteImport } from './routes/_app/estoque/ecommerce'
+import { Route as AppEstoqueMateriaisRouteImport } from './routes/_app/estoque/materiais'
+import { Route as AppEstoquePecasRouteImport } from './routes/_app/estoque/pecas'
 import { Route as AppMotoristasIndexRouteImport } from './routes/_app/motoristas/index'
 import { Route as AppOperacaoDashboardRouteImport } from './routes/_app/operacao/dashboard'
 import { Route as AppOperacaoHistoricoRouteImport } from './routes/_app/operacao/historico'
@@ -135,6 +139,26 @@ const AppClientesIndexRoute = AppClientesIndexRouteImport.update({
   path: '/clientes/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEstoqueAssetsRoute = AppEstoqueAssetsRouteImport.update({
+  id: '/estoque/assets',
+  path: '/estoque/assets',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEstoqueEcommerceRoute = AppEstoqueEcommerceRouteImport.update({
+  id: '/estoque/ecommerce',
+  path: '/estoque/ecommerce',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEstoqueMateriaisRoute = AppEstoqueMateriaisRouteImport.update({
+  id: '/estoque/materiais',
+  path: '/estoque/materiais',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEstoquePecasRoute = AppEstoquePecasRouteImport.update({
+  id: '/estoque/pecas',
+  path: '/estoque/pecas',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMotoristasIndexRoute = AppMotoristasIndexRouteImport.update({
   id: '/motoristas/',
   path: '/motoristas/',
@@ -238,6 +262,10 @@ export interface FileRoutesByFullPath {
   '/cadastros/materiais': typeof AppCadastrosMateriaisRoute
   '/cadastros/pallets': typeof AppCadastrosPalletsRoute
   '/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
+  '/estoque/assets': typeof AppEstoqueAssetsRoute
+  '/estoque/ecommerce': typeof AppEstoqueEcommerceRoute
+  '/estoque/materiais': typeof AppEstoqueMateriaisRoute
+  '/estoque/pecas': typeof AppEstoquePecasRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
@@ -274,6 +302,10 @@ export interface FileRoutesByTo {
   '/cadastros/materiais': typeof AppCadastrosMateriaisRoute
   '/cadastros/pallets': typeof AppCadastrosPalletsRoute
   '/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
+  '/estoque/assets': typeof AppEstoqueAssetsRoute
+  '/estoque/ecommerce': typeof AppEstoqueEcommerceRoute
+  '/estoque/materiais': typeof AppEstoqueMateriaisRoute
+  '/estoque/pecas': typeof AppEstoquePecasRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
@@ -312,6 +344,10 @@ export interface FileRoutesById {
   '/_app/cadastros/materiais': typeof AppCadastrosMateriaisRoute
   '/_app/cadastros/pallets': typeof AppCadastrosPalletsRoute
   '/_app/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
+  '/_app/estoque/assets': typeof AppEstoqueAssetsRoute
+  '/_app/estoque/ecommerce': typeof AppEstoqueEcommerceRoute
+  '/_app/estoque/materiais': typeof AppEstoqueMateriaisRoute
+  '/_app/estoque/pecas': typeof AppEstoquePecasRoute
   '/_app/operacao/dashboard': typeof AppOperacaoDashboardRoute
   '/_app/operacao/historico': typeof AppOperacaoHistoricoRoute
   '/_app/operacao/recebimento': typeof AppOperacaoRecebimentoRoute
@@ -350,6 +386,10 @@ export interface FileRouteTypes {
     | '/cadastros/materiais'
     | '/cadastros/pallets'
     | '/cadastros/rastreadores'
+    | '/estoque/assets'
+    | '/estoque/ecommerce'
+    | '/estoque/materiais'
+    | '/estoque/pecas'
     | '/operacao/dashboard'
     | '/operacao/historico'
     | '/operacao/recebimento'
@@ -386,6 +426,10 @@ export interface FileRouteTypes {
     | '/cadastros/materiais'
     | '/cadastros/pallets'
     | '/cadastros/rastreadores'
+    | '/estoque/assets'
+    | '/estoque/ecommerce'
+    | '/estoque/materiais'
+    | '/estoque/pecas'
     | '/operacao/dashboard'
     | '/operacao/historico'
     | '/operacao/recebimento'
@@ -423,6 +467,10 @@ export interface FileRouteTypes {
     | '/_app/cadastros/materiais'
     | '/_app/cadastros/pallets'
     | '/_app/cadastros/rastreadores'
+    | '/_app/estoque/assets'
+    | '/_app/estoque/ecommerce'
+    | '/_app/estoque/materiais'
+    | '/_app/estoque/pecas'
     | '/_app/operacao/dashboard'
     | '/_app/operacao/historico'
     | '/_app/operacao/recebimento'
@@ -579,6 +627,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClientesIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/estoque/assets': {
+      id: '/_app/estoque/assets'
+      path: '/estoque/assets'
+      fullPath: '/estoque/assets'
+      preLoaderRoute: typeof AppEstoqueAssetsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/estoque/ecommerce': {
+      id: '/_app/estoque/ecommerce'
+      path: '/estoque/ecommerce'
+      fullPath: '/estoque/ecommerce'
+      preLoaderRoute: typeof AppEstoqueEcommerceRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/estoque/materiais': {
+      id: '/_app/estoque/materiais'
+      path: '/estoque/materiais'
+      fullPath: '/estoque/materiais'
+      preLoaderRoute: typeof AppEstoqueMateriaisRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/estoque/pecas': {
+      id: '/_app/estoque/pecas'
+      path: '/estoque/pecas'
+      fullPath: '/estoque/pecas'
+      preLoaderRoute: typeof AppEstoquePecasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/motoristas/': {
       id: '/_app/motoristas/'
       path: '/motoristas'
@@ -714,6 +790,10 @@ interface AppRouteChildren {
   AppCadastrosMateriaisRoute: typeof AppCadastrosMateriaisRoute
   AppCadastrosPalletsRoute: typeof AppCadastrosPalletsRoute
   AppCadastrosRastreadoresRoute: typeof AppCadastrosRastreadoresRoute
+  AppEstoqueAssetsRoute: typeof AppEstoqueAssetsRoute
+  AppEstoqueEcommerceRoute: typeof AppEstoqueEcommerceRoute
+  AppEstoqueMateriaisRoute: typeof AppEstoqueMateriaisRoute
+  AppEstoquePecasRoute: typeof AppEstoquePecasRoute
   AppOperacaoDashboardRoute: typeof AppOperacaoDashboardRoute
   AppOperacaoHistoricoRoute: typeof AppOperacaoHistoricoRoute
   AppOperacaoRecebimentoRoute: typeof AppOperacaoRecebimentoRoute
@@ -748,6 +828,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppCadastrosMateriaisRoute: AppCadastrosMateriaisRoute,
   AppCadastrosPalletsRoute: AppCadastrosPalletsRoute,
   AppCadastrosRastreadoresRoute: AppCadastrosRastreadoresRoute,
+  AppEstoqueAssetsRoute: AppEstoqueAssetsRoute,
+  AppEstoqueEcommerceRoute: AppEstoqueEcommerceRoute,
+  AppEstoqueMateriaisRoute: AppEstoqueMateriaisRoute,
+  AppEstoquePecasRoute: AppEstoquePecasRoute,
   AppOperacaoDashboardRoute: AppOperacaoDashboardRoute,
   AppOperacaoHistoricoRoute: AppOperacaoHistoricoRoute,
   AppOperacaoRecebimentoRoute: AppOperacaoRecebimentoRoute,
