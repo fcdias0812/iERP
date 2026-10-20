@@ -82,7 +82,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `2fd305d` | Região do site em lista; mapa (cinza, cidade); coleta prevista obrigatória; Forecast     |
 | `38d6264` | Busca do topo (Ctrl+K) encontra todos os registros                                       |
 | `9360749` | Documentação para continuar em outro PC (integrações: `.claude/INTEGRACOES.md`)          |
-| `3acdebb` | Integração Dell → MoonShot, Administração › Integração e balanço de massa               |
+| `3acdebb` | Integração Dell → MoonShot, Administração › Integração e balanço de massa                |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
