@@ -3,6 +3,13 @@ import { z } from 'zod'
 import type { Db } from '../../db/database.js'
 import { normalizar } from '../../shared/texto.js'
 import { fetchComCa } from '../integracao/rede.js'
+import {
+  criarHistoricoEstoque,
+  retratoMaquina,
+  retratoMaterial,
+  retratoPosicao,
+  type Retrato,
+} from './historico.js'
 
 /*
  * ESTOQUE (pedido do usuário, 20/10/2026): "Vamos agora integrar três sistemas … Eles vão ser
@@ -319,6 +326,16 @@ export function criarServicoEstoque(
 ) {
   const fazerFetch = opcoes.fetch ?? fetch
   const atualizarDepois = opcoes.atualizarDepoisMs ?? ATUALIZAR_DEPOIS_MS
+  const historico = criarHistoricoEstoque(db)
+
+  /** Os retratos de uma leitura (Estoque › Histórico compara com a anterior). */
+  function retratos(sistema: SistemaEstoque, linhas: unknown[]): Retrato[] {
+    if (sistema === 'ARMAZEM') return (linhas as MaterialDeFora[]).map(retratoMaterial)
+    if (sistema === 'RTB_WMS') return (linhas as PosicaoEcommerce[]).map(retratoPosicao)
+    return (linhas as MaquinaDeFora[]).map((m) =>
+      retratoMaquina(m, ehPeca(m.tipo) ? 'pecas' : 'assets'),
+    )
+  }
   const guardado = new Map<
     SistemaEstoque,
     { em: number; assinatura: string; dados: Promise<EstoqueDeFora<unknown>>; andando: boolean }
@@ -473,7 +490,12 @@ export function criarServicoEstoque(
       if (g.andando || idade < (atualizar ? atualizarDepois : VALIDADE_MS))
         return g.dados as Promise<EstoqueDeFora<T>>
     }
-    const dados = ler(fonte, cfg)
+    // Leitura completa e sem falha: o histórico compara com a anterior antes de responder.
+    const dados = ler(fonte, cfg).then(async (d) => {
+      if (!d.indisponivel && !d.incompleto)
+        await historico.registrar(fonte.sistema, retratos(fonte.sistema, d.linhas), d.lidoEm)
+      return d
+    })
     const entrada = {
       em: Date.now(),
       assinatura,
@@ -517,15 +539,43 @@ export function criarServicoEstoque(
     return { ...maquinas, linhas, total: maquinas.incompleto ? null : linhas.length }
   }
 
-  return { listar }
+  /** Lê os três (a leitura de fundo do histórico, a cada 5 minutos). Nunca lança. */
+  async function lerTodos() {
+    await Promise.allSettled([
+      lerGuardado(FONTES.ARMAZEM, true),
+      lerGuardado(FONTES.NOTEBOOKS, true),
+      lerGuardado(FONTES.RTB_WMS, true),
+    ])
+  }
+
+  return { listar, lerTodos, historico: historico.listar }
 }
 
 export type ServicoEstoque = ReturnType<typeof criarServicoEstoque>
 
 export function rotasEstoque(servico: ServicoEstoque) {
   const r = Router()
+  r.get('/historico', async (req, res) => {
+    res.json(await servico.historico(req.query))
+  })
   r.get('/:aba', async (req, res) => {
     res.json(await servico.listar({ aba: req.params.aba, atualizar: req.query.atualizar }))
   })
   return r
+}
+
+/** A leitura de fundo do Estoque › Histórico: os três a cada 5 minutos (só no servidor de verdade). */
+export function iniciarEstoqueAoFundo(servico: ServicoEstoque) {
+  let ocupado = false
+  const ler = () => {
+    if (ocupado) return
+    ocupado = true
+    void servico
+      .lerTodos()
+      .catch((e: unknown) => console.error('[estoque] leitura de fundo:', e))
+      .finally(() => (ocupado = false))
+  }
+  const relogio = setInterval(ler, 5 * 60_000)
+  ler()
+  return () => clearInterval(relogio)
 }

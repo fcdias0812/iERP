@@ -3251,6 +3251,29 @@
       "produtoAtivo": "商品啟用",
       "ultimaEntrada": "最近入庫"
     },
-    "incompletoSemTotal": "顯示 {{sistema}} 的 {{n}} 項——清單過大，無法全部載入。"
+    "incompletoSemTotal": "顯示 {{sistema}} 的 {{n}} 項——清單過大，無法全部載入。",
+    "historico": {
+      "descricao": "三個系統庫存的變動：iERP 會將每次讀取與前一次比較（每 5 分鐘一次，以及開啟庫存時）。",
+      "erro": "無法載入庫存歷程",
+      "item": "項目",
+      "acoes": {
+        "entrada": "入庫",
+        "saida": "出庫",
+        "alterado": "變更"
+      },
+      "campos": {
+        "statusFisico": "實體狀態",
+        "statusVenda": "銷售",
+        "quantidade": "數量",
+        "pesoKg": "重量",
+        "area": "區域",
+        "posicao": "位置",
+        "statusMaquina": "狀況",
+        "preparo": "整備",
+        "grade": "等級",
+        "loteDeLa": "來源批次",
+        "produtoAtivo": "商品啟用"
+      }
+    }
   }
 }

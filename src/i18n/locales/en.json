@@ -3251,6 +3251,29 @@
       "produtoAtivo": "Active product",
       "ultimaEntrada": "Last entry"
     },
-    "incompletoSemTotal": "Showing {{n}} items from {{sistema}} — the list is too large to bring in full."
+    "incompletoSemTotal": "Showing {{n}} items from {{sistema}} — the list is too large to bring in full.",
+    "historico": {
+      "descricao": "What changed in the stock of the three systems: iERP compares each read with the previous one (every 5 minutes and when stock is opened).",
+      "erro": "Could not load the stock history",
+      "item": "Item",
+      "acoes": {
+        "entrada": "Entered stock",
+        "saida": "Left stock",
+        "alterado": "Changed"
+      },
+      "campos": {
+        "statusFisico": "Physical state",
+        "statusVenda": "Sale",
+        "quantidade": "Quantity",
+        "pesoKg": "Weight",
+        "area": "Area",
+        "posicao": "Position",
+        "statusMaquina": "Status",
+        "preparo": "Preparation",
+        "grade": "Grade",
+        "loteDeLa": "Source lot",
+        "produtoAtivo": "Active product"
+      }
+    }
   }
 }

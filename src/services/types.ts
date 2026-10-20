@@ -1406,3 +1406,24 @@ export interface EstoqueDeFora<T> {
   urlSistema: string | null
   lidoEm: string
 }
+
+/** Um acontecimento do Estoque › Histórico (o iERP compara as leituras dos sistemas). */
+export interface EventoEstoque {
+  id: string
+  /** O nome do sistema de lá. */
+  autor: string
+  em: string
+  /** entrada | saida | alterado */
+  acao: 'entrada' | 'saida' | 'alterado'
+  mudancas?: Mudanca[]
+  /** O que é o item (mercadoria, modelo, produto). */
+  nota?: string
+  /** A tela do estoque. */
+  tipo: AbaEstoque
+  registroId: string
+  registroRotulo: string
+  registroSubtipo: null
+  sistema: SistemaEstoque
+  /** Rótulos de lá dos códigos (estados do armazém, nos 3 idiomas). */
+  rotulos: Record<string, { pt: string; en: string | null; zh: string | null }> | null
+}

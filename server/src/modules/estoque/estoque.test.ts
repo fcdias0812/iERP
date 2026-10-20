@@ -413,3 +413,96 @@ describe('estoque › defeitos de lá (revisão de 20/10/2026)', () => {
     assert.equal(raizDoSistema('http://h:5012/Computadores'), 'http://h:5012')
   })
 })
+
+describe('estoque › histórico (o iERP compara as leituras)', () => {
+  const eventos = async () =>
+    (await api('/estoque/historico')).body as {
+      acao: string
+      tipo: string
+      registroRotulo: string
+      autor: string
+      mudancas?: { campo: string; antes: unknown; depois: unknown }[]
+      rotulos: Record<string, { pt: string }> | null
+    }[]
+
+  it('a primeira leitura só tira o retrato; depois registra entrou, saiu e mudou', async () => {
+    // O armazém já foi lido nos testes acima: o retrato existe. Uma leitura falha não conta.
+    await cadastrarDeNovo()
+    fontes.paletes = [palete('H1'), palete('H2')]
+    await api('/estoque/materiais?atualizar=1')
+    const antes = (await eventos()).length
+    fontes.paletes = [
+      palete('H1', {
+        statusFisico: {
+          codigo: 'COM_DEFEITO',
+          rotulo: 'Com defeito',
+          rotuloEn: 'Defective',
+          rotuloZh: '有缺陷',
+        },
+        quantidade: 10,
+      }),
+      palete('H3'),
+    ]
+    await api('/estoque/materiais?atualizar=1')
+    const novos = (await eventos()).slice(0, (await eventos()).length - antes)
+    const de = (codigo: string, acao: string) =>
+      novos.find((e) => e.registroRotulo === codigo && e.acao === acao)
+    assert.ok(de('H3', 'entrada'), 'H3 entrou')
+    assert.ok(de('H2', 'saida'), 'H2 saiu')
+    const mudou = de('H1', 'alterado')!
+    assert.deepEqual(
+      mudou.mudancas?.map((m) => [m.campo, m.antes, m.depois]),
+      [
+        ['statusFisico', 'FUNCIONANDO', 'COM_DEFEITO'],
+        ['quantidade', 12, 10],
+      ],
+    )
+    assert.equal(mudou.rotulos?.COM_DEFEITO?.pt, 'Com defeito')
+    assert.equal(mudou.tipo, 'materiais')
+    assert.equal(mudou.autor, 'ARMAZEM')
+  })
+
+  it('leitura incompleta ou com falha não registra saída', async () => {
+    const antes = (await eventos()).length
+    fontes.armazemFora = true
+    await api('/estoque/materiais?atualizar=1')
+    fontes.armazemFora = false
+    fontes.porPagina = 1
+    fontes.paletes = Array.from({ length: 10 }, (_, i) => palete(`X${i}`))
+    await api('/estoque/materiais?atualizar=1')
+    fontes.porPagina = 500
+    assert.equal((await eventos()).length, antes)
+  })
+
+  it('Notebooks: a máquina vendida some da lista = saiu; status muda = alterado (com a tela certa)', async () => {
+    fontes.maquinas = [maquina('V1', 'Notebook'), maquina('V2', 'Peça')]
+    await api('/estoque/assets?atualizar=1')
+    const antes = (await eventos()).length
+    fontes.maquinas = [maquina('V2', 'Peça', { status: { codigo: 8, nome: 'Manutenção' } })]
+    await api('/estoque/assets?atualizar=1')
+    const novos = (await eventos()).slice(0, (await eventos()).length - antes)
+    assert.ok(
+      novos.find((e) => e.registroRotulo === 'V1' && e.acao === 'saida' && e.tipo === 'assets'),
+    )
+    const v2 = novos.find((e) => e.registroRotulo === 'V2' && e.acao === 'alterado')!
+    assert.equal(v2.tipo, 'pecas')
+    assert.deepEqual(v2.mudancas?.[0], { campo: 'statusMaquina', antes: 2, depois: 8 })
+  })
+
+  it('período: ?desde filtra os eventos', async () => {
+    const r = await api(`/estoque/historico?desde=${encodeURIComponent('2999-01-01T00:00:00Z')}`)
+    assert.equal(r.status, 200)
+    assert.deepEqual(r.body, [])
+  })
+})
+
+/** Volta a chave certa do armazém (um teste acima a trocou por uma revogada). */
+async function cadastrarDeNovo() {
+  const id = (await api('/integracoes')).body.find(
+    (i: { sistema: string }) => i.sistema === 'ARMAZEM',
+  ).id
+  await api(`/integracoes/${id}`, {
+    method: 'PUT',
+    body: { nome: 'ARMAZEM', urlAvisos: null, urlPainel: ARMAZEM, tokenPainel: 'sgi_chave_do_2' },
+  })
+}

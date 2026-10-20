@@ -2,6 +2,7 @@ import { api } from './http'
 import type {
   AbaEstoque,
   EstoqueDeFora,
+  EventoEstoque,
   MaquinaDeFora,
   MaterialDeFora,
   PosicaoEcommerce,
@@ -21,6 +22,7 @@ export interface LinhasPorAba {
 
 export const estoqueKeys = {
   aba: (aba: AbaEstoque) => ['estoque', aba] as const,
+  historico: (desde: string | null) => ['estoque', 'historico', desde] as const,
 }
 
 export const listarEstoque = <A extends AbaEstoque>(
@@ -32,3 +34,7 @@ export const listarEstoque = <A extends AbaEstoque>(
     query: atualizar ? { atualizar: 1 } : undefined,
     signal,
   })
+
+/** Estoque › Histórico: entrou, saiu e mudou (desde = início do período, ISO). */
+export const listarHistoricoEstoque = (desde: string | null, signal?: AbortSignal) =>
+  api<EventoEstoque[]>('/estoque/historico', { query: { desde: desde ?? undefined }, signal })

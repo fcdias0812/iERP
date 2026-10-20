@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw/http'
 import type {
   EstoqueDeFora,
+  EventoEstoque,
   MaquinaDeFora,
   MaterialDeFora,
   PosicaoEcommerce,
@@ -125,7 +126,59 @@ function resposta<T>(sistema: SistemaEstoque, nome: string, linhas: T[], url: st
 
 const ehPeca = (m: MaquinaDeFora) => m.tipo === 'Peça'
 
+const HISTORICO: EventoEstoque[] = [
+  {
+    id: 'ev3',
+    autor: 'Armazém (Inventory-Management)',
+    em: new Date(Date.now() - 30 * 60_000).toISOString(),
+    acao: 'alterado',
+    mudancas: [{ campo: 'statusFisico', antes: 'AGUARDANDO_TESTE', depois: 'FUNCIONANDO' }],
+    nota: 'Notebooks',
+    tipo: 'materiais',
+    registroId: 'armazem:LOT-20261010-0001',
+    registroRotulo: 'LOT-20261010-0001',
+    registroSubtipo: null,
+    sistema: 'ARMAZEM',
+    rotulos: {
+      AGUARDANDO_TESTE: { pt: 'Aguardando teste', en: 'Awaiting test', zh: '待測試' },
+      FUNCIONANDO: { pt: 'Funcionando', en: 'Working', zh: '運作中' },
+    },
+  },
+  {
+    id: 'ev2',
+    autor: 'Controle de Notebooks',
+    em: new Date(Date.now() - 2 * 3_600_000).toISOString(),
+    acao: 'saida',
+    nota: 'Dell Latitude 5420',
+    tipo: 'assets',
+    registroId: 'notebooks:5CG0000OLD',
+    registroRotulo: '5CG0000OLD',
+    registroSubtipo: null,
+    sistema: 'NOTEBOOKS',
+    rotulos: null,
+  },
+  {
+    id: 'ev1',
+    autor: 'Controle de Notebooks',
+    em: new Date(Date.now() - 26 * 3_600_000).toISOString(),
+    acao: 'entrada',
+    nota: 'Dell Latitude 5420',
+    tipo: 'assets',
+    registroId: 'notebooks:5CG1234XYZ',
+    registroRotulo: '5CG1234XYZ',
+    registroSubtipo: null,
+    sistema: 'NOTEBOOKS',
+    rotulos: null,
+  },
+]
+
 export const estoqueHandlers = [
+  // Antes do `/:aba` (senão "historico" cairia nele).
+  http.get('*/api/estoque/historico', async ({ request }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    return HttpResponse.json(HISTORICO)
+  }),
   http.get('*/api/estoque/:aba', async ({ request, params }) => {
     const fail = await simulateNetwork(request)
     if (fail) return fail

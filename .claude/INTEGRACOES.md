@@ -296,6 +296,20 @@ vão ser parte do estoque, respectivamente: Materiais, Assets, Peças e E-commer
   página HTML no lugar do JSON = "erro de formato"; "próxima página" que não anda não prende;
   a chave não segue redirecionamento; Peças/Assets com lista incompleta não mostram o total de
   todas as máquinas; filtros das colunas com os valores que vieram; filtros e ordem na URL.
+- **Estoque › Histórico (pronto, 20/10/2026).** Pedido dele: "Crie também a aba histórico do
+  estoque. Faça algo igual as outras de histórico." Decisão dele: **o iERP compara as leituras**
+  (os três só mandam a lista de agora). Cada leitura COMPLETA é comparada com a anterior e vira
+  **Entrou no estoque / Saiu do estoque / Mudou** (campo, antes e depois) na mesma tabela de
+  auditoria dos outros históricos (`HistoricoTabela`; "Usuário" = o sistema de lá; o item é link
+  para a tela já buscada por ele). Lê sozinho a cada **5 minutos** (`iniciarEstoqueAoFundo`) e
+  quando alguém abre o estoque. A primeira leitura de cada sistema só tira o retrato (sem
+  "entrou" para tudo); leitura incompleta ou com falha não conta (um item que não veio não
+  "saiu"). Campos: Materiais = estado físico/venda (rótulos de lá nos 3 idiomas), quantidade,
+  peso, área, posição; Assets/Peças = situação, preparo, grade, lote de lá; E-commerce = quantidade
+  e produto ativo (item = `SKU @ posição`). Código: `server/src/modules/estoque/historico.ts`
+  (tabelas `estoque_itens` = último retrato e `estoque_eventos`; `GET /api/estoque/historico?desde=`)
+  e `src/features/estoque/HistoricoEstoquePage.tsx`. Conferido com os três de teste: entrou e
+  mudou a quantidade no WMS; vendeu e mudou a situação no Notebooks.
 - **Para produção:** Administração › Integração: ARMAZEM = `http://<servidor>:4000` + chave gerada
   no armazém para o 2.0; NOTEBOOKS = `http://<servidor>:5012` + a `INTEGRACAO_CHAVE` de lá (a
   mesma do antigo); RTB_WMS = `http://<servidor>:5010` + a `INTEGRACAO_CHAVE` dele (a mesma do
@@ -382,9 +396,8 @@ antes de começar qualquer um (e a regra de sempre: o antigo NÃO muda, o 2.0 é
 
 ### 2.6 Estoque e Operação › Chamados internos
 
-- **Materiais, Assets, Peças e E-commerce: prontos (§0.4).** Falta **Servidores** ("será um sistema
-  separado" — perguntar qual, quando ele trouxer) e **Estoque › Histórico** (de onde vêm as
-  movimentações?). Operação › Chamados internos: "em construção" — perguntar de qual sistema.
+- **Materiais, Assets, Peças, E-commerce e Histórico: prontos (§0.4).** Falta **Servidores** ("será
+  um sistema separado" — perguntar qual, quando ele trouxer). Operação › Chamados internos: "em construção" — perguntar de qual sistema.
 
 ### 2.7 Login / SSO e permissões no servidor
 

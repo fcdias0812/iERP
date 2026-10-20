@@ -125,7 +125,8 @@ Limpo e Cinza.
 |                | Operação › **Histórico**                                                   | **pronto** (auditoria do módulo)              |
 |                | Operação › Chamados internos                                               | em construção                                 |
 |                | Estoque › **Materiais · Assets · E-commerce · Peças**                      | **pronto** (lidos ao vivo dos 3 sistemas)     |
-|                | Estoque › Servidores · Histórico                                           | em construção                                 |
+|                | Estoque › **Histórico**                                                    | **pronto** (o iERP compara as leituras)       |
+|                | Estoque › Servidores                                                       | em construção                                 |
 | Sistema        | **Cadastros** › Materiais · Pallets · Caixotes · Áreas · Rastreadores GPS  | **pronto** (Rastreadores aguardam a API)      |
 |                | Administração › Usuários                                                   | **pronto** (perfil vem de Perfis de acesso)   |
 |                | Administração › **Perfis de acesso**                                       | **pronto** (nível por página)                 |
@@ -514,6 +515,11 @@ a **mesma chave** do antigo no Notebooks e no RTB WMS (chave própria no armazé
 sistema" para a **tela geral**; leitura **ao vivo com 1 minuto guardado**. Como foi feito:
 **[`INTEGRACOES.md`](INTEGRACOES.md) §0.4**.
 
+Depois: "Crie também a aba histórico do estoque. Faça algo igual as outras de histórico." Decisão
+dele: **o iERP compara as leituras** — a cada 5 minutos e ao abrir o estoque, registra entrou,
+saiu e mudou (campo, antes, depois) na mesma tabela de auditoria dos outros históricos, com
+período 30/90/365 dias ou tudo. Detalhes no mesmo §0.4.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -566,8 +572,9 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 ## 7. Próximo passo
 
 **Estoque ← armazém, Controle de Notebooks e RTB WMS está pronto (20/10/2026)** — commit local
-`2cac597` (push só quando ele pedir; §5.18; `INTEGRACOES.md` §0.4). Esperando dele: o sistema dos
-Servidores e de onde vem o Histórico do estoque.
+`2cac597` (push só quando ele pedir; §5.18; `INTEGRACOES.md` §0.4). **Estoque › Histórico também
+pronto** (o iERP compara as leituras; aguardando o "sim" dele para o commit local). Esperando dele:
+o sistema dos Servidores.
 
 **Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — commit local `9cbfb1e`
 (no GitHub desde 20/10/2026, com `50052ff`; §5.17; detalhes em `INTEGRACOES.md` §0.3). Com ela, as integrações que ele

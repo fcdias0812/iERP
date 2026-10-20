@@ -69,6 +69,7 @@ const TODAS = [
   '/estoque/assets',
   '/estoque/pecas',
   '/estoque/ecommerce',
+  '/estoque/historico',
   '/admin/usuarios',
   '/admin/usuarios/usr00001',
   '/admin/usuarios/usr00001?editar=true',

@@ -29,6 +29,7 @@ import { Route as AppCadastrosRastreadoresRouteImport } from './routes/_app/cada
 import { Route as AppClientesIndexRouteImport } from './routes/_app/clientes/index'
 import { Route as AppEstoqueAssetsRouteImport } from './routes/_app/estoque/assets'
 import { Route as AppEstoqueEcommerceRouteImport } from './routes/_app/estoque/ecommerce'
+import { Route as AppEstoqueHistoricoRouteImport } from './routes/_app/estoque/historico'
 import { Route as AppEstoqueMateriaisRouteImport } from './routes/_app/estoque/materiais'
 import { Route as AppEstoquePecasRouteImport } from './routes/_app/estoque/pecas'
 import { Route as AppMotoristasIndexRouteImport } from './routes/_app/motoristas/index'
@@ -149,6 +150,11 @@ const AppEstoqueEcommerceRoute = AppEstoqueEcommerceRouteImport.update({
   path: '/estoque/ecommerce',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEstoqueHistoricoRoute = AppEstoqueHistoricoRouteImport.update({
+  id: '/estoque/historico',
+  path: '/estoque/historico',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEstoqueMateriaisRoute = AppEstoqueMateriaisRouteImport.update({
   id: '/estoque/materiais',
   path: '/estoque/materiais',
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
   '/estoque/assets': typeof AppEstoqueAssetsRoute
   '/estoque/ecommerce': typeof AppEstoqueEcommerceRoute
+  '/estoque/historico': typeof AppEstoqueHistoricoRoute
   '/estoque/materiais': typeof AppEstoqueMateriaisRoute
   '/estoque/pecas': typeof AppEstoquePecasRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
@@ -304,6 +311,7 @@ export interface FileRoutesByTo {
   '/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
   '/estoque/assets': typeof AppEstoqueAssetsRoute
   '/estoque/ecommerce': typeof AppEstoqueEcommerceRoute
+  '/estoque/historico': typeof AppEstoqueHistoricoRoute
   '/estoque/materiais': typeof AppEstoqueMateriaisRoute
   '/estoque/pecas': typeof AppEstoquePecasRoute
   '/operacao/dashboard': typeof AppOperacaoDashboardRoute
@@ -346,6 +354,7 @@ export interface FileRoutesById {
   '/_app/cadastros/rastreadores': typeof AppCadastrosRastreadoresRoute
   '/_app/estoque/assets': typeof AppEstoqueAssetsRoute
   '/_app/estoque/ecommerce': typeof AppEstoqueEcommerceRoute
+  '/_app/estoque/historico': typeof AppEstoqueHistoricoRoute
   '/_app/estoque/materiais': typeof AppEstoqueMateriaisRoute
   '/_app/estoque/pecas': typeof AppEstoquePecasRoute
   '/_app/operacao/dashboard': typeof AppOperacaoDashboardRoute
@@ -388,6 +397,7 @@ export interface FileRouteTypes {
     | '/cadastros/rastreadores'
     | '/estoque/assets'
     | '/estoque/ecommerce'
+    | '/estoque/historico'
     | '/estoque/materiais'
     | '/estoque/pecas'
     | '/operacao/dashboard'
@@ -428,6 +438,7 @@ export interface FileRouteTypes {
     | '/cadastros/rastreadores'
     | '/estoque/assets'
     | '/estoque/ecommerce'
+    | '/estoque/historico'
     | '/estoque/materiais'
     | '/estoque/pecas'
     | '/operacao/dashboard'
@@ -469,6 +480,7 @@ export interface FileRouteTypes {
     | '/_app/cadastros/rastreadores'
     | '/_app/estoque/assets'
     | '/_app/estoque/ecommerce'
+    | '/_app/estoque/historico'
     | '/_app/estoque/materiais'
     | '/_app/estoque/pecas'
     | '/_app/operacao/dashboard'
@@ -641,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEstoqueEcommerceRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/estoque/historico': {
+      id: '/_app/estoque/historico'
+      path: '/estoque/historico'
+      fullPath: '/estoque/historico'
+      preLoaderRoute: typeof AppEstoqueHistoricoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/estoque/materiais': {
       id: '/_app/estoque/materiais'
       path: '/estoque/materiais'
@@ -792,6 +811,7 @@ interface AppRouteChildren {
   AppCadastrosRastreadoresRoute: typeof AppCadastrosRastreadoresRoute
   AppEstoqueAssetsRoute: typeof AppEstoqueAssetsRoute
   AppEstoqueEcommerceRoute: typeof AppEstoqueEcommerceRoute
+  AppEstoqueHistoricoRoute: typeof AppEstoqueHistoricoRoute
   AppEstoqueMateriaisRoute: typeof AppEstoqueMateriaisRoute
   AppEstoquePecasRoute: typeof AppEstoquePecasRoute
   AppOperacaoDashboardRoute: typeof AppOperacaoDashboardRoute
@@ -830,6 +850,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCadastrosRastreadoresRoute: AppCadastrosRastreadoresRoute,
   AppEstoqueAssetsRoute: AppEstoqueAssetsRoute,
   AppEstoqueEcommerceRoute: AppEstoqueEcommerceRoute,
+  AppEstoqueHistoricoRoute: AppEstoqueHistoricoRoute,
   AppEstoqueMateriaisRoute: AppEstoqueMateriaisRoute,
   AppEstoquePecasRoute: AppEstoquePecasRoute,
   AppOperacaoDashboardRoute: AppOperacaoDashboardRoute,

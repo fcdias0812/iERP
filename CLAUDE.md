@@ -26,7 +26,8 @@ antigo (v1) nem de outro lugar.
   seção **Operação** — **Ordens** (Lotes com detalhe do lote, Agendamento, Viagens com o mapa ao
   vivo do rastreador de GPS, Histórico), **Operação** (Dashboard, Lotes — a mesma lista e o mesmo detalhe de Ordens › Lotes
   —, Recebimento e Histórico; Chamados internos em construção) e **Estoque** (Materiais, Assets,
-  Peças e E-commerce lidos ao vivo dos sistemas de estoque; Servidores e Histórico em construção); e,
+  Peças e E-commerce lidos ao vivo dos sistemas de estoque; Histórico do que mudou neles;
+  Servidores em construção); e,
   em Sistema, **Cadastros** (submenu: Materiais, Pallets, Caixotes, Áreas do estoque, Rastreadores GPS)
   e **Administração** (Usuários, Perfis de acesso, Auditoria, Integração).
 - Diretoria quer **agilidade**: informação já filtrada onde é usada (histórico/auditoria dentro de
@@ -207,7 +208,9 @@ linha do tempo, recebimento), **Ocorrências** (painel
   /api/estoque/:aba`: lê ao vivo a MESMA porta `/api/integracao/estoque` do iERP antigo, guarda 1
   minuto, nunca lança) e `src/features/estoque/` (`EstoqueDeFora` + `paginas.tsx`; cor dos estados
   de lá em `tons.ts`). Só para ver. Sistemas cadastrados em Administração › Integração (tipo
-  `estoque`). Detalhes em `.claude/INTEGRACOES.md` §0.4.
+  `estoque`). **Histórico** (`estoque/historico.ts` + `HistoricoEstoquePage`): o iERP compara cada
+  leitura completa com a anterior (tabelas `estoque_itens`/`estoque_eventos`; leitura de fundo a
+  cada 5 min) e mostra entrou/saiu/mudou na `HistoricoTabela`. Detalhes em `.claude/INTEGRACOES.md` §0.4.
 - **Sistema › Cadastros** — `src/features/cadastros/` (módulo com submenu, uma rota por cadastro
   em `src/routes/_app/cadastros/` — `paginas.tsx`; painel `?aberto=novo|<id>`; listas em modo
   cliente — a API devolve a lista inteira) e

@@ -527,6 +527,34 @@ export interface OrdensViagensPontosTable {
   registradoEm: string
 }
 
+/** Último retrato de cada item dos sistemas de estoque (Estoque › Histórico compara com ele). */
+export interface EstoqueItensTable {
+  sistema: string
+  itemId: string
+  aba: string
+  codigo: string
+  descricao: string | null
+  /** Campos acompanhados (JSON). */
+  campos: string
+  ativo: number
+  vistoEm: string
+}
+
+/** O que mudou no estoque de fora (entrou, saiu, mudou). */
+export interface EstoqueEventosTable {
+  id: string
+  sistema: string
+  itemId: string
+  aba: string
+  codigo: string
+  descricao: string | null
+  /** entrada | saida | alterado */
+  acao: string
+  mudancas: string | null
+  rotulos: string | null
+  em: string
+}
+
 /** Fila de avisos aos sistemas de fora. */
 export interface IntegracoesAvisosTable {
   id: string
@@ -586,4 +614,6 @@ export interface Database {
   perfisAcesso: PerfisAcessoTable
   ordensViagens: OrdensViagensTable
   ordensViagensPontos: OrdensViagensPontosTable
+  estoqueItens: EstoqueItensTable
+  estoqueEventos: EstoqueEventosTable
 }

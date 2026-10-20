@@ -60,3 +60,19 @@ test('Integração: o armazém pede o endereço do sistema e a chave de integra�
   await painel.getByRole('button', { name: 'Salvar' }).click()
   await expect(page.locator('main tbody tr', { hasText: 'ARMAZEM' })).toBeVisible()
 })
+
+test('Histórico do estoque: entrou, saiu e mudou, com o estado no idioma da tela', async ({
+  page,
+}) => {
+  await abrir(page, '/estoque/historico')
+  await expect(page.locator('main h1')).toHaveText('Histórico')
+  const mudou = page.locator('main tbody tr', { hasText: 'LOT-20261010-0001' })
+  await expect(mudou).toContainText('Mudou')
+  await expect(mudou).toContainText('Aguardando teste')
+  await expect(mudou).toContainText('Funcionando')
+  await expect(page.locator('main tbody tr', { hasText: '5CG0000OLD' })).toContainText(
+    'Saiu do estoque',
+  )
+  await mudou.getByRole('link', { name: 'LOT-20261010-0001' }).click()
+  await expect(page).toHaveURL(/\/estoque\/materiais\?q=LOT-20261010-0001/)
+})

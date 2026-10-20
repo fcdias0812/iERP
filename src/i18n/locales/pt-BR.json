@@ -3251,6 +3251,29 @@
       "produtoAtivo": "Produto ativo",
       "ultimaEntrada": "Última entrada"
     },
-    "incompletoSemTotal": "Mostrando {{n}} itens do {{sistema}} — a lista é grande demais para trazer inteira."
+    "incompletoSemTotal": "Mostrando {{n}} itens do {{sistema}} — a lista é grande demais para trazer inteira.",
+    "historico": {
+      "descricao": "O que mudou no estoque dos três sistemas: o iERP compara cada leitura com a anterior (a cada 5 minutos e ao abrir o estoque).",
+      "erro": "Não foi possível carregar o histórico do estoque",
+      "item": "Item",
+      "acoes": {
+        "entrada": "Entrou no estoque",
+        "saida": "Saiu do estoque",
+        "alterado": "Mudou"
+      },
+      "campos": {
+        "statusFisico": "Estado físico",
+        "statusVenda": "Venda",
+        "quantidade": "Quantidade",
+        "pesoKg": "Peso",
+        "area": "Área",
+        "posicao": "Posição",
+        "statusMaquina": "Situação",
+        "preparo": "Preparo",
+        "grade": "Grade",
+        "loteDeLa": "Lote de lá",
+        "produtoAtivo": "Produto ativo"
+      }
+    }
   }
 }
