@@ -87,6 +87,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `1cf2c3d` | Re-Teck MSDC (Microsoft) → iERP (lotes só para ver, HTTPS com a CA de lá)                |
 | `9cbfb1e` | Ordens › Viagens com o rastreador de GPS (mapa ao vivo, emergência, chat, replay)        |
 | `f1148dc` | Viagens finalizadas: baixar o trajeto em GPX, KML e CSV (igual ao iERP antigo)           |
+| `2cac597` | Estoque: Materiais, Assets, Peças e E-commerce lidos dos sistemas de estoque             |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
@@ -564,8 +565,8 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 
 ## 7. Próximo passo
 
-**Estoque ← armazém, Controle de Notebooks e RTB WMS está pronto (20/10/2026)** — falta ele testar e
-dar o "sim" para o commit (§5.18; `INTEGRACOES.md` §0.4). Esperando dele: o sistema dos
+**Estoque ← armazém, Controle de Notebooks e RTB WMS está pronto (20/10/2026)** — commit local
+`2cac597` (push só quando ele pedir; §5.18; `INTEGRACOES.md` §0.4). Esperando dele: o sistema dos
 Servidores e de onde vem o Histórico do estoque.
 
 **Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — commit local `9cbfb1e`
