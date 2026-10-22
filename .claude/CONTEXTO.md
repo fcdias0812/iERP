@@ -91,7 +91,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `2cac597` | Estoque: Materiais, Assets, Peças e E-commerce lidos dos sistemas de estoque             |
 | `7430d09` | Estoque › Histórico: o iERP compara as leituras dos três sistemas                        |
 | `78dfd6d` | Clientes › Configurações (rastreio, agendamento, recebimento, prazos)                    |
-| (pendente) | Clientes › link público de acompanhamento dos lotes                                      |
+| `6cf9d0c` | Clientes › link público de acompanhamento dos lotes                                      |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
@@ -604,7 +604,7 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 21–22/10/2026: "Vamos ir adicionando funcionalidade por funcionalidade, começando pelos
 clientes").** O 1.0 está neste PC em `C:\Trabalho\01_Sistemas\TI-Re-Teck-iERP` (ele clonou). Já
 feito: **Clientes › Configurações (22/10/2026)** — §5.2; no GitHub desde 22/10/2026 (`78dfd6d`).
-**Clientes › link de acompanhamento (22/10/2026)** — §5.2; aguardando o "sim" dele para subir.
+**Clientes › link de acompanhamento (22/10/2026)** — §5.2; no GitHub desde 22/10/2026 (`6cf9d0c`).
 Ainda dos Clientes (do 1.0): números da Visão geral, anexos que a OS pede. Depois: login pelo Portal, PDF da OS, relatório final, travar lote, viagem
 junta, chamados internos — e perguntar quais processos do galpão (separação, conferência,
 sanitização, testes, desmontagem, caixotes) ainda são feitos no 1.0.
