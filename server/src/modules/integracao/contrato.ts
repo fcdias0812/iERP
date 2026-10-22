@@ -49,6 +49,7 @@ export async function ordemNoContrato(db: Db, ordemId: string) {
       'o.codigo',
       'o.status',
       'o.clienteNome',
+      'o.clienteSistema',
       'o.externoSistema',
       'c.cnpj as clienteCnpj',
       's.codigo as siteCodigo',

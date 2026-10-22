@@ -31,8 +31,11 @@ recebidos até alguma ação com ele no MoonShot). Tudo que acontecer lá vira o
   Re-Teck iERP", e `docs/handover/pt-BR/`) descreve o contrato do lado dele. O contrato oficial é o
   `docs/API-INTEGRACAO.md` do iERP antigo (seções 10 e 11) — **não está neste PC**.
 - **Decisões dele:** mesmo contrato do antigo ("compensa mais", recomendado); **todos os lotes da
-  Dell e só da Dell** (`server/src/modules/integracao/destinos.ts`: nome do cliente com a palavra
-  "Dell"); status muda na **1ª ação no MoonShot**; chaves na tela **Administração › Integração**.
+  Dell e só da Dell** (até 22/10/2026 pelo nome do cliente com a palavra "Dell"; desde então pela
+  aba **Configurações do cliente › Sistema de processamento** — `clientes.sistema_processamento`;
+  a migration `2026-10-22-01` levou os clientes "Dell" para o MoonShot e cliente novo com "Dell" no
+  nome já nasce assim; `destinos.ts` só lista os sistemas); status muda na **1ª ação no
+  MoonShot**; chaves na tela **Administração › Integração**.
 - **iERP 2.0** (`server/src/modules/integracao/`):
   - `contrato.rotas.ts` — `/api/integracao/v1` (ping; ordens `?desde=` paginadas `{lotes, temMais,
 proximoDesde}`; ordem por código; anexo por número; balanço; devolução POST/DELETE), com
@@ -318,8 +321,9 @@ vão ser parte do estoque, respectivamente: Materiais, Assets, Peças e E-commer
 ## 1. O que existe hoje
 
 - **Rotas de entrada**: o contrato `/api/integracao/v1` (§0), com chave por sistema. Sistema novo
-  usa a mesma porta: inclua o cliente→sistema em `destinos.ts` e cadastre-o em Administração ›
-  Integração.
+  usa a mesma porta: inclua o sistema em `DESTINOS` (`destinos.ts`) e em `SISTEMAS_PROCESSAMENTO`
+  (`src/features/clientes/configuracoes.ts`), cadastre-o em Administração › Integração e escolha-o
+  na aba Configurações de cada cliente.
 - **Não há login:** o autor do histórico é "Sistema" (`server/src/shared/autor.ts`) ou o nome do
   sistema de fora; o servidor **não confere permissão** nas rotas de tela — os perfis valem nas telas.
 - Tudo o que vier de fora passa pela **camada de serviço** (regras, transação e

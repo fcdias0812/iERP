@@ -1,6 +1,8 @@
 import { useContext, useId, useMemo, type ReactNode } from 'react'
+import { differenceInCalendarDays } from 'date-fns'
 import { Controller, useWatch, type FieldPath, type UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { Alert } from '@/components/ui/alert'
 import { AsyncCombobox } from '@/components/ui/async-combobox'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -8,6 +10,7 @@ import { AttachmentList, FileDropzone } from '@/components/ui/file-upload'
 import { RhfField } from '@/components/ui/form'
 import { FormField } from '@/components/ui/form-field'
 import { Input } from '@/components/ui/input'
+import { TextoTraduzido } from '@/components/ui/localized-text'
 import { MaskedInput, NumberInput } from '@/components/ui/masked-input'
 import {
   Select,
@@ -25,6 +28,7 @@ import { useOpcoesMotoristas } from '@/features/transportadoras/use-transportado
 import { formatCnpj } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { NENHUM, QUANTIDADES, SERVICOS, type AgendamentoForm } from './agendamento-schema'
+import { useRegrasDoCliente } from './regras-do-cliente'
 import { SecaoContexto } from './secao-contexto'
 import { buscarClientesAtivos, useSitesDoCliente } from './use-ordens'
 
@@ -85,6 +89,7 @@ export function Local({ form, clienteFixo }: { form: Form; clienteFixo?: boolean
   const sites = useSitesDoCliente(clienteId)
   const site = sites.data?.find((s) => s.id === siteId)
   const semSites = Boolean(clienteId) && sites.isSuccess && sites.data.length === 0
+  const regras = useRegrasDoCliente(form)
 
   return (
     <Secao
@@ -121,6 +126,25 @@ export function Local({ form, clienteFixo }: { form: Form; clienteFixo?: boolean
           )
         }
       </RhfField>
+      {/* Aba Configurações do cliente: bloqueio (só no agendamento novo) e instruções. */}
+      {!clienteFixo && regras?.agendamentoBloqueado && (
+        <Alert
+          tone="inactive"
+          title={t('clientes.config.bloqueadoTitulo')}
+          className="col-span-full"
+        >
+          {regras.bloqueioMotivo}
+        </Alert>
+      )}
+      {regras?.instrucoes && (
+        <Alert
+          tone="info"
+          title={t('ordens.agendamento.cliente.instrucoes')}
+          className="col-span-full"
+        >
+          <TextoTraduzido valor={regras.instrucoes} className="whitespace-pre-line" />
+        </Alert>
+      )}
       <RhfField
         control={form.control}
         name="siteId"
@@ -198,6 +222,14 @@ export function Coleta({ form }: { form: Form }) {
   const { t } = useTranslation()
   const transportadoras = useOpcoesTransportadoras()
   const ativas = (transportadoras.data ?? []).filter((x) => x.status === 'ativo')
+  const regras = useRegrasDoCliente(form)
+  const prevista = useWatch({ control: form.control, name: 'coletaPrevista' })
+  // Antecedência mínima do cliente: só avisa (decisão do usuário, 22/10/2026).
+  const antecedencia = regras?.antecedenciaDias ?? null
+  const curta =
+    antecedencia !== null && prevista
+      ? differenceInCalendarDays(prevista, new Date()) < antecedencia
+      : false
   const data = (
     name: 'dataColeta' | 'coletaPrevista' | 'dataChegada',
     extra: { help?: string; required?: boolean } = {},
@@ -252,6 +284,13 @@ export function Coleta({ form }: { form: Form }) {
         required: true,
         help: t('ordens.agendamento.ajuda.coletaPrevista'),
       })}
+      {curta && (
+        <Alert
+          tone="warning"
+          title={t('ordens.agendamento.cliente.antecedencia', { n: antecedencia })}
+          className="col-span-full"
+        />
+      )}
       {data('dataColeta', { help: t('ordens.agendamento.ajuda.dataColeta') })}
       {data('dataChegada')}
     </Secao>
@@ -263,6 +302,10 @@ export function Coleta({ form }: { form: Form }) {
 export function Rastreio({ form }: { form: Form }) {
   const { t } = useTranslation()
   const rastrear = useWatch({ control: form.control, name: 'rastrear' })
+  const regras = useRegrasDoCliente(form)
+  // Sem exceção, o rastreio é o do cliente (aba Configurações).
+  const fixo = Boolean(regras && !regras.rastreioExcecao)
+  const exigir = Boolean(regras?.exigirMotoristaPlaca)
   const motoristas = useOpcoesMotoristas()
   const ativos = (motoristas.data ?? []).filter((m) => m.status === 'ativo')
   return (
@@ -270,13 +313,20 @@ export function Rastreio({ form }: { form: Form }) {
       titulo={t('ordens.agendamento.secoes.rastreio')}
       descricao={t('ordens.agendamento.secoesAjuda.rastreio')}
     >
-      <SimNao form={form} name="rastrear" label={t('ordens.agendamento.campos.rastrear')} />
+      <SimNao
+        form={form}
+        name="rastrear"
+        label={t('ordens.agendamento.campos.rastrear')}
+        travado={fixo}
+        help={fixo ? t('ordens.agendamento.cliente.rastreioFixo') : undefined}
+      />
       {rastrear && (
         <>
           <RhfField
             control={form.control}
             name="motoristaId"
             label={t('ordens.agendamento.campos.motorista')}
+            required={exigir}
             className="col-start-1"
           >
             {({ field, control }) => (
@@ -301,6 +351,7 @@ export function Rastreio({ form }: { form: Form }) {
             control={form.control}
             name="placa"
             label={t('ordens.agendamento.campos.placa')}
+            required={exigir}
           >
             {({ field, control }) => (
               <MaskedInput
@@ -474,6 +525,8 @@ function Anexo({
 }) {
   const { t } = useTranslation()
   const lista = useWatch({ control: form.control, name: arquivos })
+  const regras = useRegrasDoCliente(form)
+  const planilha = obrigatorio && !semArquivos && regras?.exigirEscopoPlanilha
   const itens = useMemo(
     () => lista.map((f, i) => ({ id: String(i), name: f.name, size: f.size })),
     [lista],
@@ -493,9 +546,11 @@ function Anexo({
         label={t('ordens.agendamento.campos.texto')}
         required={obrigatorio}
         help={
-          obrigatorio
-            ? t(semArquivos ? 'lotes.editar.escopoAjuda' : 'ordens.agendamento.ajuda.escopo')
-            : undefined
+          planilha
+            ? t('ordens.agendamento.cliente.escopoPlanilha')
+            : obrigatorio
+              ? t(semArquivos ? 'lotes.editar.escopoAjuda' : 'ordens.agendamento.ajuda.escopo')
+              : undefined
         }
         maxLength={5000}
       >
@@ -533,6 +588,8 @@ function SimNao({
   name,
   label,
   className,
+  travado,
+  help,
 }: {
   form: Form
   name: Extract<
@@ -541,14 +598,18 @@ function SimNao({
   >
   label: string
   className?: string
+  /** Não se muda aqui (vem de outro lugar — ex.: configurações do cliente). */
+  travado?: boolean
+  help?: string
 }) {
   const { t } = useTranslation()
   return (
-    <RhfField control={form.control} name={name} label={label} className={className}>
+    <RhfField control={form.control} name={name} label={label} help={help} className={className}>
       {({ field, control }) => (
         <div className="flex h-control items-center gap-2">
           <Switch
             {...control}
+            disabled={travado}
             checked={Boolean(field.value)}
             onCheckedChange={(v) => {
               field.onChange(v)

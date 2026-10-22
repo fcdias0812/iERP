@@ -27,6 +27,7 @@ export interface EventoHistorico {
     | 'site_criado'
     | 'site_editado'
     | 'site_removido'
+    | 'configurado'
     | 'documento_adicionado'
     | 'documento_removido'
     | 'ocorrencia_registrada'
@@ -134,6 +135,39 @@ export interface ClienteResumo {
   criadoEm: string
 }
 
+/** Aba Configurações do cliente (PUT /api/clientes/:id/configuracoes manda tudo, sem os nomes). */
+export interface ConfiguracoesCliente {
+  /** Toda coleta nasce com rastreio. */
+  rastrearColeta: boolean
+  /** Quem agenda pode mudar o rastreio só daquela coleta. */
+  rastreioExcecao: boolean
+  /** Coleta rastreada só com motorista e placa. */
+  exigirMotoristaPlaca: boolean
+  /** Serviços já marcados no agendamento (null = o padrão do sistema). */
+  servicosPadrao: ServicosOs | null
+  transportadoraPadraoId: string | null
+  transportadoraPadraoNome: string | null
+  /** Instruções do cliente (EPI, horário, acesso) — 3 idiomas. */
+  instrucoes: LocalizedText | null
+  /** Agendamento só com a planilha de escopo (.xlsx). */
+  exigirEscopoPlanilha: boolean
+  exigirLacre: boolean
+  exigirNota: boolean
+  exigirTara: boolean
+  exigirFotosGerais: boolean
+  /** Sistema que processa os lotes (MOONSHOT); null = processado aqui. */
+  sistemaProcessamento: string | null
+  slaDias: number | null
+  /** Dias na mesma etapa até virar anomalia no Dashboard. */
+  diasParadoEtapa: number | null
+  /** Antecedência mínima (dias) do agendamento — só avisa. */
+  antecedenciaDias: number | null
+  agendamentoBloqueado: boolean
+  bloqueioMotivo: string | null
+}
+
+export type ConfiguracoesClienteInput = Omit<ConfiguracoesCliente, 'transportadoraPadraoNome'>
+
 export interface Cliente {
   id: string
   codigo: string
@@ -141,6 +175,7 @@ export interface Cliente {
   cnpj: string
   slaDias: number | null
   status: ClienteStatus
+  configuracoes: ConfiguracoesCliente
   /** O principal vem primeiro. */
   contatos: ContatoCliente[]
   criadoEm: string
@@ -159,7 +194,8 @@ export interface Cliente {
 export interface ClienteInput {
   nome: string
   cnpj: string
-  slaDias: number | null
+  /** Desde 22/10/2026 o SLA é editado na aba Configurações (ausente = não muda). */
+  slaDias?: number | null
   contatos: {
     id: string | null
     nome: string | null
@@ -884,7 +920,11 @@ export interface EtapasContagem {
 
 export type SituacaoSla = 'atrasado' | 'no_prazo' | 'sem_sla'
 
-export type AnomaliaPrazo = { tipo: 'atrasado'; dias: number } | { tipo: 'risco'; uso: number }
+export type AnomaliaPrazo =
+  | { tipo: 'atrasado'; dias: number }
+  | { tipo: 'risco'; uso: number }
+  /** Parado na mesma etapa além do limite do cliente (aba Configurações). */
+  | { tipo: 'parado'; dias: number }
 
 /** GET /api/dashboard/operacao (datas `yyyy-mm-dd`; instantes em ISO UTC). */
 export interface DashboardOperacao {

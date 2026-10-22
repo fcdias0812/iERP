@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { Alert } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TextoTraduzido } from '@/components/ui/localized-text'
 import { KeyValueList } from '@/components/ui/metadata'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useCliente } from '@/features/clientes/use-clientes'
 import { EMPTY } from '@/lib/format'
 import type { Ordem } from '@/services/types'
 import { useInformacoesDoLote } from './informacoes-lote'
@@ -18,10 +20,21 @@ export function AbaInformacoes({ o }: { o: Ordem }) {
   const { t } = useTranslation()
   const info = useInformacoesDoLote(o)
   const campo = (k: string) => t(`ordens.agendamento.campos.${k as 'cliente'}`)
+  // Instruções do cliente (aba Configurações dele).
+  const instrucoes = useCliente(o.clienteId).data?.configuracoes.instrucoes
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <DadosDeFora o={o} />
+      {instrucoes && (
+        <Alert
+          tone="info"
+          title={t('ordens.agendamento.cliente.instrucoes')}
+          className="lg:col-span-2"
+        >
+          <TextoTraduzido valor={instrucoes} className="whitespace-pre-line" />
+        </Alert>
+      )}
       {/* Rastreio esperando o motorista ou na rua: a viagem e o mapa (pedido do usuário). */}
       {(o.rastrear || Boolean(o.externo)) && <ViagemNoLote ordemId={o.id} />}
       {o.status !== 'agendado' && !o.externo && (

@@ -13,6 +13,7 @@ const TODAS = [
   '/clientes/cli00001?aba=contatos',
   '/clientes/cli00001?aba=logistica',
   '/clientes/cli00001?aba=documentos',
+  '/clientes/cli00001?aba=configuracoes',
   '/clientes/cli00001?aba=historico',
   '/clientes/cli00001?editar=true',
   '/clientes?aberto=novo',

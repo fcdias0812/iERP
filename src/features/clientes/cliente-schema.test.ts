@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { getDb } from '@/mocks/db'
 import { isValidCnpj, isValidPhone } from '@/lib/validators/br'
 import type { Cliente } from '@/services/types'
+import { CONFIGURACOES_PADRAO } from './configuracoes'
 import { clienteParaForm, clienteSchema, formParaInput } from './cliente-schema'
 
 const cliente: Cliente = {
@@ -11,6 +12,7 @@ const cliente: Cliente = {
   cnpj: '12ABC34501DE35',
   slaDias: 15,
   status: 'ativo',
+  configuracoes: CONFIGURACOES_PADRAO,
   contatos: [
     { id: 'k2', nome: null, email: 'b@teste.com.br', telefone: '1132345678', principal: false },
     { id: 'k1', nome: 'Ana', email: 'a@teste.com.br', telefone: '11987654321', principal: true },

@@ -763,7 +763,12 @@
     "nameInUse": "Já existe um cadastro com este nome.",
     "url": "Endereço inválido (comece com http:// ou https://).",
     "tokenCurto": "O token precisa ter pelo menos 32 caracteres.",
-    "certificado": "Cole o certificado em formato PEM (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----)."
+    "certificado": "Cole o certificado em formato PEM (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----).",
+    "scopeSpreadsheet": "Este cliente exige a planilha de escopo (.xlsx).",
+    "sealRequired": "Este cliente exige pelo menos um lacre.",
+    "invoiceRequired": "Este cliente exige pelo menos uma nota fiscal.",
+    "generalPhotoRequired": "Este cliente exige pelo menos uma foto geral.",
+    "clientBlocked": "Os agendamentos deste cliente estão bloqueados."
   },
   "confirm": {
     "typeToConfirm": "Para confirmar, digite"
@@ -1351,7 +1356,15 @@
     "tripReadOnly": "Esta viagem é de um lote de outro sistema — quem cuida dela é o iERP antigo.",
     "tripNotActive": "A viagem não está em andamento.",
     "noEmergency": "Não há emergência esperando ciência nesta viagem.",
-    "mapUnavailable": "O serviço do mapa não respondeu."
+    "mapUnavailable": "O serviço do mapa não respondeu.",
+    "clientBlocked": "Os agendamentos deste cliente estão bloqueados.",
+    "trackingByClient": "O rastreio deste cliente é definido nas configurações dele.",
+    "driverPlateRequired": "A coleta rastreada deste cliente precisa de motorista e placa.",
+    "scopeSpreadsheetRequired": "Este cliente exige a planilha de escopo (.xlsx).",
+    "sealRequired": "Este cliente exige pelo menos um lacre com foto.",
+    "invoiceRequired": "Este cliente exige pelo menos uma nota fiscal com foto.",
+    "tareRequired": "Este cliente exige a tara de cada pallet.",
+    "photosRequired": "Este cliente exige pelo menos uma foto geral."
   },
   "calendar": {
     "today": "Hoje",
@@ -1700,9 +1713,7 @@
       "addContact": "Adicionar contato",
       "contactName": "Nome do contato",
       "email": "E-mail",
-      "phone": "Telefone",
-      "slaHelp": "Prazo máximo, em dias, da chegada na Re-Teck até o COD. Opcional.",
-      "dias": "dias"
+      "phone": "Telefone"
     },
     "tabs": {
       "visaoGeral": "Visão geral",
@@ -1710,9 +1721,7 @@
       "logistica": "Logística",
       "documentos": "Documentos",
       "configuracoes": "Configurações",
-      "historico": "Histórico",
-      "emDefinicao": "Em definição",
-      "configuracoesHelp": "Aqui ficarão as configurações específicas deste cliente."
+      "historico": "Histórico"
     },
     "detail": {
       "general": "Dados do cliente",
@@ -1730,7 +1739,8 @@
       "site_editado": "Alterou site",
       "site_removido": "Removeu site",
       "documento_adicionado": "Adicionou documento",
-      "documento_removido": "Removeu documento"
+      "documento_removido": "Removeu documento",
+      "configurado": "Alterou as configurações"
     },
     "acoes": {
       "inativar": "Inativar",
@@ -1788,7 +1798,23 @@
         "responsavel": "Responsável",
         "contatoNovo": "Contato novo",
         "docas": "Docas",
-        "tipoDocumento": "Tipo de documento"
+        "tipoDocumento": "Tipo de documento",
+        "rastrearColeta": "Rastrear a coleta",
+        "rastreioExcecao": "Permitir exceção",
+        "exigirMotoristaPlaca": "Exigir motorista e placa",
+        "servicosPadrao": "Serviços padrão",
+        "transportadoraPadrao": "Transportadora padrão",
+        "instrucoes": "Instruções do cliente",
+        "exigirEscopoPlanilha": "Exigir escopo em planilha",
+        "exigirLacre": "Exigir lacre",
+        "exigirNota": "Exigir nota fiscal",
+        "exigirTara": "Exigir tara",
+        "exigirFotosGerais": "Exigir fotos gerais",
+        "sistemaProcessamento": "Sistema de processamento",
+        "diasParadoEtapa": "Alerta de lote parado (dias)",
+        "antecedenciaDias": "Antecedência mínima (dias)",
+        "agendamentoBloqueado": "Bloquear agendamentos",
+        "bloqueioMotivo": "Motivo do bloqueio"
       }
     },
     "documentos": {
@@ -1893,6 +1919,78 @@
         "altura": "Altura",
         "voltagemShredder": "Voltagem do shredder",
         "pisoProtecaoObrigatorio": "Proteção do piso obrigatória"
+      }
+    },
+    "config": {
+      "titulo": "Configurações do cliente",
+      "descricao": "Como as coletas, o agendamento, o recebimento e os prazos de {{name}} funcionam.",
+      "intro": "Regras deste cliente aplicadas no Agendamento, no Recebimento e no Dashboard.",
+      "editar": "Editar configurações",
+      "bloqueadoTitulo": "Agendamentos deste cliente estão bloqueados",
+      "avisoSistema": "A mudança vale também para os lotes que já existem deste cliente.",
+      "toast": {
+        "saved": "Configurações de {{name}} salvas."
+      },
+      "secoes": {
+        "rastreio": "Rastreio da coleta",
+        "agendamento": "Agendamento",
+        "recebimento": "Recebimento",
+        "prazos": "Prazos e processamento"
+      },
+      "secoesAjuda": {
+        "rastreio": "Se as coletas deste cliente são acompanhadas pelo celular do motorista.",
+        "agendamento": "O que já vem preenchido e o que é exigido ao agendar.",
+        "recebimento": "O que passa a ser obrigatório ao receber os lotes deste cliente.",
+        "prazos": "Para onde vão os lotes, prazos e bloqueio de novos agendamentos."
+      },
+      "campos": {
+        "rastrearColeta": "Rastrear a coleta",
+        "rastreioExcecao": "Permitir exceção",
+        "exigirMotoristaPlaca": "Exigir motorista e placa",
+        "usarServicosPadrao": "Serviços padrão",
+        "servicosPadrao": "Serviços padrão",
+        "transportadoraPadrao": "Transportadora padrão",
+        "instrucoes": "Instruções do cliente",
+        "exigirEscopoPlanilha": "Exigir escopo em planilha (.xlsx)",
+        "exigirLacre": "Exigir lacre com foto",
+        "exigirNota": "Exigir nota fiscal",
+        "exigirTara": "Exigir tara de cada pallet",
+        "exigirFotosGerais": "Exigir fotos gerais",
+        "sistemaProcessamento": "Sistema de processamento",
+        "slaDias": "SLA",
+        "diasParadoEtapa": "Alerta de lote parado",
+        "antecedenciaDias": "Antecedência mínima",
+        "agendamentoBloqueado": "Bloquear agendamentos",
+        "bloqueioMotivo": "Motivo do bloqueio"
+      },
+      "ajuda": {
+        "rastrearColeta": "Ligado: toda coleta já nasce com rastreio no Agendamento.",
+        "rastreioExcecao": "Quem agenda pode mudar o rastreio só daquela coleta.",
+        "exigirMotoristaPlaca": "Coleta rastreada só é agendada com motorista e placa.",
+        "usarServicosPadrao": "Os serviços marcados abaixo já vêm escolhidos ao agendar.",
+        "transportadoraPadrao": "Já vem escolhida ao agendar para este cliente.",
+        "instrucoes": "EPI, horário, acesso ao site… Aparece no Agendamento, no lote e no Recebimento, nos 3 idiomas.",
+        "exigirEscopoPlanilha": "Só agenda com a planilha de escopo anexada (o MoonShot precisa dela).",
+        "exigirLacre": "Pelo menos um lacre com número e foto.",
+        "exigirNota": "Pelo menos uma nota fiscal com número e foto.",
+        "exigirTara": "Tara obrigatória em todo pallet.",
+        "exigirFotosGerais": "Pelo menos uma foto geral da carga.",
+        "sistemaProcessamento": "Para onde vão os lotes deste cliente depois do recebimento.",
+        "slaDias": "Prazo máximo, em dias, da chegada na Re-Teck até o COD. Vazio = sem SLA.",
+        "diasParadoEtapa": "Dias na mesma etapa até o lote virar anomalia no Dashboard. Vazio = sem alerta.",
+        "antecedenciaDias": "Dias antes da coleta para agendar. Só avisa: a coleta urgente ainda pode ser agendada.",
+        "agendamentoBloqueado": "Suspende novos agendamentos sem inativar o cliente.",
+        "bloqueioMotivo": "Aparece para quem tentar agendar."
+      },
+      "valores": {
+        "padraoSistema": "Padrão do sistema",
+        "nenhum": "Nenhum",
+        "nenhuma": "Nenhuma",
+        "processadoAqui": "Processado aqui (Re-Teck)",
+        "dias": "{{n}} dias",
+        "diasSufixo": "dias",
+        "semSla": "Sem SLA",
+        "semLimite": "Sem limite"
       }
     }
   },
@@ -2254,6 +2352,12 @@
           "nenhum_cabe": "Nenhum veículo cabe na doca; ficou o menor ({{tipo}}). Confira manualmente.",
           "rebaixado": "O caminhão ideal ({{desejado}}) não cabe na doca; trocado por {{final}}."
         }
+      },
+      "cliente": {
+        "instrucoes": "Instruções do cliente",
+        "antecedencia": "Este cliente pede {{n}} dias de antecedência para a coleta. A coleta prevista está antes disso — confirme com o cliente.",
+        "rastreioFixo": "Definido nas configurações do cliente.",
+        "escopoPlanilha": "Este cliente exige a planilha de escopo (.xlsx)."
       }
     },
     "lotes": {
@@ -2398,7 +2502,8 @@
         "naEtapa": "{{n}} d",
         "diasDeSla": "{{dias}} / {{sla}} dias",
         "vazio": "Nenhum lote com anomalia de prazo.",
-        "vazioTodos": "Nenhum lote em processo."
+        "vazioTodos": "Nenhum lote em processo.",
+        "parado": "Parado {{n}} dias na etapa"
       },
       "altoValor": {
         "titulo": "Processos de alto valor · Harvesting / Refurbish / Value Recovery",
@@ -2832,6 +2937,13 @@
       "recebido": "Lote {{code}} recebido.",
       "corrigido": "Recebimento do lote {{code}} corrigido.",
       "falhou": "Não foi possível salvar o recebimento."
+    },
+    "exige": {
+      "titulo": "Este cliente exige no recebimento",
+      "lacre": "lacre com foto",
+      "nota": "nota fiscal",
+      "tara": "tara de cada pallet",
+      "fotos": "pelo menos uma foto geral"
     }
   },
   "historicoModulo": {

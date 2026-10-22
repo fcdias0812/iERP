@@ -14,6 +14,7 @@ import type {
   UsuarioResumo,
   UsuarioStatus,
 } from '@/services/types'
+import { CONFIGURACOES_PADRAO } from '@/features/clientes/configuracoes'
 import { gerarCnpj, seeded } from './generators'
 
 /*
@@ -151,6 +152,26 @@ function gerarClientes(hoje: number): Cliente[] {
       // SLA fictício (sem usar o faker, para não mudar os outros dados gerados).
       slaDias: [15, 45, null][i % 3] ?? null,
       status,
+      configuracoes: {
+        ...CONFIGURACOES_PADRAO,
+        slaDias: [15, 45, null][i % 3] ?? null,
+        // O primeiro cliente de demonstração mostra instruções e o alerta de lote parado (sem
+        // regras que mudem o agendamento e o recebimento dos testes).
+        ...(i === 0
+          ? {
+              diasParadoEtapa: 5,
+              instrucoes: {
+                origem: 'pt-BR' as const,
+                textos: {
+                  'pt-BR': 'Usar EPI completo. Acesso pela portaria 2.',
+                  en: 'Wear full PPE. Access through gate 2.',
+                  'zh-TW': '請穿戴完整個人防護裝備。從 2 號門進入。',
+                },
+                automaticos: ['en' as const, 'zh-TW' as const],
+              },
+            }
+          : {}),
+      },
       contatos,
       criadoEm: new Date(criado).toISOString(),
       criadoPor: ADMIN_SISTEMA,

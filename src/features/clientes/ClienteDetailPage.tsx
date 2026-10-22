@@ -18,12 +18,12 @@ import type { AcaoCliente, Cliente } from '@/services/types'
 import { useBreadcrumb } from '@/stores/breadcrumb-store'
 import type { AbaCliente } from './abas'
 import { ClienteSheet } from './ClienteSheet'
+import { AbaConfiguracoes } from './detalhe/AbaConfiguracoes'
 import { AbaContatos } from './detalhe/AbaContatos'
 import { AbaDocumentos } from './detalhe/AbaDocumentos'
 import { AbaHistorico } from './detalhe/AbaHistorico'
 import { AbaLogistica } from './detalhe/AbaLogistica'
 import { AbaVisaoGeral } from './detalhe/AbaVisaoGeral'
-import { AbaEmDefinicao } from './detalhe/comum'
 import { ACOES } from './fluxo'
 import { useCliente, useDocumentos, useSites, useTransicaoCliente } from './use-clientes'
 
@@ -112,6 +112,10 @@ function Detalhe({ c }: { c: Cliente }) {
             <Alert tone="inactive" title={t('clientes.detail.inactiveTitle')}>
               {t('clientes.detail.inactiveBody')}
             </Alert>
+          ) : c.configuracoes.agendamentoBloqueado ? (
+            <Alert tone="inactive" title={t('clientes.config.bloqueadoTitulo')}>
+              {c.configuracoes.bloqueioMotivo}
+            </Alert>
           ) : undefined
         }
         actions={
@@ -172,9 +176,7 @@ function Detalhe({ c }: { c: Cliente }) {
             id: 'configuracoes',
             label: t('clientes.tabs.configuracoes'),
             icon: Settings,
-            content: (
-              <AbaEmDefinicao icon={<Settings />} texto={t('clientes.tabs.configuracoesHelp')} />
-            ),
+            content: <AbaConfiguracoes c={c} />,
           },
           {
             id: 'historico',

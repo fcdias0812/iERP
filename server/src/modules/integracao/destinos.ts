@@ -27,18 +27,21 @@ export const DESTINOS: DestinoDeCliente[] = [
   },
 ]
 
-/** Sistema de fora que processa os lotes deste cliente (null = processado aqui). */
+/**
+ * Sistema de fora SUGERIDO pelo nome do cliente (null = processado aqui). Desde 22/10/2026 quem
+ * decide é a aba Configurações do cliente (`clientes.sistema_processamento`); o nome só escolhe o
+ * valor inicial de um cliente novo (e a migration levou os clientes "Dell" para o MoonShot).
+ */
 export function sistemaDoCliente(nomeCliente: string): string | null {
   return DESTINOS.find((d) => d.doCliente(nomeCliente))?.sistema ?? null
 }
 
 /**
- * Sistema de fora que processa ESTE lote. Lote que nasceu num sistema de fora (Gerenciamento de
- * Projetos) nunca vai para outro: ele é só para ver aqui (ex.: "Google (Dell LATAM)" não vai para
- * o MoonShot por ter "Dell" no nome).
+ * Sistema de fora que processa ESTE lote: o do cliente (aba Configurações). Lote que nasceu num
+ * sistema de fora (Gerenciamento de Projetos, MSDC) nunca vai para outro: ele é só para ver aqui.
  */
-export function sistemaDoLote(l: { clienteNome: string; externoSistema: string | null }) {
-  return l.externoSistema ? null : sistemaDoCliente(l.clienteNome)
+export function sistemaDoLote(l: { clienteSistema: string | null; externoSistema: string | null }) {
+  return l.externoSistema ? null : l.clienteSistema
 }
 
 /**

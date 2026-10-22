@@ -18,10 +18,18 @@ import {
   removerSite,
   resumoClientes,
   resumoLotesCliente,
+  salvarConfiguracoesCliente,
   transicionarCliente,
 } from '@/services/clientes'
 import { ApiError } from '@/services/http'
-import type { AcaoCliente, Cliente, ClienteInput, SiteInput, TipoDocumento } from '@/services/types'
+import type {
+  AcaoCliente,
+  Cliente,
+  ClienteInput,
+  ConfiguracoesClienteInput,
+  SiteInput,
+  TipoDocumento,
+} from '@/services/types'
 
 /* Consultas e mutações de clientes (TanStack Query) — usadas pelas telas. */
 
@@ -75,6 +83,20 @@ export function useSalvarCliente(id?: string) {
       if (isCnpjEmUso(e)) return
       toast.error(t('clientes.toast.saveFailed'), { description: apiErrorMessage(e) })
     },
+  })
+}
+
+export function useSalvarConfiguracoes(id: string) {
+  const { t } = useTranslation()
+  const atualizar = useAtualizarCache()
+  return useMutation({
+    mutationFn: (input: ConfiguracoesClienteInput) => salvarConfiguracoesCliente(id, input),
+    onSuccess: (c) => {
+      atualizar(c)
+      toast.success(t('clientes.config.toast.saved', { name: c.nome }))
+    },
+    onError: (e) =>
+      toast.error(t('clientes.toast.saveFailed'), { description: apiErrorMessage(e) }),
   })
 }
 

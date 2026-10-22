@@ -1,4 +1,6 @@
 import type { EventoHistorico } from '../../shared/historico.js'
+import type { ServicosOs } from '../ordens/ordens.calculo.js'
+import type { LocalizedText } from '../ordens/ordens.lote.js'
 
 /*
  * Contrato da API de clientes — espelho de src/services/types.ts do frontend (Clientes).
@@ -34,6 +36,37 @@ export interface ClienteResumo {
   criadoEm: string
 }
 
+/** Aba Configurações do cliente (PUT /api/clientes/:id/configuracoes manda tudo, sem os nomes). */
+export interface ConfiguracoesCliente {
+  /** Toda coleta nasce com rastreio. */
+  rastrearColeta: boolean
+  /** Quem agenda pode mudar o rastreio só daquela coleta. */
+  rastreioExcecao: boolean
+  /** Coleta rastreada só com motorista e placa. */
+  exigirMotoristaPlaca: boolean
+  /** Serviços já marcados no agendamento (null = o padrão do sistema). */
+  servicosPadrao: ServicosOs | null
+  transportadoraPadraoId: string | null
+  transportadoraPadraoNome: string | null
+  /** Instruções do cliente (EPI, horário, acesso) — 3 idiomas. */
+  instrucoes: LocalizedText | null
+  /** Agendamento só com a planilha de escopo (.xlsx). */
+  exigirEscopoPlanilha: boolean
+  exigirLacre: boolean
+  exigirNota: boolean
+  exigirTara: boolean
+  exigirFotosGerais: boolean
+  /** Sistema que processa os lotes (MOONSHOT); null = processado aqui. */
+  sistemaProcessamento: string | null
+  slaDias: number | null
+  /** Dias na mesma etapa até virar anomalia no Dashboard. */
+  diasParadoEtapa: number | null
+  /** Antecedência mínima (dias) do agendamento — só avisa. */
+  antecedenciaDias: number | null
+  agendamentoBloqueado: boolean
+  bloqueioMotivo: string | null
+}
+
 export interface Cliente {
   id: string
   codigo: string
@@ -41,6 +74,7 @@ export interface Cliente {
   cnpj: string
   slaDias: number | null
   status: ClienteStatus
+  configuracoes: ConfiguracoesCliente
   contatos: ContatoCliente[]
   criadoEm: string
   criadoPor: string

@@ -15,12 +15,14 @@ import {
 import {
   chaveDoCalculo,
   criarAgendamentoSchema,
+  errosDoCliente,
   formParaInput,
   ordemParaForm,
   quantidadesParaApi,
   type AgendamentoForm,
 } from '@/features/ordens/agendamento-schema'
 import { PreCalculoCard } from '@/features/ordens/PreCalculoCard'
+import { useRegrasDoCliente } from '@/features/ordens/regras-do-cliente'
 import { SecaoContexto } from '@/features/ordens/secao-contexto'
 import { useEditarLote, usePreCalculo } from '@/features/ordens/use-ordens'
 import type { Ordem } from '@/services/types'
@@ -51,6 +53,8 @@ export function LoteSheet({
     mode: 'onTouched',
     defaultValues: inicial,
   })
+  // Regras do cliente (aba Configurações), conferidas ao salvar.
+  const regras = useRegrasDoCliente(form)
   // O cálculo guardado vale para os dados iniciais; muda quando a pessoa recalcula.
   const [calculadoCom, setCalculadoCom] = useState(() => chaveDoCalculo(inicial))
   const valores = useWatch({ control: form.control }) as AgendamentoForm
@@ -66,6 +70,11 @@ export function LoteSheet({
   }
 
   const enviar = form.handleSubmit(async (v) => {
+    const erros = errosDoCliente(v, regras, { novo: false })
+    if (erros.length) {
+      for (const e of erros) form.setError(e.campo, { message: e.mensagem })
+      return
+    }
     const salvo = await salvar.mutateAsync(formParaInput(v)).catch(() => null)
     if (salvo) {
       form.reset(v)

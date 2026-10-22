@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { sql, type Selectable, type Transaction } from 'kysely'
+import { sql, type Insertable, type Selectable, type Transaction, type Updateable } from 'kysely'
 import type { Db } from '../../db/database.js'
 import type { ClientesListaView, ClientesTable, Database } from '../../db/schema.js'
 import {
@@ -10,6 +10,7 @@ import {
 import { formatarCnpj } from '../../shared/documentos.js'
 import type { EventoHistorico, Mudanca } from '../../shared/historico.js'
 import { normalizar } from '../../shared/texto.js'
+import { configuracoesDa } from './clientes-configuracoes.js'
 import { COLUNAS_CLIENTE, acoesDe } from './clientes.regras.js'
 import type {
   Cliente,
@@ -104,7 +105,7 @@ export function criarRepositorioClientes(db: Db) {
       .where('id', '=', id)
       .executeTakeFirst()
     if (!linha) return undefined
-    const [contatos, historico] = await Promise.all([
+    const [contatos, historico, transportadora] = await Promise.all([
       cx
         .selectFrom('clientesContatos')
         .selectAll()
@@ -119,6 +120,13 @@ export function criarRepositorioClientes(db: Db) {
         .orderBy('em', 'desc')
         .orderBy('id', 'desc')
         .execute(),
+      linha.transportadoraPadraoId
+        ? cx
+            .selectFrom('transportadoras')
+            .select('nome')
+            .where('id', '=', linha.transportadoraPadraoId)
+            .executeTakeFirst()
+        : undefined,
     ])
     return {
       id: linha.id,
@@ -127,6 +135,7 @@ export function criarRepositorioClientes(db: Db) {
       cnpj: linha.cnpj,
       slaDias: linha.slaDias,
       status: linha.status as ClienteStatus,
+      configuracoes: configuracoesDa(linha, transportadora?.nome ?? null),
       contatos: contatos.map((k) => ({
         id: k.id,
         nome: k.nome,
@@ -217,7 +226,7 @@ export function criarRepositorioClientes(db: Db) {
 
   async function inserir(
     cx: Conexao,
-    dados: Omit<ClientesTable, 'id' | 'busca' | 'numero' | 'codigo'>,
+    dados: Omit<Insertable<ClientesTable>, 'id' | 'busca' | 'numero' | 'codigo'>,
     contatos: ContatoEntrada[],
     codigoDe: (numero: number) => string,
   ): Promise<string> {
@@ -239,7 +248,7 @@ export function criarRepositorioClientes(db: Db) {
   async function atualizar(
     cx: Conexao,
     id: string,
-    dados: Partial<Omit<ClientesTable, 'id' | 'busca' | 'numero' | 'codigo'>>,
+    dados: Omit<Updateable<ClientesTable>, 'id' | 'busca' | 'numero' | 'codigo'>,
     contatos?: ContatoEntrada[],
   ) {
     const atual = await obter(id, cx)

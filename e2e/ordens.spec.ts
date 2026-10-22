@@ -92,3 +92,45 @@ test('desmarcar o serviço IV esconde as placas de policarbonato', async ({ page
   await page.getByRole('checkbox', { name: 'IV. Value Recovery (Racks)' }).click()
   await expect(page.getByLabel(/^Placas de policarbonato/)).toHaveCount(0)
 })
+
+test('agendamento: segue as configurações do cliente (rastreio fixo, serviços, instruções, antecedência)', async ({
+  page,
+}) => {
+  await abrir(page, '/ordens/agendamento')
+  // Configura o cliente pela API simulada (como a aba Configurações faz).
+  await page.evaluate(async () => {
+    const c = (await (await fetch('/api/clientes/cli00001')).json()) as {
+      configuracoes: Record<string, unknown>
+    }
+    await fetch('/api/clientes/cli00001/configuracoes', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        ...c.configuracoes,
+        rastrearColeta: true,
+        rastreioExcecao: false,
+        antecedenciaDias: 5,
+        servicosPadrao: {
+          psm: true,
+          onsiteShredding: false,
+          recycleOnly: false,
+          valueRecoveryRacks: false,
+          valueRecoveryItad: false,
+        },
+      }),
+    })
+  })
+  await escolherCliente(page)
+  const rastrear = page.getByRole('switch', { name: 'Rastrear a coleta' })
+  await expect(rastrear).toBeChecked()
+  await expect(rastrear).toBeDisabled()
+  await expect(page.getByText('Definido nas configurações do cliente.')).toBeVisible()
+  await expect(page.getByRole('checkbox', { name: 'I. PSM (gaylords triturados)' })).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: 'III. Recycle Only' })).not.toBeChecked()
+  await expect(page.getByText('Usar EPI completo. Acesso pela portaria 2.')).toBeVisible()
+  // Coleta prevista hoje: menos que os 5 dias de antecedência → só avisa.
+  await page.getByLabel(/^Coleta prevista/).click()
+  await page.locator('[data-today] button').click()
+  await expect(page.getByText(/Este cliente pede 5 dias de antecedência/)).toBeVisible()
+  expect(await violacoes(page)).toEqual([])
+})

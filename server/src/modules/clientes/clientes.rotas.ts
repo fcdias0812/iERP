@@ -3,6 +3,7 @@ import multer from 'multer'
 import { autorDa } from '../../shared/autor.js'
 import { lerConsulta } from '../../shared/consulta-tabela.js'
 import { MAX_BYTES, type ServicoDocumentos } from './clientes-documentos.servico.js'
+import type { ServicoConfiguracoes } from './clientes-configuracoes.js'
 import type { ServicoSites } from './clientes-sites.servico.js'
 import { COLUNAS_CLIENTE } from './clientes.regras.js'
 import type { ServicoClientes } from './clientes.servico.js'
@@ -16,6 +17,7 @@ import type { LotesResumoCliente } from './clientes.types.js'
  *   POST /                 cria (201) — nome, cnpj, contatos (um principal)
  *   PUT  /:id              edita (substitui os contatos)
  *   POST /:id/transicao    { acao } — inativar, reativar
+ *   PUT  /:id/configuracoes  aba Configurações (rastreio, agendamento, recebimento, prazos)
  *
  *   GET    /:id/lotes/resumo            lotes a chegar / em operação / finalizados + últimos 5
  *   GET    /:id/sites                   sites com docas e responsável
@@ -31,6 +33,7 @@ export function rotasClientes(
   servico: ServicoClientes,
   sites: ServicoSites,
   documentos: ServicoDocumentos,
+  configuracoes: ServicoConfiguracoes,
 ) {
   const r = Router()
   const upload = multer({
@@ -62,6 +65,10 @@ export function rotasClientes(
 
   r.post('/:id/transicao', async (req, res) => {
     res.json(await servico.transicionar(req.params.id, req.body, autorDa(req)))
+  })
+
+  r.put('/:id/configuracoes', async (req, res) => {
+    res.json(await configuracoes.salvar(req.params.id, req.body, autorDa(req)))
   })
 
   /* ---------------- visão geral: lotes */

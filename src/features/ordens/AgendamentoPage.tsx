@@ -11,12 +11,14 @@ import { Anexos, Coleta, Local, Quantidades, Rastreio, Servicos } from './agenda
 import {
   agendamentoSchema,
   chaveDoCalculo,
+  errosDoCliente,
   formParaInput,
   novoAgendamento,
   quantidadesParaApi,
   type AgendamentoForm,
 } from './agendamento-schema'
 import { PreCalculoCard } from './PreCalculoCard'
+import { useAplicarPadroesDoCliente, useRegrasDoCliente } from './regras-do-cliente'
 import { useCriarOrdem, usePreCalculo } from './use-ordens'
 
 /*
@@ -40,6 +42,9 @@ function Agendamento() {
     mode: 'onTouched',
     defaultValues: novoAgendamento(),
   })
+  // Aba Configurações do cliente escolhido: padrões ao escolher e regras ao enviar.
+  const regras = useRegrasDoCliente(form)
+  useAplicarPadroesDoCliente(form, regras)
   const criar = useCriarOrdem()
   const calculo = usePreCalculo()
   const [calculadoCom, setCalculadoCom] = useState<string | null>(null)
@@ -60,6 +65,11 @@ function Agendamento() {
   }
 
   const enviar = form.handleSubmit(async (v) => {
+    const erros = errosDoCliente(v, regras, { novo: true })
+    if (erros.length) {
+      for (const e of erros) form.setError(e.campo, { message: e.mensagem })
+      return
+    }
     const ordem = await criar
       .mutateAsync({
         dados: formParaInput(v),

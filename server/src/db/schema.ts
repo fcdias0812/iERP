@@ -9,6 +9,8 @@
  *  - ids: texto (UUID).
  */
 
+import type { Generated } from 'kysely'
+
 export interface UsuariosTable {
   id: string
   /** Sequencial que gera o código (USR-00001). */
@@ -56,6 +58,32 @@ export interface ClientesTable {
   alteradoPor: string
   /** SLA: prazo máximo (dias) da chegada na Re-Teck até o COD. */
   slaDias: number | null
+  /* Configurações (aba Configurações do cliente; sim/não = 0/1). */
+  /** Toda coleta nasce com rastreio. */
+  rastrearColeta: Generated<number>
+  /** Quem agenda pode mudar o rastreio só daquela coleta. */
+  rastreioExcecao: Generated<number>
+  /** Coleta rastreada só com motorista e placa. */
+  exigirMotoristaPlaca: Generated<number>
+  /** Serviços já marcados no agendamento (JSON de ServicosOs; null = o padrão do sistema). */
+  servicosPadrao: string | null
+  transportadoraPadraoId: string | null
+  /** Instruções do cliente (LocalizedText JSON). */
+  instrucoes: string | null
+  /** Agendamento só com a planilha de escopo (.xlsx). */
+  exigirEscopoPlanilha: Generated<number>
+  exigirLacre: Generated<number>
+  exigirNota: Generated<number>
+  exigirTara: Generated<number>
+  exigirFotosGerais: Generated<number>
+  /** Sistema que processa os lotes (MOONSHOT); null = processado aqui. */
+  sistemaProcessamento: string | null
+  /** Dias na mesma etapa até virar anomalia no Dashboard. */
+  diasParadoEtapa: number | null
+  /** Antecedência mínima (dias) do agendamento — só avisa. */
+  antecedenciaDias: number | null
+  agendamentoBloqueado: Generated<number>
+  bloqueioMotivo: string | null
 }
 
 export interface ClientesContatosTable {
@@ -282,6 +310,10 @@ export interface OrdensListaView extends OrdensTable {
   origem: string
   clienteNome: string
   clienteSlaDias: number | null
+  /** Sistema que processa os lotes do cliente (null = aqui). */
+  clienteSistema: string | null
+  /** Dias na mesma etapa até virar anomalia (do cliente). */
+  clienteDiasParado: number | null
   siteCodigo: string
   docaNumero: string
   transportadoraNome: string | null

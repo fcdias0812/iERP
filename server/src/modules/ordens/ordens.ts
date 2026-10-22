@@ -8,6 +8,7 @@ import { z } from 'zod'
 import type { Db } from '../../db/database.js'
 import type { Database } from '../../db/schema.js'
 import { EXTENSOES, extensaoDe, MAX_BYTES, nomeSeguro } from '../../shared/arquivos.js'
+import { configuracoesDoCliente } from '../clientes/clientes-configuracoes.js'
 import { autorDa } from '../../shared/autor.js'
 import { codigoCom, proximoNumero } from '../../shared/cadastro.js'
 import {
@@ -588,6 +589,54 @@ export function criarServicoOrdens(
     return { cliente: cliente.nome, site: site.codigo, transportadora }
   }
 
+  /**
+   * As regras da aba Configurações do cliente (22/10/2026): agendamento bloqueado, rastreio
+   * definido pelo cliente (sem exceção), motorista e placa na coleta rastreada e a planilha de
+   * escopo (.xlsx). Na edição do lote só vale o que muda (lote antigo não fica preso a uma regra
+   * nova); bloqueio e planilha valem só para lote novo.
+   */
+  async function conferirRegrasDoCliente(
+    v: OrdemInput,
+    o: { novo: true; escopoArquivos: string[] } | { novo: false; rastrearAntes: boolean },
+  ) {
+    const c = await configuracoesDoCliente(db, v.clienteId)
+    if (!c) return // conferirVinculos responde "Cliente não encontrado."
+    if (o.novo && c.agendamentoBloqueado)
+      throw new ErroApi(
+        409,
+        'client_blocked',
+        `Os agendamentos deste cliente estão bloqueados: ${c.bloqueioMotivo ?? ''}`,
+      )
+    if (
+      !c.rastreioExcecao &&
+      v.rastrear !== c.rastrearColeta &&
+      (o.novo || v.rastrear !== o.rastrearAntes)
+    )
+      throw new ErroApi(
+        422,
+        'tracking_by_client',
+        c.rastrearColeta
+          ? 'Toda coleta deste cliente é rastreada.'
+          : 'As coletas deste cliente não são rastreadas.',
+      )
+    if (c.exigirMotoristaPlaca && v.rastrear && (!v.motoristaId || !v.placa))
+      throw new ErroApi(
+        422,
+        'driver_plate_required',
+        'A coleta rastreada deste cliente precisa de motorista e placa.',
+      )
+    if (
+      o.novo &&
+      c.exigirEscopoPlanilha &&
+      !o.escopoArquivos.some((n) => extensaoDe(nomeSeguro(n)) === 'xlsx')
+    )
+      throw new ErroApi(
+        422,
+        'scope_spreadsheet_required',
+        'Este cliente exige a planilha de escopo (.xlsx) no agendamento.',
+      )
+  }
+
   return {
     obter,
     preCalcular,
@@ -653,6 +702,10 @@ export function criarServicoOrdens(
         return { id: randomUUID(), secao: a.secao, nome, extensao, conteudo: a.conteudo }
       })
       const nomes = await conferirVinculos(v)
+      await conferirRegrasDoCliente(v, {
+        novo: true,
+        escopoArquivos: arquivos.escopo.map((a) => a.nomeOriginal),
+      })
 
       // Pré-cálculo guardado junto (sem veículo ativo, a ordem é criada sem ele).
       let calculo: ResultadoCalculo | null = null
@@ -921,6 +974,7 @@ export function criarServicoOrdens(
           )
       }
       const nomes = await conferirVinculos(v)
+      await conferirRegrasDoCliente(v, { novo: false, rastrearAntes: atual.rastrear === 1 })
       const doca = await db
         .selectFrom('clientesDocas')
         .select('numero')

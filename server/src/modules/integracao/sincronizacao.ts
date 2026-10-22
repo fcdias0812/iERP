@@ -160,7 +160,7 @@ export async function aplicarAndamento(
 export async function enfileirarAviso(db: Db, ordemId: string, evento: string) {
   const o = await db
     .selectFrom('ordensLista')
-    .select(['codigo', 'clienteNome', 'externoSistema'])
+    .select(['codigo', 'clienteSistema', 'externoSistema'])
     .where('id', '=', ordemId)
     .executeTakeFirst()
   if (!o) return
@@ -325,7 +325,7 @@ export async function lerPainel(
   const ordens = codigos.length
     ? await db
         .selectFrom('ordensLista')
-        .select(['id', 'codigo', 'clienteNome', 'externoSistema'])
+        .select(['id', 'codigo', 'clienteSistema', 'externoSistema'])
         .where('codigo', 'in', codigos)
         .execute()
     : []

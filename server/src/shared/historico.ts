@@ -18,6 +18,7 @@ export interface EventoHistorico {
     | 'site_criado'
     | 'site_editado'
     | 'site_removido'
+    | 'configurado'
     | 'documento_adicionado'
     | 'documento_removido'
     | 'ocorrencia_registrada'

@@ -157,6 +157,13 @@ Regras:
 
 O layout não muda. Modelos completos para copiar:
 
+- **Clientes › Configurações** — `server/src/modules/clientes/clientes-configuracoes.ts`
+  (`PUT /api/clientes/:id/configuracoes`; colunas em `clientes`, migration `2026-10-22-01`) e
+  `src/features/clientes/detalhe/AbaConfiguracoes.tsx` + `ConfiguracoesSheet.tsx`. Regras usadas no
+  Agendamento (`features/ordens/regras-do-cliente.ts`, `errosDoCliente`), no Recebimento
+  (`RecebimentoSheet` + `ordens.recebimento.ts`), no Dashboard (anomalia `parado`) e no destino dos
+  lotes (`sistemaDoLote` lê `clienteSistema` da view `ordens_lista`). Opção nova? Coluna + esquema
+  Zod dos dois lados + quem a usa + histórico.
 - **Clientes** — item direto no menu (sem submenu); detalhe com abas na URL (`?aba=`), uma por
   arquivo em `src/features/clientes/detalhe/` (Visão geral, Contatos, Logística com painel lateral
   - mapa Leaflet carregado sob demanda, Documentos com envio de arquivo, Histórico como tabela de
@@ -233,7 +240,8 @@ linha do tempo, recebimento), **Ocorrências** (painel
   `concluido`).
 - **Integração** (Administração) e o contrato com os sistemas de fora — `server/src/modules/integracao/`
   (`contrato.rotas.ts` = `/api/integracao/v1`, o MESMO contrato do iERP antigo; `sincronizacao.ts` =
-  avisos + painel → "Processamento i/N"; `destinos.ts` = cliente → sistema, hoje Dell → MOONSHOT) e
+  avisos + painel → "Processamento i/N"; `destinos.ts` = os sistemas que processam lotes, hoje
+  MOONSHOT — QUAL cliente vai para qual sistema é a aba Configurações do cliente) e
   `src/features/admin/integracao/`. O iERP antigo e o 2.0 rodam JUNTOS: integração só por acréscimo.
   Detalhes em `.claude/INTEGRACOES.md` §0. Sistema de ORIGEM (os lotes vêm dele, só para ver aqui):
   Gerenciamento de Projetos — `integracao/gerenciamento.ts` (lê o painel e as ordens de lá a cada

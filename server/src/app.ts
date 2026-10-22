@@ -1,6 +1,7 @@
 import express from 'express'
 import { config } from './config.js'
 import type { Db } from './db/database.js'
+import { criarServicoConfiguracoes } from './modules/clientes/clientes-configuracoes.js'
 import { criarServicoDocumentos } from './modules/clientes/clientes-documentos.servico.js'
 import { criarRepositorioSites } from './modules/clientes/clientes-sites.repositorio.js'
 import { criarServicoSites } from './modules/clientes/clientes-sites.servico.js'
@@ -79,7 +80,10 @@ export function criarApp(
     res.json({ ok: true })
   })
   api.use('/usuarios', rotasUsuarios(usuarios))
-  api.use('/clientes', rotasClientes(clientes, sites, documentos))
+  api.use(
+    '/clientes',
+    rotasClientes(clientes, sites, documentos, criarServicoConfiguracoes(db, repoClientes)),
+  )
   api.use('/geo', rotasGeo(geo))
   api.use('/transportadoras', rotasTransportadoras(transportadoras))
   api.use('/motoristas', rotasMotoristas(motoristas))

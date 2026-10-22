@@ -8,11 +8,27 @@ import type {
   ClienteInput,
   ClienteResumo,
   ClientesResumo,
+  ConfiguracoesClienteInput,
   Mudanca,
 } from '@/services/types'
 import { useSessionStore } from '@/stores/session-store'
 import { apiError, simulateNetwork } from '../config'
+import { CONFIGURACOES_PADRAO } from '@/features/clientes/configuracoes'
 import { TRANSICOES_CLIENTE, acoesCliente, codigoCliente, getDb, resumoCliente } from '../db'
+import { getRelacionamento } from './relacionamento'
+
+/** Valor de configuração no histórico (serviços e instruções em texto). */
+const comoValor = (v: unknown): Mudanca['depois'] => {
+  if (v === null || v === undefined) return null
+  if (typeof v === 'object')
+    return 'textos' in (v as object)
+      ? (Object.values((v as { textos: Record<string, string> }).textos)[0] ?? null)
+      : Object.entries(v as Record<string, boolean>)
+          .filter(([, sim]) => sim)
+          .map(([k]) => k)
+          .join(', ')
+  return v as Mudanca['depois']
+}
 
 /*
  * API SIMULADA de clientes (mesmo contrato de server/src/modules/clientes): usada nos testes
@@ -142,8 +158,13 @@ export const clientesHandlers = [
       codigo: codigoCliente(db.seqClientes),
       nome: dados.nome,
       cnpj: dados.cnpj,
-      slaDias: dados.slaDias,
+      slaDias: dados.slaDias ?? null,
       status: 'ativo',
+      configuracoes: {
+        ...CONFIGURACOES_PADRAO,
+        slaDias: dados.slaDias ?? null,
+        sistemaProcessamento: /\bdell\b/i.test(dados.nome) ? 'MOONSHOT' : null,
+      },
       contatos: comIds(id, dados.contatos),
       criadoEm: agora,
       criadoPor: autor(),
@@ -168,8 +189,8 @@ export const clientesHandlers = [
     if (cnpjEmUso(dados.cnpj, atual.id))
       return apiError(409, 'cnpj_in_use', 'Já existe um cliente com este CNPJ.')
     const mudancas: Mudanca[] = (['nome', 'cnpj', 'slaDias'] as const)
-      .filter((k) => atual[k] !== dados[k])
-      .map((k) => ({ campo: k, antes: atual[k], depois: dados[k] }))
+      .filter((k) => dados[k] !== undefined && atual[k] !== dados[k])
+      .map((k) => ({ campo: k, antes: atual[k], depois: dados[k] ?? null }))
     const antes = resumoContatos(atual.contatos)
     const depois = resumoContatos(dados.contatos)
     if (antes !== depois) mudancas.push({ campo: 'contatos', antes, depois })
@@ -178,13 +199,60 @@ export const clientesHandlers = [
       ...atual,
       nome: dados.nome,
       cnpj: dados.cnpj,
-      slaDias: dados.slaDias,
+      slaDias: dados.slaDias === undefined ? atual.slaDias : dados.slaDias,
       contatos: comIds(atual.id, dados.contatos),
       alteradoEm: mudancas.length ? agora : atual.alteradoEm,
       alteradoPor: mudancas.length ? autor() : atual.alteradoPor,
       historico: mudancas.length
         ? [
             { id: `h${Date.now()}`, autor: autor(), em: agora, acao: 'editado', mudancas },
+            ...atual.historico,
+          ]
+        : atual.historico,
+    }
+    return HttpResponse.json(db.clientes[idx])
+  }),
+
+  // Aba Configurações: grava tudo (o servidor de verdade confere mais regras).
+  http.put('*/api/clientes/:id/configuracoes', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    const db = getDb()
+    const idx = db.clientes.findIndex((x) => x.id === params.id)
+    const atual = db.clientes[idx]
+    if (!atual) return apiError(404, 'not_found', 'Cliente não encontrado.')
+    const v = (await request.json()) as ConfiguracoesClienteInput
+    if (v.agendamentoBloqueado && !v.bloqueioMotivo?.trim())
+      return apiError(422, 'validation', 'Informe o motivo do bloqueio.')
+    const transportadora = v.transportadoraPadraoId
+      ? getRelacionamento().transportadoras.find((x) => x.id === v.transportadoraPadraoId)
+      : undefined
+    const novas = {
+      ...v,
+      transportadoraPadraoNome: transportadora?.nome ?? null,
+      bloqueioMotivo: v.agendamentoBloqueado ? v.bloqueioMotivo : null,
+    }
+    const mudancas: Mudanca[] = (Object.keys(v) as (keyof ConfiguracoesClienteInput)[])
+      .filter((k) => JSON.stringify(atual.configuracoes[k]) !== JSON.stringify(novas[k]))
+      .map((k) => ({
+        campo: k === 'transportadoraPadraoId' ? 'transportadoraPadrao' : k,
+        antes:
+          k === 'transportadoraPadraoId'
+            ? atual.configuracoes.transportadoraPadraoNome
+            : (comoValor(atual.configuracoes[k]) ?? null),
+        depois:
+          k === 'transportadoraPadraoId' ? novas.transportadoraPadraoNome : comoValor(novas[k]),
+      }))
+    const agora = new Date().toISOString()
+    db.clientes[idx] = {
+      ...atual,
+      slaDias: v.slaDias,
+      configuracoes: novas,
+      alteradoEm: mudancas.length ? agora : atual.alteradoEm,
+      alteradoPor: mudancas.length ? autor() : atual.alteradoPor,
+      historico: mudancas.length
+        ? [
+            { id: `h${Date.now()}`, autor: autor(), em: agora, acao: 'configurado', mudancas },
             ...atual.historico,
           ]
         : atual.historico,

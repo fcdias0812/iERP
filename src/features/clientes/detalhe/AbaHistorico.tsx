@@ -2,8 +2,9 @@ import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HistoricoTabela } from '@/features/comum/HistoricoTabela'
 import type { Cliente, Mudanca, TipoDocumento } from '@/services/types'
+import { NOME_SISTEMA } from '../configuracoes'
 
-/* Histórico do cliente (auditoria em tabela): dados, contatos, sites e documentos. */
+/* Histórico do cliente (auditoria em tabela): dados, contatos, sites, documentos e configurações. */
 
 const ACOES = [
   'criado',
@@ -14,6 +15,7 @@ const ACOES = [
   'site_removido',
   'documento_adicionado',
   'documento_removido',
+  'configurado',
 ] as const
 
 const CAMPOS = [
@@ -36,6 +38,23 @@ const CAMPOS = [
   'contatoNovo',
   'docas',
   'tipoDocumento',
+  // Aba Configurações.
+  'rastrearColeta',
+  'rastreioExcecao',
+  'exigirMotoristaPlaca',
+  'servicosPadrao',
+  'transportadoraPadrao',
+  'instrucoes',
+  'exigirEscopoPlanilha',
+  'exigirLacre',
+  'exigirNota',
+  'exigirTara',
+  'exigirFotosGerais',
+  'sistemaProcessamento',
+  'diasParadoEtapa',
+  'antecedenciaDias',
+  'agendamentoBloqueado',
+  'bloqueioMotivo',
 ] as const
 
 export function AbaHistorico({ c }: { c: Cliente }) {
@@ -54,6 +73,7 @@ export function AbaHistorico({ c }: { c: Cliente }) {
       if (campo === 'regiao')
         return t(`clientes.sites.regioes.${v as 'sul'}`, { defaultValue: String(v) })
       if (campo === 'tipoDocumento') return t(`clientes.documentos.tipos.${v as TipoDocumento}`)
+      if (campo === 'sistemaProcessamento') return NOME_SISTEMA[String(v)] ?? String(v)
       return undefined
     },
     [t],

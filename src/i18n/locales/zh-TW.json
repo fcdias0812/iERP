@@ -763,7 +763,12 @@
     "nameInUse": "已有相同名稱的資料。",
     "url": "位址無效（請以 http:// 或 https:// 開頭）。",
     "tokenCurto": "權杖至少需要 32 個字元。",
-    "certificado": "請以 PEM 格式貼上憑證（-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----）。"
+    "certificado": "請以 PEM 格式貼上憑證（-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----）。",
+    "scopeSpreadsheet": "此客戶要求附上範圍試算表 (.xlsx)。",
+    "sealRequired": "此客戶要求至少一個封條。",
+    "invoiceRequired": "此客戶要求至少一張發票。",
+    "generalPhotoRequired": "此客戶要求至少一張整體照片。",
+    "clientBlocked": "此客戶的排程已封鎖。"
   },
   "confirm": {
     "typeToConfirm": "請輸入以下文字以確認："
@@ -1351,7 +1356,15 @@
     "tripReadOnly": "此行程屬於其他系統的批次——由舊版 iERP 處理。",
     "tripNotActive": "行程不在進行中。",
     "noEmergency": "此行程沒有等待確認的緊急狀況。",
-    "mapUnavailable": "地圖服務沒有回應。"
+    "mapUnavailable": "地圖服務沒有回應。",
+    "clientBlocked": "此客戶的排程已封鎖。",
+    "trackingByClient": "此客戶的追蹤由其設定決定。",
+    "driverPlateRequired": "此客戶的追蹤收運需要司機與車牌。",
+    "scopeSpreadsheetRequired": "此客戶要求附上範圍試算表 (.xlsx)。",
+    "sealRequired": "此客戶要求至少一個含照片的封條。",
+    "invoiceRequired": "此客戶要求至少一張含照片的發票。",
+    "tareRequired": "此客戶要求每個棧板的皮重。",
+    "photosRequired": "此客戶要求至少一張整體照片。"
   },
   "calendar": {
     "today": "今天",
@@ -1700,9 +1713,7 @@
       "addContact": "新增聯絡人",
       "contactName": "聯絡人姓名",
       "email": "電子郵件",
-      "phone": "電話",
-      "slaHelp": "從抵達 Re-Teck 到 COD 的最長天數。選填。",
-      "dias": "天"
+      "phone": "電話"
     },
     "tabs": {
       "visaoGeral": "總覽",
@@ -1710,9 +1721,7 @@
       "logistica": "物流",
       "documentos": "文件",
       "configuracoes": "設定",
-      "historico": "歷程",
-      "emDefinicao": "待定義",
-      "configuracoesHelp": "此處將顯示此客戶專屬的設定。"
+      "historico": "歷程"
     },
     "detail": {
       "general": "客戶資料",
@@ -1730,7 +1739,8 @@
       "site_editado": "變更了站點",
       "site_removido": "移除了站點",
       "documento_adicionado": "新增了文件",
-      "documento_removido": "移除了文件"
+      "documento_removido": "移除了文件",
+      "configurado": "變更了設定"
     },
     "acoes": {
       "inativar": "停用",
@@ -1788,7 +1798,23 @@
         "responsavel": "負責人",
         "contatoNovo": "新聯絡人",
         "docas": "碼頭",
-        "tipoDocumento": "文件類型"
+        "tipoDocumento": "文件類型",
+        "rastrearColeta": "追蹤收運",
+        "rastreioExcecao": "允許例外",
+        "exigirMotoristaPlaca": "必須填司機與車牌",
+        "servicosPadrao": "預設服務",
+        "transportadoraPadrao": "預設運輸公司",
+        "instrucoes": "客戶指示",
+        "exigirEscopoPlanilha": "必須附範圍試算表",
+        "exigirLacre": "必須有封條",
+        "exigirNota": "必須有發票",
+        "exigirTara": "必須填皮重",
+        "exigirFotosGerais": "必須有整體照片",
+        "sistemaProcessamento": "處理系統",
+        "diasParadoEtapa": "批次停滯警示（天）",
+        "antecedenciaDias": "最少提前天數",
+        "agendamentoBloqueado": "封鎖排程",
+        "bloqueioMotivo": "封鎖原因"
       }
     },
     "documentos": {
@@ -1893,6 +1919,78 @@
         "altura": "高度",
         "voltagemShredder": "碎紙機電壓",
         "pisoProtecaoObrigatorio": "必須保護地板"
+      }
+    },
+    "config": {
+      "titulo": "客戶設定",
+      "descricao": "{{name}} 的收運、排程、收貨與期限如何運作。",
+      "intro": "此客戶的規則會套用在排程、收貨與儀表板。",
+      "editar": "編輯設定",
+      "bloqueadoTitulo": "此客戶的排程已封鎖",
+      "avisoSistema": "此變更也會套用到此客戶現有的批次。",
+      "toast": {
+        "saved": "已儲存 {{name}} 的設定。"
+      },
+      "secoes": {
+        "rastreio": "收運追蹤",
+        "agendamento": "排程",
+        "recebimento": "收貨",
+        "prazos": "期限與處理"
+      },
+      "secoesAjuda": {
+        "rastreio": "此客戶的收運是否透過司機的手機追蹤。",
+        "agendamento": "排程時預先填入與必填的項目。",
+        "recebimento": "收貨此客戶的批次時必須提供的項目。",
+        "prazos": "批次的去向、期限與封鎖新排程。"
+      },
+      "campos": {
+        "rastrearColeta": "追蹤收運",
+        "rastreioExcecao": "允許例外",
+        "exigirMotoristaPlaca": "必須填司機與車牌",
+        "usarServicosPadrao": "預設服務",
+        "servicosPadrao": "預設服務",
+        "transportadoraPadrao": "預設運輸公司",
+        "instrucoes": "客戶指示",
+        "exigirEscopoPlanilha": "必須附範圍試算表 (.xlsx)",
+        "exigirLacre": "必須有封條與照片",
+        "exigirNota": "必須有發票",
+        "exigirTara": "每個棧板必須填皮重",
+        "exigirFotosGerais": "必須有整體照片",
+        "sistemaProcessamento": "處理系統",
+        "slaDias": "SLA",
+        "diasParadoEtapa": "批次停滯警示",
+        "antecedenciaDias": "最少提前天數",
+        "agendamentoBloqueado": "封鎖排程",
+        "bloqueioMotivo": "封鎖原因"
+      },
+      "ajuda": {
+        "rastrearColeta": "開啟：每次收運在排程時就會建立追蹤。",
+        "rastreioExcecao": "排程人員可只變更該次收運的追蹤。",
+        "exigirMotoristaPlaca": "追蹤的收運必須填司機與車牌才能排程。",
+        "usarServicosPadrao": "下方勾選的服務會在排程時預先選取。",
+        "transportadoraPadrao": "為此客戶排程時預先選取。",
+        "instrucoes": "個人防護裝備、時間、場地出入… 以 3 種語言顯示在排程、批次與收貨中。",
+        "exigirEscopoPlanilha": "必須附上範圍試算表才能排程（MoonShot 需要）。",
+        "exigirLacre": "至少一個封條，含編號與照片。",
+        "exigirNota": "至少一張發票，含編號與照片。",
+        "exigirTara": "每個棧板都必須填皮重。",
+        "exigirFotosGerais": "至少一張貨物整體照片。",
+        "sistemaProcessamento": "此客戶的批次收貨後的去向。",
+        "slaDias": "從抵達 Re-Teck 到 COD 的最長天數。空白 = 無 SLA。",
+        "diasParadoEtapa": "在同一階段多少天後，批次會成為儀表板上的異常。空白 = 不警示。",
+        "antecedenciaDias": "收運前需提前多少天排程。僅提醒：緊急收運仍可排程。",
+        "agendamentoBloqueado": "暫停新排程，但不停用客戶。",
+        "bloqueioMotivo": "嘗試排程的人會看到。"
+      },
+      "valores": {
+        "padraoSistema": "系統預設",
+        "nenhum": "無",
+        "nenhuma": "無",
+        "processadoAqui": "在此處理 (Re-Teck)",
+        "dias": "{{n}} 天",
+        "diasSufixo": "天",
+        "semSla": "無 SLA",
+        "semLimite": "無限制"
       }
     }
   },
@@ -2254,6 +2352,12 @@
           "nenhum_cabe": "沒有車輛符合碼頭限制；保留最小的（{{tipo}}）。請手動確認。",
           "rebaixado": "理想卡車（{{desejado}}）不符合碼頭限制；改為 {{final}}。"
         }
+      },
+      "cliente": {
+        "instrucoes": "客戶指示",
+        "antecedencia": "此客戶要求收運需提前 {{n}} 天。預計收運日早於此 — 請與客戶確認。",
+        "rastreioFixo": "由客戶設定決定。",
+        "escopoPlanilha": "此客戶要求附上範圍試算表 (.xlsx)。"
       }
     },
     "lotes": {
@@ -2398,7 +2502,8 @@
         "naEtapa": "{{n}} 天",
         "diasDeSla": "{{dias}} / {{sla}} 天",
         "vazio": "沒有期限異常的批次。",
-        "vazioTodos": "沒有處理中的批次。"
+        "vazioTodos": "沒有處理中的批次。",
+        "parado": "在此階段停滯 {{n}} 天"
       },
       "altoValor": {
         "titulo": "高價值流程 · Harvesting / Refurbish / Value Recovery",
@@ -2832,6 +2937,13 @@
       "recebido": "已收取批次 {{code}}。",
       "corrigido": "已更正批次 {{code}} 的收貨。",
       "falhou": "無法儲存收貨。"
+    },
+    "exige": {
+      "titulo": "此客戶收貨時要求",
+      "lacre": "封條與照片",
+      "nota": "發票",
+      "tara": "每個棧板的皮重",
+      "fotos": "至少一張整體照片"
     }
   },
   "historicoModulo": {

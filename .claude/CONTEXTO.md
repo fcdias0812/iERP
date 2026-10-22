@@ -16,8 +16,9 @@ Para retomar: rode o skill **`/retomar`** (`.claude/skills/retomar/SKILL.md`).
 ## 1. O que é o sistema
 
 - **Re-Teck iERP v2**: ERP da Re-Teck focado em **logística reversa**. É a versão 2 de um sistema
-  que já existe (a v1 fica em `C:\Systems\TI-Re-Teck-iERP`, repositório
-  `Re-Teck-Brasil/TI-Re-Teck-iERP`). Começou em **18/10/2026**.
+  que já existe (a v1 fica em `C:\Systems\TI-Re-Teck-iERP` no PC antigo e em
+  `C:\Trabalho\01_Sistemas\TI-Re-Teck-iERP` neste; repositório `Re-Teck-Brasil/TI-Re-Teck-iERP`).
+  Começou em **18/10/2026**.
 - Hoje o iERP serve mais para **visibilidade e junção de vários sistemas de produção** conectados a
   ele (integrações) do que para operação. Muitos submódulos da v1 não são usados (o usuário ainda vai
   dizer quais).
@@ -89,6 +90,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `f1148dc` | Viagens finalizadas: baixar o trajeto em GPX, KML e CSV (igual ao iERP antigo)           |
 | `2cac597` | Estoque: Materiais, Assets, Peças e E-commerce lidos dos sistemas de estoque             |
 | `7430d09` | Estoque › Histórico: o iERP compara as leituras dos três sistemas                        |
+| (pendente) | Clientes › Configurações (rastreio, agendamento, recebimento, prazos)                    |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
@@ -201,7 +203,22 @@ simulada no front; o histórico grava "Sistema" como autor (`server/src/shared/a
   - **Documentos:** vários tipos (hoje `contrato`, `fiscal`, `licenca`, `outro`) em várias extensões
     (PDF, DOC/X, XLS/X, CSV, TXT, XML, JPG/PNG/WEBP, ZIP), até 25 MB, guardados em
     `server/data/arquivos`.
-  - **Configurações:** "deixe a definir por enquanto" (tela "em definição").
+  - **Configurações (22/10/2026):** pedido dele: "switches para decidirem se tal cliente vai ter
+    sua coleta rastreada ou não" + "mais opções úteis… detalhista e direto ao ponto". Propus 4
+    grupos e ele escolheu TODAS as opções, menos "exigir código de chegada" (tirou). Ficou:
+    **Rastreio** (rastrear a coleta; permitir exceção — quem agenda muda só aquela coleta; exigir
+    motorista e placa), **Agendamento** (serviços padrão; transportadora padrão; instruções do
+    cliente em 3 idiomas — aparecem no Agendamento, na aba Informações do lote e no Recebimento;
+    exigir escopo em planilha .xlsx), **Recebimento** (exigir lacre com foto, nota fiscal, tara de
+    cada pallet, fotos gerais), **Prazos e processamento** (sistema de processamento — MoonShot ou
+    "processado aqui", substitui a regra pelo nome "Dell"; SLA, que saiu do painel do cadastro;
+    alerta de lote parado = dias na mesma etapa até virar anomalia "Parado N dias" no Dashboard;
+    antecedência mínima — **só avisa**, decisão dele; bloquear agendamentos com motivo). Aba só
+    mostra; editar = painel lateral; histórico "Alterou as configurações" campo a campo. Clientes
+    que já existiam ficaram como antes (rastreio escolhido em cada coleta, nada exigido; os "Dell"
+    no MoonShot). O servidor confere as regras (`clientes-configuracoes.ts`, `ordens.ts`,
+    `ordens.recebimento.ts`); na edição do lote só vale o que muda, e bloqueio/planilha só no lote
+    novo.
   - **Histórico:** ele quer **auditoria em tabela** (não linha do tempo): data, quem, ação, campo,
     antes, depois, nota — com filtros e exportação.
 
@@ -547,7 +564,6 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 
 - **Clientes:** outros tipos de documento além de contrato/fiscal/licença/outro? O limite de 25 MB
   serve? Quais etapas do lote contam como "a chegar", "em operação" e "finalizado" na Visão geral?
-  O que vai na aba Configurações?
 - **Login/SSO:** como será a autenticação (hoje simulada). A empresa tem skills de SSO com o Portal
   Re-Teck (`reteck-integracao:*`) — só aplicar se ele pedir.
 - **Menu:** quais submódulos da v1 não são usados; se troca o nome da seção "Operação"; se
@@ -571,6 +587,15 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
   etc. — só com pedido dele).
 
 ## 7. Próximo passo
+
+**Fechar o que falta em relação ao iERP 1.0, funcionalidade por funcionalidade (pedido dele,
+21–22/10/2026: "Vamos ir adicionando funcionalidade por funcionalidade, começando pelos
+clientes").** O 1.0 está neste PC em `C:\Trabalho\01_Sistemas\TI-Re-Teck-iERP` (ele clonou). Já
+feito: **Clientes › Configurações (22/10/2026)** — §5.2; aguardando o "sim" dele para o commit
+local. Ainda dos Clientes (do 1.0): link público de rastreabilidade, números da Visão geral,
+anexos que a OS pede. Depois: login pelo Portal, PDF da OS, relatório final, travar lote, viagem
+junta, chamados internos — e perguntar quais processos do galpão (separação, conferência,
+sanitização, testes, desmontagem, caixotes) ainda são feitos no 1.0.
 
 **Estoque ← armazém, Controle de Notebooks e RTB WMS está pronto (20/10/2026)** — commit local
 `2cac597` (push só quando ele pedir; §5.18; `INTEGRACOES.md` §0.4). **Estoque › Histórico também

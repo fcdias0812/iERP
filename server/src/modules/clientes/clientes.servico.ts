@@ -1,6 +1,7 @@
 import type { ConsultaTabela } from '../../shared/consulta-tabela.js'
 import { ErroApi, naoEncontrado } from '../../shared/erros.js'
 import type { Mudanca } from '../../shared/historico.js'
+import { sistemaDoCliente } from '../integracao/destinos.js'
 import type { RepositorioClientes } from './clientes.repositorio.js'
 import {
   TRANSICOES,
@@ -48,6 +49,10 @@ export function criarServicoClientes(repo: RepositorioClientes) {
           trx,
           {
             ...dados,
+            slaDias: dados.slaDias ?? null,
+            // Cliente novo da Dell já nasce indo para o MoonShot (a regra de antes, pelo nome);
+            // depois, quem decide é a aba Configurações.
+            sistemaProcessamento: sistemaDoCliente(dados.nome),
             status: 'ativo',
             criadoEm: agora,
             criadoPor: autor,
@@ -71,8 +76,8 @@ export function criarServicoClientes(repo: RepositorioClientes) {
         if (await repo.cnpjEmUso(dados.cnpj, id, trx)) throw cnpjEmUso()
         // Histórico com antes → depois só do que mudou.
         const mudancas: Mudanca[] = (['nome', 'cnpj', 'slaDias'] as const)
-          .filter((k) => atual[k] !== dados[k])
-          .map((k) => ({ campo: k, antes: atual[k], depois: dados[k] }))
+          .filter((k) => dados[k] !== undefined && atual[k] !== dados[k])
+          .map((k) => ({ campo: k, antes: atual[k], depois: dados[k] ?? null }))
         const novos = contatos.map((c) => ({ ...c, id: '' }))
         const contatosMudaram = semId(atual.contatos) !== semId(novos)
         if (contatosMudaram)

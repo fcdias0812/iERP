@@ -107,7 +107,12 @@ export interface DashboardOperacao {
     slaDias: number | null
     /** SLA − dias decorridos (negativo = atrasado). */
     restante: number | null
-    anomalias: ({ tipo: 'atrasado'; dias: number } | { tipo: 'risco'; uso: number })[]
+    anomalias: (
+      | { tipo: 'atrasado'; dias: number }
+      | { tipo: 'risco'; uso: number }
+      // Parado na mesma etapa além do limite do cliente (aba Configurações).
+      | { tipo: 'parado'; dias: number }
+    )[]
   }[]
 }
 
@@ -140,6 +145,7 @@ export function criarServicoDashboard(db: Db) {
             'clienteId',
             'clienteNome',
             'clienteSlaDias',
+            'clienteDiasParado',
             'siteCodigo',
             'dataColeta',
             'coletaPrevista',
@@ -179,6 +185,9 @@ export function criarServicoDashboard(db: Db) {
             else if (decorridos >= sla * RISCO_SLA)
               anomalias.push({ tipo: 'risco', uso: umaCasa(decorridos / sla) })
           }
+          const naEtapa = dias(l.etapaDesde)
+          if (l.clienteDiasParado && naEtapa !== null && naEtapa > l.clienteDiasParado)
+            anomalias.push({ tipo: 'parado', dias: naEtapa })
           return {
             id: l.id,
             codigo: l.codigo,
@@ -187,7 +196,7 @@ export function criarServicoDashboard(db: Db) {
             etapa: l.status as StatusOrdem,
             recebidoEm: l.recebidoEm,
             etapaDesde: l.etapaDesde,
-            diasNaEtapa: dias(l.etapaDesde),
+            diasNaEtapa: naEtapa,
             diasDecorridos: decorridos,
             slaDias: sla,
             restante: sla && decorridos !== null ? umaCasa(sla - decorridos) : null,

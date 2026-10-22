@@ -66,6 +66,7 @@ const ACOES_CLIENTE = [
   'site_removido',
   'documento_adicionado',
   'documento_removido',
+  'configurado',
 ]
 
 const SEM_EVENTOS: EventoAuditoria[] = []

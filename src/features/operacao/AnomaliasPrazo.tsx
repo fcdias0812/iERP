@@ -63,12 +63,18 @@ function Anomalias({ lista }: { lista: AnomaliaPrazo[] }) {
           key={a.tipo}
           className={cn(
             'rounded-sm border px-1.5 py-0.5 type-caption num',
-            a.tipo === 'atrasado' ? toneStyles.danger.subtle : toneStyles.warning.subtle,
+            a.tipo === 'atrasado'
+              ? toneStyles.danger.subtle
+              : a.tipo === 'parado'
+                ? toneStyles.alert.subtle
+                : toneStyles.warning.subtle,
           )}
         >
           {a.tipo === 'atrasado'
             ? t('operacao.dashboard.anomalias.atrasado', { n: umaCasa(a.dias) })
-            : t('operacao.dashboard.anomalias.risco', { pct: formatPercent(a.uso, 0) })}
+            : a.tipo === 'parado'
+              ? t('operacao.dashboard.anomalias.parado', { n: umaCasa(a.dias) })
+              : t('operacao.dashboard.anomalias.risco', { pct: formatPercent(a.uso, 0) })}
         </span>
       ))}
     </span>

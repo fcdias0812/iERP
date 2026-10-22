@@ -86,7 +86,7 @@ export function rotasContratoIntegracao(
     // Todas as ordens que mudaram desde o instante (na ordem em que mudaram) e são deste sistema.
     let consulta = db
       .selectFrom('ordensLista')
-      .select(['id', 'alteradoEm', 'clienteNome', 'externoSistema'])
+      .select(['id', 'alteradoEm', 'clienteSistema', 'externoSistema'])
       // Lote que veio de outro sistema (Gerenciamento de Projetos) nunca vai para um de fora.
       .where('origem', '=', 'IERP')
       .orderBy('alteradoEm')
@@ -97,7 +97,7 @@ export function rotasContratoIntegracao(
     let ultimo: string | null = null
     let temMais = false
     for (const l of linhas) {
-      // Só monta o corpo dos lotes deste sistema (o nome do cliente decide).
+      // Só monta o corpo dos lotes deste sistema (as Configurações do cliente decidem).
       if (sistemaDoLote(l) !== req.integracao!.sistema) continue
       const c = await ordemNoContrato(db, l.id)
       if (c?.sistema !== req.integracao!.sistema) continue

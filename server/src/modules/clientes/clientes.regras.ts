@@ -41,14 +41,11 @@ const contatoSchema = z.object({
 export const clienteInputSchema = z.object({
   nome: z.string().trim().min(2, 'Informe o nome do cliente.').max(160),
   cnpj: z.string().transform(soAlfanumerico).refine(cnpjValido, 'CNPJ inválido.'),
-  /** SLA em dias (opcional). */
-  slaDias: z
-    .number()
-    .int('O SLA deve ser um número inteiro de dias.')
-    .min(1)
-    .max(3650)
-    .nullish()
-    .transform((v) => v ?? null),
+  /**
+   * SLA em dias (opcional). Desde 22/10/2026 ele é editado na aba Configurações; aqui fica
+   * aceito por compatibilidade — ausente (undefined) = não muda.
+   */
+  slaDias: z.number().int('O SLA deve ser um número inteiro de dias.').min(1).max(3650).nullish(),
   contatos: z
     .array(contatoSchema)
     .min(1, 'Informe pelo menos um contato.')

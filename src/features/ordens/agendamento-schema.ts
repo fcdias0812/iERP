@@ -2,7 +2,13 @@ import { format } from 'date-fns'
 import { dayKey } from '@/components/data-table/engine'
 import { isValidPlate } from '@/lib/validators/br'
 import { z } from '@/lib/zod-i18n'
-import type { Ordem, OrdemInput, QuantidadesOs, ServicosOs } from '@/services/types'
+import type {
+  ConfiguracoesCliente,
+  Ordem,
+  OrdemInput,
+  QuantidadesOs,
+  ServicosOs,
+} from '@/services/types'
 
 /*
  * Formulário do Agendamento (cria o lote). Mesmas regras do servidor
@@ -30,6 +36,7 @@ const arquivos = z.array(z.custom<File>((v) => v instanceof File))
 /**
  * Regras do formulário. Na edição do lote os arquivos ficam na aba Documentos: o escopo vale com
  * o texto OU com um documento do tipo "escopo" já guardado (`temEscopoArquivado`).
+ * As regras da aba Configurações do cliente ficam em `errosDoCliente` (conferidas ao enviar).
  */
 export const criarAgendamentoSchema = ({ temEscopoArquivado = false } = {}) =>
   z
@@ -95,6 +102,29 @@ export const criarAgendamentoSchema = ({ temEscopoArquivado = false } = {}) =>
 export const agendamentoSchema = criarAgendamentoSchema()
 
 export type AgendamentoForm = z.input<typeof agendamentoSchema>
+
+/**
+ * As regras da aba Configurações do cliente (22/10/2026), conferidas ao enviar — as mesmas do
+ * servidor: bloqueio e planilha de escopo só no lote novo; motorista e placa na coleta rastreada.
+ */
+export function errosDoCliente(
+  v: AgendamentoForm,
+  r: ConfiguracoesCliente | undefined,
+  { novo }: { novo: boolean },
+): { campo: 'clienteId' | 'motoristaId' | 'placa' | 'escopo'; mensagem: string }[] {
+  if (!r) return []
+  const erros: ReturnType<typeof errosDoCliente> = []
+  if (novo && r.agendamentoBloqueado)
+    erros.push({ campo: 'clienteId', mensagem: 'validation.clientBlocked' })
+  if (r.exigirMotoristaPlaca && v.rastrear) {
+    if (v.motoristaId === NENHUM || !v.motoristaId)
+      erros.push({ campo: 'motoristaId', mensagem: 'validation.required' })
+    if (!v.placa) erros.push({ campo: 'placa', mensagem: 'validation.required' })
+  }
+  if (novo && r.exigirEscopoPlanilha && !v.escopoArquivos.some((f) => /\.xlsx$/i.test(f.name)))
+    erros.push({ campo: 'escopo', mensagem: 'validation.scopeSpreadsheet' })
+  return erros
+}
 
 export const novoAgendamento = (): AgendamentoForm => ({
   clienteId: '',

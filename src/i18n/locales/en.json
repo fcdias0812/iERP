@@ -763,7 +763,12 @@
     "nameInUse": "A record with this name already exists.",
     "url": "Invalid address (start with http:// or https://).",
     "tokenCurto": "The token must have at least 32 characters.",
-    "certificado": "Paste the certificate in PEM format (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----)."
+    "certificado": "Paste the certificate in PEM format (-----BEGIN CERTIFICATE----- … -----END CERTIFICATE-----).",
+    "scopeSpreadsheet": "This customer requires the scope spreadsheet (.xlsx).",
+    "sealRequired": "This customer requires at least one seal.",
+    "invoiceRequired": "This customer requires at least one invoice.",
+    "generalPhotoRequired": "This customer requires at least one general photo.",
+    "clientBlocked": "Scheduling is blocked for this customer."
   },
   "confirm": {
     "typeToConfirm": "To confirm, type"
@@ -1351,7 +1356,15 @@
     "tripReadOnly": "This trip belongs to a lot from another system — the old iERP handles it.",
     "tripNotActive": "The trip is not in progress.",
     "noEmergency": "There is no emergency waiting for acknowledgement on this trip.",
-    "mapUnavailable": "The map service did not respond."
+    "mapUnavailable": "The map service did not respond.",
+    "clientBlocked": "Scheduling is blocked for this customer.",
+    "trackingByClient": "Tracking for this customer is set in its settings.",
+    "driverPlateRequired": "A tracked pickup for this customer needs a driver and plate.",
+    "scopeSpreadsheetRequired": "This customer requires the scope spreadsheet (.xlsx).",
+    "sealRequired": "This customer requires at least one seal with photo.",
+    "invoiceRequired": "This customer requires at least one invoice with photo.",
+    "tareRequired": "This customer requires the tare of each pallet.",
+    "photosRequired": "This customer requires at least one general photo."
   },
   "calendar": {
     "today": "Today",
@@ -1700,9 +1713,7 @@
       "addContact": "Add contact",
       "contactName": "Contact name",
       "email": "Email",
-      "phone": "Phone",
-      "slaHelp": "Maximum time, in days, from arrival at Re-Teck to the COD. Optional.",
-      "dias": "days"
+      "phone": "Phone"
     },
     "tabs": {
       "visaoGeral": "Overview",
@@ -1710,9 +1721,7 @@
       "logistica": "Logistics",
       "documentos": "Documents",
       "configuracoes": "Settings",
-      "historico": "History",
-      "emDefinicao": "To be defined",
-      "configuracoesHelp": "Settings specific to this customer will be here."
+      "historico": "History"
     },
     "detail": {
       "general": "Customer details",
@@ -1730,7 +1739,8 @@
       "site_editado": "Changed site",
       "site_removido": "Removed site",
       "documento_adicionado": "Added document",
-      "documento_removido": "Removed document"
+      "documento_removido": "Removed document",
+      "configurado": "Changed the settings"
     },
     "acoes": {
       "inativar": "Deactivate",
@@ -1788,7 +1798,23 @@
         "responsavel": "Person in charge",
         "contatoNovo": "New contact",
         "docas": "Docks",
-        "tipoDocumento": "Document type"
+        "tipoDocumento": "Document type",
+        "rastrearColeta": "Track the pickup",
+        "rastreioExcecao": "Allow exception",
+        "exigirMotoristaPlaca": "Require driver and plate",
+        "servicosPadrao": "Default services",
+        "transportadoraPadrao": "Default carrier",
+        "instrucoes": "Customer instructions",
+        "exigirEscopoPlanilha": "Require scope spreadsheet",
+        "exigirLacre": "Require seal",
+        "exigirNota": "Require invoice",
+        "exigirTara": "Require tare",
+        "exigirFotosGerais": "Require general photos",
+        "sistemaProcessamento": "Processing system",
+        "diasParadoEtapa": "Stuck lot alert (days)",
+        "antecedenciaDias": "Minimum notice (days)",
+        "agendamentoBloqueado": "Block scheduling",
+        "bloqueioMotivo": "Reason for blocking"
       }
     },
     "documentos": {
@@ -1893,6 +1919,78 @@
         "altura": "Height",
         "voltagemShredder": "Shredder voltage",
         "pisoProtecaoObrigatorio": "Floor protection required"
+      }
+    },
+    "config": {
+      "titulo": "Customer settings",
+      "descricao": "How pickups, scheduling, receiving and deadlines work for {{name}}.",
+      "intro": "Rules for this customer applied in Scheduling, Receiving and the Dashboard.",
+      "editar": "Edit settings",
+      "bloqueadoTitulo": "Scheduling is blocked for this customer",
+      "avisoSistema": "The change also applies to this customer's existing lots.",
+      "toast": {
+        "saved": "Settings for {{name}} saved."
+      },
+      "secoes": {
+        "rastreio": "Pickup tracking",
+        "agendamento": "Scheduling",
+        "recebimento": "Receiving",
+        "prazos": "Deadlines and processing"
+      },
+      "secoesAjuda": {
+        "rastreio": "Whether this customer's pickups are followed through the driver's phone.",
+        "agendamento": "What comes pre-filled and what is required when scheduling.",
+        "recebimento": "What becomes mandatory when receiving this customer's lots.",
+        "prazos": "Where the lots go, deadlines and blocking new schedules."
+      },
+      "campos": {
+        "rastrearColeta": "Track the pickup",
+        "rastreioExcecao": "Allow exception",
+        "exigirMotoristaPlaca": "Require driver and plate",
+        "usarServicosPadrao": "Default services",
+        "servicosPadrao": "Default services",
+        "transportadoraPadrao": "Default carrier",
+        "instrucoes": "Customer instructions",
+        "exigirEscopoPlanilha": "Require scope spreadsheet (.xlsx)",
+        "exigirLacre": "Require seal with photo",
+        "exigirNota": "Require invoice",
+        "exigirTara": "Require tare of each pallet",
+        "exigirFotosGerais": "Require general photos",
+        "sistemaProcessamento": "Processing system",
+        "slaDias": "SLA",
+        "diasParadoEtapa": "Stuck lot alert",
+        "antecedenciaDias": "Minimum notice",
+        "agendamentoBloqueado": "Block scheduling",
+        "bloqueioMotivo": "Reason for blocking"
+      },
+      "ajuda": {
+        "rastrearColeta": "On: every pickup is created with tracking in Scheduling.",
+        "rastreioExcecao": "Whoever schedules can change tracking for that pickup only.",
+        "exigirMotoristaPlaca": "A tracked pickup is only scheduled with driver and plate.",
+        "usarServicosPadrao": "The services checked below come pre-selected when scheduling.",
+        "transportadoraPadrao": "Comes pre-selected when scheduling for this customer.",
+        "instrucoes": "PPE, hours, site access… Shown in Scheduling, the lot and Receiving, in 3 languages.",
+        "exigirEscopoPlanilha": "Only schedules with the scope spreadsheet attached (MoonShot needs it).",
+        "exigirLacre": "At least one seal with number and photo.",
+        "exigirNota": "At least one invoice with number and photo.",
+        "exigirTara": "Tare mandatory on every pallet.",
+        "exigirFotosGerais": "At least one general photo of the load.",
+        "sistemaProcessamento": "Where this customer's lots go after receiving.",
+        "slaDias": "Maximum time, in days, from arrival at Re-Teck to the COD. Empty = no SLA.",
+        "diasParadoEtapa": "Days in the same stage until the lot becomes an anomaly on the Dashboard. Empty = no alert.",
+        "antecedenciaDias": "Days before the pickup to schedule. Warning only: an urgent pickup can still be scheduled.",
+        "agendamentoBloqueado": "Suspends new schedules without deactivating the customer.",
+        "bloqueioMotivo": "Shown to anyone who tries to schedule."
+      },
+      "valores": {
+        "padraoSistema": "System default",
+        "nenhum": "None",
+        "nenhuma": "None",
+        "processadoAqui": "Processed here (Re-Teck)",
+        "dias": "{{n}} days",
+        "diasSufixo": "days",
+        "semSla": "No SLA",
+        "semLimite": "No limit"
       }
     }
   },
@@ -2254,6 +2352,12 @@
           "nenhum_cabe": "No vehicle fits the dock; the smallest ({{tipo}}) was kept. Check manually.",
           "rebaixado": "The ideal truck ({{desejado}}) doesn't fit the dock; changed to {{final}}."
         }
+      },
+      "cliente": {
+        "instrucoes": "Customer instructions",
+        "antecedencia": "This customer asks for {{n}} days' notice for the pickup. The expected pickup is sooner — confirm with the customer.",
+        "rastreioFixo": "Set in the customer settings.",
+        "escopoPlanilha": "This customer requires the scope spreadsheet (.xlsx)."
       }
     },
     "lotes": {
@@ -2398,7 +2502,8 @@
         "naEtapa": "{{n}} d",
         "diasDeSla": "{{dias}} / {{sla}} days",
         "vazio": "No lots with deadline anomalies.",
-        "vazioTodos": "No lots in process."
+        "vazioTodos": "No lots in process.",
+        "parado": "Stuck {{n}} days in the stage"
       },
       "altoValor": {
         "titulo": "High-value processes · Harvesting / Refurbish / Value Recovery",
@@ -2832,6 +2937,13 @@
       "recebido": "Lot {{code}} received.",
       "corrigido": "Receiving of lot {{code}} corrected.",
       "falhou": "Could not save the receiving."
+    },
+    "exige": {
+      "titulo": "This customer requires when receiving",
+      "lacre": "seal with photo",
+      "nota": "invoice",
+      "tara": "tare of each pallet",
+      "fotos": "at least one general photo"
     }
   },
   "historicoModulo": {

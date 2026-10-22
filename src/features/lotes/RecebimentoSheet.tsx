@@ -11,11 +11,12 @@ import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
 import { RhfField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { SeletorIdiomaTexto } from '@/components/ui/localized-text'
+import { SeletorIdiomaTexto, TextoTraduzido } from '@/components/ui/localized-text'
 import { NumberInput } from '@/components/ui/masked-input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { useCliente } from '@/features/clientes/use-clientes'
 import { CadastroSecao, CadastroSheet } from '@/features/comum/CadastroSheet'
 import { useSalvarRecebimento } from '@/features/ordens/use-ordens'
 import { useIdiomaTexto, useTraducao } from '@/hooks/use-traducao'
@@ -47,6 +48,23 @@ import { StatusDoLote } from './StatusDoLote'
  */
 
 type Form = UseFormReturn<RecebimentoForm>
+
+/** O que a aba Configurações do cliente pode exigir no recebimento (o servidor confere igual). */
+type Exigencia = 'lacre' | 'nota' | 'tara' | 'fotos'
+const EXIGENCIAS: {
+  id: Exigencia
+  regra: 'exigirLacre' | 'exigirNota' | 'exigirTara' | 'exigirFotosGerais'
+  falta: (v: RecebimentoForm) => boolean
+}[] = [
+  { id: 'lacre', regra: 'exigirLacre', falta: (v) => !v.lacres.length },
+  { id: 'nota', regra: 'exigirNota', falta: (v) => !v.notas.length },
+  { id: 'tara', regra: 'exigirTara', falta: (v) => v.pallets.some((p) => p.tara === null) },
+  {
+    id: 'fotos',
+    regra: 'exigirFotosGerais',
+    falta: (v) => !v.fotosGerais.manter.length && !v.fotosGerais.novas.length,
+  },
+]
 
 /** Lotes agendados para o combobox (até 20 por busca, pela data de coleta). */
 async function buscarAgendados(busca: string) {
@@ -137,8 +155,24 @@ function Formulario({
   const inspecao = useWatch({ control: form.control, name: 'inspecao' })
   const idioma = useIdiomaTexto(descricao ?? '', lote?.recebimento?.inspecaoDescricao?.origem)
   const urlFoto = (id: string) => (f: { id: string }) => urlFotoRecebimento(id, f.id)
+  // Aba Configurações do cliente do lote: o que ele exige no recebimento e as instruções.
+  const escolhido = useQuery({
+    queryKey: ordensKeys.detalhe(loteId),
+    queryFn: ({ signal }) => obterOrdem(loteId, signal),
+    enabled: !lote && Boolean(loteId),
+  })
+  const regras = useCliente(lote?.clienteId ?? escolhido.data?.clienteId).data?.configuracoes
+  const exigidos = EXIGENCIAS.filter((e) => regras?.[e.regra])
+  const [faltando, setFaltando] = useState<Exigencia[]>([])
 
   const enviar = form.handleSubmit(async (v) => {
+    const falta = exigidos.filter((e) => e.falta(v))
+    setFaltando(falta.map((e) => e.id))
+    if (regras?.exigirTara)
+      v.pallets.forEach((p, i) => {
+        if (p.tara === null) form.setError(`pallets.${i}.tara`, { message: 'validation.required' })
+      })
+    if (falta.length) return
     const anterior = lote?.recebimento?.inspecaoDescricao ?? null
     const original = v.descricao.trim()
     let texto = null
@@ -236,6 +270,30 @@ function Formulario({
               </p>
             )}
             {!corrigir && loteId && <CodigoDeChegada ordemId={loteId} />}
+            {regras?.instrucoes && (
+              <Alert
+                tone="info"
+                title={t('ordens.agendamento.cliente.instrucoes')}
+                className="sm:col-span-2"
+              >
+                <TextoTraduzido valor={regras.instrucoes} className="whitespace-pre-line" />
+              </Alert>
+            )}
+            {exigidos.length > 0 && (
+              <Alert
+                tone={faltando.length ? 'danger' : 'info'}
+                title={t('recebimento.exige.titulo')}
+                className="sm:col-span-2"
+              >
+                <ul className="list-inside list-disc">
+                  {exigidos.map((e) => (
+                    <li key={e.id} className={faltando.includes(e.id) ? 'font-medium' : undefined}>
+                      {t(`recebimento.exige.${e.id}`)}
+                    </li>
+                  ))}
+                </ul>
+              </Alert>
+            )}
           </CadastroSecao>
 
           <CadastroSecao titulo={t('recebimento.secoes.chegada')}>

@@ -430,15 +430,13 @@ describe('gerenciamento › sincronização', () => {
     assert.equal(e.body.url, `${GP}/coletas/1`)
   })
 
-  it('lote de lá nunca vai para o MoonShot, mesmo com "Dell" no nome do cliente', () => {
+  it('lote de lá nunca vai para o MoonShot, mesmo com o cliente configurado para ele', () => {
     assert.equal(
-      sistemaDoLote({ clienteNome: 'Google (Dell LATAM)', externoSistema: 'GERENCIAMENTO' }),
+      sistemaDoLote({ clienteSistema: 'MOONSHOT', externoSistema: 'GERENCIAMENTO' }),
       null,
     )
-    assert.equal(
-      sistemaDoLote({ clienteNome: 'Dell Computadores', externoSistema: null }),
-      'MOONSHOT',
-    )
+    assert.equal(sistemaDoLote({ clienteSistema: 'MOONSHOT', externoSistema: null }), 'MOONSHOT')
+    assert.equal(sistemaDoLote({ clienteSistema: null, externoSistema: null }), null)
   })
 
   it('Gerenciamento fora do ar: o erro aparece na integração e nenhum lote muda', async () => {

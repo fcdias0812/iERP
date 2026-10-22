@@ -22,6 +22,22 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.noVehicles')
     case 'scope_required':
       return i18n.t('apiErrors.scopeRequired')
+    case 'client_blocked':
+      return i18n.t('apiErrors.clientBlocked')
+    case 'tracking_by_client':
+      return i18n.t('apiErrors.trackingByClient')
+    case 'driver_plate_required':
+      return i18n.t('apiErrors.driverPlateRequired')
+    case 'scope_spreadsheet_required':
+      return i18n.t('apiErrors.scopeSpreadsheetRequired')
+    case 'seal_required':
+      return i18n.t('apiErrors.sealRequired')
+    case 'invoice_required':
+      return i18n.t('apiErrors.invoiceRequired')
+    case 'tare_required':
+      return i18n.t('apiErrors.tareRequired')
+    case 'photos_required':
+      return i18n.t('apiErrors.photosRequired')
     case 'name_in_use':
       return i18n.t('apiErrors.nameInUse')
     case 'fixed_profile':

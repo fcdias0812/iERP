@@ -75,3 +75,29 @@ test('documentos: envia um contrato e aparece na lista e no histórico', async (
   await page.getByRole('tab', { name: /Histórico/ }).click()
   await expect(page.locator('main tbody tr').first()).toContainText('Adicionou documento')
 })
+
+test('configurações: mostra as regras do cliente e grava pelo painel, com histórico', async ({
+  page,
+}) => {
+  await abrir(page, '/clientes/cli00001?aba=configuracoes')
+  await expect(page.getByText('Usar EPI completo. Acesso pela portaria 2.')).toBeVisible()
+  await expect(page.getByText('5 dias', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Editar configurações' }).click()
+  const painel = page.getByRole('dialog')
+  await painel.getByRole('switch', { name: 'Rastrear a coleta' }).click()
+  await painel.getByRole('switch', { name: 'Exigir lacre com foto' }).click()
+  // Bloquear pede o motivo.
+  await painel.getByRole('switch', { name: 'Bloquear agendamentos' }).click()
+  expect(await violacoes(page)).toEqual([])
+  await painel.getByRole('button', { name: 'Salvar' }).click()
+  await expect(painel.getByText('Campo obrigatório.', { exact: true })).toBeVisible()
+  await painel.getByLabel(/^Motivo do bloqueio/).fill('Contrato em renovação')
+  await painel.getByRole('button', { name: 'Salvar' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.getByText('Agendamentos deste cliente estão bloqueados').first()).toBeVisible()
+  await expect(page.getByText('Contrato em renovação').first()).toBeVisible()
+  await page.getByRole('tab', { name: /Histórico/ }).click()
+  const linhas = page.locator('main tbody tr', { hasText: 'Alterou as configurações' })
+  await expect(linhas.filter({ hasText: 'Rastrear a coleta' })).toContainText('Sim')
+  await expect(linhas.filter({ hasText: 'Exigir lacre' })).toBeVisible()
+})

@@ -13,6 +13,7 @@ import type {
   ClienteInput,
   ClienteResumo,
   ClientesResumo,
+  ConfiguracoesClienteInput,
 } from './types'
 
 /*
@@ -58,6 +59,10 @@ export const atualizarCliente = (id: string, input: ClienteInput) =>
 
 export const transicionarCliente = (id: string, acao: AcaoCliente) =>
   api<Cliente>(`/clientes/${id}/transicao`, { method: 'POST', body: { acao } })
+
+/** Aba Configurações: grava tudo de uma vez. */
+export const salvarConfiguracoesCliente = (id: string, input: ConfiguracoesClienteInput) =>
+  api<Cliente>(`/clientes/${id}/configuracoes`, { method: 'PUT', body: input })
 
 /* ------------------------------------------------------------ visão geral */
 

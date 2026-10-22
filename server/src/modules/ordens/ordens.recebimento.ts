@@ -6,6 +6,7 @@ import type { Transaction } from 'kysely'
 import multer from 'multer'
 import { z } from 'zod'
 import type { Db } from '../../db/database.js'
+import { configuracoesDoCliente } from '../clientes/clientes-configuracoes.js'
 import { enfileirarAviso } from '../integracao/sincronizacao.js'
 import type { Database } from '../../db/schema.js'
 import { extensaoDe, MAX_BYTES, nomeSeguro } from '../../shared/arquivos.js'
@@ -37,7 +38,8 @@ import {
  * Regras: data de recebimento obrigatória (não futura); inspeção visual obrigatória (bom, avaria,
  * outro) — avaria/outro pedem descrição e viram ocorrência de Recebimento no lote; lacres e notas
  * fiscais opcionais, mas cada um com número e pelo menos uma foto; pelo menos um pallet, cada um
- * com peso bruto e foto (tara opcional, líquido = bruto − tara); fotos gerais opcionais.
+ * com peso bruto e foto (tara opcional, líquido = bruto − tara); fotos gerais opcionais. A aba
+ * Configurações do cliente pode exigir lacre, nota fiscal, tara de cada pallet e fotos gerais.
  */
 
 /* ------------------------------------------------------------ contrato (espelho de src/services/types.ts) */
@@ -317,7 +319,7 @@ export function criarServicoRecebimento(
   ) {
     const ordem = await db
       .selectFrom('ordens')
-      .select(['id', 'status', 'devolucaoEm'])
+      .select(['id', 'clienteId', 'status', 'devolucaoEm'])
       .where('id', '=', ordemId)
       .executeTakeFirst()
     if (!ordem) throw naoEncontrado('Lote não encontrado.')
@@ -339,6 +341,19 @@ export function criarServicoRecebimento(
         'O recebimento só pode ser corrigido enquanto o lote está em Inspeção.',
       )
     const v = recebimentoSchema.parse(dadosBrutos)
+
+    // O que a aba Configurações do cliente exige no recebimento.
+    const regras = await configuracoesDoCliente(db, ordem.clienteId)
+    if (regras?.exigirLacre && !v.lacres.length)
+      throw new ErroApi(422, 'seal_required', 'Este cliente exige pelo menos um lacre com foto.')
+    if (regras?.exigirNota && !v.notas.length)
+      throw new ErroApi(
+        422,
+        'invoice_required',
+        'Este cliente exige pelo menos uma nota fiscal com foto.',
+      )
+    if (regras?.exigirTara && v.pallets.some((p) => p.tara === null))
+      throw new ErroApi(422, 'tare_required', 'Este cliente exige a tara de cada pallet.')
 
     // O que já existe (correção): itens e fotos de cada alvo.
     const [lacresAntes, notasAntes, palletsAntes, fotosAntes] = await Promise.all([
@@ -441,6 +456,12 @@ export function criarServicoRecebimento(
       )
       return { ...p, id }
     })
+    if (
+      regras?.exigirFotosGerais &&
+      !fotosAntes.some((f) => f.alvo === 'geral' && v.fotosGeraisManter.includes(f.id)) &&
+      !arquivos.get('gerais')?.length
+    )
+      throw new ErroApi(422, 'photos_required', 'Este cliente exige pelo menos uma foto geral.')
     prepararFotos('geral', null, v.fotosGeraisManter, 'gerais', 0, MAX_FOTOS_GERAIS, 'Fotos gerais')
     const removidas = fotosAntes.filter((f) => !mantidas.has(f.id))
 
