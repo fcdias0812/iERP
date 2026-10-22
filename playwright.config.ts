@@ -6,7 +6,8 @@ import { defineConfig, devices } from '@playwright/test'
  * testam as telas sem depender do backend. Primeira vez na máquina:
  * `npx playwright install chromium`.
  */
-const PORT = 4173
+// Porta do build de teste (E2E_PORT muda, se a 4173 estiver ocupada por outro programa).
+const PORT = Number(process.env.E2E_PORT ?? 4173)
 
 export default defineConfig({
   testDir: './e2e',

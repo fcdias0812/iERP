@@ -74,6 +74,7 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
    npm --prefix server run typecheck
    npm run format:check
    npx playwright test            # = npm run test:e2e (gera o build e testa com axe)
+   # porta 4173 ocupada por outro programa? E2E_PORT=4180 npx playwright test
    ```
 
 8. **Validar no Chrome com a API real** (§3) — fluxo completo, prints, console sem erros. Apagar os

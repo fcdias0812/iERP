@@ -136,6 +136,7 @@ export function criarRepositorioClientes(db: Db) {
       slaDias: linha.slaDias,
       status: linha.status as ClienteStatus,
       configuracoes: configuracoesDa(linha, transportadora?.nome ?? null),
+      rastreioToken: linha.rastreioToken,
       contatos: contatos.map((k) => ({
         id: k.id,
         nome: k.nome,

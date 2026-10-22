@@ -16,6 +16,9 @@ const ACOES = [
   'documento_adicionado',
   'documento_removido',
   'configurado',
+  'rastreio_gerado',
+  'rastreio_trocado',
+  'rastreio_desativado',
 ] as const
 
 const CAMPOS = [

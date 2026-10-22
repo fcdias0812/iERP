@@ -9,12 +9,15 @@ import type {
   ClienteResumo,
   ClientesResumo,
   ConfiguracoesClienteInput,
+  LotePublico,
   Mudanca,
+  RastreioPublico,
 } from '@/services/types'
 import { useSessionStore } from '@/stores/session-store'
 import { apiError, simulateNetwork } from '../config'
 import { CONFIGURACOES_PADRAO } from '@/features/clientes/configuracoes'
 import { TRANSICOES_CLIENTE, acoesCliente, codigoCliente, getDb, resumoCliente } from '../db'
+import { ordensMock } from './ordens'
 import { getRelacionamento } from './relacionamento'
 
 /** Valor de configuração no histórico (serviços e instruções em texto). */
@@ -165,6 +168,7 @@ export const clientesHandlers = [
         slaDias: dados.slaDias ?? null,
         sistemaProcessamento: /\bdell\b/i.test(dados.nome) ? 'MOONSHOT' : null,
       },
+      rastreioToken: null,
       contatos: comIds(id, dados.contatos),
       criadoEm: agora,
       criadoPor: autor(),
@@ -258,6 +262,96 @@ export const clientesHandlers = [
         : atual.historico,
     }
     return HttpResponse.json(db.clientes[idx])
+  }),
+
+  // Link público de acompanhamento: gerar/trocar, desativar e a página pública.
+  http.post('*/api/clientes/:id/rastreio', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    const db = getDb()
+    const idx = db.clientes.findIndex((x) => x.id === params.id)
+    const atual = db.clientes[idx]
+    if (!atual) return apiError(404, 'not_found', 'Cliente não encontrado.')
+    const token = Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) =>
+      b.toString(16).padStart(2, '0'),
+    ).join('')
+    const agora = new Date().toISOString()
+    db.clientes[idx] = {
+      ...atual,
+      rastreioToken: token,
+      historico: [
+        {
+          id: `h${Date.now()}`,
+          autor: autor(),
+          em: agora,
+          acao: atual.rastreioToken ? 'rastreio_trocado' : 'rastreio_gerado',
+        },
+        ...atual.historico,
+      ],
+    }
+    return HttpResponse.json(db.clientes[idx])
+  }),
+
+  http.delete('*/api/clientes/:id/rastreio', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    const db = getDb()
+    const idx = db.clientes.findIndex((x) => x.id === params.id)
+    const atual = db.clientes[idx]
+    if (!atual) return apiError(404, 'not_found', 'Cliente não encontrado.')
+    db.clientes[idx] = {
+      ...atual,
+      rastreioToken: null,
+      historico: [
+        {
+          id: `h${Date.now()}`,
+          autor: autor(),
+          em: new Date().toISOString(),
+          acao: 'rastreio_desativado',
+        },
+        ...atual.historico,
+      ],
+    }
+    return HttpResponse.json(db.clientes[idx])
+  }),
+
+  http.get('*/api/publico/rastreio/:token', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    // A API simulada se perde ao recarregar a página: o link de demonstração (48 "d") sempre
+    // abre os lotes do primeiro cliente (testes e demonstração).
+    const db = getDb()
+    const c =
+      db.clientes.find((x) => x.rastreioToken && x.rastreioToken === params.token) ??
+      (params.token === 'd'.repeat(48) ? db.clientes[0] : undefined)
+    if (!c) return apiError(404, 'not_found', 'Página não encontrada.')
+    const lotes: LotePublico[] = ordensMock()
+      .filter((o) => o.clienteId === c.id && o.status !== 'cancelado')
+      .map((o) => {
+        const pallets = o.pallets.filter((p) => p.pesoKg !== null)
+        return {
+          codigo: o.codigo,
+          referenciaCliente: o.referenciaCliente,
+          status: o.status,
+          coletaPrevista: o.coletaPrevista,
+          dataColeta: o.dataColeta,
+          recebidoEm: o.recebidoEm,
+          pallets: pallets.length || null,
+          pesoBrutoKg: pallets.length ? pallets.reduce((a, p) => a + (p.pesoKg ?? 0), 0) : null,
+          lacres: o.recebimento?.lacres.map((l) => l.numero) ?? [],
+          processamento:
+            o.status === 'processo' && o.processamento
+              ? {
+                  etapa: o.processamento.etapa,
+                  indice: o.processamento.indice,
+                  total: o.processamento.total,
+                }
+              : null,
+          etapas: o.etapas.map((e) => ({ etapa: e.etapa, em: e.em })),
+        }
+      })
+    const corpo: RastreioPublico = { cliente: c.nome, geradoEm: new Date().toISOString(), lotes }
+    return HttpResponse.json(corpo)
   }),
 
   http.post('*/api/clientes/:id/transicao', async ({ request, params }) => {

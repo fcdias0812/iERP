@@ -3,6 +3,7 @@ import { config } from './config.js'
 import type { Db } from './db/database.js'
 import { criarServicoConfiguracoes } from './modules/clientes/clientes-configuracoes.js'
 import { criarServicoDocumentos } from './modules/clientes/clientes-documentos.servico.js'
+import { criarServicoRastreio, rotasRastreioPublico } from './modules/clientes/clientes-rastreio.js'
 import { criarRepositorioSites } from './modules/clientes/clientes-sites.repositorio.js'
 import { criarServicoSites } from './modules/clientes/clientes-sites.servico.js'
 import { rotasGeo } from './modules/geo/geo.rotas.js'
@@ -80,10 +81,19 @@ export function criarApp(
     res.json({ ok: true })
   })
   api.use('/usuarios', rotasUsuarios(usuarios))
+  const rastreio = criarServicoRastreio(db, repoClientes)
   api.use(
     '/clientes',
-    rotasClientes(clientes, sites, documentos, criarServicoConfiguracoes(db, repoClientes)),
+    rotasClientes(
+      clientes,
+      sites,
+      documentos,
+      criarServicoConfiguracoes(db, repoClientes),
+      rastreio,
+    ),
   )
+  // Página PÚBLICA do cliente (link de acompanhamento) — fica fora do login quando ele existir.
+  api.use('/publico/rastreio', rotasRastreioPublico(rastreio))
   api.use('/geo', rotasGeo(geo))
   api.use('/transportadoras', rotasTransportadoras(transportadoras))
   api.use('/motoristas', rotasMotoristas(motoristas))

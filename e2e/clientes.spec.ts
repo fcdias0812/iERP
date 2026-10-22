@@ -101,3 +101,42 @@ test('configurações: mostra as regras do cliente e grava pelo painel, com hist
   await expect(linhas.filter({ hasText: 'Rastrear a coleta' })).toContainText('Sim')
   await expect(linhas.filter({ hasText: 'Exigir lacre' })).toBeVisible()
 })
+
+test('link de acompanhamento: gera, troca e desativa na Visão geral', async ({ page }) => {
+  await abrir(page, '/clientes/cli00001')
+  await expect(page.getByText('Este cliente ainda não tem link.')).toBeVisible()
+  await page.getByRole('button', { name: 'Gerar link' }).click()
+  await expect(page.getByText('Link de acompanhamento pronto.')).toBeVisible()
+  const link = page.locator('main').getByText(/\/rastreio\/[0-9a-f]{48}/)
+  const primeiro = await link.textContent()
+  expect(await violacoes(page)).toEqual([])
+  await page.getByRole('button', { name: 'Gerar novo link' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Gerar novo link' }).click()
+  await expect(link).not.toHaveText(primeiro!)
+  await page.getByRole('button', { name: 'Desativar' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Desativar' }).click()
+  await expect(page.getByText('Link desativado.')).toBeVisible()
+  await expect(page.getByText('Este cliente ainda não tem link.')).toBeVisible()
+  await page.getByRole('tab', { name: /Histórico/ }).click()
+  await expect(page.locator('main tbody tr').first()).toContainText(
+    'Desativou o link de acompanhamento',
+  )
+})
+
+test('página pública: lotes do cliente, filtro, idioma e link inválido', async ({ page }) => {
+  // Link de demonstração da API simulada (abre os lotes do primeiro cliente).
+  await abrir(page, `/rastreio/${'d'.repeat(48)}`)
+  await expect(page.getByRole('article', { name: 'LOT-00001' })).toBeVisible()
+  expect(await violacoes(page)).toEqual([])
+  await page.getByRole('button', { name: 'Concluídos' }).click()
+  await expect(page.getByText('Nenhum lote com este filtro.')).toBeVisible()
+  await page.getByRole('button', { name: 'Todos' }).click()
+  await page.getByRole('combobox', { name: 'Idioma' }).click()
+  await page.getByRole('option', { name: 'English' }).click()
+  await expect(page.getByText('Lot tracking', { exact: false })).toBeVisible()
+  await page.getByRole('combobox', { name: 'Language' }).click()
+  await page.getByRole('option', { name: /Português/ }).click()
+
+  await abrir(page, `/rastreio/${'f'.repeat(48)}`)
+  await expect(page.getByRole('heading', { name: 'Link inválido ou desativado' })).toBeVisible()
+})

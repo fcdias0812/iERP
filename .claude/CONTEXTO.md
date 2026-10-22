@@ -91,6 +91,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `2cac597` | Estoque: Materiais, Assets, Peças e E-commerce lidos dos sistemas de estoque             |
 | `7430d09` | Estoque › Histórico: o iERP compara as leituras dos três sistemas                        |
 | `78dfd6d` | Clientes › Configurações (rastreio, agendamento, recebimento, prazos)                    |
+| (pendente) | Clientes › link público de acompanhamento dos lotes                                      |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
@@ -219,6 +220,17 @@ simulada no front; o histórico grava "Sistema" como autor (`server/src/shared/a
     no MoonShot). O servidor confere as regras (`clientes-configuracoes.ts`, `ordens.ts`,
     `ordens.recebimento.ts`); na edição do lote só vale o que muda, e bloqueio/planilha só no lote
     novo.
+  - **Link de acompanhamento (22/10/2026)** — o "Rastreabilidade dos lotes" do 1.0. Pedido dele:
+    "prosseguir para o link público para o cliente acompanhar os lotes". Decisões: link **fixo por
+    cliente**, com copiar, abrir, **gerar novo** (o antigo para de funcionar) e **desativar** (cartão
+    na Visão geral; gerar/trocar/desativar pedem `clientes.editar` e entram no histórico); página
+    **enxuta** ("algo enxuto e de rápida leitura. Nada grande"): um cartão por lote com situação,
+    etapas com data (Agendado, Recebido, Processamento, Aguardando COD, Concluído), coleta, chegada,
+    pallets, peso bruto, lacres e "Processamento i/N · fase" do MoonShot; filtro Em andamento /
+    Concluídos / Todos e busca; **todos os lotes menos os cancelados** (inclusive Gerenciamento e
+    MSDC); **3 idiomas**, começando pelo do navegador. Endereço `/rastreio/<48 hex>` (nada nele
+    identifica a empresa; inválido ou desativado = "Link inválido ou desativado"). Só funciona para
+    o cliente quando o iERP 2.0 estiver publicado num endereço que ele alcance.
   - **Histórico:** ele quer **auditoria em tabela** (não linha do tempo): data, quem, ação, campo,
     antes, depois, nota — com filtros e exportação.
 
@@ -591,8 +603,9 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 **Fechar o que falta em relação ao iERP 1.0, funcionalidade por funcionalidade (pedido dele,
 21–22/10/2026: "Vamos ir adicionando funcionalidade por funcionalidade, começando pelos
 clientes").** O 1.0 está neste PC em `C:\Trabalho\01_Sistemas\TI-Re-Teck-iERP` (ele clonou). Já
-feito: **Clientes › Configurações (22/10/2026)** — §5.2; no GitHub desde 22/10/2026 (`78dfd6d`). Ainda dos Clientes (do 1.0): link público de rastreabilidade, números da Visão geral,
-anexos que a OS pede. Depois: login pelo Portal, PDF da OS, relatório final, travar lote, viagem
+feito: **Clientes › Configurações (22/10/2026)** — §5.2; no GitHub desde 22/10/2026 (`78dfd6d`).
+**Clientes › link de acompanhamento (22/10/2026)** — §5.2; aguardando o "sim" dele para subir.
+Ainda dos Clientes (do 1.0): números da Visão geral, anexos que a OS pede. Depois: login pelo Portal, PDF da OS, relatório final, travar lote, viagem
 junta, chamados internos — e perguntar quais processos do galpão (separação, conferência,
 sanitização, testes, desmontagem, caixotes) ainda são feitos no 1.0.
 

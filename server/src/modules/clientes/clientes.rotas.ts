@@ -4,6 +4,7 @@ import { autorDa } from '../../shared/autor.js'
 import { lerConsulta } from '../../shared/consulta-tabela.js'
 import { MAX_BYTES, type ServicoDocumentos } from './clientes-documentos.servico.js'
 import type { ServicoConfiguracoes } from './clientes-configuracoes.js'
+import type { ServicoRastreio } from './clientes-rastreio.js'
 import type { ServicoSites } from './clientes-sites.servico.js'
 import { COLUNAS_CLIENTE } from './clientes.regras.js'
 import type { ServicoClientes } from './clientes.servico.js'
@@ -18,6 +19,7 @@ import type { LotesResumoCliente } from './clientes.types.js'
  *   PUT  /:id              edita (substitui os contatos)
  *   POST /:id/transicao    { acao } — inativar, reativar
  *   PUT  /:id/configuracoes  aba Configurações (rastreio, agendamento, recebimento, prazos)
+ *   POST /:id/rastreio       gera/troca o link público de acompanhamento; DELETE desativa
  *
  *   GET    /:id/lotes/resumo            lotes a chegar / em operação / finalizados + últimos 5
  *   GET    /:id/sites                   sites com docas e responsável
@@ -34,6 +36,7 @@ export function rotasClientes(
   sites: ServicoSites,
   documentos: ServicoDocumentos,
   configuracoes: ServicoConfiguracoes,
+  rastreio: ServicoRastreio,
 ) {
   const r = Router()
   const upload = multer({
@@ -69,6 +72,14 @@ export function rotasClientes(
 
   r.put('/:id/configuracoes', async (req, res) => {
     res.json(await configuracoes.salvar(req.params.id, req.body, autorDa(req)))
+  })
+
+  r.post('/:id/rastreio', async (req, res) => {
+    res.json(await rastreio.gerar(req.params.id, autorDa(req)))
+  })
+
+  r.delete('/:id/rastreio', async (req, res) => {
+    res.json(await rastreio.desativar(req.params.id, autorDa(req)))
   })
 
   /* ---------------- visão geral: lotes */

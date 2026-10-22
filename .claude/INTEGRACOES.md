@@ -411,7 +411,9 @@ antes de começar qualquer um (e a regra de sempre: o antigo NÃO muda, o 2.0 é
 - A empresa tem skills de SSO com o Portal Re-Teck (`reteck-integracao:*`) — **só aplicar se ele
   pedir**.
 - **Quando houver login:** `autorDa` passa a devolver o usuário autenticado; o servidor passa a
-  conferir a permissão de cada rota (a mesma regra `can()` do frontend); notificações
+  conferir a permissão de cada rota (a mesma regra `can()` do frontend) — MENOS a página pública
+  do cliente (`GET /api/publico/rastreio/:token` e a tela `/rastreio/:token`, que ficam abertas:
+  o link é o acesso); notificações
   (`GET /api/notificacoes`, hoje lista vazia) e foto do perfil (hoje 501) dependem disso.
 - **Perguntar:** qual login (Portal Re-Teck/SSO, Microsoft, outro); se a Auditoria deve registrar
   acessos (entrar/sair).

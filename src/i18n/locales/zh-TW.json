@@ -1740,7 +1740,10 @@
       "site_removido": "移除了站點",
       "documento_adicionado": "新增了文件",
       "documento_removido": "移除了文件",
-      "configurado": "變更了設定"
+      "configurado": "變更了設定",
+      "rastreio_gerado": "建立了追蹤連結",
+      "rastreio_trocado": "更換了追蹤連結",
+      "rastreio_desativado": "停用了追蹤連結"
     },
     "acoes": {
       "inativar": "停用",
@@ -1991,6 +1994,32 @@
         "diasSufixo": "天",
         "semSla": "無 SLA",
         "semLimite": "無限制"
+      }
+    },
+    "rastreio": {
+      "titulo": "追蹤連結",
+      "descricao": "客戶不需登入即可追蹤自己的批次（狀態、日期與收貨）。持有連結的人都能查看。",
+      "semLink": "此客戶尚無連結。",
+      "gerar": "建立連結",
+      "trocar": "建立新連結",
+      "desativar": "停用",
+      "copiar": "複製連結",
+      "abrir": "開啟",
+      "copiado": "已複製連結。",
+      "naoCopiou": "無法複製。請選取連結後複製。",
+      "confirm": {
+        "trocar": {
+          "title": "要建立新連結嗎？",
+          "body": "目前的連結將失效。請將新連結傳給客戶。"
+        },
+        "desativar": {
+          "title": "要停用連結嗎？",
+          "body": "客戶將無法再透過此連結查看批次。之後可再建立。"
+        }
+      },
+      "toast": {
+        "gerado": "追蹤連結已就緒。",
+        "desativado": "已停用連結。"
       }
     }
   },
@@ -3387,5 +3416,38 @@
         "produtoAtivo": "商品啟用"
       }
     }
+  },
+  "rastreioPublico": {
+    "titulo": "批次追蹤",
+    "atualizado": "更新於 {{data}}",
+    "mostrar": "顯示",
+    "filtros": {
+      "andamento": "進行中",
+      "concluidos": "已完成",
+      "todos": "全部"
+    },
+    "buscar": "搜尋批次或參考編號",
+    "quantos": "{{n}} 個批次",
+    "vazio": "目前沒有批次。",
+    "vazioFiltro": "此篩選條件下沒有批次。",
+    "invalidoTitulo": "連結無效或已停用",
+    "invalidoTexto": "請向 Re-Teck 索取新連結。",
+    "erro": "無法載入批次。",
+    "referencia": "參考",
+    "coleta": "收運",
+    "coletaPrevista": "預計收運",
+    "chegada": "抵達",
+    "pallets": "棧板",
+    "peso": "毛重",
+    "lacres": "封條",
+    "processamento": "處理 {{i}}/{{n}} · {{fase}}",
+    "etapas": {
+      "agendado": "已排程",
+      "inspecao": "已收貨",
+      "processo": "處理中",
+      "aguardando_cod": "等待 COD",
+      "concluido": "已完成"
+    },
+    "rodape": "© {{year}} Re-Teck · 逆向物流"
   }
 }

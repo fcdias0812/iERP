@@ -1740,7 +1740,10 @@
       "site_removido": "Removed site",
       "documento_adicionado": "Added document",
       "documento_removido": "Removed document",
-      "configurado": "Changed the settings"
+      "configurado": "Changed the settings",
+      "rastreio_gerado": "Created the tracking link",
+      "rastreio_trocado": "Replaced the tracking link",
+      "rastreio_desativado": "Deactivated the tracking link"
     },
     "acoes": {
       "inativar": "Deactivate",
@@ -1991,6 +1994,32 @@
         "diasSufixo": "days",
         "semSla": "No SLA",
         "semLimite": "No limit"
+      }
+    },
+    "rastreio": {
+      "titulo": "Tracking link",
+      "descricao": "The customer follows their lots (status, dates and receiving) without signing in. Anyone with the link can see it.",
+      "semLink": "This customer has no link yet.",
+      "gerar": "Create link",
+      "trocar": "Create new link",
+      "desativar": "Deactivate",
+      "copiar": "Copy link",
+      "abrir": "Open",
+      "copiado": "Link copied.",
+      "naoCopiou": "Could not copy. Select the link and copy it.",
+      "confirm": {
+        "trocar": {
+          "title": "Create a new link?",
+          "body": "The current link stops working. Send the new one to the customer."
+        },
+        "desativar": {
+          "title": "Deactivate the link?",
+          "body": "The customer can no longer see the lots through this link. You can create another one later."
+        }
+      },
+      "toast": {
+        "gerado": "Tracking link ready.",
+        "desativado": "Link deactivated."
       }
     }
   },
@@ -3387,5 +3416,38 @@
         "produtoAtivo": "Active product"
       }
     }
+  },
+  "rastreioPublico": {
+    "titulo": "Lot tracking",
+    "atualizado": "updated on {{data}}",
+    "mostrar": "Show",
+    "filtros": {
+      "andamento": "In progress",
+      "concluidos": "Completed",
+      "todos": "All"
+    },
+    "buscar": "Search lot or reference",
+    "quantos": "{{n}} lot(s)",
+    "vazio": "No lots yet.",
+    "vazioFiltro": "No lots with this filter.",
+    "invalidoTitulo": "Invalid or deactivated link",
+    "invalidoTexto": "Ask Re-Teck for a new link.",
+    "erro": "Could not load the lots.",
+    "referencia": "Ref.",
+    "coleta": "Pickup",
+    "coletaPrevista": "Expected pickup",
+    "chegada": "Arrival",
+    "pallets": "Pallets",
+    "peso": "Gross weight",
+    "lacres": "Seals",
+    "processamento": "Processing {{i}}/{{n}} · {{fase}}",
+    "etapas": {
+      "agendado": "Scheduled",
+      "inspecao": "Received",
+      "processo": "Processing",
+      "aguardando_cod": "Awaiting COD",
+      "concluido": "Completed"
+    },
+    "rodape": "© {{year}} Re-Teck · Reverse logistics"
   }
 }

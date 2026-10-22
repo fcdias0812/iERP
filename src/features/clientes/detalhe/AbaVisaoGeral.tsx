@@ -9,6 +9,7 @@ import { formatCnpj, formatDate, formatNumber, formatPhone, formatRelative } fro
 import type { Cliente } from '@/services/types'
 import { useLotesResumo } from '../use-clientes'
 import { EmailLink } from './comum'
+import { LinkRastreio } from './LinkRastreio'
 
 const INDICADORES = ['aChegar', 'emOperacao', 'finalizados'] as const
 
@@ -126,6 +127,8 @@ export function AbaVisaoGeral({ c }: { c: Cliente }) {
             />
           </CardContent>
         </Card>
+
+        <LinkRastreio c={c} />
       </div>
     </div>
   )

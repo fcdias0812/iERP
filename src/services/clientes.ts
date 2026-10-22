@@ -14,6 +14,7 @@ import type {
   ClienteResumo,
   ClientesResumo,
   ConfiguracoesClienteInput,
+  RastreioPublico,
 } from './types'
 
 /*
@@ -59,6 +60,20 @@ export const atualizarCliente = (id: string, input: ClienteInput) =>
 
 export const transicionarCliente = (id: string, acao: AcaoCliente) =>
   api<Cliente>(`/clientes/${id}/transicao`, { method: 'POST', body: { acao } })
+
+/** Link público de acompanhamento dos lotes: gera (ou troca) e desativa. */
+export const gerarLinkRastreio = (id: string) =>
+  api<Cliente>(`/clientes/${id}/rastreio`, { method: 'POST' })
+
+export const desativarLinkRastreio = (id: string) =>
+  api<Cliente>(`/clientes/${id}/rastreio`, { method: 'DELETE' })
+
+/** A página pública (sem login). */
+export const obterRastreioPublico = (token: string, signal?: AbortSignal) =>
+  api<RastreioPublico>(`/publico/rastreio/${encodeURIComponent(token)}`, { signal })
+
+/** Endereço do link público (o mesmo servidor em que o iERP está aberto). */
+export const urlRastreioPublico = (token: string) => `${window.location.origin}/rastreio/${token}`
 
 /** Aba Configurações: grava tudo de uma vez. */
 export const salvarConfiguracoesCliente = (id: string, input: ConfiguracoesClienteInput) =>

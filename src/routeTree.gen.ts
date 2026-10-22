@@ -17,6 +17,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppConfiguracoesRouteImport } from './routes/_app/configuracoes'
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
+import { Route as RastreioTokenRouteImport } from './routes/rastreio.$token'
 import { Route as AppAdminAuditoriaRouteImport } from './routes/_app/admin/auditoria'
 import { Route as AppAdminIntegracaoRouteImport } from './routes/_app/admin/integracao'
 import { Route as AppAdminPerfisRouteImport } from './routes/_app/admin/perfis'
@@ -88,6 +89,11 @@ const AppPerfilRoute = AppPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
   getParentRoute: () => AppRoute,
+} as any)
+const RastreioTokenRoute = RastreioTokenRouteImport.update({
+  id: '/rastreio/$token',
+  path: '/rastreio/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppAdminAuditoriaRoute = AppAdminAuditoriaRouteImport.update({
   id: '/admin/auditoria',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof AppSplatRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
+  '/rastreio/$token': typeof RastreioTokenRoute
   '/admin/auditoria': typeof AppAdminAuditoriaRoute
   '/admin/integracao': typeof AppAdminIntegracaoRoute
   '/admin/perfis': typeof AppAdminPerfisRoute
@@ -300,6 +307,7 @@ export interface FileRoutesByTo {
   '/$': typeof AppSplatRoute
   '/configuracoes': typeof AppConfiguracoesRoute
   '/perfil': typeof AppPerfilRoute
+  '/rastreio/$token': typeof RastreioTokenRoute
   '/': typeof AppIndexRoute
   '/admin/auditoria': typeof AppAdminAuditoriaRoute
   '/admin/integracao': typeof AppAdminIntegracaoRoute
@@ -343,6 +351,7 @@ export interface FileRoutesById {
   '/_app/$': typeof AppSplatRoute
   '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/perfil': typeof AppPerfilRoute
+  '/rastreio/$token': typeof RastreioTokenRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/auditoria': typeof AppAdminAuditoriaRoute
   '/_app/admin/integracao': typeof AppAdminIntegracaoRoute
@@ -387,6 +396,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/configuracoes'
     | '/perfil'
+    | '/rastreio/$token'
     | '/admin/auditoria'
     | '/admin/integracao'
     | '/admin/perfis'
@@ -427,6 +437,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/configuracoes'
     | '/perfil'
+    | '/rastreio/$token'
     | '/'
     | '/admin/auditoria'
     | '/admin/integracao'
@@ -469,6 +480,7 @@ export interface FileRouteTypes {
     | '/_app/$'
     | '/_app/configuracoes'
     | '/_app/perfil'
+    | '/rastreio/$token'
     | '/_app/'
     | '/_app/admin/auditoria'
     | '/_app/admin/integracao'
@@ -509,6 +521,7 @@ export interface RootRouteChildren {
   AcessoPendenteRoute: typeof AcessoPendenteRoute
   LoginRoute: typeof LoginRoute
   ManutencaoRoute: typeof ManutencaoRoute
+  RastreioTokenRoute: typeof RastreioTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -568,6 +581,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/perfil'
       preLoaderRoute: typeof AppPerfilRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/rastreio/$token': {
+      id: '/rastreio/$token'
+      path: '/rastreio/$token'
+      fullPath: '/rastreio/$token'
+      preLoaderRoute: typeof RastreioTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/admin/auditoria': {
       id: '/_app/admin/auditoria'
@@ -881,6 +901,7 @@ const rootRouteChildren: RootRouteChildren = {
   AcessoPendenteRoute: AcessoPendenteRoute,
   LoginRoute: LoginRoute,
   ManutencaoRoute: ManutencaoRoute,
+  RastreioTokenRoute: RastreioTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

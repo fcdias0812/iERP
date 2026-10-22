@@ -28,6 +28,9 @@ export interface EventoHistorico {
     | 'site_editado'
     | 'site_removido'
     | 'configurado'
+    | 'rastreio_gerado'
+    | 'rastreio_trocado'
+    | 'rastreio_desativado'
     | 'documento_adicionado'
     | 'documento_removido'
     | 'ocorrencia_registrada'
@@ -168,6 +171,31 @@ export interface ConfiguracoesCliente {
 
 export type ConfiguracoesClienteInput = Omit<ConfiguracoesCliente, 'transportadoraPadraoNome'>
 
+/**
+ * Página PÚBLICA de acompanhamento dos lotes de um cliente (GET /api/publico/rastreio/:token —
+ * server/src/modules/clientes/clientes-rastreio.ts). Só o que o cliente precisa ler.
+ */
+export interface LotePublico {
+  codigo: string
+  referenciaCliente: string | null
+  status: StatusOrdem
+  coletaPrevista: string | null
+  dataColeta: string | null
+  recebidoEm: string | null
+  pallets: number | null
+  /** Peso BRUTO da chegada. */
+  pesoBrutoKg: number | null
+  lacres: string[]
+  processamento: { etapa: string | null; indice: number | null; total: number | null } | null
+  etapas: { etapa: StatusOrdem; em: string }[]
+}
+
+export interface RastreioPublico {
+  cliente: string
+  geradoEm: string
+  lotes: LotePublico[]
+}
+
 export interface Cliente {
   id: string
   codigo: string
@@ -176,6 +204,8 @@ export interface Cliente {
   slaDias: number | null
   status: ClienteStatus
   configuracoes: ConfiguracoesCliente
+  /** Código do link público de acompanhamento dos lotes (null = sem link). */
+  rastreioToken: string | null
   /** O principal vem primeiro. */
   contatos: ContatoCliente[]
   criadoEm: string

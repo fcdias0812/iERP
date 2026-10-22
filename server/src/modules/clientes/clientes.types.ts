@@ -75,6 +75,8 @@ export interface Cliente {
   slaDias: number | null
   status: ClienteStatus
   configuracoes: ConfiguracoesCliente
+  /** Código do link público de acompanhamento dos lotes (null = sem link). */
+  rastreioToken: string | null
   contatos: ContatoCliente[]
   criadoEm: string
   criadoPor: string

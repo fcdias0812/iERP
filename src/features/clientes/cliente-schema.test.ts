@@ -13,6 +13,7 @@ const cliente: Cliente = {
   slaDias: 15,
   status: 'ativo',
   configuracoes: CONFIGURACOES_PADRAO,
+  rastreioToken: null,
   contatos: [
     { id: 'k2', nome: null, email: 'b@teste.com.br', telefone: '1132345678', principal: false },
     { id: 'k1', nome: 'Ana', email: 'a@teste.com.br', telefone: '11987654321', principal: true },

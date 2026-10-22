@@ -164,6 +164,13 @@ O layout não muda. Modelos completos para copiar:
   (`RecebimentoSheet` + `ordens.recebimento.ts`), no Dashboard (anomalia `parado`) e no destino dos
   lotes (`sistemaDoLote` lê `clienteSistema` da view `ordens_lista`). Opção nova? Coluna + esquema
   Zod dos dois lados + quem a usa + histórico.
+- **Clientes › link de acompanhamento** (página PÚBLICA, sem login) —
+  `server/src/modules/clientes/clientes-rastreio.ts` (`POST`/`DELETE /api/clientes/:id/rastreio`;
+  `GET /api/publico/rastreio/:token`, só o que o cliente lê; `clientes.rastreio_token`, 48 hex),
+  cartão `features/clientes/detalhe/LinkRastreio.tsx` na Visão geral e a tela
+  `src/features/rastreio/RastreioPublicoPage.tsx` (rota `src/routes/rastreio.$token.tsx`, fora do
+  shell). Ao criar o login, deixe essas duas fora dele. Na API simulada, o link `d`×48 abre os
+  lotes do primeiro cliente (o mock se perde ao recarregar a página).
 - **Clientes** — item direto no menu (sem submenu); detalhe com abas na URL (`?aba=`), uma por
   arquivo em `src/features/clientes/detalhe/` (Visão geral, Contatos, Logística com painel lateral
   - mapa Leaflet carregado sob demanda, Documentos com envio de arquivo, Histórico como tabela de

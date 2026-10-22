@@ -84,6 +84,8 @@ export interface ClientesTable {
   antecedenciaDias: number | null
   agendamentoBloqueado: Generated<number>
   bloqueioMotivo: string | null
+  /** Código do link público de acompanhamento (48 hex); null = sem link. */
+  rastreioToken: string | null
 }
 
 export interface ClientesContatosTable {

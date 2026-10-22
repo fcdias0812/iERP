@@ -172,6 +172,7 @@ function gerarClientes(hoje: number): Cliente[] {
             }
           : {}),
       },
+      rastreioToken: null,
       contatos,
       criadoEm: new Date(criado).toISOString(),
       criadoPor: ADMIN_SISTEMA,

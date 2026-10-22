@@ -18,6 +18,7 @@ import * as m20261020_02 from './2026-10-20-02-ca-do-painel.js'
 import * as m20261020_03 from './2026-10-20-03-viagens.js'
 import * as m20261020_04 from './2026-10-20-04-historico-do-estoque.js'
 import * as m20261022_01 from './2026-10-22-01-configuracoes-do-cliente.js'
+import * as m20261022_02 from './2026-10-22-02-rastreio-do-cliente.js'
 
 /**
  * Migrations em ordem. Nova migration: crie `AAAA-MM-DD-NN-assunto.ts` nesta pasta
@@ -43,4 +44,5 @@ export const migrations: Record<string, Migration> = {
   '2026-10-20-03-viagens': m20261020_03,
   '2026-10-20-04-historico-do-estoque': m20261020_04,
   '2026-10-22-01-configuracoes-do-cliente': m20261022_01,
+  '2026-10-22-02-rastreio-do-cliente': m20261022_02,
 }

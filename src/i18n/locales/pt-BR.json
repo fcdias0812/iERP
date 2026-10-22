@@ -1740,7 +1740,10 @@
       "site_removido": "Removeu site",
       "documento_adicionado": "Adicionou documento",
       "documento_removido": "Removeu documento",
-      "configurado": "Alterou as configurações"
+      "configurado": "Alterou as configurações",
+      "rastreio_gerado": "Gerou o link de acompanhamento",
+      "rastreio_trocado": "Trocou o link de acompanhamento",
+      "rastreio_desativado": "Desativou o link de acompanhamento"
     },
     "acoes": {
       "inativar": "Inativar",
@@ -1991,6 +1994,32 @@
         "diasSufixo": "dias",
         "semSla": "Sem SLA",
         "semLimite": "Sem limite"
+      }
+    },
+    "rastreio": {
+      "titulo": "Link de acompanhamento",
+      "descricao": "O cliente acompanha os lotes dele (situação, datas e recebimento) sem entrar no sistema. Quem tiver o link vê.",
+      "semLink": "Este cliente ainda não tem link.",
+      "gerar": "Gerar link",
+      "trocar": "Gerar novo link",
+      "desativar": "Desativar",
+      "copiar": "Copiar link",
+      "abrir": "Abrir",
+      "copiado": "Link copiado.",
+      "naoCopiou": "Não foi possível copiar. Selecione o link e copie.",
+      "confirm": {
+        "trocar": {
+          "title": "Gerar um novo link?",
+          "body": "O link atual para de funcionar. Envie o novo ao cliente."
+        },
+        "desativar": {
+          "title": "Desativar o link?",
+          "body": "O cliente deixa de ver os lotes por este link. Dá para gerar outro depois."
+        }
+      },
+      "toast": {
+        "gerado": "Link de acompanhamento pronto.",
+        "desativado": "Link desativado."
       }
     }
   },
@@ -3387,5 +3416,38 @@
         "produtoAtivo": "Produto ativo"
       }
     }
+  },
+  "rastreioPublico": {
+    "titulo": "Acompanhamento de lotes",
+    "atualizado": "atualizado em {{data}}",
+    "mostrar": "Mostrar",
+    "filtros": {
+      "andamento": "Em andamento",
+      "concluidos": "Concluídos",
+      "todos": "Todos"
+    },
+    "buscar": "Buscar lote ou referência",
+    "quantos": "{{n}} lote(s)",
+    "vazio": "Nenhum lote por enquanto.",
+    "vazioFiltro": "Nenhum lote com este filtro.",
+    "invalidoTitulo": "Link inválido ou desativado",
+    "invalidoTexto": "Peça um novo link à Re-Teck.",
+    "erro": "Não foi possível carregar os lotes.",
+    "referencia": "Ref.",
+    "coleta": "Coleta",
+    "coletaPrevista": "Coleta prevista",
+    "chegada": "Chegada",
+    "pallets": "Pallets",
+    "peso": "Peso bruto",
+    "lacres": "Lacres",
+    "processamento": "Processamento {{i}}/{{n}} · {{fase}}",
+    "etapas": {
+      "agendado": "Agendado",
+      "inspecao": "Recebido",
+      "processo": "Processamento",
+      "aguardando_cod": "Aguardando COD",
+      "concluido": "Concluído"
+    },
+    "rodape": "© {{year}} Re-Teck · Logística reversa"
   }
 }

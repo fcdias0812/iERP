@@ -67,6 +67,9 @@ const ACOES_CLIENTE = [
   'documento_adicionado',
   'documento_removido',
   'configurado',
+  'rastreio_gerado',
+  'rastreio_trocado',
+  'rastreio_desativado',
 ]
 
 const SEM_EVENTOS: EventoAuditoria[] = []

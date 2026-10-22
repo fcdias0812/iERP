@@ -18,6 +18,8 @@ import {
   removerSite,
   resumoClientes,
   resumoLotesCliente,
+  desativarLinkRastreio,
+  gerarLinkRastreio,
   salvarConfiguracoesCliente,
   transicionarCliente,
 } from '@/services/clientes'
@@ -98,6 +100,31 @@ export function useSalvarConfiguracoes(id: string) {
     onError: (e) =>
       toast.error(t('clientes.toast.saveFailed'), { description: apiErrorMessage(e) }),
   })
+}
+
+/** Link público de acompanhamento: gerar (ou trocar) e desativar. */
+export function useLinkRastreio(id: string) {
+  const { t } = useTranslation()
+  const atualizar = useAtualizarCache()
+  const falhou = (e: unknown) =>
+    toast.error(t('clientes.toast.actionFailed'), { description: apiErrorMessage(e) })
+  const gerar = useMutation({
+    mutationFn: () => gerarLinkRastreio(id),
+    onSuccess: (c) => {
+      atualizar(c)
+      toast.success(t('clientes.rastreio.toast.gerado'))
+    },
+    onError: falhou,
+  })
+  const desativar = useMutation({
+    mutationFn: () => desativarLinkRastreio(id),
+    onSuccess: (c) => {
+      atualizar(c)
+      toast.success(t('clientes.rastreio.toast.desativado'))
+    },
+    onError: falhou,
+  })
+  return { gerar, desativar }
 }
 
 export function useTransicaoCliente() {

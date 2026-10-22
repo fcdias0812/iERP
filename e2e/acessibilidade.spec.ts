@@ -14,6 +14,8 @@ const TODAS = [
   '/clientes/cli00001?aba=logistica',
   '/clientes/cli00001?aba=documentos',
   '/clientes/cli00001?aba=configuracoes',
+  // Página pública do cliente (link inválido = a tela de link desativado).
+  `/rastreio/${'f'.repeat(48)}`,
   '/clientes/cli00001?aba=historico',
   '/clientes/cli00001?editar=true',
   '/clientes?aberto=novo',
