@@ -90,7 +90,7 @@ Commits na `main` (no GitHub https://github.com/fcdias0812/iERP desde 19/10/2026
 | `f1148dc` | Viagens finalizadas: baixar o trajeto em GPX, KML e CSV (igual ao iERP antigo)           |
 | `2cac597` | Estoque: Materiais, Assets, Peças e E-commerce lidos dos sistemas de estoque             |
 | `7430d09` | Estoque › Histórico: o iERP compara as leituras dos três sistemas                        |
-| (pendente) | Clientes › Configurações (rastreio, agendamento, recebimento, prazos)                    |
+| `78dfd6d` | Clientes › Configurações (rastreio, agendamento, recebimento, prazos)                    |
 
 Portão de qualidade verde no último commit: lint, typecheck (front e servidor), 62 testes
 unitários, 91 testes do servidor, 243 e2e (Playwright + axe WCAG 2.2 AA), contraste, cores,
@@ -591,15 +591,14 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 **Fechar o que falta em relação ao iERP 1.0, funcionalidade por funcionalidade (pedido dele,
 21–22/10/2026: "Vamos ir adicionando funcionalidade por funcionalidade, começando pelos
 clientes").** O 1.0 está neste PC em `C:\Trabalho\01_Sistemas\TI-Re-Teck-iERP` (ele clonou). Já
-feito: **Clientes › Configurações (22/10/2026)** — §5.2; aguardando o "sim" dele para o commit
-local. Ainda dos Clientes (do 1.0): link público de rastreabilidade, números da Visão geral,
+feito: **Clientes › Configurações (22/10/2026)** — §5.2; no GitHub desde 22/10/2026 (`78dfd6d`). Ainda dos Clientes (do 1.0): link público de rastreabilidade, números da Visão geral,
 anexos que a OS pede. Depois: login pelo Portal, PDF da OS, relatório final, travar lote, viagem
 junta, chamados internos — e perguntar quais processos do galpão (separação, conferência,
 sanitização, testes, desmontagem, caixotes) ainda são feitos no 1.0.
 
 **Estoque ← armazém, Controle de Notebooks e RTB WMS está pronto (20/10/2026)** — commit local
-`2cac597` (push só quando ele pedir; §5.18; `INTEGRACOES.md` §0.4). **Estoque › Histórico também
-pronto** (o iERP compara as leituras; commit local `7430d09`, push só quando ele pedir). Esperando dele:
+`2cac597` (no GitHub desde 20/10/2026; §5.18; `INTEGRACOES.md` §0.4). **Estoque › Histórico também
+pronto** (o iERP compara as leituras; no GitHub desde 20/10/2026, `7430d09`). Esperando dele:
 o sistema dos Servidores.
 
 **Ordens › Viagens com o rastreador de GPS está pronta (20/10/2026)** — commit local `9cbfb1e`
