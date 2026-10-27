@@ -550,7 +550,7 @@ dele: **o iERP compara as leituras** — a cada 5 minutos e ao abrir o estoque, 
 saiu e mudou (campo, antes, depois) na mesma tabela de auditoria dos outros históricos, com
 período 30/90/365 dias ou tudo. Detalhes no mesmo §0.4.
 
-### 5.19 Viagens e lotes — pedido de 22/10/2026 (pronto, não commitado)
+### 5.19 Viagens e lotes — pedido de 22/10/2026 (pronto; commit local `daa8aff`, 27/10/2026)
 
 Palavras dele: "Lembre-se: Eles gostam de agilidade e praticidade, então deixe o mais simples e
 direto possível." Seis partes, com as decisões dele:
@@ -616,7 +616,7 @@ direto possível." Seis partes, com as decisões dele:
 - **Teste no banco de desenvolvimento:** LOT-00026 + LOT-00027 (cliente "AWS Serviços Brasil
   (teste)", 15/12/2026) mostram a junção.
 
-### 5.20 Novidades (27/10/2026, não commitado)
+### 5.20 Novidades (27/10/2026; commit local `daa8aff`)
 
 Pedido dele: "Coloque o botão para ver as novidades que tem em cada atualização. Lembre-se de
 adicionar no .claude para sempre colocar as atualizações la." Botão ✨ na barra do topo
