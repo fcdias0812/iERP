@@ -72,9 +72,10 @@ export function AreasPage() {
 }
 
 export function RastreadoresPage() {
+  const { aberto, abrir } = usePainel()
   return (
     <Pagina item="rastreadores">
-      <AbaRastreadores />
+      <AbaRastreadores aberto={aberto} onAbrir={abrir} />
     </Pagina>
   )
 }

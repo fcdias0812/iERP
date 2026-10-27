@@ -87,6 +87,8 @@ export function criarBuscaGlobal(
           .selectFrom('ordensLista')
           .select(['id', 'codigo', 'clienteNome', 'siteCodigo'])
           .where(naBusca('busca'))
+          // Juntado a outro: quem aparece é o principal da coleta.
+          .where('juntadoA', 'is', null)
           .orderBy('codigo', 'desc')
           .limit(POR_TIPO)
           .execute(),

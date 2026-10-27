@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw/http'
 import { facetCounts, runQuery, type EngineColumn } from '@/components/data-table/engine'
 import { searchToQuery, tableSearchSchema } from '@/components/data-table/url-state'
+import type { LocalizedText } from '@/lib/localized-text'
 import { isValidCnpj, isValidPhone } from '@/lib/validators/br'
 import type {
   AcaoCliente,
@@ -16,7 +17,14 @@ import type {
 import { useSessionStore } from '@/stores/session-store'
 import { apiError, simulateNetwork } from '../config'
 import { CONFIGURACOES_PADRAO } from '@/features/clientes/configuracoes'
-import { TRANSICOES_CLIENTE, acoesCliente, codigoCliente, getDb, resumoCliente } from '../db'
+import {
+  TRANSICOES_CLIENTE,
+  acoesCliente,
+  codigoCliente,
+  documentosPadrao,
+  getDb,
+  resumoCliente,
+} from '../db'
 import { ordensMock } from './ordens'
 import { getRelacionamento } from './relacionamento'
 
@@ -165,6 +173,7 @@ export const clientesHandlers = [
       status: 'ativo',
       configuracoes: {
         ...CONFIGURACOES_PADRAO,
+        documentos: documentosPadrao(getDb().tiposDocumento),
         slaDias: dados.slaDias ?? null,
         sistemaProcessamento: /\bdell\b/i.test(dados.nome) ? 'MOONSHOT' : null,
       },
@@ -217,6 +226,28 @@ export const clientesHandlers = [
     return HttpResponse.json(db.clientes[idx])
   }),
 
+  http.get('*/api/tipos-documento', async ({ request }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    return HttpResponse.json(getDb().tiposDocumento)
+  }),
+
+  http.post('*/api/tipos-documento', async ({ request }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    const { nome } = (await request.json()) as { nome: LocalizedText }
+    const texto = nome?.textos?.[nome.origem]?.trim()
+    if (!texto) return apiError(422, 'validation', 'Informe o nome do tipo.')
+    const db = getDb()
+    const igual = (x: LocalizedText | null) =>
+      x?.textos[x.origem]?.trim().toLowerCase() === texto.toLowerCase()
+    if (db.tiposDocumento.some((x) => igual(x.nome)))
+      return apiError(409, 'name_in_use', 'Já existe um tipo com este nome.')
+    const novo = { codigo: `tp-${Date.now().toString(16).slice(-8)}`, nome }
+    db.tiposDocumento.push(novo)
+    return HttpResponse.json(novo, { status: 201 })
+  }),
+
   // Aba Configurações: grava tudo (o servidor de verdade confere mais regras).
   http.put('*/api/clientes/:id/configuracoes', async ({ request, params }) => {
     const fail = await simulateNetwork(request)
@@ -231,12 +262,23 @@ export const clientesHandlers = [
     const transportadora = v.transportadoraPadraoId
       ? getRelacionamento().transportadoras.find((x) => x.id === v.transportadoraPadraoId)
       : undefined
+    // Tipos de documento: marca → lista com o nome (o escopo sempre aceito).
+    const marcas = new Map((v.documentos ?? []).map((m) => [m.tipo, m]))
+    const documentos = v.documentos
+      ? db.tiposDocumento.map((x) => {
+          const m = marcas.get(x.codigo)
+          const aceita = x.codigo === 'escopo' || (m ? m.aceita : x.nome === null)
+          return { ...x, aceita, relatorio: aceita && Boolean(m?.relatorio) }
+        })
+      : atual.configuracoes.documentos
     const novas = {
       ...v,
+      documentos,
       transportadoraPadraoNome: transportadora?.nome ?? null,
       bloqueioMotivo: v.agendamentoBloqueado ? v.bloqueioMotivo : null,
     }
     const mudancas: Mudanca[] = (Object.keys(v) as (keyof ConfiguracoesClienteInput)[])
+      .filter((k) => k !== 'documentos')
       .filter((k) => JSON.stringify(atual.configuracoes[k]) !== JSON.stringify(novas[k]))
       .map((k) => ({
         campo: k === 'transportadoraPadraoId' ? 'transportadoraPadrao' : k,

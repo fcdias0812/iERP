@@ -44,6 +44,10 @@ export interface EventoHistorico {
     | 'chave_gerada'
     | 'chave_trocada'
     | 'chave_revogada'
+    | 'viagem_adicionada'
+    | 'juntado'
+    | 'coleta_juntada'
+    | 'separado'
     | 'viagem_iniciada'
     | 'viagem_chegou'
     | 'viagem_finalizada'
@@ -167,9 +171,35 @@ export interface ConfiguracoesCliente {
   antecedenciaDias: number | null
   agendamentoBloqueado: boolean
   bloqueioMotivo: string | null
+  /** Tipos de documento do lote: o que o cliente aceita e o que vai no relatório final. */
+  documentos: TipoDocLoteCliente[]
 }
 
-export type ConfiguracoesClienteInput = Omit<ConfiguracoesCliente, 'transportadoraPadraoNome'>
+/**
+ * Tipo de documento do lote (22/10/2026): uma lista única — os do sistema (`nome` null, rótulo
+ * em `lotes.documentos.tipos.<codigo>`) e os criados nas Configurações do cliente (3 idiomas).
+ */
+export interface TipoDocLote {
+  codigo: TipoDocumentoLote
+  nome: LocalizedText | null
+}
+
+export interface TipoDocLoteCliente extends TipoDocLote {
+  aceita: boolean
+  /** Vai no ZIP do relatório final (o ZIP só sai com um documento deste tipo no lote). */
+  relatorio: boolean
+}
+
+export interface MarcaTipoDocumento {
+  tipo: TipoDocumentoLote
+  aceita: boolean
+  relatorio: boolean
+}
+
+export type ConfiguracoesClienteInput = Omit<
+  ConfiguracoesCliente,
+  'transportadoraPadraoNome' | 'documentos'
+> & { documentos?: MarcaTipoDocumento[] }
 
 /**
  * Página PÚBLICA de acompanhamento dos lotes de um cliente (GET /api/publico/rastreio/:token —
@@ -572,9 +602,21 @@ export interface CalculoOs {
 }
 
 /** Tipos de documento do lote. */
-export type TipoDocumentoLote = 'escopo' | 'nota_fiscal' | 'mtr' | 'cdf' | 'foto' | 'outro'
+/** Código do tipo: os do sistema (`TIPOS_DOC_SISTEMA`) ou `tp-…` (criado num cliente). */
+export type TipoDocumentoLote = string
+
+/** Relatório final do lote: sai recebido e com os documentos marcados pelo cliente. */
+export interface SituacaoRelatorio {
+  pronto: boolean
+  recebido: boolean
+  /** Tipos marcados "vai no relatório final" sem documento no lote. */
+  faltam: TipoDocumentoLote[]
+}
 
 export interface AnexoOrdem {
+  /** O lote onde o arquivo está (só nos de um lote JUNTADO a este). */
+  ordemId?: string
+  loteCodigo?: string
   id: string
   secao: SecaoAnexo
   tipo: TipoDocumentoLote
@@ -711,7 +753,30 @@ export interface DevolucaoAoRecebimento {
   em: string
 }
 
+/** Um lote juntado ao principal (a mesma coleta — 22/10/2026). */
+export interface LoteJuntado {
+  id: string
+  codigo: string
+  /** IERP ou o sistema de onde veio (GERENCIAMENTO, MSDC). */
+  origem: string
+  /** O lote no sistema de lá. */
+  url: string | null
+  status: StatusOrdem
+  referenciaCliente: string | null
+  totalVolumes: number
+  escopo: string | null
+  observacoes: string | null
+}
+
 export interface Ordem extends OrdemResumo {
+  /** Os caminhões da coleta (uma viagem cada; 22/10/2026). */
+  caminhoes: CaminhaoLote[]
+  /** Este lote foi juntado a outro da mesma coleta (a tela abre o principal). */
+  juntadoA: { id: string; codigo: string } | null
+  /** Os lotes juntados a este (a mesma coleta). */
+  juntados: LoteJuntado[]
+  /** A coleta inteira somada (null = sem juntados). */
+  coleta: { quantidades: QuantidadesOs; servicos: ServicosOs; totalVolumes: number } | null
   siteId: string
   docaId: string
   transportadoraId: string | null
@@ -930,10 +995,51 @@ export interface OrdemInput {
   motoristaId: string | null
   /** Sem pontuação. */
   placa: string | null
+  /** Os caminhões (um por viagem); o primeiro é o motorista/placa acima. */
+  caminhoes?: { motoristaId: string | null; placa: string | null }[]
   servicos: ServicosOs
   quantidades: QuantidadesOs
   escopo: string | null
   observacoes: string | null
+}
+
+/* ---------------- Rastreadores GPS (o aparelho do caminhão — server/.../viagens/rastreadores.ts) */
+
+export type EstadoRastreador =
+  'nunca_conectou' | 'sem_conexao' | 'gps_com_problema' | 'sem_satelite' | 'online'
+
+export interface Rastreador {
+  id: string
+  deviceId: string
+  placa: string | null
+  descricao: string | null
+  status: 'ativo' | 'inativo'
+  estado: EstadoRastreador
+  firmware: string | null
+  ultimoContatoEm: string | null
+  satelites: number | null
+  fix: string | null
+  ultimaLatitude: number | null
+  ultimaLongitude: number | null
+  /** m/s */
+  ultimaVelocidade: number | null
+  ultimoPontoEm: string | null
+  pontosPerdidos: number
+  viagem: { id: string; loteCodigo: string; numero: number } | null
+  acoesPermitidas: ('inativar' | 'reativar')[]
+}
+
+export interface RastreadorDetalhe extends Rastreador {
+  historico: EventoHistorico[]
+}
+
+/** Um caminhão do lote (uma viagem). */
+export interface CaminhaoLote {
+  viagemId: string
+  numero: number
+  motoristaId: string | null
+  placa: string | null
+  status: StatusViagem
 }
 
 export type PaginaOrdens = TablePage<OrdemResumo> & {
@@ -1194,7 +1300,7 @@ export interface EventoAuditoria extends EventoHistorico {
 /* ---------------- Administração › Integração (server/src/modules/integracao/integracao.ts) */
 
 /** processamento: os lotes daqui vão para ele (MoonShot); origem: os lotes vêm dele (Gerenciamento). */
-export type TipoSistema = 'processamento' | 'origem' | 'rastreio' | 'estoque'
+export type TipoSistema = 'processamento' | 'origem' | 'rastreio' | 'estoque' | 'gps'
 
 /** Resumo da última leitura de um sistema de origem. */
 export interface ResumoSincronizacao {
@@ -1305,6 +1411,14 @@ export interface EmergenciaViagem {
 export interface Viagem {
   id: string
   ordemId: string
+  /** O caminhão do lote (1, 2, 3…) — 22/10/2026: várias viagens por lote. */
+  numero: number
+  /** celular (app do motorista) | aparelho (rastreador de GPS no caminhão). */
+  origemGps: 'celular' | 'aparelho'
+  /** O aparelho (origem aparelho). */
+  rastreadorId: string | null
+  /** O id da placa do aparelho (ex.: gps-2998). */
+  rastreadorAparelho: string | null
   loteCodigo: string
   /** IERP = lote agendado aqui; senão o sistema de onde o lote veio (só para ver). */
   origem: string

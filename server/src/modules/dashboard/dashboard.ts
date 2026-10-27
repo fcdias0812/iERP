@@ -135,10 +135,11 @@ export function criarServicoDashboard(db: Db) {
       const mapaAte = q.mapaAte && q.mapaAte >= mapaDe ? q.mapaAte : somarDias(mapaDe, 6)
       const limite30d = new Date(agora.getTime() - 30 * DIA_MS).toISOString()
 
-      const [lotes, clientes] = await Promise.all([
+      const [todosOsLotes, clientes] = await Promise.all([
         db
           .selectFrom('ordensLista')
           .select([
+            'juntadoA',
             'id',
             'codigo',
             'status',
@@ -168,6 +169,17 @@ export function criarServicoDashboard(db: Db) {
           .orderBy('nome')
           .execute(),
       ])
+      // A mesma coleta é UM lote (22/10/2026): os juntados somam os volumes no principal.
+      const principais = new Map(
+        todosOsLotes.filter((l) => !l.juntadoA).map((l) => [l.id, { ...l }]),
+      )
+      for (const l of todosOsLotes) {
+        const p = l.juntadoA ? principais.get(l.juntadoA) : undefined
+        if (!p) continue
+        for (const k of ['qtdPallets', 'qtdGaylords', 'qtdRacks', 'qtdBoxes'] as const)
+          if (l[k] !== null) p[k] = (p[k] ?? 0) + l[k]
+      }
+      const lotes = [...principais.values()]
 
       const dias = (desde: string | null) =>
         desde ? umaCasa((agora.getTime() - Date.parse(desde)) / DIA_MS) : null

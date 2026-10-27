@@ -892,7 +892,12 @@
     "estoque_info": "資訊",
     "estoque_atencao": "注意",
     "estoque_problema": "問題",
-    "estoque_encerrado": "已結束"
+    "estoque_encerrado": "已結束",
+    "rastreador_online": "在線",
+    "rastreador_sem_satelite": "無衛星",
+    "rastreador_gps_com_problema": "GPS 異常",
+    "rastreador_sem_conexao": "離線",
+    "rastreador_nunca_conectou": "從未連線"
   },
   "dataTable": {
     "yes": "是",
@@ -1364,7 +1369,13 @@
     "sealRequired": "此客戶要求至少一個含照片的封條。",
     "invoiceRequired": "此客戶要求至少一張含照片的發票。",
     "tareRequired": "此客戶要求每個棧板的皮重。",
-    "photosRequired": "此客戶要求至少一張整體照片。"
+    "photosRequired": "此客戶要求至少一張整體照片。",
+    "trackerInUse": "此追蹤器正在進行中的行程。",
+    "trackerInactive": "此追蹤器已停用。",
+    "lotMerged": "此批次已併入同一次收運的另一個批次：請使用主要批次。",
+    "documentTypeNotAccepted": "此客戶不接受此文件類型（請查看客戶設定）。",
+    "reportNotReceived": "批次收貨後才能產生最終報告。",
+    "reportMissingDocuments": "缺少勾選要放入最終報告的文件。"
   },
   "calendar": {
     "today": "今天",
@@ -1576,7 +1587,9 @@
       "chaveInterna": "內部金鑰",
       "chaveTransito": "交通地圖金鑰（TomTom，選填）",
       "urlSistema": "系統位址",
-      "chaveIntegracao": "整合金鑰"
+      "chaveIntegracao": "整合金鑰",
+      "urlLeituraGps": "讀取位址",
+      "chaveLeituraGps": "讀取金鑰"
     },
     "secoes": {
       "sistema": "系統",
@@ -1586,7 +1599,8 @@
       "situacao": "狀況",
       "sincronizacao": "同步",
       "rastreador": "GPS 追蹤器（追蹤器 → iERP）",
-      "estoque": "庫存（系統 → iERP）"
+      "estoque": "庫存（系統 → iERP）",
+      "gps": "GPS 伺服器（伺服器 → iERP）"
     },
     "ajuda": {
       "sistema": "每個系統對應一個客戶：其批次的去向（Dell → MoonShot）或來源（專案管理）。",
@@ -1607,7 +1621,9 @@
       "estoque": "iERP 2.0 即時讀取此系統的庫存清單（與舊版 iERP 相同的 /api/integracao/estoque 介面；該系統不做任何變更）。位址 = 系統根目錄，不含路徑。",
       "chaveARMAZEM": "在 Inventory-Management（系統 › 設定 › 整合金鑰）為 iERP 2.0 產生一組金鑰。金鑰只會顯示一次。",
       "chaveNOTEBOOKS": "筆電管理 .env 中的 INTEGRACAO_CHAVE——與舊版 iERP 使用的相同。",
-      "chaveRTB_WMS": "RTB WMS 的 INTEGRACAO_CHAVE——與舊版 iERP 使用的相同。"
+      "chaveRTB_WMS": "RTB WMS 的 INTEGRACAO_CHAVE——與舊版 iERP 使用的相同。",
+      "gps": "卡車裝置的 GPS 伺服器（與 iERP 1.0 相同）。iERP 2.0 每 5 分鐘讀取定位點，使用自己的讀取位置（不影響 1.0 的讀取）。",
+      "chaveLeituraGps": "GPS 伺服器的讀取金鑰（與 iERP 1.0 相同）。"
     },
     "gerarChave": "產生金鑰",
     "trocarChave": "更換金鑰",
@@ -1650,7 +1666,8 @@
     "sistemas": {
       "MOONSHOT": "MoonShot",
       "GERENCIAMENTO": "專案管理",
-      "MSDC": "Re-Teck MSDC（Microsoft）"
+      "MSDC": "Re-Teck MSDC（Microsoft）",
+      "GPS_CAMINHAO": "卡車 GPS 伺服器"
     },
     "toast": {
       "criado": "已新增整合 {{name}}。",
@@ -1817,7 +1834,9 @@
         "diasParadoEtapa": "批次停滯警示（天）",
         "antecedenciaDias": "最少提前天數",
         "agendamentoBloqueado": "封鎖排程",
-        "bloqueioMotivo": "封鎖原因"
+        "bloqueioMotivo": "封鎖原因",
+        "documentosAceitos": "接受的文件",
+        "documentosRelatorio": "最終報告的文件"
       }
     },
     "documentos": {
@@ -1938,13 +1957,15 @@
         "rastreio": "收運追蹤",
         "agendamento": "排程",
         "recebimento": "收貨",
-        "prazos": "期限與處理"
+        "prazos": "期限與處理",
+        "documentos": "批次文件"
       },
       "secoesAjuda": {
         "rastreio": "此客戶的收運是否透過司機的手機追蹤。",
         "agendamento": "排程時預先填入與必填的項目。",
         "recebimento": "收貨此客戶的批次時必須提供的項目。",
-        "prazos": "批次的去向、期限與封鎖新排程。"
+        "prazos": "批次的去向、期限與封鎖新排程。",
+        "documentos": "此客戶在批次中接受的文件類型，以及要放入最終報告的類型。每個勾選的類型都至少有一份文件時，才能產生最終報告 ZIP。"
       },
       "campos": {
         "rastrearColeta": "追蹤收運",
@@ -1994,6 +2015,16 @@
         "diasSufixo": "天",
         "semSla": "無 SLA",
         "semLimite": "無限制"
+      },
+      "documentos": {
+        "aceita": "接受",
+        "relatorio": "放入最終報告",
+        "novo": "新類型",
+        "novoAjuda": "清單裡沒有？輸入名稱就能在這裡建立（所有客戶都可使用）。",
+        "criar": "建立類型",
+        "erroCriar": "無法建立文件類型。",
+        "aceitos": "接受的類型",
+        "noRelatorio": "放入最終報告"
       }
     },
     "rastreio": {
@@ -2356,7 +2387,8 @@
       "recalcular": "重新計算",
       "toast": {
         "created": "批次 {{code}} 已排程。",
-        "failed": "無法建立訂單。"
+        "failed": "無法建立訂單。",
+        "juntado": "{{code}} 與 {{principal}} 是同一次收運：已併入。"
       },
       "calculo": {
         "titulo": "預先計算",
@@ -2387,6 +2419,11 @@
         "antecedencia": "此客戶要求收運需提前 {{n}} 天。預計收運日早於此 — 請與客戶確認。",
         "rastreioFixo": "由客戶設定決定。",
         "escopoPlanilha": "此客戶要求附上範圍試算表 (.xlsx)。"
+      },
+      "caminhoes": {
+        "titulo": "卡車 {{n}}",
+        "adicionar": "新增卡車",
+        "remover": "移除卡車 {{n}}"
       }
     },
     "lotes": {
@@ -2689,7 +2726,11 @@
         "viagem_finalizada": "行程已結束",
         "viagem_cancelada": "行程已取消",
         "viagem_emergencia": "行程中發生緊急狀況",
-        "viagem_emergencia_ciente": "已確認緊急狀況"
+        "viagem_emergencia_ciente": "已確認緊急狀況",
+        "viagem_adicionada": "新增了卡車",
+        "juntado": "併入另一個批次（同一次收運）",
+        "coleta_juntada": "併入同一次收運的批次",
+        "separado": "從收運中分開"
       },
       "campos": {
         "status": "狀態",
@@ -2710,7 +2751,11 @@
         "processamento": "處理階段",
         "motivoDevolucao": "更正原因",
         "finalizadaPor": "結束方式",
-        "emergencia": "緊急狀況"
+        "emergencia": "緊急狀況",
+        "caminhao": "卡車",
+        "caminhoes": "卡車數",
+        "rastreador": "追蹤器",
+        "lote": "批次"
       }
     },
     "informacoes": {
@@ -2890,6 +2935,20 @@
       },
       "operacao": "{{sistema}}中的作業",
       "documentosSoLa": "此批次的文件存放在{{sistema}}，只能在那邊開啟（需那邊的登入）。"
+    },
+    "juntados": {
+      "titulo": "同一次收運（{{n}} 個批次）",
+      "descricao": "相同客戶、地址與日期：這些批次已併入 {{code}}。數量、服務、文件與行程都已合計。",
+      "daqui": "在 iERP 排程",
+      "volumes": "{{n}} 件"
+    },
+    "gerar": {
+      "botao": "產生",
+      "pdf": "工單 PDF",
+      "relatorio": "最終報告（ZIP）",
+      "falta": "缺少：{{itens}}",
+      "faltaRecebimento": "收貨",
+      "naoPronto": "目前還不能產生最終報告"
     }
   },
   "recebimento": {
@@ -3006,7 +3065,9 @@
     "inativoTitle": "已停用的資料",
     "toast": {
       "inativar": "已停用 {{name}}。",
-      "reativar": "已重新啟用 {{name}}。"
+      "reativar": "已重新啟用 {{name}}。",
+      "saveFailed": "無法儲存。",
+      "actionFailed": "無法完成此動作。"
     },
     "confirm": {
       "inativar": {
@@ -3096,12 +3157,29 @@
         "situacao": "狀態",
         "ultimoContato": "最後聯繫",
         "ultimaPosicao": "最後位置",
-        "viagem": "進行中的運輸"
+        "viagem": "進行中的行程",
+        "gps": "GPS"
       },
-      "integracaoTitle": "等待整合",
-      "integracaoBody": "卡車追蹤器將來自 GPS 系統的 API。連接後，裝置會顯示於此。",
-      "vazio": "沒有追蹤器",
-      "vazioBody": "清單由與 GPS 系統的整合帶入。"
+      "campos": {
+        "placa": "車牌",
+        "descricao": "說明",
+        "status": "狀態"
+      },
+      "vazio": "尚無追蹤器",
+      "vazioBody": "當 GPS 伺服器（管理 › 整合）傳送裝置的定位點時，裝置會自動出現。",
+      "lerAgora": "立即讀取",
+      "descricao": "卡車的 GPS 裝置。車牌與說明有助於在行程中選對裝置。",
+      "secao": "裝置",
+      "placaAjuda": "裝置所在卡車的車牌。",
+      "situacaoTitulo": "狀態",
+      "firmware": "韌體",
+      "pontosPerdidos": "遺失的定位點",
+      "confirm": "停用的裝置在讀取 GPS 伺服器時會被略過。",
+      "toast": {
+        "salvo": "已儲存 {{name}}。",
+        "lido": "已讀取 GPS 伺服器。",
+        "falhou": "無法讀取 GPS 伺服器。"
+      }
     },
     "paginas": {
       "materiais": "放入箱與棧板的物料，三種語言。",
@@ -3160,7 +3238,9 @@
       "linkCopiado": "已複製司機連結。",
       "codigoCopiado": "已複製到達代碼。",
       "copiaFalhou": "無法複製，請手動選取並複製。",
-      "abrirLote": "開啟批次"
+      "abrirLote": "開啟批次",
+      "caminhao": "卡車 {{n}}",
+      "rotuloCaminhao": "批次 {{code}} 的行程，卡車 {{n}}"
     },
     "origens": {
       "IERP": "iERP",
@@ -3273,12 +3353,30 @@
       "titulo": "行程"
     },
     "recebimento": {
-      "titulo": "此批次有追蹤中的行程",
-      "encerra": "收貨後將結束司機 App 中的行程。",
-      "semViagem": "司機尚未開始行程；收貨將取消追蹤。"
+      "titulo": "此批次追蹤中的卡車",
+      "naoEncerra": "收貨不會結束行程：每輛卡車以抵達代碼或「結束」按鈕結束。"
     },
     "baixar": {
       "botao": "下載 {{formato}}"
+    },
+    "caminhao": {
+      "adicionar": "新增卡車",
+      "titulo": "新增卡車",
+      "descricao": "為此收運再加一輛卡車，有自己的司機、車牌、連結與抵達代碼。",
+      "adicionado": "已新增卡車 {{n}}。"
+    },
+    "rastreador": {
+      "usar": "使用追蹤器",
+      "titulo": "使用卡車的追蹤器",
+      "descricao": "批次 {{code}} 的卡車 {{n}} 以 GPS 裝置追蹤：行程現在開始，以「結束」按鈕結束。",
+      "campo": "追蹤器",
+      "ocupado": "使用中：{{code}}",
+      "avisoEstado": "此裝置目前不在線",
+      "nenhum": "沒有啟用的追蹤器",
+      "nenhumTexto": "當 GPS 伺服器讀到裝置時，裝置會出現在「主檔 › GPS 追蹤器」。",
+      "confirmar": "以追蹤器開始",
+      "pelo": "透過裝置",
+      "iniciada": "{{code}} 的卡車 {{n}} 已以追蹤器出發。"
     }
   },
   "estoque": {
@@ -3449,5 +3547,12 @@
       "concluido": "已完成"
     },
     "rodape": "© {{year}} Re-Teck · 逆向物流"
+  },
+  "novidades": {
+    "titulo": "最新消息",
+    "botaoNova": "最新消息（新版本）",
+    "descricao": "iERP 每次更新的變更內容。目前版本：{{versao}}。",
+    "versao": "版本 {{versao}}",
+    "atual": "目前"
   }
 }

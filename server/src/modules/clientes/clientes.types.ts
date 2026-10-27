@@ -1,6 +1,7 @@
 import type { EventoHistorico } from '../../shared/historico.js'
 import type { ServicosOs } from '../ordens/ordens.calculo.js'
 import type { LocalizedText } from '../ordens/ordens.lote.js'
+import type { TipoDoCliente } from './tipos-documento.js'
 
 /*
  * Contrato da API de clientes — espelho de src/services/types.ts do frontend (Clientes).
@@ -65,6 +66,8 @@ export interface ConfiguracoesCliente {
   antecedenciaDias: number | null
   agendamentoBloqueado: boolean
   bloqueioMotivo: string | null
+  /** Tipos de documento do lote: os aceitos e os que vão no relatório final. */
+  documentos: TipoDoCliente[]
 }
 
 export interface Cliente {

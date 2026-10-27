@@ -74,7 +74,12 @@ export function useCriarOrdem() {
     }) => criarOrdem(dados, arquivos),
     onSuccess: (o) => {
       void qc.invalidateQueries({ queryKey: ordensKeys.all })
-      toast.success(t('ordens.agendamento.toast.created', { code: o.codigo }))
+      // A mesma coleta de outro lote: virou parte dele (22/10/2026).
+      if (o.juntadoA)
+        toast.success(
+          t('ordens.agendamento.toast.juntado', { code: o.codigo, principal: o.juntadoA.codigo }),
+        )
+      else toast.success(t('ordens.agendamento.toast.created', { code: o.codigo }))
     },
     onError: (e) =>
       toast.error(t('ordens.agendamento.toast.failed'), { description: apiErrorMessage(e) }),

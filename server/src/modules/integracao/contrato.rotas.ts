@@ -86,7 +86,7 @@ export function rotasContratoIntegracao(
     // Todas as ordens que mudaram desde o instante (na ordem em que mudaram) e são deste sistema.
     let consulta = db
       .selectFrom('ordensLista')
-      .select(['id', 'alteradoEm', 'clienteSistema', 'externoSistema'])
+      .select(['id', 'alteradoEm', 'clienteSistema', 'externoSistema', 'juntadoA'])
       // Lote que veio de outro sistema (Gerenciamento de Projetos) nunca vai para um de fora.
       .where('origem', '=', 'IERP')
       .orderBy('alteradoEm')

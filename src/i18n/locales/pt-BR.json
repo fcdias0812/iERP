@@ -892,7 +892,12 @@
     "estoque_info": "Informação",
     "estoque_atencao": "Atenção",
     "estoque_problema": "Problema",
-    "estoque_encerrado": "Encerrado"
+    "estoque_encerrado": "Encerrado",
+    "rastreador_online": "Online",
+    "rastreador_sem_satelite": "Sem satélite",
+    "rastreador_gps_com_problema": "GPS com problema",
+    "rastreador_sem_conexao": "Sem conexão",
+    "rastreador_nunca_conectou": "Nunca conectou"
   },
   "dataTable": {
     "yes": "Sim",
@@ -1364,7 +1369,13 @@
     "sealRequired": "Este cliente exige pelo menos um lacre com foto.",
     "invoiceRequired": "Este cliente exige pelo menos uma nota fiscal com foto.",
     "tareRequired": "Este cliente exige a tara de cada pallet.",
-    "photosRequired": "Este cliente exige pelo menos uma foto geral."
+    "photosRequired": "Este cliente exige pelo menos uma foto geral.",
+    "trackerInUse": "Este rastreador está numa viagem aberta.",
+    "trackerInactive": "Este rastreador está inativo.",
+    "lotMerged": "Este lote foi juntado a outro da mesma coleta: use o lote principal.",
+    "documentTypeNotAccepted": "Este cliente não aceita este tipo de documento (veja as Configurações do cliente).",
+    "reportNotReceived": "O relatório final só sai depois do recebimento do lote.",
+    "reportMissingDocuments": "Faltam documentos marcados para o relatório final."
   },
   "calendar": {
     "today": "Hoje",
@@ -1576,7 +1587,9 @@
       "chaveInterna": "Chave interna",
       "chaveTransito": "Chave do mapa de trânsito (TomTom, opcional)",
       "urlSistema": "Endereço do sistema",
-      "chaveIntegracao": "Chave de integração"
+      "chaveIntegracao": "Chave de integração",
+      "urlLeituraGps": "Endereço da leitura",
+      "chaveLeituraGps": "Chave de leitura"
     },
     "secoes": {
       "sistema": "Sistema",
@@ -1586,7 +1599,8 @@
       "situacao": "Situação",
       "sincronizacao": "Sincronização",
       "rastreador": "Rastreador de GPS (rastreador → iERP)",
-      "estoque": "Estoque (sistema → iERP)"
+      "estoque": "Estoque (sistema → iERP)",
+      "gps": "Servidor de GPS (servidor → iERP)"
     },
     "ajuda": {
       "sistema": "Cada sistema é de um cliente: para onde os lotes dele vão (Dell → MoonShot) ou de onde eles vêm (Gerenciamento de Projetos).",
@@ -1607,7 +1621,9 @@
       "estoque": "O iERP 2.0 lê a lista de estoque deste sistema ao vivo (a mesma porta /api/integracao/estoque que o iERP antigo usa; nada muda lá). Endereço = a raiz do sistema, sem caminho.",
       "chaveARMAZEM": "Gere uma chave para o iERP 2.0 no Inventory-Management (Sistema › Ajustes › chaves de integração). Ela aparece uma vez só.",
       "chaveNOTEBOOKS": "A INTEGRACAO_CHAVE do .env do Controle de Notebooks — a mesma que o iERP antigo usa.",
-      "chaveRTB_WMS": "A INTEGRACAO_CHAVE do RTB WMS — a mesma que o iERP antigo usa."
+      "chaveRTB_WMS": "A INTEGRACAO_CHAVE do RTB WMS — a mesma que o iERP antigo usa.",
+      "gps": "O servidor de GPS dos aparelhos dos caminhões (o mesmo do iERP 1.0). O iERP 2.0 lê os pontos a cada 5 minutos, com a posição de leitura própria (não mexe na leitura do 1.0).",
+      "chaveLeituraGps": "A chave de leitura do servidor de GPS (a mesma do iERP 1.0)."
     },
     "gerarChave": "Gerar chave",
     "trocarChave": "Trocar chave",
@@ -1650,7 +1666,8 @@
     "sistemas": {
       "MOONSHOT": "MoonShot",
       "GERENCIAMENTO": "Gerenciamento de Projetos",
-      "MSDC": "Re-Teck MSDC (Microsoft)"
+      "MSDC": "Re-Teck MSDC (Microsoft)",
+      "GPS_CAMINHAO": "Servidor de GPS dos caminhões"
     },
     "toast": {
       "criado": "Integração {{name}} cadastrada.",
@@ -1817,7 +1834,9 @@
         "diasParadoEtapa": "Alerta de lote parado (dias)",
         "antecedenciaDias": "Antecedência mínima (dias)",
         "agendamentoBloqueado": "Bloquear agendamentos",
-        "bloqueioMotivo": "Motivo do bloqueio"
+        "bloqueioMotivo": "Motivo do bloqueio",
+        "documentosAceitos": "Documentos aceitos",
+        "documentosRelatorio": "Documentos do relatório final"
       }
     },
     "documentos": {
@@ -1938,13 +1957,15 @@
         "rastreio": "Rastreio da coleta",
         "agendamento": "Agendamento",
         "recebimento": "Recebimento",
-        "prazos": "Prazos e processamento"
+        "prazos": "Prazos e processamento",
+        "documentos": "Documentos do lote"
       },
       "secoesAjuda": {
         "rastreio": "Se as coletas deste cliente são acompanhadas pelo celular do motorista.",
         "agendamento": "O que já vem preenchido e o que é exigido ao agendar.",
         "recebimento": "O que passa a ser obrigatório ao receber os lotes deste cliente.",
-        "prazos": "Para onde vão os lotes, prazos e bloqueio de novos agendamentos."
+        "prazos": "Para onde vão os lotes, prazos e bloqueio de novos agendamentos.",
+        "documentos": "Os tipos de documento que este cliente aceita nos lotes e os que vão no relatório final. O ZIP do relatório final só sai com um documento de cada tipo marcado."
       },
       "campos": {
         "rastrearColeta": "Rastrear a coleta",
@@ -1994,6 +2015,16 @@
         "diasSufixo": "dias",
         "semSla": "Sem SLA",
         "semLimite": "Sem limite"
+      },
+      "documentos": {
+        "aceita": "Aceita",
+        "relatorio": "Vai no relatório final",
+        "novo": "Tipo novo",
+        "novoAjuda": "Não está na lista? Escreva o nome e crie aqui mesmo (fica disponível para todos os clientes).",
+        "criar": "Criar tipo",
+        "erroCriar": "Não foi possível criar o tipo de documento.",
+        "aceitos": "Tipos aceitos",
+        "noRelatorio": "Vão no relatório final"
       }
     },
     "rastreio": {
@@ -2356,7 +2387,8 @@
       "recalcular": "Recalcular",
       "toast": {
         "created": "Lote {{code}} agendado.",
-        "failed": "Não foi possível criar a ordem."
+        "failed": "Não foi possível criar a ordem.",
+        "juntado": "{{code}} é a mesma coleta do {{principal}}: foi juntado a ele."
       },
       "calculo": {
         "titulo": "Pré-cálculo",
@@ -2387,6 +2419,11 @@
         "antecedencia": "Este cliente pede {{n}} dias de antecedência para a coleta. A coleta prevista está antes disso — confirme com o cliente.",
         "rastreioFixo": "Definido nas configurações do cliente.",
         "escopoPlanilha": "Este cliente exige a planilha de escopo (.xlsx)."
+      },
+      "caminhoes": {
+        "titulo": "Caminhão {{n}}",
+        "adicionar": "Adicionar caminhão",
+        "remover": "Remover caminhão {{n}}"
       }
     },
     "lotes": {
@@ -2689,7 +2726,11 @@
         "viagem_finalizada": "Viagem finalizada",
         "viagem_cancelada": "Viagem cancelada",
         "viagem_emergencia": "Emergência na viagem",
-        "viagem_emergencia_ciente": "Ciência da emergência"
+        "viagem_emergencia_ciente": "Ciência da emergência",
+        "viagem_adicionada": "Adicionou caminhão",
+        "juntado": "Juntado a outro lote (mesma coleta)",
+        "coleta_juntada": "Recebeu um lote da mesma coleta",
+        "separado": "Separado da coleta"
       },
       "campos": {
         "status": "Status",
@@ -2710,7 +2751,11 @@
         "processamento": "Fase do processamento",
         "motivoDevolucao": "Motivo da correção",
         "finalizadaPor": "Encerrada por",
-        "emergencia": "Emergência"
+        "emergencia": "Emergência",
+        "caminhao": "Caminhão",
+        "caminhoes": "Caminhões",
+        "rastreador": "Rastreador",
+        "lote": "Lote"
       }
     },
     "informacoes": {
@@ -2890,6 +2935,20 @@
       },
       "operacao": "O que aconteceu no {{sistema}}",
       "documentosSoLa": "Os documentos deste lote ficam no {{sistema}} e só abrem lá (com o login de lá)."
+    },
+    "juntados": {
+      "titulo": "A mesma coleta ({{n}} lotes)",
+      "descricao": "Mesmo cliente, endereço e data: estes lotes viraram parte do {{code}}. Quantidades, serviços, documentos e viagens já aparecem somados.",
+      "daqui": "Agendado no iERP",
+      "volumes": "{{n}} volumes"
+    },
+    "gerar": {
+      "botao": "Gerar",
+      "pdf": "PDF da OS",
+      "relatorio": "Relatório final (ZIP)",
+      "falta": "Falta: {{itens}}",
+      "faltaRecebimento": "receber o lote",
+      "naoPronto": "O relatório final ainda não pode ser gerado"
     }
   },
   "recebimento": {
@@ -3006,7 +3065,9 @@
     "inativoTitle": "Cadastro inativo",
     "toast": {
       "inativar": "{{name}} inativado.",
-      "reativar": "{{name}} reativado."
+      "reativar": "{{name}} reativado.",
+      "saveFailed": "Não foi possível salvar.",
+      "actionFailed": "Não foi possível concluir a ação."
     },
     "confirm": {
       "inativar": {
@@ -3096,12 +3157,29 @@
         "situacao": "Situação",
         "ultimoContato": "Último contato",
         "ultimaPosicao": "Última posição",
-        "viagem": "Viagem aberta"
+        "viagem": "Viagem aberta",
+        "gps": "GPS"
       },
-      "integracaoTitle": "Aguardando a integração",
-      "integracaoBody": "Os rastreadores dos caminhões virão da API do sistema de GPS. Quando ela for ligada, os aparelhos aparecem aqui.",
-      "vazio": "Nenhum rastreador",
-      "vazioBody": "A lista é preenchida pela integração com o sistema de GPS."
+      "campos": {
+        "placa": "Placa",
+        "descricao": "Descrição",
+        "status": "Status"
+      },
+      "vazio": "Nenhum rastreador ainda",
+      "vazioBody": "Os aparelhos aparecem sozinhos quando o servidor de GPS (Administração › Integração) mandar os pontos deles.",
+      "lerAgora": "Ler agora",
+      "descricao": "O aparelho de GPS do caminhão. A placa e a descrição ajudam a escolher o aparelho certo na viagem.",
+      "secao": "Aparelho",
+      "placaAjuda": "A placa do caminhão em que o aparelho está.",
+      "situacaoTitulo": "Situação",
+      "firmware": "Firmware",
+      "pontosPerdidos": "Pontos perdidos",
+      "confirm": "Aparelho inativo é ignorado na leitura do servidor de GPS.",
+      "toast": {
+        "salvo": "{{name}} salvo.",
+        "lido": "Servidor de GPS lido.",
+        "falhou": "Não foi possível ler o servidor de GPS."
+      }
     },
     "paginas": {
       "materiais": "Os materiais que vão dentro dos caixotes e pallets, nos 3 idiomas.",
@@ -3160,7 +3238,9 @@
       "linkCopiado": "Link do motorista copiado.",
       "codigoCopiado": "Código de chegada copiado.",
       "copiaFalhou": "Não foi possível copiar. Selecione e copie manualmente.",
-      "abrirLote": "Abrir lote"
+      "abrirLote": "Abrir lote",
+      "caminhao": "Caminhão {{n}}",
+      "rotuloCaminhao": "Viagem do lote {{code}}, caminhão {{n}}"
     },
     "origens": {
       "IERP": "iERP",
@@ -3273,12 +3353,30 @@
       "titulo": "Viagem"
     },
     "recebimento": {
-      "titulo": "Lote com viagem rastreada",
-      "encerra": "Receber o lote encerra a viagem no app do motorista.",
-      "semViagem": "O motorista ainda não iniciou a viagem; receber o lote cancela o rastreio."
+      "titulo": "Caminhões rastreados deste lote",
+      "naoEncerra": "Receber o lote não encerra as viagens: cada caminhão termina pelo código de chegada ou pelo botão Finalizar."
     },
     "baixar": {
       "botao": "Baixar {{formato}}"
+    },
+    "caminhao": {
+      "adicionar": "Adicionar caminhão",
+      "titulo": "Adicionar caminhão",
+      "descricao": "Mais um caminhão para esta coleta, com motorista, placa, link e código de chegada próprios.",
+      "adicionado": "Caminhão {{n}} adicionado."
+    },
+    "rastreador": {
+      "usar": "Usar rastreador",
+      "titulo": "Usar o rastreador do caminhão",
+      "descricao": "O caminhão {{n}} do lote {{code}} vai pelo aparelho de GPS: a viagem começa agora e termina no botão Finalizar.",
+      "campo": "Rastreador",
+      "ocupado": "ocupado com {{code}}",
+      "avisoEstado": "Este aparelho não está online agora",
+      "nenhum": "Nenhum rastreador ativo",
+      "nenhumTexto": "Os aparelhos aparecem em Cadastros › Rastreadores GPS quando o servidor de GPS os lê.",
+      "confirmar": "Iniciar pelo rastreador",
+      "pelo": "Pelo aparelho",
+      "iniciada": "Caminhão {{n}} do {{code}} saiu pelo rastreador."
     }
   },
   "estoque": {
@@ -3449,5 +3547,12 @@
       "concluido": "Concluído"
     },
     "rodape": "© {{year}} Re-Teck · Logística reversa"
+  },
+  "novidades": {
+    "titulo": "Novidades",
+    "botaoNova": "Novidades (versão nova)",
+    "descricao": "O que mudou em cada atualização do iERP. Versão atual: {{versao}}.",
+    "versao": "Versão {{versao}}",
+    "atual": "Atual"
   }
 }

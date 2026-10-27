@@ -71,6 +71,8 @@ const MIN_TOKEN = 32
 const SISTEMAS_ORIGEM = ['GERENCIAMENTO', 'MSDC']
 /** O rastreador de GPS das viagens (= `tipo: 'rastreio'`): endereço + chave interna. */
 const SISTEMAS_RASTREIO = ['RASTREADOR']
+/** O servidor de GPS dos aparelhos dos caminhões (= `tipo: 'gps'`): endereço da leitura + chave. */
+const SISTEMAS_GPS = ['GPS_CAMINHAO']
 /** Os sistemas de estoque (= `tipo: 'estoque'`): endereço + a chave de integração deles. */
 const SISTEMAS_ESTOQUE = ['ARMAZEM', 'NOTEBOOKS', 'RTB_WMS']
 /** Exemplo do endereço (a RAIZ do sistema) de cada sistema de estoque. */
@@ -249,6 +251,7 @@ const schema = z
     const semMinimo =
       SISTEMAS_ORIGEM.includes(v.sistema) ||
       SISTEMAS_RASTREIO.includes(v.sistema) ||
+      SISTEMAS_GPS.includes(v.sistema) ||
       SISTEMAS_ESTOQUE.includes(v.sistema)
     if (!semMinimo && v.tokenPainel && v.tokenPainel.length < MIN_TOKEN)
       ctx.addIssue({ code: 'custom', path: ['tokenPainel'], message: 'validation.tokenCurto' })
@@ -308,8 +311,10 @@ function IntegracaoFormulario({
   const rastreio = SISTEMAS_RASTREIO.includes(sistemaEscolhido)
   // Os sistemas de estoque (Estoque › Materiais, Assets, Peças, E-commerce): endereço e chave.
   const estoque = SISTEMAS_ESTOQUE.includes(sistemaEscolhido)
+  // O servidor de GPS dos caminhões (aparelhos): endereço da leitura e a chave (a mesma do 1.0).
+  const gps = SISTEMAS_GPS.includes(sistemaEscolhido)
   // Sem avisos e sem a chave do iERP: o iERP é que lê deles.
-  const soLeitura = origem || rastreio || estoque
+  const soLeitura = origem || rastreio || estoque || gps
   const nomeDoSistema =
     sistemas.data?.find((s) => s.sistema === sistemaEscolhido)?.nome ?? integracao?.nome ?? ''
 
@@ -435,20 +440,24 @@ function IntegracaoFormulario({
 
           <CadastroSecao
             titulo={
-              estoque
-                ? t('integracao.secoes.estoque')
-                : rastreio
-                  ? t('integracao.secoes.rastreador')
-                  : t('integracao.secoes.painel')
+              gps
+                ? t('integracao.secoes.gps')
+                : estoque
+                  ? t('integracao.secoes.estoque')
+                  : rastreio
+                    ? t('integracao.secoes.rastreador')
+                    : t('integracao.secoes.painel')
             }
             descricao={
-              estoque
-                ? t('integracao.ajuda.estoque')
-                : rastreio
-                  ? t('integracao.ajuda.rastreador')
-                  : origem
-                    ? t('integracao.ajuda.painelOrigem', { sistema: nomeDoSistema })
-                    : t('integracao.ajuda.painel')
+              gps
+                ? t('integracao.ajuda.gps')
+                : estoque
+                  ? t('integracao.ajuda.estoque')
+                  : rastreio
+                    ? t('integracao.ajuda.rastreador')
+                    : origem
+                      ? t('integracao.ajuda.painelOrigem', { sistema: nomeDoSistema })
+                      : t('integracao.ajuda.painel')
             }
             colunas={1}
           >
@@ -456,11 +465,13 @@ function IntegracaoFormulario({
               control={form.control}
               name="urlPainel"
               label={
-                estoque
-                  ? t('integracao.campos.urlSistema')
-                  : rastreio
-                    ? t('integracao.campos.urlRastreador')
-                    : t('integracao.campos.urlPainel')
+                gps
+                  ? t('integracao.campos.urlLeituraGps')
+                  : estoque
+                    ? t('integracao.campos.urlSistema')
+                    : rastreio
+                      ? t('integracao.campos.urlRastreador')
+                      : t('integracao.campos.urlPainel')
               }
             >
               {({ field, control }) => (
@@ -471,13 +482,15 @@ function IntegracaoFormulario({
                   autoComplete="off"
                   className="font-mono"
                   placeholder={
-                    estoque
-                      ? EXEMPLO_ESTOQUE[sistemaEscolhido]
-                      : rastreio
-                        ? 'https://rastreador.exemplo.com.br'
-                        : origem
-                          ? (EXEMPLO_PAINEL[sistemaEscolhido] ?? EXEMPLO_PAINEL.GERENCIAMENTO)
-                          : 'http://192.168.0.10:5063/api/ierp2/painel'
+                    gps
+                      ? 'https://gps-cloud.reteck-gps.workers.dev/ierp/v1/points'
+                      : estoque
+                        ? EXEMPLO_ESTOQUE[sistemaEscolhido]
+                        : rastreio
+                          ? 'https://rastreador.exemplo.com.br'
+                          : origem
+                            ? (EXEMPLO_PAINEL[sistemaEscolhido] ?? EXEMPLO_PAINEL.GERENCIAMENTO)
+                            : 'http://192.168.0.10:5063/api/ierp2/painel'
                   }
                 />
               )}
@@ -486,22 +499,26 @@ function IntegracaoFormulario({
               control={form.control}
               name="tokenPainel"
               label={
-                estoque
-                  ? t('integracao.campos.chaveIntegracao')
-                  : rastreio
-                    ? t('integracao.campos.chaveInterna')
-                    : t('integracao.campos.tokenPainel')
+                gps
+                  ? t('integracao.campos.chaveLeituraGps')
+                  : estoque
+                    ? t('integracao.campos.chaveIntegracao')
+                    : rastreio
+                      ? t('integracao.campos.chaveInterna')
+                      : t('integracao.campos.tokenPainel')
               }
               help={
                 integracao?.temTokenPainel
                   ? t('integracao.ajuda.tokenGuardado')
-                  : estoque
-                    ? t(`integracao.ajuda.chave${sistemaEscolhido as 'ARMAZEM'}`)
-                    : rastreio
-                      ? t('integracao.ajuda.chaveInterna')
-                      : origem
-                        ? t('integracao.ajuda.tokenOrigem', { sistema: nomeDoSistema })
-                        : t('integracao.ajuda.token', { min: MIN_TOKEN })
+                  : gps
+                    ? t('integracao.ajuda.chaveLeituraGps')
+                    : estoque
+                      ? t(`integracao.ajuda.chave${sistemaEscolhido as 'ARMAZEM'}`)
+                      : rastreio
+                        ? t('integracao.ajuda.chaveInterna')
+                        : origem
+                          ? t('integracao.ajuda.tokenOrigem', { sistema: nomeDoSistema })
+                          : t('integracao.ajuda.token', { min: MIN_TOKEN })
               }
             >
               {({ field, control }) => (

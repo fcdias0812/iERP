@@ -1,12 +1,8 @@
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate, formatNumber } from '@/lib/format'
-import type {
-  CategoriaOcorrencia,
-  MomentoOcorrencia,
-  Mudanca,
-  TipoDocumentoLote,
-} from '@/services/types'
+import type { CategoriaOcorrencia, MomentoOcorrencia, Mudanca } from '@/services/types'
+import { useNomeDoTipo } from './tipos-documento'
 
 /*
  * Rótulos do histórico do lote — usados na aba Histórico do lote e nos históricos de módulo
@@ -28,6 +24,10 @@ export const ACOES_LOTE = [
   'processamento',
   'devolucao_pedida',
   'devolucao_cancelada',
+  'viagem_adicionada',
+  'juntado',
+  'coleta_juntada',
+  'separado',
   'viagem_iniciada',
   'viagem_chegou',
   'viagem_finalizada',
@@ -57,6 +57,10 @@ const CAMPOS_LOTE = [
   'motivoDevolucao',
   'finalizadaPor',
   'emergencia',
+  'caminhao',
+  'caminhoes',
+  'rastreador',
+  'lote',
 ] as const
 
 /** Campos da edição do lote (mesmos rótulos do Agendamento). */
@@ -90,6 +94,7 @@ const PESOS = new Set(['pesoBruto', 'pesoLiquido'])
 /** Rótulos de ações e campos do histórico do lote, e a formatação dos valores. */
 export function useRotulosHistoricoLote() {
   const { t } = useTranslation()
+  const nomeDoTipo = useNomeDoTipo()
   const acoes = useMemo(
     () => Object.fromEntries(ACOES_LOTE.map((a) => [a, t(`lotes.historico.acoes.${a}`)])),
     [t],
@@ -112,7 +117,7 @@ export function useRotulosHistoricoLote() {
       if (campo === 'momento') return t(`lotes.ocorrencias.momentos.${v as MomentoOcorrencia}`)
       if (campo === 'categoria')
         return t(`lotes.ocorrencias.categorias.${v as CategoriaOcorrencia}`)
-      if (campo === 'tipoDocumento') return t(`lotes.documentos.tipos.${v as TipoDocumentoLote}`)
+      if (campo === 'tipoDocumento') return nomeDoTipo(String(v))
       if (campo === 'caminhao')
         return t(`veiculos.tipos.${v as 'van'}`, { defaultValue: String(v) })
       if (DATAS.has(campo)) return formatDate(String(v))
@@ -123,7 +128,7 @@ export function useRotulosHistoricoLote() {
         return t(`viagens.emergencias.${v as 'assalto'}`, { defaultValue: String(v) })
       return undefined
     },
-    [t],
+    [t, nomeDoTipo],
   )
   return { acoes, campos, formatar }
 }

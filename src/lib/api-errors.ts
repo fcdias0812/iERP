@@ -22,6 +22,18 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.noVehicles')
     case 'scope_required':
       return i18n.t('apiErrors.scopeRequired')
+    case 'lot_merged':
+      return i18n.t('apiErrors.lotMerged')
+    case 'document_type_not_accepted':
+      return i18n.t('apiErrors.documentTypeNotAccepted')
+    case 'report_not_received':
+      return i18n.t('apiErrors.reportNotReceived')
+    case 'report_missing_documents':
+      return i18n.t('apiErrors.reportMissingDocuments')
+    case 'tracker_in_use':
+      return i18n.t('apiErrors.trackerInUse')
+    case 'tracker_inactive':
+      return i18n.t('apiErrors.trackerInactive')
     case 'client_blocked':
       return i18n.t('apiErrors.clientBlocked')
     case 'tracking_by_client':

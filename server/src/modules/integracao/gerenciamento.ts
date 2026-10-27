@@ -13,6 +13,7 @@ import { normalizar } from '../../shared/texto.js'
 import { criarRepositorioSites } from '../clientes/clientes-sites.repositorio.js'
 import { criarServicoSites } from '../clientes/clientes-sites.servico.js'
 import { criarRepositorioClientes } from '../clientes/clientes.repositorio.js'
+import { reagruparColetas } from '../ordens/coleta.js'
 import { fetchComCa } from './rede.js'
 
 /*
@@ -1109,6 +1110,19 @@ export function criarSincronizacaoGerenciamento(db: Db, fazerFetch: Fetch = fetc
       })
       .where('id', '=', integracao.id)
       .execute()
+    // A mesma coleta (cliente, endereço, data) vira um lote só aqui (22/10/2026) — também os
+    // pedidos de lá entre si e com os agendados aqui.
+    const daColeta = await db
+      .selectFrom('ordens')
+      .select('clienteId')
+      .where('externoSistema', '=', integracao.sistema)
+      .distinct()
+      .execute()
+    await reagruparColetas(
+      db,
+      daColeta.map((c) => c.clienteId),
+      integracao.nome,
+    ).catch((e: unknown) => console.error('[gerenciamento] juntar coletas:', e))
     return { ok: true as const, ...resumo }
   }
 

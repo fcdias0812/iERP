@@ -22,8 +22,21 @@ export const listarViagens = (situacao: SituacaoViagens, desde?: string, signal?
   api<ViagensResposta>('/viagens', { query: { situacao, desde }, signal })
 export const obterViagem = (id: string, signal?: AbortSignal) =>
   api<ViagemDetalhe>(`/viagens/${id}`, { signal })
-export const viagemDoLote = (ordemId: string, signal?: AbortSignal) =>
-  api<Viagem | null>(`/viagens/lote/${ordemId}`, { signal })
+/** As viagens do lote (uma por caminhão). */
+export const viagensDoLote = (ordemId: string, signal?: AbortSignal) =>
+  api<Viagem[]>(`/viagens/lote/${ordemId}`, { signal })
+/** "Usar rastreador": o caminhão vai pelo aparelho de GPS. */
+export const usarRastreador = (viagemId: string, rastreadorId: string) =>
+  api<ViagemDetalhe>(`/viagens/${viagemId}/rastreador`, {
+    method: 'POST',
+    body: { rastreadorId },
+  })
+
+/** "Adicionar caminhão" no lote. */
+export const adicionarCaminhao = (
+  ordemId: string,
+  caminhao: { motoristaId: string | null; placa: string | null },
+) => api<ViagemDetalhe>(`/viagens/lote/${ordemId}`, { method: 'POST', body: caminhao })
 export const lerChatViagem = (id: string, signal?: AbortSignal) =>
   api<MensagemViagem[]>(`/viagens/${id}/chat`, { signal })
 export const enviarChatViagem = (id: string, texto: string) =>

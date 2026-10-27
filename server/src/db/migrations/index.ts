@@ -19,6 +19,10 @@ import * as m20261020_03 from './2026-10-20-03-viagens.js'
 import * as m20261020_04 from './2026-10-20-04-historico-do-estoque.js'
 import * as m20261022_01 from './2026-10-22-01-configuracoes-do-cliente.js'
 import * as m20261022_02 from './2026-10-22-02-rastreio-do-cliente.js'
+import * as m20261022_03 from './2026-10-22-03-varias-viagens.js'
+import * as m20261022_04 from './2026-10-22-04-rastreadores-gps.js'
+import * as m20261022_05 from './2026-10-22-05-juntar-lotes.js'
+import * as m20261022_06 from './2026-10-22-06-tipos-de-documento.js'
 
 /**
  * Migrations em ordem. Nova migration: crie `AAAA-MM-DD-NN-assunto.ts` nesta pasta
@@ -45,4 +49,8 @@ export const migrations: Record<string, Migration> = {
   '2026-10-20-04-historico-do-estoque': m20261020_04,
   '2026-10-22-01-configuracoes-do-cliente': m20261022_01,
   '2026-10-22-02-rastreio-do-cliente': m20261022_02,
+  '2026-10-22-03-varias-viagens': m20261022_03,
+  '2026-10-22-04-rastreadores-gps': m20261022_04,
+  '2026-10-22-05-juntar-lotes': m20261022_05,
+  '2026-10-22-06-tipos-de-documento': m20261022_06,
 }

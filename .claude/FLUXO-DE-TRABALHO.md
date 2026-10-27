@@ -81,6 +81,11 @@ npm --prefix server run db:seed # cria server/data/ierp.sqlite com dados FICTÍC
    dados de teste criados no banco de desenvolvimento (§4).
 9. **Documentar:** `README.md` (APIs), `CLAUDE.md` (regras/modelos), `.claude/CONTEXTO.md` (decisões
    do usuário, estado atual, perguntas em aberto) e, se surgir armadilha nova, §5 deste arquivo.
+   **SEMPRE** acrescente a entrega nas **Novidades** (`src/config/novidades.ts`, pedido do usuário
+   em 27/10/2026): versão nova NO TOPO (sobe 0.1: 2.4 → 2.5), data do dia, itens nos 3 idiomas na
+   linguagem de quem usa o sistema (o que muda para a pessoa, nunca o código). Ajuste pequeno da
+   mesma entrega ainda não commitada entra na versão de cima, sem criar outra. O teste
+   `novidades.test.ts` confere ordem, datas e idiomas.
 10. **Mostrar ao usuário** (sistema no ar), resumir em linguagem simples e **perguntar se pode
     commitar**. Commit local só com o "sim"; push só se ele pedir.
 

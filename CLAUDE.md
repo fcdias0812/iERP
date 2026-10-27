@@ -10,7 +10,9 @@ antigo (v1) nem de outro lugar.
 > como construir cada pedido, comandos, validação no Chrome, banco de dev, armadilhas do iERP ·
 > [`.claude/ARMADILHAS-TEMPLATE.md`](.claude/ARMADILHAS-TEMPLATE.md) — herança do template.
 > Repositório: https://github.com/fcdias0812/iERP. Commit só com o "sim" do usuário; push só quando
-> ele pedir. Ao terminar uma entrega, atualize o `.claude/CONTEXTO.md`.
+> ele pedir. Ao terminar uma entrega, atualize o `.claude/CONTEXTO.md` **e as Novidades**
+> (`src/config/novidades.ts` — versão nova no topo, 3 idiomas; botão Novidades da barra do topo;
+> regra em `.claude/FLUXO-DE-TRABALHO.md` §2, passo 9).
 > **Próxima etapa: integrações** — leia [`.claude/INTEGRACOES.md`](.claude/INTEGRACOES.md) (onde cada
 > dado de outro sistema entra e o que perguntar ao usuário antes).
 
@@ -190,7 +192,11 @@ O layout não muda. Modelos completos para copiar:
   `LOT-00001` com status `agendado`. Frontend `src/features/ordens/`. Veículos: volume mín./máx.
   são **quantidade de volumes** (pallets + gaylords + racks; boxes não contam), não m².
 - **Lotes** (Ordens › Lotes = Operação › Lotes) — `src/features/lotes/`: a mesma lista e o mesmo
-  detalhe nos dois módulos (`origem` = `ordens` | `operacao` decide rota, caminho e permissão
+  detalhe nos dois módulos. **Mesma coleta** (cliente + endereço + dia): os lotes seguintes viram
+  `juntado_a` do primeiro (`server/src/modules/ordens/coleta.ts`) — só o principal aparece, com tudo
+  somado (`LotesJuntados.tsx`). Botão **Gerar** = PDF da OS e ZIP do relatório final
+  (`ordens/relatorio-final.ts`, `DocumentosGerados.tsx`); tipos de documento por cliente em
+  `clientes/tipos-documento.ts` (aba Configurações do cliente) (`origem` = `ordens` | `operacao` decide rota, caminho e permissão
   `<origem>.lotes.ver`/`<origem>.lotes.editar`). Detalhe com abas na URL (`?aba=`): **Informações** (padrão),
   **Progresso** (etapa, pallets, peso bruto, processamento e **balanço de massa** do MoonShot,
 linha do tempo, recebimento), **Ocorrências** (painel
@@ -215,7 +221,10 @@ linha do tempo, recebimento), **Ocorrências** (painel
   chave interna; `viagens.ts` = viagem nasce no agendamento com rastreio, código de chegada,
   conferência por minuto, arquivo do trajeto, recebimento encerra, rotas `/api/viagens`;
   `tempo-real.ts` = SignalR, ligado no `index.ts`). Rastreador cadastrado em Administração ›
-  Integração (tipo `rastreio`, sistema `RASTREADOR`). O rastreador é o MESMO do iERP antigo: só as
+  Integração (tipo `rastreio`, sistema `RASTREADOR`). **Vários caminhões por lote** (uma viagem
+  por caminhão, `numero`; "Adicionar caminhão" = `POST /api/viagens/lote/:ordemId`) e o
+  **aparelho de GPS** do caminhão (`gps-caminhao.ts` = leitor PULL do servidor de GPS, o mesmo do
+  1.0; `rastreadores.ts` = `/api/rastreadores`; Integração tipo `gps`, sistema `GPS_CAMINHAO`). O rastreador é o MESMO do iERP antigo: só as
   viagens dos LOT do 2.0; nunca apagar nada lá. Detalhes em `.claude/INTEGRACOES.md` §0.3.
 - **Estoque** (Materiais ← armazém/EC-Inventory-Management; Assets e Peças ← Controle de
   Notebooks; E-commerce ← RTB WMS) — `server/src/modules/estoque/estoque.ts` (`GET

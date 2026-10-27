@@ -51,6 +51,7 @@ export async function ordemNoContrato(db: Db, ordemId: string) {
       'o.clienteNome',
       'o.clienteSistema',
       'o.externoSistema',
+      'o.juntadoA',
       'c.cnpj as clienteCnpj',
       's.codigo as siteCodigo',
       's.endereco as siteEndereco',
@@ -107,11 +108,13 @@ export async function ordemNoContrato(db: Db, ordemId: string) {
       .where('ordemId', '=', ordemId)
       .orderBy('posicao')
       .execute(),
+    // Os documentos da coleta inteira: deste lote e dos juntados a ele (22/10/2026).
     db
-      .selectFrom('ordensAnexos')
-      .select(['numero', 'secao', 'tipo', 'nome', 'tamanho', 'enviadoEm'])
-      .where('ordemId', '=', ordemId)
-      .orderBy('enviadoEm')
+      .selectFrom('ordensAnexos as a')
+      .innerJoin('ordens as x', 'x.id', 'a.ordemId')
+      .select(['a.numero', 'a.secao', 'a.tipo', 'a.nome', 'a.tamanho', 'a.enviadoEm'])
+      .where((eb) => eb.or([eb('a.ordemId', '=', ordemId), eb('x.juntadoA', '=', ordemId)]))
+      .orderBy('a.enviadoEm')
       .execute(),
   ])
 

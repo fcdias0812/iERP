@@ -102,13 +102,18 @@ async function clienteComSite(nome: string, cnpj: string, codigoSite: string) {
   }
 }
 
+/** Cada lote dos testes numa data própria (a mesma coleta — cliente, endereço, data — se junta). */
+let seqDia = 0
+const outroDia = () =>
+  new Date(Date.UTC(2027, 0, 1) + seqDia++ * 86_400_000).toISOString().slice(0, 10)
+
 async function criarLote(local: Awaited<ReturnType<typeof clienteComSite>>, planilha: boolean) {
   const form = new FormData()
   form.append(
     'dados',
     JSON.stringify({
       ...local,
-      coletaPrevista: '2026-10-25',
+      coletaPrevista: outroDia(),
       rastrear: false,
       placa: null,
       servicos: { recycleOnly: true },
@@ -297,7 +302,7 @@ describe('integração › contrato da ordem', () => {
     assert.equal(o.codigo, loteDell.codigo)
     assert.equal(typeof o.id, 'number')
     assert.equal(o.cliente.nome, 'Dell Computadores do Brasil Ltda')
-    assert.equal(o.dataColeta, '2026-10-25')
+    assert.match(o.dataColeta, /^\d{4}-\d{2}-\d{2}$/)
     assert.equal(o.recebimento, null)
     const planilha = o.anexos[0]
     assert.equal(typeof planilha.id, 'number')

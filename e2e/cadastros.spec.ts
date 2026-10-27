@@ -18,7 +18,8 @@ test('menu Cadastros abre os itens; materiais no idioma da tela', async ({ page 
   expect(await violacoes(page)).toEqual([])
 
   await menu.getByRole('link', { name: 'Rastreadores GPS' }).click()
-  await expect(page.getByText('Aguardando a integração')).toBeVisible()
+  await expect(page.getByText('Nenhum rastreador ainda')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Ler agora' })).toBeVisible()
 })
 
 test('área nova (descrição opcional) e caixote com código automático', async ({ page }) => {

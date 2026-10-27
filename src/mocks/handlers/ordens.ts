@@ -53,6 +53,10 @@ function semente(): Ordem {
     id: 'ord00001',
     codigo: 'LOT-00001',
     status: 'processo',
+    caminhoes: [],
+    juntadoA: null,
+    juntados: [],
+    coleta: null,
     clienteId: cliente.id,
     clienteNome: cliente.nome,
     siteId: site.id,
@@ -632,6 +636,10 @@ export const ordensHandlers = [
       coletaPrevista: inicioDoDia(d.coletaPrevista)!,
       dataChegada: inicioDoDia(d.dataChegada),
       rastrear: d.rastrear,
+      caminhoes: [],
+      juntadoA: null,
+      juntados: [],
+      coleta: null,
       motoristaId: d.rastrear ? d.motoristaId : null,
       motoristaNome: d.rastrear
         ? (rel.motoristas.find((m) => m.id === d.motoristaId)?.nome ?? null)

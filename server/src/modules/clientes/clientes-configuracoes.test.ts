@@ -69,13 +69,18 @@ const PADRAO = {
 const configurar = (extra: Record<string, unknown>) =>
   api(`/clientes/${clienteId}/configuracoes`, { method: 'PUT', body: { ...PADRAO, ...extra } })
 
+/** Cada lote dos testes numa data própria (a mesma coleta — cliente, endereço, data — se junta). */
+let seqDia = 0
+const outroDia = () =>
+  new Date(Date.UTC(2027, 0, 1) + seqDia++ * 86_400_000).toISOString().slice(0, 10)
+
 const ordem = (extra: Record<string, unknown> = {}) => ({
   clienteId,
   siteId,
   docaId,
   transportadoraId: null,
   referenciaCliente: null,
-  coletaPrevista: '2026-12-01',
+  coletaPrevista: outroDia(),
   dataColeta: null,
   dataChegada: null,
   rastrear: false,
@@ -213,7 +218,11 @@ describe('clientes › configurações', () => {
     assert.equal(campos.instrucoes, 'Usar EPI completo no site.')
 
     // Gravar de novo igual não cria evento.
-    const igual = await configurar({ ...r.body.configuracoes, transportadoraPadraoNome: undefined })
+    const igual = await configurar({
+      ...r.body.configuracoes,
+      transportadoraPadraoNome: undefined,
+      documentos: undefined,
+    })
     assert.equal(igual.body.historico.length, r.body.historico.length)
   })
 

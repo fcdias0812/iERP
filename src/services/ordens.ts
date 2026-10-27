@@ -66,6 +66,10 @@ export function criarOrdem(dados: OrdemInput, arquivos: { escopo: File[]; observ
 export const urlAnexoOrdem = (id: string, anexoId: string) =>
   buildUrl(`/ordens/${id}/anexos/${anexoId}/arquivo`)
 
+/** PDF da OS e ZIP do relatório final (o servidor responde como anexo). */
+export const urlPdfOrdem = (id: string) => buildUrl(`/ordens/${id}/pdf`)
+export const urlRelatorioFinal = (id: string) => buildUrl(`/ordens/${id}/relatorio-final`)
+
 /* ---------------- Detalhe do lote: ocorrências (as respostas trazem o lote atualizado) */
 
 function formOcorrencia(dados: OcorrenciaInput, fotos: File[]) {

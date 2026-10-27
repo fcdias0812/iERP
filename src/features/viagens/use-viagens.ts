@@ -10,7 +10,8 @@ import {
   listarViagens,
   obterViagem,
   poisDaEstrada,
-  viagemDoLote,
+  viagensDoLote,
+  adicionarCaminhao,
   viagensKeys,
   type SituacaoViagens,
 } from '@/services/viagens'
@@ -41,10 +42,10 @@ export const useViagem = (id: string | undefined, naRua: boolean) =>
     placeholderData: keepPreviousData,
   })
 
-export const useViagemDoLote = (ordemId: string, ligado = true) =>
+export const useViagensDoLote = (ordemId: string, ligado = true) =>
   useQuery({
     queryKey: viagensKeys.doLote(ordemId),
-    queryFn: ({ signal }) => viagemDoLote(ordemId, signal),
+    queryFn: ({ signal }) => viagensDoLote(ordemId, signal),
     enabled: ligado && Boolean(ordemId),
     refetchInterval: 15_000,
   })
@@ -73,6 +74,22 @@ export function useEnviarChat(id: string) {
     mutationFn: (texto: string) => enviarChatViagem(id, texto),
     onSuccess: (msgs) => qc.setQueryData(viagensKeys.chat(id), msgs),
     onError: (e) => toast.error(t('viagens.chat.falhou'), { description: apiErrorMessage(e) }),
+  })
+}
+
+/** "Adicionar caminhão": mais uma viagem no lote (o detalhe do lote e as viagens se atualizam). */
+export function useAdicionarCaminhao(ordemId: string) {
+  const { t } = useTranslation()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (c: { motoristaId: string | null; placa: string | null }) =>
+      adicionarCaminhao(ordemId, c),
+    onSuccess: (v) => {
+      void qc.invalidateQueries({ queryKey: viagensKeys.todas })
+      void qc.invalidateQueries({ queryKey: ['ordens'] })
+      toast.success(t('viagens.caminhao.adicionado', { n: v.numero }))
+    },
+    onError: (e) => toast.error(t('viagens.toast.falhou'), { description: apiErrorMessage(e) }),
   })
 }
 

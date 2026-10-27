@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HistoricoTabela } from '@/features/comum/HistoricoTabela'
+import { useNomeDoTipo } from '@/features/lotes/tipos-documento'
 import type { Cliente, Mudanca, TipoDocumento } from '@/services/types'
 import { NOME_SISTEMA } from '../configuracoes'
 
@@ -58,10 +59,13 @@ const CAMPOS = [
   'antecedenciaDias',
   'agendamentoBloqueado',
   'bloqueioMotivo',
+  'documentosAceitos',
+  'documentosRelatorio',
 ] as const
 
 export function AbaHistorico({ c }: { c: Cliente }) {
   const { t } = useTranslation()
+  const nomeDoTipo = useNomeDoTipo()
   const acoes = useMemo(
     () => Object.fromEntries(ACOES.map((a) => [a, t(`clientes.history.${a}`)])),
     [t],
@@ -77,9 +81,15 @@ export function AbaHistorico({ c }: { c: Cliente }) {
         return t(`clientes.sites.regioes.${v as 'sul'}`, { defaultValue: String(v) })
       if (campo === 'tipoDocumento') return t(`clientes.documentos.tipos.${v as TipoDocumento}`)
       if (campo === 'sistemaProcessamento') return NOME_SISTEMA[String(v)] ?? String(v)
+      // Tipos de documento do lote: o servidor guarda os códigos.
+      if (campo === 'documentosAceitos' || campo === 'documentosRelatorio')
+        return String(v)
+          .split(', ')
+          .map((c) => nomeDoTipo(c))
+          .join(', ')
       return undefined
     },
-    [t],
+    [t, nomeDoTipo],
   )
   return (
     <HistoricoTabela

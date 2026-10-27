@@ -13,8 +13,11 @@ import type {
   UsuarioPerfil,
   UsuarioResumo,
   UsuarioStatus,
+  TipoDocLote,
+  TipoDocLoteCliente,
 } from '@/services/types'
 import { CONFIGURACOES_PADRAO } from '@/features/clientes/configuracoes'
+import { TIPOS_DOC_SISTEMA } from '@/features/lotes/tipos-documento'
 import { gerarCnpj, seeded } from './generators'
 
 /*
@@ -154,6 +157,7 @@ function gerarClientes(hoje: number): Cliente[] {
       status,
       configuracoes: {
         ...CONFIGURACOES_PADRAO,
+        documentos: documentosPadrao(TIPOS_DOC_MOCK),
         slaDias: [15, 45, null][i % 3] ?? null,
         // O primeiro cliente de demonstração mostra instruções e o alerta de lote parado (sem
         // regras que mudem o agendamento e o recebimento dos testes).
@@ -187,8 +191,14 @@ function gerarClientes(hoje: number): Cliente[] {
 /** Documento simulado: o conteúdo fica em memória (para o download). */
 export type DocumentoDb = DocumentoCliente & { conteudo: Blob }
 
+/** Sem marca: os tipos do sistema aceitos e nenhum no relatório final (como o servidor). */
+export const documentosPadrao = (tipos: TipoDocLote[]): TipoDocLoteCliente[] =>
+  tipos.map((x) => ({ ...x, aceita: x.nome === null, relatorio: false }))
+
 export interface Db {
   usuarios: Usuario[]
+  /** Tipos de documento do lote (os do sistema + os criados). */
+  tiposDocumento: TipoDocLote[]
   clientes: Cliente[]
   /** Sites por cliente (Logística). */
   sites: Record<string, SiteCliente[]>
@@ -344,6 +354,7 @@ function gerar(): Db {
   }
   return {
     usuarios,
+    tiposDocumento: [...TIPOS_DOC_MOCK],
     clientes,
     sites,
     documentos,
@@ -352,6 +363,8 @@ function gerar(): Db {
     seqClientes: clientes.length,
   }
 }
+
+const TIPOS_DOC_MOCK: TipoDocLote[] = TIPOS_DOC_SISTEMA.map((codigo) => ({ codigo, nome: null }))
 
 let db: Db | null = null
 

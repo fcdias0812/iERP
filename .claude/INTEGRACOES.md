@@ -384,11 +384,16 @@ antes de começar qualquer um (e a regra de sempre: o antigo NÃO muda, o 2.0 é
 
 ### 2.4 Rastreadores GPS e Ordens › Viagens
 
-- **Viagens: pronto (§0.3)** — pelo celular do motorista. Falta o **aparelho de GPS** no caminhão
-  ("Usar rastreador" do antigo): Sistema › Cadastros › Rastreadores GPS ainda é só tela
-  (`src/features/cadastros/AbaRastreadores.tsx`). **Perguntar:** qual fornecedor/sistema do aparelho
-  e a API dele (pesquisar na web antes de afirmar). Também ficou para depois a **viagem junta**
-  (vários lotes no mesmo caminhão, como no antigo).
+- **Viagens: pronto (§0.3)** — pelo celular do motorista.
+- **Aparelho de GPS no caminhão: pronto (22/10/2026)** — o MESMO método do 1.0 ("esse sistema do
+  gps não vai mudar"): o iERP busca os pontos no servidor de GPS (Walker) por PULL
+  (`GET <url>?after=<cursor>`, `Authorization: Bearer <chave>`), a cada 5 min, com o PRÓPRIO
+  cursor (não atrapalha a leitura do 1.0). Chave = a mesma do 1.0 (decisão dele). Cadastro em
+  Administração › Integração (tipo `gps`, sistema `GPS_CAMINHAO`); código em
+  `server/src/modules/viagens/gps-caminhao.ts` e `rastreadores.ts`; detalhes no CONTEXTO §5.19.
+  **Para produção:** cadastrar a URL da leitura e a chave do 1.0 na Integração.
+- **Vários caminhões por lote: pronto (22/10/2026)** — CONTEXTO §5.19. Ainda fica para depois a
+  **viagem junta** do antigo (vários lotes de clientes diferentes no mesmo caminhão).
 
 ### 2.5 Dashboard — processos de alto valor
 

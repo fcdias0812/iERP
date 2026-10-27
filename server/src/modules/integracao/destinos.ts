@@ -39,9 +39,14 @@ export function sistemaDoCliente(nomeCliente: string): string | null {
 /**
  * Sistema de fora que processa ESTE lote: o do cliente (aba Configurações). Lote que nasceu num
  * sistema de fora (Gerenciamento de Projetos, MSDC) nunca vai para outro: ele é só para ver aqui.
+ * Lote JUNTADO a outro da mesma coleta não vai sozinho: vai o principal, com tudo (22/10/2026).
  */
-export function sistemaDoLote(l: { clienteSistema: string | null; externoSistema: string | null }) {
-  return l.externoSistema ? null : l.clienteSistema
+export function sistemaDoLote(l: {
+  clienteSistema: string | null
+  externoSistema: string | null
+  juntadoA?: string | null
+}) {
+  return l.externoSistema || l.juntadoA ? null : l.clienteSistema
 }
 
 /**
@@ -52,9 +57,11 @@ export function sistemaDoLote(l: { clienteSistema: string | null; externoSistema
  *  - rastreio: o rastreador de GPS das viagens (ReTeckTracker — endereço e chave INTERNA; o
  *    mesmo que o iERP antigo usa; `modules/viagens/`);
  *  - estoque: os sistemas de estoque lidos ao vivo nas telas do Estoque (endereço e a chave de
- *    integração deles — a mesma porta `/api/integracao/estoque` do iERP antigo; `modules/estoque/`).
+ *    integração deles — a mesma porta `/api/integracao/estoque` do iERP antigo; `modules/estoque/`);
+ *  - gps: o servidor de GPS dos APARELHOS dos caminhões (Walker) — endereço da leitura e a chave
+ *    (a mesma do 1.0); o iERP lê por pull, com cursor próprio (`viagens/gps-caminhao.ts`).
  */
-export type TipoSistema = 'processamento' | 'origem' | 'rastreio' | 'estoque'
+export type TipoSistema = 'processamento' | 'origem' | 'rastreio' | 'estoque' | 'gps'
 export const SISTEMAS_CONHECIDOS: { sistema: string; nome: string; tipo: TipoSistema }[] = [
   ...DESTINOS.map((d) => ({ sistema: d.sistema, nome: d.nome, tipo: 'processamento' as const })),
   { sistema: 'GERENCIAMENTO', nome: 'Gerenciamento de Projetos', tipo: 'origem' },
@@ -62,6 +69,8 @@ export const SISTEMAS_CONHECIDOS: { sistema: string; nome: string; tipo: TipoSis
   { sistema: 'MSDC', nome: 'Re-Teck MSDC (Microsoft)', tipo: 'origem' },
   // Rastreador de GPS das viagens (ReTeckTracker, 20/10/2026).
   { sistema: 'RASTREADOR', nome: 'Rastreador de GPS (ReTeckTracker)', tipo: 'rastreio' },
+  // Servidor de GPS dos APARELHOS dos caminhões (Walker, lido por pull como no 1.0 — 22/10/2026).
+  { sistema: 'GPS_CAMINHAO', nome: 'Servidor de GPS dos caminhões', tipo: 'gps' },
   // Estoque (20/10/2026): Materiais ← armazém; Assets e Peças ← Controle de Notebooks;
   // E-commerce ← RTB WMS.
   { sistema: 'ARMAZEM', nome: 'Armazém (Inventory-Management)', tipo: 'estoque' },

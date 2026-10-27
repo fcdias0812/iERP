@@ -186,6 +186,10 @@ const nomeLivre = (nome: string, exceto: string | null, todos: string[][]) =>
   !todos.some(([id, n]) => id !== exceto && sem(n!) === sem(nome))
 
 export const cadastrosHandlers = [
+  // Rastreadores GPS: nenhum aparelho na demonstração (a placa aparece sozinha na leitura real).
+  http.get('*/api/rastreadores', () => HttpResponse.json([])),
+  http.post('*/api/rastreadores/ler-agora', () => HttpResponse.json([])),
+
   ...rotas<Material, MaterialInput>(
     'materiais',
     () => db().materiais,

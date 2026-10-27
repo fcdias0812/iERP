@@ -31,6 +31,22 @@ export const SERVICOS = [
 export const QUANTIDADES = ['boxes', 'pallets', 'gaylords', 'racks'] as const
 
 const qtd = z.number().int().min(0).max(100_000).nullable()
+
+/**
+ * Um caminhão da coleta rastreada (22/10/2026: vários por lote). `viagemId`/`status` = caminhão
+ * que já existe (edição): o que já saiu ou terminou não se muda por aqui.
+ */
+const caminhao = z.object({
+  viagemId: z.string().optional(),
+  status: z.string().optional(),
+  motoristaId: z.string(),
+  placa: z.string(),
+})
+export type CaminhaoForm = z.input<typeof caminhao>
+export const novoCaminhao = (): CaminhaoForm => ({ motoristaId: NENHUM, placa: '' })
+/** Caminhão que já saiu (ou terminou): só mostra. */
+export const caminhaoTravado = (c: CaminhaoForm) =>
+  Boolean(c.status && c.status !== 'aguardando_motorista')
 const arquivos = z.array(z.custom<File>((v) => v instanceof File))
 
 /**
@@ -55,8 +71,7 @@ export const criarAgendamentoSchema = ({ temEscopoArquivado = false } = {}) =>
       dataColeta: z.date().optional(),
       dataChegada: z.date().optional(),
       rastrear: z.boolean(),
-      motoristaId: z.string(),
-      placa: z.string(),
+      caminhoes: z.array(caminhao).max(20),
       servicos: z.object({
         psm: z.boolean(),
         onsiteShredding: z.boolean(),
@@ -95,8 +110,15 @@ export const criarAgendamentoSchema = ({ temEscopoArquivado = false } = {}) =>
         })
       if (!v.escopo && !v.escopoArquivos.length && !temEscopoArquivado)
         ctx.addIssue({ code: 'custom', path: ['escopo'], message: 'validation.scopeRequired' })
-      if (v.rastrear && v.placa && !isValidPlate(v.placa))
-        ctx.addIssue({ code: 'custom', path: ['placa'], message: 'validation.plate' })
+      if (v.rastrear)
+        v.caminhoes.forEach((c, i) => {
+          if (c.placa && !caminhaoTravado(c) && !isValidPlate(c.placa))
+            ctx.addIssue({
+              code: 'custom',
+              path: ['caminhoes', i, 'placa'],
+              message: 'validation.plate',
+            })
+        })
     })
 
 export const agendamentoSchema = criarAgendamentoSchema()
@@ -111,16 +133,21 @@ export function errosDoCliente(
   v: AgendamentoForm,
   r: ConfiguracoesCliente | undefined,
   { novo }: { novo: boolean },
-): { campo: 'clienteId' | 'motoristaId' | 'placa' | 'escopo'; mensagem: string }[] {
+): {
+  campo: 'clienteId' | 'escopo' | `caminhoes.${number}.motoristaId` | `caminhoes.${number}.placa`
+  mensagem: string
+}[] {
   if (!r) return []
   const erros: ReturnType<typeof errosDoCliente> = []
   if (novo && r.agendamentoBloqueado)
     erros.push({ campo: 'clienteId', mensagem: 'validation.clientBlocked' })
-  if (r.exigirMotoristaPlaca && v.rastrear) {
-    if (v.motoristaId === NENHUM || !v.motoristaId)
-      erros.push({ campo: 'motoristaId', mensagem: 'validation.required' })
-    if (!v.placa) erros.push({ campo: 'placa', mensagem: 'validation.required' })
-  }
+  if (r.exigirMotoristaPlaca && v.rastrear)
+    v.caminhoes.forEach((c, i) => {
+      if (caminhaoTravado(c)) return
+      if (c.motoristaId === NENHUM || !c.motoristaId)
+        erros.push({ campo: `caminhoes.${i}.motoristaId`, mensagem: 'validation.required' })
+      if (!c.placa) erros.push({ campo: `caminhoes.${i}.placa`, mensagem: 'validation.required' })
+    })
   if (novo && r.exigirEscopoPlanilha && !v.escopoArquivos.some((f) => /\.xlsx$/i.test(f.name)))
     erros.push({ campo: 'escopo', mensagem: 'validation.scopeSpreadsheet' })
   return erros
@@ -137,8 +164,7 @@ export const novoAgendamento = (): AgendamentoForm => ({
   coletaPrevista: undefined,
   dataChegada: undefined,
   rastrear: false,
-  motoristaId: NENHUM,
-  placa: '',
+  caminhoes: [novoCaminhao()],
   // III e IV já vêm marcados: são os mais comuns.
   servicos: {
     psm: false,
@@ -194,12 +220,26 @@ export function formParaInput(v: AgendamentoForm): OrdemInput {
     coletaPrevista: dia(v.coletaPrevista)!,
     dataChegada: dia(v.dataChegada),
     rastrear: v.rastrear,
-    motoristaId: v.rastrear ? opcional(v.motoristaId) : null,
-    placa: v.rastrear && v.placa ? v.placa.toUpperCase() : null,
+    ...caminhoesParaApi(v),
     servicos: v.servicos,
     quantidades: quantidadesParaApi(v),
     escopo: v.escopo.trim() || null,
     observacoes: v.observacoes.trim() || null,
+  }
+}
+
+/** Os caminhões como a API espera; o primeiro também é o motorista/placa do lote. */
+function caminhoesParaApi(v: AgendamentoForm) {
+  const caminhoes = v.rastrear
+    ? v.caminhoes.map((c) => ({
+        motoristaId: opcional(c.motoristaId),
+        placa: c.placa ? c.placa.toUpperCase() : null,
+      }))
+    : []
+  return {
+    motoristaId: caminhoes[0]?.motoristaId ?? null,
+    placa: caminhoes[0]?.placa ?? null,
+    caminhoes,
   }
 }
 
@@ -229,8 +269,14 @@ export function ordemParaForm(o: Ordem): AgendamentoForm {
     coletaPrevista: paraData(o.coletaPrevista),
     dataChegada: paraData(o.dataChegada),
     rastrear: o.rastrear,
-    motoristaId: o.motoristaId ?? NENHUM,
-    placa: o.placa ?? '',
+    caminhoes: o.caminhoes.length
+      ? o.caminhoes.map((c) => ({
+          viagemId: c.viagemId,
+          status: c.status,
+          motoristaId: c.motoristaId ?? NENHUM,
+          placa: c.placa ?? '',
+        }))
+      : [{ motoristaId: o.motoristaId ?? NENHUM, placa: o.placa ?? '' }],
     servicos: { ...o.servicos },
     quantidades: {
       boxes: q.boxes,

@@ -31,4 +31,5 @@ export const CONFIGURACOES_PADRAO: ConfiguracoesCliente = {
   antecedenciaDias: null,
   agendamentoBloqueado: false,
   bloqueioMotivo: null,
+  documentos: [],
 }

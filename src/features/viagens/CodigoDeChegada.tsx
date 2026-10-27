@@ -1,27 +1,36 @@
 import { useTranslation } from 'react-i18next'
 import { Alert } from '@/components/ui/alert'
-import { useViagemDoLote } from './use-viagens'
+import { useViagensDoLote } from './use-viagens'
 
 /*
- * No painel de recebimento: o lote tem viagem rastreada? Mostra o código de chegada (é o que o
- * motorista digita no app ao chegar) e avisa que receber o lote ENCERRA a viagem (decisão do
- * usuário, 20/10/2026).
+ * No painel de recebimento: o lote tem caminhões rastreados? Mostra o código de chegada de cada
+ * um (é o que o motorista digita no app ao chegar). Desde 22/10/2026 receber o lote NÃO encerra
+ * as viagens ("cada uma por si"): cada uma termina pelo código ou pelo botão Finalizar.
  */
 export function CodigoDeChegada({ ordemId }: { ordemId: string }) {
   const { t } = useTranslation()
-  const v = useViagemDoLote(ordemId).data
-  if (!v || v.somenteLeitura || v.status === 'finalizada' || v.status === 'cancelada') return null
+  const abertas = (useViagensDoLote(ordemId).data ?? []).filter(
+    (v) => !v.somenteLeitura && v.status !== 'finalizada' && v.status !== 'cancelada',
+  )
+  if (!abertas.length) return null
   return (
     <Alert tone="info" title={t('viagens.recebimento.titulo')} className="sm:col-span-2">
-      {v.codigoChegada && (
-        <>
-          {t('viagens.card.codigoChegada')}{' '}
-          <span className="font-mono type-label num">{v.codigoChegada}</span>.{' '}
-        </>
-      )}
-      {v.status === 'aguardando_motorista'
-        ? t('viagens.recebimento.semViagem')
-        : t('viagens.recebimento.encerra')}
+      <ul className="flex flex-col gap-0.5">
+        {abertas.map((v) => (
+          <li key={v.id}>
+            {t('viagens.card.caminhao', { n: v.numero })}
+            {v.placa ? ` · ${v.placa}` : ''}
+            {v.codigoChegada && (
+              <>
+                {' · '}
+                {t('viagens.card.codigoChegada')}{' '}
+                <span className="font-mono type-label num">{v.codigoChegada}</span>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1">{t('viagens.recebimento.naoEncerra')}</p>
     </Alert>
   )
 }

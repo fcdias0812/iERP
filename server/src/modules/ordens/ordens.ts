@@ -9,6 +9,10 @@ import type { Db } from '../../db/database.js'
 import type { Database } from '../../db/schema.js'
 import { EXTENSOES, extensaoDe, MAX_BYTES, nomeSeguro } from '../../shared/arquivos.js'
 import { configuracoesDoCliente } from '../clientes/clientes-configuracoes.js'
+import { juntadosA, reagruparColetas } from './coleta.js'
+import { zipSync } from 'fflate'
+import { tiposDoCliente, type TipoDoCliente } from '../clientes/tipos-documento.js'
+import { gerarPdfDaOs, gerarPlanilhaDoRelatorio } from './relatorio-final.js'
 import { autorDa } from '../../shared/autor.js'
 import { codigoCom, proximoNumero } from '../../shared/cadastro.js'
 import {
@@ -26,7 +30,7 @@ import { balancoDoLote, type BalancoDeMassa } from '../integracao/balanco.js'
 import { enfileirarAviso } from '../integracao/sincronizacao.js'
 import { dadosExternos, type DadosExternos } from '../integracao/gerenciamento.js'
 import { garantirLoteDaqui } from './externo.js'
-import type { ServicoViagens } from '../viagens/viagens.js'
+import { caminhaoSchema, type ServicoViagens } from '../viagens/viagens.js'
 import {
   calcularOs,
   SemVeiculoError,
@@ -91,19 +95,17 @@ export const ORDEM_ETAPAS: Record<StatusOrdem, number> = {
 /** escopo/observacoes = enviados no agendamento; lote = adicionados depois, na aba Documentos. */
 export type SecaoAnexo = 'escopo' | 'observacoes' | 'lote'
 
-/** Tipos de documento do lote (decisão do usuário, 19/10/2026). */
-export const TIPOS_DOCUMENTO_LOTE = [
-  'escopo',
-  'nota_fiscal',
-  'mtr',
-  'cdf',
-  'foto',
-  'outro',
-] as const
-export type TipoDocumentoLote = (typeof TIPOS_DOCUMENTO_LOTE)[number]
+/**
+ * Tipo de documento do lote: um código do catálogo `tipos_documento` (os do sistema — escopo,
+ * nota_fiscal, mtr, cdf, foto, outro — e os criados na aba Configurações do cliente, 22/10/2026).
+ */
+export type TipoDocumentoLote = string
 
 export interface AnexoOrdem {
   id: string
+  /** O lote onde o arquivo está (só nos de um lote JUNTADO a este). */
+  ordemId?: string
+  loteCodigo?: string
   secao: SecaoAnexo
   tipo: TipoDocumentoLote
   nome: string
@@ -170,22 +172,64 @@ export interface DevolucaoAoRecebimento {
   em: string
 }
 
+/** As quantidades do agendamento. */
+export interface QuantidadesOs {
+  boxes: number | null
+  pallets: number | null
+  gaylords: number | null
+  racks: number | null
+  placasPolicarbonato: number | null
+  requerPalletsVazios: boolean
+  palletsVazios: number | null
+  itensMais25kg: boolean
+  fatorLimitante: string | null
+}
+
+/** Um lote juntado ao principal (mesma coleta — 22/10/2026). */
+export interface LoteJuntado {
+  id: string
+  codigo: string
+  /** IERP ou o sistema de onde veio (GERENCIAMENTO, MSDC). */
+  origem: string
+  /** O lote no sistema de lá (Gerenciamento/MSDC). */
+  url: string | null
+  status: StatusOrdem
+  referenciaCliente: string | null
+  totalVolumes: number
+  escopo: string | null
+  observacoes: string | null
+}
+
+/** A coleta inteira (o principal + os juntados), para mostrar. */
+export interface ColetaSomada {
+  quantidades: QuantidadesOs
+  servicos: ServicosOs
+  totalVolumes: number
+}
+
+export interface CaminhaoLote {
+  viagemId: string
+  numero: number
+  motoristaId: string | null
+  placa: string | null
+  /** A situação da viagem (aguardando_motorista, em_rota, chegou, finalizada). */
+  status: string
+}
+
 export interface Ordem extends OrdemResumo {
+  /** Os caminhões da coleta (uma viagem cada; 22/10/2026). */
+  caminhoes: CaminhaoLote[]
+  /** Este lote foi juntado a outro (a tela abre o principal). */
+  juntadoA: { id: string; codigo: string } | null
+  /** Os lotes juntados a este (a mesma coleta). */
+  juntados: LoteJuntado[]
+  /** A coleta inteira somada (null = sem juntados; as quantidades acima são só deste lote). */
+  coleta: ColetaSomada | null
   siteId: string
   docaId: string
   transportadoraId: string | null
   motoristaId: string | null
-  quantidades: {
-    boxes: number | null
-    pallets: number | null
-    gaylords: number | null
-    racks: number | null
-    placasPolicarbonato: number | null
-    requerPalletsVazios: boolean
-    palletsVazios: number | null
-    itensMais25kg: boolean
-    fatorLimitante: string | null
-  }
+  quantidades: QuantidadesOs
   escopo: string | null
   observacoes: string | null
   anexos: AnexoOrdem[]
@@ -275,10 +319,29 @@ export const ordemInputSchema = z
       .nullish()
       .transform((v) => (v ? v.replace(/[^0-9a-z]/gi, '').toUpperCase() : null))
       .refine((v) => v === null || PLACA.test(v), 'Placa inválida.'),
+    /**
+     * Os caminhões da coleta rastreada (22/10/2026: "vários caminhões podem ir fazer essa viagem
+     * ao mesmo tempo") — um por viagem. Sem a lista, vale o motorista/placa acima (um caminhão).
+     */
+    caminhoes: z.array(caminhaoSchema).max(20).optional(),
     servicos: servicosSchema,
     quantidades: quantidadesSchema,
     escopo: textoOpcional(5000),
     observacoes: textoOpcional(5000),
+  })
+  // A lista de caminhões manda: o primeiro é o motorista/placa do lote. Sem rastreio, nenhum.
+  .transform((v) => {
+    const caminhoes = !v.rastrear
+      ? []
+      : v.caminhoes?.length
+        ? v.caminhoes
+        : [{ motoristaId: v.motoristaId, placa: v.placa }]
+    return {
+      ...v,
+      caminhoes,
+      motoristaId: caminhoes[0]?.motoristaId ?? null,
+      placa: caminhoes[0]?.placa ?? null,
+    }
   })
   .superRefine((v, ctx) => {
     if (v.servicos.valueRecoveryRacks && v.quantidades.placasPolicarbonato === null)
@@ -405,21 +468,47 @@ export async function proximoNumeroAnexo(cx: Db | Transaction<Database>): Promis
   return Number(r?.n ?? 0) + 1
 }
 
+/** Os caminhões do lote (as viagens que não foram canceladas), na ordem. */
+export async function caminhoesDoLote(db: Db | Transaction<Database>, ordemId: string) {
+  const l = await db
+    .selectFrom('ordensViagens')
+    .select(['id', 'numero', 'motoristaId', 'placaInformada', 'status'])
+    .where('ordemId', '=', ordemId)
+    .where('status', '<>', 'cancelada')
+    .orderBy('numero')
+    .execute()
+  return l.map((v) => ({
+    viagemId: v.id,
+    numero: v.numero,
+    motoristaId: v.motoristaId,
+    placa: v.placaInformada,
+    status: v.status,
+  }))
+}
+
+/** Os tipos de documento do sistema, em português (PDF e ZIP). */
+const NOME_DO_TIPO: Record<string, string> = {
+  escopo: 'Escopo',
+  nota_fiscal: 'Nota fiscal',
+  mtr: 'MTR',
+  cdf: 'CDF',
+  foto: 'Foto',
+  outro: 'Outro',
+}
+
 export function criarServicoOrdens(
   db: Db,
   opcoes: {
     pasta: string
     /** Ordens › Viagens: a viagem nasce com o rastreio e termina no recebimento. */
-    viagens?: Pick<ServicoViagens, 'aoMudarRastreio' | 'antesDeDesligar' | 'aoReceberLote'>
+    viagens?: Pick<ServicoViagens, 'aoMudarRastreio' | 'antesDeDesligar' | 'doLote'>
   },
 ) {
   const caminho = (ordemId: string, anexoId: string) =>
     path.join(opcoes.pasta, 'ordens', ordemId, anexoId)
   const lote = criarServicoLote(db, opcoes)
-  const recebimento = criarServicoRecebimento(db, {
-    pasta: opcoes.pasta,
-    aoReceber: opcoes.viagens?.aoReceberLote,
-  })
+  // Receber não mexe nas viagens (22/10/2026: "cada uma por si").
+  const recebimento = criarServicoRecebimento(db, { pasta: opcoes.pasta })
 
   /**
    * Documento entrou ou saiu de um lote JÁ RECEBIDO: o sistema de fora do cliente (Dell →
@@ -441,10 +530,95 @@ export function criarServicoOrdens(
     await enfileirarAviso(db, ordemId, 'ordem.editada')
   }
 
+  /**
+   * O lote com a coleta inteira (22/10/2026): juntado → aponta o principal; principal → a lista
+   * dos juntados, a coleta somada (quantidades, serviços), os documentos de todos e o pré-cálculo
+   * da coleta. As quantidades/serviços/escopo do próprio lote ficam como estão (a edição usa).
+   */
   async function obter(id: string): Promise<Ordem> {
+    const o = await obterSo(id)
+    const linha = await db
+      .selectFrom('ordens')
+      .select('juntadoA')
+      .where('id', '=', id)
+      .executeTakeFirst()
+    if (linha?.juntadoA) {
+      const p = await db
+        .selectFrom('ordens')
+        .select(['id', 'codigo'])
+        .where('id', '=', linha.juntadoA)
+        .executeTakeFirst()
+      return { ...o, juntadoA: p ?? null }
+    }
+    const filhos = await juntadosA(db, id)
+    if (!filhos.length) return o
+    const outros = await Promise.all(filhos.map((f) => obterSo(f.id)))
+    const todos = [o, ...outros]
+    const soma = (
+      k: 'boxes' | 'pallets' | 'gaylords' | 'racks' | 'placasPolicarbonato' | 'palletsVazios',
+    ) =>
+      todos.some((x) => x.quantidades[k] !== null)
+        ? todos.reduce((a, x) => a + (x.quantidades[k] ?? 0), 0)
+        : null
+    const algum = (k: 'requerPalletsVazios' | 'itensMais25kg') =>
+      todos.some((x) => x.quantidades[k])
+    const quantidades: QuantidadesOs = {
+      boxes: soma('boxes'),
+      pallets: soma('pallets'),
+      gaylords: soma('gaylords'),
+      racks: soma('racks'),
+      placasPolicarbonato: soma('placasPolicarbonato'),
+      requerPalletsVazios: algum('requerPalletsVazios'),
+      palletsVazios: soma('palletsVazios'),
+      itensMais25kg: algum('itensMais25kg'),
+      fatorLimitante:
+        [...new Set(todos.map((x) => x.quantidades.fatorLimitante).filter(Boolean))].join('\n\n') ||
+        null,
+    }
+    const servicos = Object.fromEntries(
+      (Object.keys(o.servicos) as (keyof ServicosOs)[]).map((k) => [
+        k,
+        todos.some((x) => x.servicos[k]),
+      ]),
+    ) as unknown as ServicosOs
+    // O pré-cálculo da coleta inteira (lote daqui; sem veículo, fica o do lote).
+    let calculo = o.calculo
+    if (!o.externo)
+      calculo = await preCalcular({ docaId: o.docaId, servicos, quantidades }).catch(
+        () => o.calculo,
+      )
+    return {
+      ...o,
+      calculo,
+      juntados: filhos.map((f, i) => ({
+        id: f.id,
+        codigo: f.codigo,
+        origem: f.origem,
+        url: outros[i]!.externo?.url ?? null,
+        status: f.status as StatusOrdem,
+        referenciaCliente: f.referenciaCliente,
+        totalVolumes: Number(f.totalVolumes),
+        escopo: f.escopo,
+        observacoes: f.observacoes,
+      })),
+      coleta: {
+        quantidades,
+        servicos,
+        totalVolumes: todos.reduce((a, x) => a + x.totalVolumes, 0),
+      },
+      anexos: [
+        ...o.anexos,
+        ...outros.flatMap((x) =>
+          x.anexos.map((a) => ({ ...a, ordemId: x.id, loteCodigo: x.codigo })),
+        ),
+      ],
+    }
+  }
+
+  async function obterSo(id: string): Promise<Ordem> {
     const l = await linhaDe(db, id)
     if (!l) throw naoEncontrado('Ordem não encontrada.')
-    const [anexos, historico, doLote, recebido, balanco] = await Promise.all([
+    const [anexos, historico, doLote, recebido, balanco, caminhoes] = await Promise.all([
       db
         .selectFrom('ordensAnexos')
         .selectAll()
@@ -455,6 +629,7 @@ export function criarServicoOrdens(
       lote.dados(id),
       recebimento.dados(id),
       balancoDoLote(db, id, l.status === 'concluido'),
+      caminhoesDoLote(db, id),
     ])
     return {
       ...paraResumo(l),
@@ -462,6 +637,10 @@ export function criarServicoOrdens(
       docaId: l.docaId,
       transportadoraId: l.transportadoraId,
       motoristaId: l.motoristaId,
+      caminhoes,
+      juntadoA: null,
+      juntados: [],
+      coleta: null,
       quantidades: {
         boxes: l.qtdBoxes,
         pallets: l.qtdPallets,
@@ -578,13 +757,17 @@ export function criarServicoOrdens(
       if (!t) throw new ErroApi(422, 'validation', 'Transportadora não encontrada.')
       transportadora = t.nome
     }
-    if (v.rastrear && v.motoristaId) {
-      const m = await db
+    const motoristas = [
+      ...new Set(v.caminhoes.map((c) => c.motoristaId).filter((m): m is string => Boolean(m))),
+    ]
+    if (motoristas.length) {
+      const achados = await db
         .selectFrom('motoristas')
         .select('id')
-        .where('id', '=', v.motoristaId)
-        .executeTakeFirst()
-      if (!m) throw new ErroApi(422, 'validation', 'Motorista não encontrado.')
+        .where('id', 'in', motoristas)
+        .execute()
+      if (achados.length !== motoristas.length)
+        throw new ErroApi(422, 'validation', 'Motorista não encontrado.')
     }
     return { cliente: cliente.nome, site: site.codigo, transportadora }
   }
@@ -619,7 +802,7 @@ export function criarServicoOrdens(
           ? 'Toda coleta deste cliente é rastreada.'
           : 'As coletas deste cliente não são rastreadas.',
       )
-    if (c.exigirMotoristaPlaca && v.rastrear && (!v.motoristaId || !v.placa))
+    if (c.exigirMotoristaPlaca && v.caminhoes.some((k) => !k.motoristaId || !k.placa))
       throw new ErroApi(
         422,
         'driver_plate_required',
@@ -637,16 +820,188 @@ export function criarServicoOrdens(
       )
   }
 
+  /* ------------------------------------------- PDF da OS e relatório final (22/10/2026) */
+
+  /** Rótulo em português de cada tipo (os do sistema têm nome fixo; os criados, o pt-BR). */
+  const nomeDoTipo = (t: TipoDoCliente) =>
+    t.nome
+      ? (t.nome.textos['pt-BR'] ?? t.nome.textos[t.nome.origem] ?? t.codigo)
+      : (NOME_DO_TIPO[t.codigo] ?? t.codigo)
+
+  /**
+   * O ZIP sai quando o lote foi RECEBIDO e tem um documento de cada tipo marcado "vai no
+   * relatório final" nas configurações do cliente (decisão do usuário). Faltando, diz o quê.
+   */
+  async function situacaoDoRelatorio(id: string) {
+    const o = await obter(id)
+    if (o.juntadoA) throw new ErroApi(409, 'lot_merged', 'Lote juntado a outro: use o principal.')
+    const tipos = await tiposDoCliente(db, o.clienteId)
+    const presentes = new Set(o.anexos.map((a) => a.tipo))
+    const faltam = tipos.filter((t) => t.relatorio && !presentes.has(t.codigo)).map((t) => t.codigo)
+    const recebido = o.status !== 'agendado' && o.status !== 'cancelado'
+    return { o, tipos, recebido, faltam, pronto: recebido && faltam.length === 0 }
+  }
+
+  /** O PDF da OS com os dados de cadastro (cliente, site, doca, transportadora, caminhões). */
+  async function pdfDe(o: Ordem, tipos: TipoDoCliente[]) {
+    const idsMotoristas = o.caminhoes.map((c) => c.motoristaId).filter((x): x is string => !!x)
+    const [cliente, contato, site, doca, transportadora, viagensDoLote, motoristas] =
+      await Promise.all([
+        db
+          .selectFrom('clientes')
+          .select(['nome', 'cnpj'])
+          .where('id', '=', o.clienteId)
+          .executeTakeFirstOrThrow(),
+        db
+          .selectFrom('clientesContatos')
+          .select(['nome', 'email', 'telefone'])
+          .where('clienteId', '=', o.clienteId)
+          .orderBy('principal', 'desc')
+          .orderBy('ordem')
+          .executeTakeFirst(),
+        o.siteId
+          ? db
+              .selectFrom('clientesSites as s')
+              .leftJoin('clientesContatos as c', 'c.id', 's.contatoResponsavelId')
+              .select([
+                's.codigo',
+                's.endereco',
+                's.regiao',
+                's.horario',
+                'c.nome as responsavel',
+                'c.email as responsavelEmail',
+              ])
+              .where('s.id', '=', o.siteId)
+              .executeTakeFirst()
+          : undefined,
+        o.docaId
+          ? db.selectFrom('clientesDocas').selectAll().where('id', '=', o.docaId).executeTakeFirst()
+          : undefined,
+        o.transportadoraId
+          ? db
+              .selectFrom('transportadoras')
+              .select(['nome', 'cnpj'])
+              .where('id', '=', o.transportadoraId)
+              .executeTakeFirst()
+          : undefined,
+        opcoes.viagens ? opcoes.viagens.doLote(o.id) : Promise.resolve([]),
+        idsMotoristas.length
+          ? db
+              .selectFrom('motoristas')
+              .select(['id', 'nome'])
+              .where('id', 'in', idsMotoristas)
+              .execute()
+          : Promise.resolve([]),
+      ])
+    const nomeMotorista = new Map(motoristas.map((m) => [m.id, m.nome]))
+    const caminhoes = o.caminhoes.length
+      ? o.caminhoes.map((c) => {
+          const v = viagensDoLote.find((x) => x.numero === c.numero)
+          return {
+            numero: c.numero,
+            motorista:
+              (c.motoristaId && nomeMotorista.get(c.motoristaId)) || v?.motoristaNome || null,
+            placa: c.placa,
+            link: v?.linkMotorista ?? null,
+          }
+        })
+      : o.motoristaNome || o.placa
+        ? [{ numero: 1, motorista: o.motoristaNome, placa: o.placa, link: null }]
+        : []
+    return gerarPdfDaOs({
+      ordem: o,
+      cliente: { nome: cliente.nome, cnpj: cliente.cnpj, contato: contato ?? null },
+      site: site
+        ? {
+            codigo: site.codigo,
+            endereco: site.endereco,
+            regiao: site.regiao,
+            horario: site.horario,
+            responsavel: site.responsavel ?? site.responsavelEmail ?? null,
+          }
+        : null,
+      doca: doca
+        ? {
+            numero: doca.numero,
+            alturaMaxCaminhao: doca.alturaMaxCaminhao,
+            comprimentoMaxCaminhao: doca.comprimentoMaxCaminhao,
+            dockLeveler: doca.dockLeveler === 1,
+            tailLift: doca.tailLift === 1,
+            pisoProtecaoObrigatorio: doca.pisoProtecaoObrigatorio === 1,
+          }
+        : null,
+      transportadora: transportadora ?? null,
+      caminhoes,
+      tipos: Object.fromEntries(tipos.map((t) => [t.codigo, nomeDoTipo(t)])),
+      geradoEm: new Date().toISOString(),
+    })
+  }
+
   return {
     obter,
     preCalcular,
     lote,
     recebimento,
 
+    async pdf(id: string) {
+      const o = await obter(id)
+      if (o.juntadoA) throw new ErroApi(409, 'lot_merged', 'Lote juntado a outro: use o principal.')
+      const conteudo = await pdfDe(o, await tiposDoCliente(db, o.clienteId))
+      return { nome: `OS-${o.codigo}.pdf`, conteudo }
+    },
+
+    async situacaoDoRelatorio(id: string) {
+      const s = await situacaoDoRelatorio(id)
+      return { pronto: s.pronto, recebido: s.recebido, faltam: s.faltam }
+    },
+
+    /** O ZIP: PDF da OS + planilha (recebimento e balanço) + os documentos marcados. */
+    async relatorioFinal(id: string) {
+      const s = await situacaoDoRelatorio(id)
+      if (!s.recebido)
+        throw new ErroApi(
+          409,
+          'report_not_received',
+          'O relatório final sai depois do recebimento.',
+        )
+      if (s.faltam.length)
+        throw new ErroApi(
+          409,
+          'report_missing_documents',
+          'Faltam documentos para o relatório final.',
+        )
+      const o = s.o
+      const noRelatorio = new Set(s.tipos.filter((t) => t.relatorio).map((t) => t.codigo))
+      const nomes = Object.fromEntries(s.tipos.map((t) => [t.codigo, nomeDoTipo(t)]))
+      const [pdf, planilha] = await Promise.all([
+        pdfDe(o, s.tipos),
+        gerarPlanilhaDoRelatorio(o, o.clienteNome, o.balanco),
+      ])
+      const arquivos: Record<string, Uint8Array> = {
+        [`OS-${o.codigo}.pdf`]: pdf,
+        [`Relatorio-${o.codigo}.xlsx`]: planilha,
+      }
+      // Os documentos dos tipos marcados, numa pasta por tipo (nome repetido ganha número).
+      for (const a of o.anexos.filter((x) => noRelatorio.has(x.tipo))) {
+        const conteudo = await readFile(caminho(a.ordemId ?? o.id, a.id)).catch(() => null)
+        if (!conteudo) continue
+        const pasta = `documentos/${nomeSeguro(nomes[a.tipo] ?? a.tipo)}`
+        let nome = `${pasta}/${a.nome}`
+        for (let n = 2; arquivos[nome]; n++) nome = `${pasta}/${n}-${a.nome}`
+        arquivos[nome] = conteudo
+      }
+      return { nome: `Relatorio-final-${o.codigo}.zip`, conteudo: Buffer.from(zipSync(arquivos)) }
+    },
+
     async listar(query: unknown) {
       const consulta = lerConsulta(query, COLUNAS_ORDEM)
       const where = whereDaConsulta(COLUNAS_ORDEM, consulta, { colunaBusca: 'busca' })
-      let pagina = db.selectFrom('ordensLista').selectAll().where(where)
+      // Os lotes juntados a outro não aparecem (o principal mostra a coleta inteira).
+      let pagina = db
+        .selectFrom('ordensLista')
+        .selectAll()
+        .where(where)
+        .where('juntadoA', 'is', null)
       for (const o of ordemDaConsulta(COLUNAS_ORDEM, consulta, [{ id: 'codigo', desc: true }]))
         pagina = pagina.orderBy(o)
       const [linhas, total, grupos] = await Promise.all([
@@ -658,6 +1013,7 @@ export function criarServicoOrdens(
           .selectFrom('ordensLista')
           .select(sql<number>`count(*)`.as('n'))
           .where(where)
+          .where('juntadoA', 'is', null)
           .executeTakeFirstOrThrow(),
         db
           .selectFrom('ordensLista')
@@ -665,6 +1021,7 @@ export function criarServicoOrdens(
           .where(
             whereDaConsulta(COLUNAS_ORDEM, consulta, { colunaBusca: 'busca', semFiltro: 'status' }),
           )
+          .where('juntadoA', 'is', null)
           .groupBy('status')
           .execute(),
       ])
@@ -813,13 +1170,15 @@ export function criarServicoOrdens(
             .execute()
           await registrarHistorico(trx, 'ordem', id, { autor, em: agora, acao: 'criado' })
           // "Rastrear coleta = Sim": nasce o card em Ordens › Viagens (aguardando motorista).
-          if (v.rastrear) await opcoes.viagens?.aoMudarRastreio(trx, id, true, autor, agora)
+          if (v.rastrear) await opcoes.viagens?.aoMudarRastreio(trx, id, v.caminhoes, autor, agora)
         })
       } catch (e) {
         // Falhou: não deixa arquivo órfão no disco.
         await Promise.all(gravados.map((g) => rm(g, { force: true })))
         throw e
       }
+      // A mesma coleta (cliente, endereço, data) de outro lote: este é juntado ao primeiro.
+      await reagruparColetas(db, [v.clienteId], autor)
       return obter(id)
     },
 
@@ -831,14 +1190,24 @@ export function criarServicoOrdens(
       autor: string,
     ) {
       const tipo = z
-        .enum(TIPOS_DOCUMENTO_LOTE, { error: 'Escolha o tipo do documento.' })
+        .string({ error: 'Escolha o tipo do documento.' })
+        .min(1, 'Escolha o tipo do documento.')
+        .max(60)
         .parse(tipoBruto)
       const existe = await db
         .selectFrom('ordens')
-        .select('id')
+        .select(['id', 'clienteId'])
         .where('id', '=', ordemId)
         .executeTakeFirst()
       if (!existe) throw naoEncontrado('Lote não encontrado.')
+      // Só os tipos que o cliente aceita (aba Configurações).
+      const aceitos = (await tiposDoCliente(db, existe.clienteId)).filter((t) => t.aceita)
+      if (!aceitos.some((t) => t.codigo === tipo))
+        throw new ErroApi(
+          422,
+          'document_type_not_accepted',
+          'Este cliente não aceita este tipo de documento no lote.',
+        )
       await garantirLoteDaqui(db, ordemId)
       if (!arquivos.length) throw new ErroApi(422, 'validation', 'Envie pelo menos um arquivo.')
       const novos = arquivos.map((a) => {
@@ -1004,6 +1373,7 @@ export function criarServicoOrdens(
       const calculoAntes = atual.calculo ? (JSON.parse(atual.calculo) as ResultadoCalculo) : null
       const q = v.quantidades
       const dia = (iso: string | null) => (iso ? diaNoFuso(new Date(iso)) : null)
+      const caminhoesAntes = await caminhoesDoLote(db, id)
       const servicosAntes = {
         psm: sim(atual.psm),
         onsiteShredding: sim(atual.onsiteShredding),
@@ -1020,6 +1390,7 @@ export function criarServicoOrdens(
         coletaPrevista: dia(atual.coletaPrevista),
         dataChegada: dia(atual.dataChegada),
         rastrear: sim(atual.rastrear),
+        caminhoes: caminhoesAntes.length || null,
         motorista: atual.motoristaNome,
         placa: atual.placa,
         servicos: romanos(servicosAntes),
@@ -1047,6 +1418,7 @@ export function criarServicoOrdens(
         coletaPrevista: v.coletaPrevista,
         dataChegada: v.dataChegada,
         rastrear: v.rastrear,
+        caminhoes: v.caminhoes.length || null,
         motorista,
         placa: v.rastrear ? v.placa : null,
         servicos: romanos(v.servicos),
@@ -1120,8 +1492,16 @@ export function criarServicoOrdens(
           .where('id', '=', id)
           .execute()
         await registrarHistorico(trx, 'ordem', id, { autor, em: agora, acao: 'editado', mudancas })
-        await opcoes.viagens?.aoMudarRastreio(trx, id, v.rastrear, autor, agora)
+        await opcoes.viagens?.aoMudarRastreio(
+          trx,
+          id,
+          v.rastrear ? v.caminhoes : null,
+          autor,
+          agora,
+        )
       })
+      // Mudou a data ou o site: a coleta pode juntar ou separar.
+      await reagruparColetas(db, [v.clienteId], autor)
       return obter(id)
     },
 
@@ -1209,6 +1589,21 @@ export function rotasOrdens(servico: ServicoOrdens) {
     res.json(
       await servico.removerAnexo(String(req.params.id), String(req.params.anexoId), autorDa(req)),
     )
+  })
+  r.get('/:id/pdf', async (req, res) => {
+    const a = await servico.pdf(String(req.params.id))
+    res.setHeader('Content-Type', 'application/pdf')
+    res.attachment(a.nome)
+    res.send(a.conteudo)
+  })
+  r.get('/:id/relatorio-final/situacao', async (req, res) => {
+    res.json(await servico.situacaoDoRelatorio(String(req.params.id)))
+  })
+  r.get('/:id/relatorio-final', async (req, res) => {
+    const a = await servico.relatorioFinal(String(req.params.id))
+    res.setHeader('Content-Type', 'application/zip')
+    res.attachment(a.nome)
+    res.send(a.conteudo)
   })
   r.get('/:id/anexos/:anexoId/arquivo', async (req, res) => {
     const a = await servico.arquivo(req.params.id, req.params.anexoId)

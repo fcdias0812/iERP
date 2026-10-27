@@ -2,6 +2,7 @@ import express from 'express'
 import { config } from './config.js'
 import type { Db } from './db/database.js'
 import { criarServicoConfiguracoes } from './modules/clientes/clientes-configuracoes.js'
+import { rotasTiposDocumento } from './modules/clientes/tipos-documento.js'
 import { criarServicoDocumentos } from './modules/clientes/clientes-documentos.servico.js'
 import { criarServicoRastreio, rotasRastreioPublico } from './modules/clientes/clientes-rastreio.js'
 import { criarRepositorioSites } from './modules/clientes/clientes-sites.repositorio.js'
@@ -40,6 +41,8 @@ import {
   rotasEstoque,
   type ServicoEstoque,
 } from './modules/estoque/estoque.js'
+import { criarLeitorGps, type LeitorGps } from './modules/viagens/gps-caminhao.js'
+import { criarServicoRastreadores, rotasRastreadores } from './modules/viagens/rastreadores.js'
 import { rotaInexistente, tratarErros } from './shared/erros.js'
 
 /**
@@ -56,6 +59,8 @@ export function criarApp(
     viagens?: ServicoViagens
     /** Estoque — os testes passam o deles (sem a espera do "Atualizar"). */
     estoque?: ServicoEstoque
+    /** Leitor do servidor de GPS dos caminhões — o index.ts passa o MESMO do relógio. */
+    gps?: LeitorGps
   } = {},
 ) {
   const usuarios = criarServicoUsuarios(criarRepositorioUsuarios(db))
@@ -70,6 +75,7 @@ export function criarApp(
   const motoristas = criarServicoMotoristas(db)
   const veiculos = criarServicoVeiculos(db)
   const viagens = opcoes.viagens ?? criarServicoViagens(db, { fetch: opcoes.fetchExterno })
+  const gps = opcoes.gps ?? criarLeitorGps(db, { fetch: opcoes.fetchExterno, semEspera: true })
   const ordens = criarServicoOrdens(db, {
     pasta: opcoes.arquivosDir ?? config.arquivosDir,
     viagens,
@@ -92,6 +98,7 @@ export function criarApp(
       rastreio,
     ),
   )
+  api.use('/tipos-documento', rotasTiposDocumento(db))
   // Página PÚBLICA do cliente (link de acompanhamento) — fica fora do login quando ele existir.
   api.use('/publico/rastreio', rotasRastreioPublico(rastreio))
   api.use('/geo', rotasGeo(geo))
@@ -102,6 +109,7 @@ export function criarApp(
   // Lote que veio de outro sistema: o espelho do que aconteceu lá (Gerenciamento de Projetos).
   api.use('/ordens', rotasLotesDeFora(db, opcoes.fetchExterno))
   api.use('/viagens', rotasViagens(viagens, opcoes.fetchExterno))
+  api.use('/rastreadores', rotasRastreadores(criarServicoRastreadores(db, gps)))
   api.use(
     '/estoque',
     rotasEstoque(opcoes.estoque ?? criarServicoEstoque(db, { fetch: opcoes.fetchExterno })),

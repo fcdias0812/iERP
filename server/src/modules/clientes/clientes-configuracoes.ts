@@ -9,6 +9,12 @@ import type { ServicosOs } from '../ordens/ordens.calculo.js'
 import { original, textoTraduzidoSchema, type LocalizedText } from '../ordens/ordens.lote.js'
 import type { RepositorioClientes } from './clientes.repositorio.js'
 import type { ConfiguracoesCliente } from './clientes.types.js'
+import {
+  gravarMarcas,
+  marcasSchema,
+  tiposDoCliente,
+  type TipoDoCliente,
+} from './tipos-documento.js'
 
 /*
  * Clientes › Configurações (pedido do usuário, 22/10/2026: switches do rastreio da coleta e "mais
@@ -85,6 +91,8 @@ export const configuracoesSchema = z
       .max(500)
       .nullish()
       .transform((v) => v || null),
+    /** Tipos de documento do lote: aceita / vai no relatório final (ausente = não muda). */
+    documentos: marcasSchema.optional(),
   })
   .superRefine((v, ctx) => {
     if (v.agendamentoBloqueado && !v.bloqueioMotivo)
@@ -101,7 +109,11 @@ type Linha = Selectable<ClientesTable>
 const json = <T>(v: string | null) => (v ? (JSON.parse(v) as T) : null)
 
 /** As configurações gravadas no cliente. */
-export function configuracoesDa(l: Linha, transportadoraNome: string | null): ConfiguracoesCliente {
+export function configuracoesDa(
+  l: Linha,
+  transportadoraNome: string | null,
+  documentos: TipoDoCliente[] = [],
+): ConfiguracoesCliente {
   return {
     rastrearColeta: l.rastrearColeta === 1,
     rastreioExcecao: l.rastreioExcecao === 1,
@@ -121,6 +133,7 @@ export function configuracoesDa(l: Linha, transportadoraNome: string | null): Co
     antecedenciaDias: l.antecedenciaDias,
     agendamentoBloqueado: l.agendamentoBloqueado === 1,
     bloqueioMotivo: l.bloqueioMotivo,
+    documentos,
   }
 }
 
@@ -131,7 +144,7 @@ export async function configuracoesDoCliente(db: Db, clienteId: string) {
     .selectAll()
     .where('id', '=', clienteId)
     .executeTakeFirst()
-  return l ? configuracoesDa(l, null) : null
+  return l ? configuracoesDa(l, null, await tiposDoCliente(db, clienteId)) : null
 }
 
 /** Serviços em texto para o histórico ("III, IV"). */
@@ -163,14 +176,18 @@ export function criarServicoConfiguracoes(db: Db, repo: RepositorioClientes) {
         const nomeNovo = await nomeDa(v.transportadoraPadraoId)
         if (v.transportadoraPadraoId && !nomeNovo)
           throw new ErroApi(422, 'validation', 'Transportadora não encontrada.')
-        const atual = configuracoesDa(linha, await nomeDa(linha.transportadoraPadraoId))
+        const docsAntes = await tiposDoCliente(trx, id)
+        const atual = configuracoesDa(linha, await nomeDa(linha.transportadoraPadraoId), docsAntes)
 
         // Histórico: antes → depois só do que mudou (serviços, instruções e transportadora em texto).
         const comparavel = (
-          c: Omit<ConfiguracoesCliente, 'transportadoraPadraoNome'>,
+          c: Omit<ConfiguracoesCliente, 'transportadoraPadraoNome' | 'documentos'> & {
+            documentos?: unknown
+          },
           nome: string | null,
         ) => ({
           ...c,
+          documentos: undefined,
           servicosPadrao: servicosEmTexto(c.servicosPadrao),
           instrucoes: c.instrucoes ? original(c.instrucoes) : null,
           transportadoraPadraoId: nome,
@@ -178,12 +195,42 @@ export function criarServicoConfiguracoes(db: Db, repo: RepositorioClientes) {
         const antes = comparavel(atual, atual.transportadoraPadraoNome)
         const depois = comparavel(v, nomeNovo)
         const mudancas: Mudanca[] = (Object.keys(depois) as (keyof typeof depois)[])
-          .filter((k) => antes[k] !== depois[k])
+          .filter((k) => k !== 'documentos' && antes[k] !== depois[k])
           .map((k) => ({
             campo: k === 'transportadoraPadraoId' ? 'transportadoraPadrao' : k,
-            antes: antes[k],
-            depois: depois[k],
+            antes: (antes[k] ?? null) as Mudanca['antes'],
+            depois: (depois[k] ?? null) as Mudanca['depois'],
           }))
+        // Tipos de documento: os aceitos e os do relatório final (códigos — a tela traduz).
+        if (v.documentos) {
+          const lista = (
+            f: (d: { tipo: string; aceita: boolean; relatorio: boolean }) => boolean,
+            l: { tipo: string; aceita: boolean; relatorio: boolean }[],
+          ) =>
+            l
+              .filter(f)
+              .map((d) => d.tipo)
+              .join(', ') || null
+          const antesDocs = docsAntes.map((d) => ({
+            tipo: d.codigo,
+            aceita: d.aceita,
+            relatorio: d.relatorio,
+          }))
+          const depoisDocs = v.documentos.map((d) => ({
+            ...d,
+            aceita: d.tipo === 'escopo' || d.aceita,
+            relatorio: (d.tipo === 'escopo' || d.aceita) && d.relatorio,
+          }))
+          for (const [campo, f] of [
+            ['documentosAceitos', (d: { aceita: boolean }) => d.aceita],
+            ['documentosRelatorio', (d: { relatorio: boolean }) => d.relatorio],
+          ] as const) {
+            const a = lista(f, antesDocs)
+            const b = lista(f, depoisDocs)
+            if (a !== b) mudancas.push({ campo, antes: a, depois: b })
+          }
+          await gravarMarcas(trx, id, v.documentos)
+        }
         const instrucoes = v.instrucoes ? JSON.stringify(v.instrucoes) : null
         // Instruções com a mesma frase original, mas tradução revisada, também gravam.
         if (!mudancas.length && instrucoes === linha.instrucoes) return

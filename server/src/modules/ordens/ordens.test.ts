@@ -64,13 +64,18 @@ const SERVICOS = {
   valueRecoveryItad: false,
 }
 
+/** Cada lote dos testes numa data própria (a mesma coleta — cliente, endereço, data — se junta). */
+let seqDia = 0
+const outroDia = () =>
+  new Date(Date.UTC(2027, 0, 1) + seqDia++ * 86_400_000).toISOString().slice(0, 10)
+
 const ordem = (extra: Record<string, unknown> = {}) => ({
   clienteId,
   siteId,
   docaId,
   transportadoraId: null,
   referenciaCliente: 'PO-123',
-  coletaPrevista: '2026-10-25',
+  coletaPrevista: outroDia(),
   dataColeta: null,
   dataChegada: null,
   rastrear: false,
@@ -171,7 +176,7 @@ describe('ordens › pré-cálculo', () => {
 
 describe('ordens › agendamento', () => {
   it('cria o lote agendado com anexos e o cálculo guardado', async () => {
-    const r = await criarOrdem(ordem(), [
+    const r = await criarOrdem(ordem({ coletaPrevista: '2026-10-25' }), [
       { campo: 'escopo', nome: 'Escopo técnico.pdf', conteudo: '%PDF-1.4 escopo' },
       { campo: 'observacoes', nome: 'fotos.zip', conteudo: 'zip' },
     ])
@@ -512,14 +517,13 @@ describe('ordens › documentos do lote', () => {
 describe('ordens › editar lote', () => {
   it('edita enquanto agendado, refaz o pré-cálculo e registra antes → depois', async () => {
     const lote = (await criarOrdem(ordem())).body
-    const r = await api(`/ordens/${lote.id}`, {
-      method: 'PUT',
-      body: ordem({
-        docaId: docaPequenaId,
-        dataColeta: '2026-11-03',
-        quantidades: { ...ordem().quantidades, pallets: 30 },
-      }),
+    const editado = ordem({
+      docaId: docaPequenaId,
+      coletaPrevista: lote.coletaPrevista.slice(0, 10),
+      dataColeta: '2026-11-03',
+      quantidades: { ...ordem().quantidades, pallets: 30 },
     })
+    const r = await api(`/ordens/${lote.id}`, { method: 'PUT', body: editado })
     assert.equal(r.status, 200, JSON.stringify(r.body))
     assert.equal(r.body.docaNumero, 'D2')
     assert.equal(r.body.totalVolumes, 35)
@@ -537,14 +541,7 @@ describe('ordens › editar lote', () => {
     assert.deepEqual(campos.pallets, [6, 30])
 
     // Sem mudança: não grava histórico.
-    const igual = await api(`/ordens/${lote.id}`, {
-      method: 'PUT',
-      body: ordem({
-        docaId: docaPequenaId,
-        dataColeta: '2026-11-03',
-        quantidades: { ...ordem().quantidades, pallets: 30 },
-      }),
-    })
+    const igual = await api(`/ordens/${lote.id}`, { method: 'PUT', body: editado })
     assert.equal(igual.body.historico.length, r.body.historico.length)
   })
 

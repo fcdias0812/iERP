@@ -120,6 +120,8 @@ export function criarServicoRastreio(db: Db, repo: RepositorioClientes) {
       ])
       .where('clienteId', '=', cliente.id)
       .where('status', '<>', 'cancelado')
+      // A mesma coleta é um lote só para o cliente também (22/10/2026).
+      .where('juntadoA', 'is', null)
       .execute()
     // Mais recentes primeiro, pela data da coleta (a confirmada ou a prevista).
     const coleta = (o: { dataColeta: string | null; coletaPrevista: string | null }) =>

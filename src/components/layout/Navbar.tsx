@@ -10,6 +10,7 @@ import { AppLink } from './AppLink'
 import { BrandLogo } from './BrandLogo'
 import { HelpMenu } from './HelpMenu'
 import { NotificationsPopover } from './NotificationsPopover'
+import { NovidadesButton } from './NovidadesButton'
 import { UserMenu } from './UserMenu'
 
 /** Barra superior fixa: menu, logo, busca (Ctrl+K), notificações, ajuda e usuário. */
@@ -23,7 +24,9 @@ export function Navbar() {
   const toggleLabel = collapsed ? t('shell.expandMenu') : t('shell.collapseMenu')
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 h-(--navbar-h) bg-card">
+    // Translúcida com desfoque: o conteúdo passa por baixo (pedido do usuário, 22/10/2026 —
+    // "mais transparente e tenha um blur"). Sem suporte a desfoque, fica sólida.
+    <header className="fixed inset-x-0 top-0 z-40 h-(--navbar-h) bg-card backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-card/70">
       <div className="flex h-full items-center gap-1 px-2 pb-0.5 sm:gap-3 sm:px-3">
         {/* Celular: abre a gaveta. Desktop: recolhe/expande o menu lateral. */}
         <Button
@@ -92,6 +95,7 @@ export function Navbar() {
             <Search aria-hidden />
           </Button>
           <NotificationsPopover />
+          <NovidadesButton />
           <HelpMenu />
           <UserMenu />
         </div>

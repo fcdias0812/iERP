@@ -17,26 +17,20 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { EXTENSOES_DOCUMENTO, MAX_BYTES_DOCUMENTO } from '@/features/clientes/detalhe/documentos'
+import { useCliente } from '@/features/clientes/use-clientes'
 import { useAdicionarDocumentos, useRemoverDocumento } from '@/features/ordens/use-ordens'
 import { useCan } from '@/hooks/use-can'
 import { formatBytes, formatDateTime } from '@/lib/format'
 import { urlAnexoOrdem } from '@/services/ordens'
 import type { AnexoOrdem, Ordem, SecaoAnexo, TipoDocumentoLote } from '@/services/types'
+import { TIPOS_DOC_SISTEMA, useNomeDoTipo, useTiposDocumento } from './tipos-documento'
 
 /*
  * Documentos do lote: os enviados no agendamento (escopo de trabalho, observações) e os
- * adicionados depois, aqui mesmo — cada um com TIPO (como em Clientes). Remover pede
- * confirmação e fica no histórico; o único escopo (sem texto) não pode sair.
+ * adicionados depois, aqui mesmo — cada um com TIPO. Os tipos são os que o cliente ACEITA (aba
+ * Configurações do cliente, 22/10/2026). Remover pede confirmação e fica no histórico; o único
+ * escopo (sem texto) não pode sair.
  */
-
-const TIPOS_DOCUMENTO_LOTE: TipoDocumentoLote[] = [
-  'escopo',
-  'nota_fiscal',
-  'mtr',
-  'cdf',
-  'foto',
-  'outro',
-]
 
 const ORDEM_INICIAL: TableQuery = { ...EMPTY_QUERY, sort: [{ id: 'enviadoEm', desc: true }] }
 const SEM_DOCUMENTOS: AnexoOrdem[] = []
@@ -56,6 +50,26 @@ export function AbaDocumentosLote({
   const remover = useRemoverDocumento(o.id)
   const podeEnviar = useCan(permissao)
   const [tipo, setTipo] = useState<TipoDocumentoLote | ''>('')
+  const nomeDoTipo = useNomeDoTipo()
+  const catalogo = useTiposDocumento().data
+  const cliente = useCliente(o.clienteId).data
+  // Os aceitos pelo cliente (sem as configurações carregadas: os do sistema).
+  const aceitos = useMemo(
+    () =>
+      cliente
+        ? cliente.configuracoes.documentos.filter((d) => d.aceita).map((d) => d.codigo)
+        : [...TIPOS_DOC_SISTEMA],
+    [cliente],
+  )
+  const todos = useMemo(
+    () => [
+      ...new Set([
+        ...(catalogo?.map((x) => x.codigo) ?? TIPOS_DOC_SISTEMA),
+        ...o.anexos.map((a) => a.tipo),
+      ]),
+    ],
+    [catalogo, o.anexos],
+  )
   const [query, setQuery] = useState<TableQuery>(ORDEM_INICIAL)
   const [apagar, setApagar] = useState<AnexoOrdem | null>(null)
   const dropId = useId()
@@ -71,13 +85,19 @@ export function AbaDocumentosLote({
         size: 300,
         mobile: 'title',
         cell: (r) => (
-          <a
-            href={urlAnexoOrdem(o.id, r.id)}
-            download={r.nome}
-            className="text-link underline-offset-4 hover:underline"
-          >
-            {r.nome}
-          </a>
+          <span className="flex flex-col">
+            <a
+              href={urlAnexoOrdem(r.ordemId ?? o.id, r.id)}
+              download={r.nome}
+              className="text-link underline-offset-4 hover:underline"
+            >
+              {r.nome}
+            </a>
+            {/* Documento de um lote juntado a este (a mesma coleta). */}
+            {r.loteCodigo && (
+              <span className="font-mono type-caption text-muted-foreground">{r.loteCodigo}</span>
+            )}
+          </span>
         ),
       },
       {
@@ -86,10 +106,7 @@ export function AbaDocumentosLote({
         type: 'enum',
         accessor: (r) => r.tipo,
         size: 210,
-        options: TIPOS_DOCUMENTO_LOTE.map((x) => ({
-          value: x,
-          label: t(`lotes.documentos.tipos.${x}`),
-        })),
+        options: todos.map((x) => ({ value: x, label: nomeDoTipo(x) })),
       },
       {
         id: 'secao',
@@ -135,7 +152,7 @@ export function AbaDocumentosLote({
         options: autores.map((a) => ({ value: a, label: a })),
       },
     ],
-    [t, o.id, autores],
+    [t, o.id, autores, todos, nomeDoTipo],
   )
 
   return (
@@ -148,14 +165,14 @@ export function AbaDocumentosLote({
           <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-[16rem_minmax(0,1fr)]">
             <FormField label={t('lotes.documentos.cols.tipo')} required>
               {(f) => (
-                <Select value={tipo} onValueChange={(v) => setTipo(v as TipoDocumentoLote)}>
+                <Select value={tipo} onValueChange={setTipo}>
                   <SelectTrigger {...f}>
                     <SelectValue placeholder={t('lotes.documentos.escolhaTipo')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {TIPOS_DOCUMENTO_LOTE.map((x) => (
+                    {aceitos.map((x) => (
                       <SelectItem key={x} value={x}>
-                        {t(`lotes.documentos.tipos.${x}`)}
+                        {nomeDoTipo(x)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -202,18 +219,21 @@ export function AbaDocumentosLote({
         rowActions={(r) => (
           <>
             <DropdownMenuItem asChild>
-              <a href={urlAnexoOrdem(o.id, r.id)} download={r.nome}>
+              <a href={urlAnexoOrdem(r.ordemId ?? o.id, r.id)} download={r.nome}>
                 <Download aria-hidden />
                 {t('lotes.documentos.baixar')}
               </a>
             </DropdownMenuItem>
+            {/* O documento de um lote juntado se tira lá (aqui só se vê e baixa). */}
             <Can permission={permissaoExcluir}>
               <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onSelect={() => setApagar(r)}>
-                  <Trash2 aria-hidden />
-                  {t('lotes.documentos.remover')}
-                </DropdownMenuItem>
+                {!r.ordemId && <DropdownMenuSeparator />}
+                {!r.ordemId && (
+                  <DropdownMenuItem variant="destructive" onSelect={() => setApagar(r)}>
+                    <Trash2 aria-hidden />
+                    {t('lotes.documentos.remover')}
+                  </DropdownMenuItem>
+                )}
               </>
             </Can>
           </>

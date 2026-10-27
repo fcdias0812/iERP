@@ -305,6 +305,8 @@ export interface OrdensTable extends Controle {
   externoId: string | null
   /** O que o sistema de fora disse da ordem (JSON, só para mostrar). */
   externoDados: string | null
+  /** Juntado ao lote principal da mesma coleta (22/10/2026); null = lote das listas. */
+  juntadoA: string | null
 }
 
 export interface OrdensListaView extends OrdensTable {
@@ -513,10 +515,19 @@ export interface IntegracoesTable {
   alteradoPor: string
 }
 
-/** Viagem do lote no rastreador de GPS (Ordens › Viagens). Uma por lote. */
+/** Viagem do lote (Ordens › Viagens) — uma por caminhão (22/10/2026: várias por lote). */
 export interface OrdensViagensTable {
   id: string
   ordemId: string
+  /** O caminhão do lote (1, 2, 3…). */
+  numero: number
+  /** Quem a Re-Teck escalou para este caminhão (o que o rastreador conta: motoristaNome/placa). */
+  motoristaId: string | null
+  placaInformada: string | null
+  /** celular (app do motorista, ReTeckTracker) | aparelho (rastreador no caminhão). */
+  origem: string
+  /** O aparelho de GPS (origem aparelho). */
+  rastreadorId: string | null
   /** 6 dígitos, falado no destino — nunca vai no link do motorista. */
   codigoChegada: string
   /** aguardando_motorista | em_rota | chegou | finalizada | cancelada */
@@ -546,6 +557,49 @@ export interface OrdensViagensTable {
   chat: string | null
   paradas: string | null
   arquivada: number
+  criadoEm: string
+  alteradoEm: string
+}
+
+/** Tipos de documento do lote (catálogo único; os do sistema têm nome null). */
+export interface TiposDocumentoTable {
+  codigo: string
+  /** LocalizedText JSON (null = do sistema, rótulo pela tradução). */
+  nome: string | null
+  nomeBusca: string | null
+  ordem: number
+  criadoEm: string
+  criadoPor: string
+}
+
+/** Por cliente: o tipo é aceito nos documentos do lote? vai no relatório final? (0/1) */
+export interface ClientesTiposDocumentoTable {
+  clienteId: string
+  tipoCodigo: string
+  aceita: number
+  relatorio: number
+}
+
+/** Rastreador GPS do caminhão (o aparelho; aparece sozinho na leitura do servidor de GPS). */
+export interface RastreadoresTable {
+  id: string
+  /** O id da placa (minúsculo). Único. */
+  deviceId: string
+  placa: string | null
+  descricao: string | null
+  /** ativo | inativo */
+  status: string
+  firmware: string | null
+  ultimoContatoEm: string | null
+  /** O bloco `status` do último envio (JSON). */
+  ultimoStatus: string | null
+  ultimaLatitude: number | null
+  ultimaLongitude: number | null
+  /** m/s */
+  ultimaVelocidade: number | null
+  ultimoPontoEm: string | null
+  ultimoSeq: number | null
+  pontosPerdidos: Generated<number>
   criadoEm: string
   alteradoEm: string
 }
@@ -648,6 +702,9 @@ export interface Database {
   perfisAcesso: PerfisAcessoTable
   ordensViagens: OrdensViagensTable
   ordensViagensPontos: OrdensViagensPontosTable
+  rastreadores: RastreadoresTable
+  tiposDocumento: TiposDocumentoTable
+  clientesTiposDocumento: ClientesTiposDocumentoTable
   estoqueItens: EstoqueItensTable
   estoqueEventos: EstoqueEventosTable
 }

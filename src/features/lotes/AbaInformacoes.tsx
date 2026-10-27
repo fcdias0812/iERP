@@ -10,6 +10,7 @@ import type { Ordem } from '@/services/types'
 import { useInformacoesDoLote } from './informacoes-lote'
 import { ViagemNoLote } from '@/features/viagens/ViagemNoLote'
 import { DadosDeFora } from './LoteDeFora'
+import { LotesJuntados } from './LotesJuntados'
 
 /*
  * Informações do lote (primeira aba): tudo o que foi agendado — cliente e local da coleta
@@ -26,6 +27,7 @@ export function AbaInformacoes({ o }: { o: Ordem }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <DadosDeFora o={o} />
+      <LotesJuntados o={o} />
       {instrucoes && (
         <Alert
           tone="info"
@@ -36,7 +38,14 @@ export function AbaInformacoes({ o }: { o: Ordem }) {
         </Alert>
       )}
       {/* Rastreio esperando o motorista ou na rua: a viagem e o mapa (pedido do usuário). */}
-      {(o.rastrear || Boolean(o.externo)) && <ViagemNoLote ordemId={o.id} />}
+      {/* Lote agendado aqui: também o botão "Adicionar caminhão" (22/10/2026). */}
+      {(o.rastrear || Boolean(o.externo) || o.status === 'agendado') && (
+        <ViagemNoLote
+          ordemId={o.id}
+          juntados={o.juntados.map((j) => j.id)}
+          podeAdicionar={o.status === 'agendado' && !o.externo}
+        />
+      )}
       {o.status !== 'agendado' && !o.externo && (
         <Alert tone="info" title={t('lotes.editar.travadoTitle')} className="lg:col-span-2">
           {t('lotes.editar.travadoBody')}

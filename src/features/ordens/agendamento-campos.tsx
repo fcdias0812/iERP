@@ -1,9 +1,17 @@
 import { useContext, useId, useMemo, type ReactNode } from 'react'
 import { differenceInCalendarDays } from 'date-fns'
-import { Controller, useWatch, type FieldPath, type UseFormReturn } from 'react-hook-form'
+import {
+  Controller,
+  useFieldArray,
+  useWatch,
+  type FieldPath,
+  type UseFormReturn,
+} from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { Plus, Trash2 } from 'lucide-react'
 import { Alert } from '@/components/ui/alert'
 import { AsyncCombobox } from '@/components/ui/async-combobox'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/date-picker'
 import { AttachmentList, FileDropzone } from '@/components/ui/file-upload'
@@ -19,6 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { StatusBadge } from '@/components/ui/status-badge'
+import type { StatusId } from '@/lib/status/statusMap'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { EXTENSOES_DOCUMENTO, MAX_BYTES_DOCUMENTO } from '@/features/clientes/detalhe/documentos'
@@ -27,7 +37,14 @@ import { useOpcoesTransportadoras } from '@/features/motoristas/use-motoristas'
 import { useOpcoesMotoristas } from '@/features/transportadoras/use-transportadoras'
 import { formatCnpj } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { NENHUM, QUANTIDADES, SERVICOS, type AgendamentoForm } from './agendamento-schema'
+import {
+  caminhaoTravado,
+  NENHUM,
+  novoCaminhao,
+  QUANTIDADES,
+  SERVICOS,
+  type AgendamentoForm,
+} from './agendamento-schema'
 import { useRegrasDoCliente } from './regras-do-cliente'
 import { SecaoContexto } from './secao-contexto'
 import { buscarClientesAtivos, useSitesDoCliente } from './use-ordens'
@@ -308,10 +325,14 @@ export function Rastreio({ form }: { form: Form }) {
   const exigir = Boolean(regras?.exigirMotoristaPlaca)
   const motoristas = useOpcoesMotoristas()
   const ativos = (motoristas.data ?? []).filter((m) => m.status === 'ativo')
+  // Vários caminhões na mesma coleta (22/10/2026): um por viagem.
+  const lista = useFieldArray({ control: form.control, name: 'caminhoes' })
+  const caminhoes = useWatch({ control: form.control, name: 'caminhoes' })
   return (
     <Secao
       titulo={t('ordens.agendamento.secoes.rastreio')}
       descricao={t('ordens.agendamento.secoesAjuda.rastreio')}
+      colunas={1}
     >
       <SimNao
         form={form}
@@ -321,50 +342,88 @@ export function Rastreio({ form }: { form: Form }) {
         help={fixo ? t('ordens.agendamento.cliente.rastreioFixo') : undefined}
       />
       {rastrear && (
-        <>
-          <RhfField
-            control={form.control}
-            name="motoristaId"
-            label={t('ordens.agendamento.campos.motorista')}
-            required={exigir}
-            className="col-start-1"
+        <div className="flex flex-col gap-3">
+          {lista.fields.map((f, i) => {
+            const c = caminhoes[i] ?? f
+            const travado = caminhaoTravado(c)
+            return (
+              <fieldset
+                key={f.id}
+                className="grid grid-cols-1 items-start gap-3 rounded-md border p-3 @md/campos:grid-cols-[minmax(0,1fr)_minmax(0,12rem)_auto]"
+              >
+                <legend className="flex items-center gap-2 px-1 type-label">
+                  {t('ordens.agendamento.caminhoes.titulo', { n: i + 1 })}
+                  {travado && c.status && (
+                    <StatusBadge status={`viagem_${c.status}` as StatusId} size="sm" />
+                  )}
+                </legend>
+                <RhfField
+                  control={form.control}
+                  name={`caminhoes.${i}.motoristaId`}
+                  label={t('ordens.agendamento.campos.motorista')}
+                  required={exigir}
+                >
+                  {({ field, control }) => (
+                    <Select value={field.value} onValueChange={field.onChange} disabled={travado}>
+                      <SelectTrigger {...control}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NENHUM}>
+                          {t('ordens.agendamento.ajuda.nenhumMotorista')}
+                        </SelectItem>
+                        {ativos.map((m) => (
+                          <SelectItem key={m.id} value={m.id}>
+                            {m.transportadoraNome ? `${m.nome} · ${m.transportadoraNome}` : m.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </RhfField>
+                <RhfField
+                  control={form.control}
+                  name={`caminhoes.${i}.placa`}
+                  label={t('ordens.agendamento.campos.placa')}
+                  required={exigir}
+                >
+                  {({ field, control }) => (
+                    <MaskedInput
+                      {...control}
+                      kind="plate"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      readOnly={travado}
+                    />
+                  )}
+                </RhfField>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="self-end"
+                  aria-label={t('ordens.agendamento.caminhoes.remover', { n: i + 1 })}
+                  disabled={travado || lista.fields.length === 1}
+                  onClick={() => lista.remove(i)}
+                >
+                  <Trash2 aria-hidden />
+                </Button>
+              </fieldset>
+            )
+          })}
+          <Button
+            type="button"
+            variant="secondary"
+            className="self-start"
+            disabled={lista.fields.length >= 20}
+            onClick={() => lista.append(novoCaminhao())}
           >
-            {({ field, control }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger {...control}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NENHUM}>
-                    {t('ordens.agendamento.ajuda.nenhumMotorista')}
-                  </SelectItem>
-                  {ativos.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.transportadoraNome ? `${m.nome} · ${m.transportadoraNome}` : m.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </RhfField>
-          <RhfField
-            control={form.control}
-            name="placa"
-            label={t('ordens.agendamento.campos.placa')}
-            required={exigir}
-          >
-            {({ field, control }) => (
-              <MaskedInput
-                {...control}
-                kind="plate"
-                value={field.value}
-                onValueChange={field.onChange}
-                onBlur={field.onBlur}
-                name={field.name}
-              />
-            )}
-          </RhfField>
-        </>
+            <Plus aria-hidden />
+            {t('ordens.agendamento.caminhoes.adicionar')}
+          </Button>
+        </div>
       )}
     </Secao>
   )

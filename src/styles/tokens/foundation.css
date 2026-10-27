@@ -36,7 +36,9 @@
   --navbar-h: 3.5rem;
   --sidebar-w: 15rem;
   --sidebar-w-collapsed: 3.5rem;
-  --content-max-w: 100rem; /* largura máxima da área de conteúdo */
+  /* Largura máxima da área de conteúdo: sem limite — em telas grandes o conteúdo ocupa a
+     largura toda (pedido do usuário, 22/10/2026: "em telas maiores fica um espaço muito vazio"). */
+  --content-max-w: none;
   --page-px: 1rem; /* margem lateral da página (cresce em telas maiores) */
 
   /* ---------- Movimento ---------- */

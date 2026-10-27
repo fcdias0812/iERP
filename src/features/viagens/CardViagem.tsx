@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { Copy, ExternalLink, Flag, MessageSquare, Siren } from 'lucide-react'
+import { Copy, ExternalLink, Flag, MessageSquare, Satellite, Siren } from 'lucide-react'
 import { Can } from '@/components/layout/Can'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
@@ -9,6 +9,7 @@ import { formatDateTime, formatRelative } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { Viagem } from '@/services/types'
 import { kmh } from './formato'
+import { UsarRastreador } from './UsarRastreador'
 
 /*
  * O card de uma viagem (Ordens › Viagens): lote, situação, motorista e placa, última posição,
@@ -50,7 +51,15 @@ export function CardViagem({
   const sos = v.emergencia && !v.emergencia.cienteEm
   const cabecalho = (
     <>
-      <span className="font-mono type-label">{v.loteCodigo}</span>
+      <span className="type-label">
+        <span className="font-mono">{v.loteCodigo}</span>
+        {!v.somenteLeitura && (
+          <span className="text-muted-foreground">
+            {' · '}
+            {t('viagens.card.caminhao', { n: v.numero })}
+          </span>
+        )}
+      </span>
       <span className="type-caption text-muted-foreground">
         {[v.motoristaNome ?? t('viagens.card.motoristaADefinir'), v.placa]
           .filter(Boolean)
@@ -60,7 +69,11 @@ export function CardViagem({
   )
   return (
     <article
-      aria-label={t('viagens.card.rotulo', { code: v.loteCodigo })}
+      aria-label={
+        v.numero > 1
+          ? t('viagens.card.rotuloCaminhao', { code: v.loteCodigo, n: v.numero })
+          : t('viagens.card.rotulo', { code: v.loteCodigo })
+      }
       className={cn(
         'flex flex-col gap-2 rounded-md border bg-card p-3',
         escolhida && 'border-primary ring-1 ring-primary',
@@ -99,6 +112,13 @@ export function CardViagem({
           </>
         )}
       </p>
+
+      {v.origemGps === 'aparelho' && (
+        <p className="flex items-center gap-1.5 type-caption">
+          <Satellite aria-hidden className="size-3.5 text-muted-foreground" />
+          {t('viagens.rastreador.pelo')} <span className="font-mono">{v.rastreadorAparelho}</span>
+        </p>
+      )}
 
       {v.posicao && (
         <p className="type-caption num" title={formatDateTime(v.posicao.em)}>
@@ -175,6 +195,9 @@ export function CardViagem({
             <MessageSquare aria-hidden />
             {t('viagens.chat.abrir')}
           </Button>
+        )}
+        {!v.somenteLeitura && v.origemGps === 'celular' && v.status === 'aguardando_motorista' && (
+          <UsarRastreador v={v} />
         )}
         {naRua && !v.somenteLeitura && (
           <Can permission="ordens.viagens.editar" fallback="disable">

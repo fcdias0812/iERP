@@ -8,6 +8,7 @@ import type {
 } from '@/services/types'
 import { useSessionStore } from '@/stores/session-store'
 import { apiError, simulateNetwork } from '../config'
+import { ordensMock } from './ordens'
 
 /*
  * API SIMULADA de Ordens › Viagens (mesmo contrato de server/src/modules/viagens/viagens.ts):
@@ -33,6 +34,10 @@ function trajeto(inicio: number, n: number): PontoTrajeto[] {
 const base = (extra: Partial<Viagem>): Viagem => ({
   id: 'v',
   ordemId: 'ord00001',
+  numero: 1,
+  origemGps: 'celular',
+  rastreadorId: null,
+  rastreadorAparelho: null,
   loteCodigo: 'LOT-00001',
   origem: 'IERP',
   somenteLeitura: false,
@@ -236,9 +241,46 @@ export const viagensHandlers = [
       { latitude: -23.51, longitude: -46.62, tipo: 'balanca', nome: null },
     ]),
   ),
+  // Adicionar caminhão: mais uma viagem no lote agendado (o lote passa a ser rastreado).
+  http.post('*/api/viagens/lote/:ordemId', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    const o = ordensMock().find((x) => x.id === params.ordemId)
+    if (!o) return apiError(404, 'not_found', 'Lote não encontrado.')
+    if (o.status !== 'agendado')
+      return apiError(409, 'invalid_transition', 'Só se adiciona caminhão a lote agendado.')
+    const c = (await request.json()) as { motoristaId: string | null; placa: string | null }
+    const doLote = db().filter((v) => v.ordemId === o.id)
+    const numero = Math.max(0, ...doLote.map((v) => v.numero)) + 1
+    const r: Registro = {
+      ...base({
+        id: `vg${Date.now()}`,
+        ordemId: o.id,
+        numero,
+        loteCodigo: o.codigo,
+        codigoRastreio: o.codigo,
+        clienteNome: o.clienteNome,
+        siteCodigo: o.siteCodigo,
+        motoristaNome: null,
+        placa: c.placa,
+        codigoChegada: String(100000 + Math.floor(Math.random() * 899999)),
+        linkMotorista: `${RASTREADOR}/app/?os=${o.codigo}`,
+        dataColeta: o.dataColeta ?? o.coletaPrevista,
+      }),
+      trajeto: [],
+      chat: [],
+    }
+    db().push(r)
+    o.rastrear = true
+    return HttpResponse.json(detalhe(r), { status: 201 })
+  }),
   http.get('*/api/viagens/lote/:ordemId', ({ params }) => {
-    const r = db().find((v) => v.ordemId === params.ordemId)
-    return HttpResponse.json(r ? resumo(r) : null)
+    // As viagens do lote (uma por caminhão).
+    return HttpResponse.json(
+      db()
+        .filter((v) => v.ordemId === params.ordemId)
+        .map(resumo),
+    )
   }),
   http.get('*/api/viagens/:id', async ({ request, params }) => {
     const fail = await simulateNetwork(request)

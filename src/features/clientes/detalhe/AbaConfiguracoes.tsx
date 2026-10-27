@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { CircleCheck, CircleMinus, Pencil } from 'lucide-react'
 import { Can } from '@/components/layout/Can'
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TextoTraduzido } from '@/components/ui/localized-text'
 import { KeyValueList, type KeyValueItem } from '@/components/ui/metadata'
+import { useNomeDoTipo } from '@/features/lotes/tipos-documento'
 import { SERVICOS } from '@/features/ordens/agendamento-schema'
 import { formatNumber } from '@/lib/format'
 import type { Cliente } from '@/services/types'
@@ -20,6 +22,7 @@ import { ConfiguracoesSheet } from './ConfiguracoesSheet'
 export function AbaConfiguracoes({ c }: { c: Cliente }) {
   const { t } = useTranslation()
   const [editando, setEditando] = useState(false)
+  const nomeDoTipo = useNomeDoTipo()
   const cfg = c.configuracoes
   const campo = (k: string) => t(`clientes.config.campos.${k as 'rastrearColeta'}`)
   const dias = (n: number | null, vazio: string) =>
@@ -87,6 +90,22 @@ export function AbaConfiguracoes({ c }: { c: Cliente }) {
     { label: campo('exigirTara'), value: simNao(cfg.exigirTara) },
     { label: campo('exigirFotosGerais'), value: simNao(cfg.exigirFotosGerais) },
   ]
+  const nomes = (l: typeof cfg.documentos) =>
+    l.length ? (
+      l.map((d) => nomeDoTipo(d.codigo, d.nome)).join(', ')
+    ) : (
+      <span className="text-muted-foreground">{t('clientes.config.valores.nenhum')}</span>
+    )
+  const documentos: KeyValueItem[] = [
+    {
+      label: t('clientes.config.documentos.aceitos'),
+      value: nomes(cfg.documentos.filter((d) => d.aceita)),
+    },
+    {
+      label: t('clientes.config.documentos.noRelatorio'),
+      value: nomes(cfg.documentos.filter((d) => d.relatorio)),
+    },
+  ]
   const prazos: KeyValueItem[] = [
     {
       label: campo('sistemaProcessamento'),
@@ -138,15 +157,26 @@ export function AbaConfiguracoes({ c }: { c: Cliente }) {
         <Secao titulo={t('clientes.config.secoes.prazos')}>
           <KeyValueList columns={2} items={prazos} />
         </Secao>
+        <Secao titulo={t('clientes.config.secoes.documentos')} className="lg:col-span-2">
+          <KeyValueList columns={2} items={documentos} />
+        </Secao>
       </div>
       {editando && <ConfiguracoesSheet c={c} onClose={() => setEditando(false)} />}
     </div>
   )
 }
 
-function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
+function Secao({
+  titulo,
+  className,
+  children,
+}: {
+  titulo: string
+  className?: string
+  children: ReactNode
+}) {
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
         <CardTitle>{titulo}</CardTitle>
       </CardHeader>

@@ -5,6 +5,10 @@ import { agruparViagens, diaRelativo, diaSp } from './agrupar'
 const viagem = (extra: Partial<Viagem>): Viagem => ({
   id: 'v',
   ordemId: 'o',
+  numero: 1,
+  origemGps: 'celular',
+  rastreadorId: null,
+  rastreadorAparelho: null,
   loteCodigo: 'LOT-00001',
   origem: 'IERP',
   somenteLeitura: false,

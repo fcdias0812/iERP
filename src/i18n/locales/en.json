@@ -892,7 +892,12 @@
     "estoque_info": "Information",
     "estoque_atencao": "Attention",
     "estoque_problema": "Problem",
-    "estoque_encerrado": "Closed"
+    "estoque_encerrado": "Closed",
+    "rastreador_online": "Online",
+    "rastreador_sem_satelite": "No satellite",
+    "rastreador_gps_com_problema": "GPS problem",
+    "rastreador_sem_conexao": "Offline",
+    "rastreador_nunca_conectou": "Never connected"
   },
   "dataTable": {
     "yes": "Yes",
@@ -1364,7 +1369,13 @@
     "sealRequired": "This customer requires at least one seal with photo.",
     "invoiceRequired": "This customer requires at least one invoice with photo.",
     "tareRequired": "This customer requires the tare of each pallet.",
-    "photosRequired": "This customer requires at least one general photo."
+    "photosRequired": "This customer requires at least one general photo.",
+    "trackerInUse": "This tracker is on an open trip.",
+    "trackerInactive": "This tracker is inactive.",
+    "lotMerged": "This lot was joined to another one of the same pickup: use the main lot.",
+    "documentTypeNotAccepted": "This customer does not accept this document type (see the customer Settings).",
+    "reportNotReceived": "The final report is only available after the lot is received.",
+    "reportMissingDocuments": "Documents checked for the final report are missing."
   },
   "calendar": {
     "today": "Today",
@@ -1576,7 +1587,9 @@
       "chaveInterna": "Internal key",
       "chaveTransito": "Traffic map key (TomTom, optional)",
       "urlSistema": "System address",
-      "chaveIntegracao": "Integration key"
+      "chaveIntegracao": "Integration key",
+      "urlLeituraGps": "Read address",
+      "chaveLeituraGps": "Read key"
     },
     "secoes": {
       "sistema": "System",
@@ -1586,7 +1599,8 @@
       "situacao": "Status",
       "sincronizacao": "Synchronization",
       "rastreador": "GPS tracker (tracker → iERP)",
-      "estoque": "Stock (system → iERP)"
+      "estoque": "Stock (system → iERP)",
+      "gps": "GPS server (server → iERP)"
     },
     "ajuda": {
       "sistema": "Each system belongs to a customer: where its lots go (Dell → MoonShot) or where they come from (Project Management).",
@@ -1607,7 +1621,9 @@
       "estoque": "iERP 2.0 reads this system's stock list live (the same /api/integracao/estoque port the old iERP uses; nothing changes there). Address = the system root, without a path.",
       "chaveARMAZEM": "Generate a key for iERP 2.0 in Inventory-Management (System › Settings › integration keys). It is shown only once.",
       "chaveNOTEBOOKS": "The INTEGRACAO_CHAVE from Notebook Control's .env — the same one the old iERP uses.",
-      "chaveRTB_WMS": "RTB WMS's INTEGRACAO_CHAVE — the same one the old iERP uses."
+      "chaveRTB_WMS": "RTB WMS's INTEGRACAO_CHAVE — the same one the old iERP uses.",
+      "gps": "The GPS server of the trucks' devices (the same as iERP 1.0). iERP 2.0 reads the points every 5 minutes, with its own read position (it does not affect 1.0's reading).",
+      "chaveLeituraGps": "The GPS server's read key (the same as iERP 1.0)."
     },
     "gerarChave": "Generate key",
     "trocarChave": "Replace key",
@@ -1650,7 +1666,8 @@
     "sistemas": {
       "MOONSHOT": "MoonShot",
       "GERENCIAMENTO": "Project Management",
-      "MSDC": "Re-Teck MSDC (Microsoft)"
+      "MSDC": "Re-Teck MSDC (Microsoft)",
+      "GPS_CAMINHAO": "Trucks GPS server"
     },
     "toast": {
       "criado": "Integration {{name}} created.",
@@ -1817,7 +1834,9 @@
         "diasParadoEtapa": "Stuck lot alert (days)",
         "antecedenciaDias": "Minimum notice (days)",
         "agendamentoBloqueado": "Block scheduling",
-        "bloqueioMotivo": "Reason for blocking"
+        "bloqueioMotivo": "Reason for blocking",
+        "documentosAceitos": "Accepted documents",
+        "documentosRelatorio": "Final report documents"
       }
     },
     "documentos": {
@@ -1938,13 +1957,15 @@
         "rastreio": "Pickup tracking",
         "agendamento": "Scheduling",
         "recebimento": "Receiving",
-        "prazos": "Deadlines and processing"
+        "prazos": "Deadlines and processing",
+        "documentos": "Lot documents"
       },
       "secoesAjuda": {
         "rastreio": "Whether this customer's pickups are followed through the driver's phone.",
         "agendamento": "What comes pre-filled and what is required when scheduling.",
         "recebimento": "What becomes mandatory when receiving this customer's lots.",
-        "prazos": "Where the lots go, deadlines and blocking new schedules."
+        "prazos": "Where the lots go, deadlines and blocking new schedules.",
+        "documentos": "The document types this customer accepts on lots and the ones that go in the final report. The final report ZIP is only generated with one document of each checked type."
       },
       "campos": {
         "rastrearColeta": "Track the pickup",
@@ -1994,6 +2015,16 @@
         "diasSufixo": "days",
         "semSla": "No SLA",
         "semLimite": "No limit"
+      },
+      "documentos": {
+        "aceita": "Accepted",
+        "relatorio": "Goes in the final report",
+        "novo": "New type",
+        "novoAjuda": "Not on the list? Type the name and create it right here (available to every customer).",
+        "criar": "Create type",
+        "erroCriar": "Could not create the document type.",
+        "aceitos": "Accepted types",
+        "noRelatorio": "Go in the final report"
       }
     },
     "rastreio": {
@@ -2356,7 +2387,8 @@
       "recalcular": "Recalculate",
       "toast": {
         "created": "Lot {{code}} scheduled.",
-        "failed": "Couldn't create the order."
+        "failed": "Couldn't create the order.",
+        "juntado": "{{code}} is the same pickup as {{principal}}: it was joined to it."
       },
       "calculo": {
         "titulo": "Pre-calculation",
@@ -2387,6 +2419,11 @@
         "antecedencia": "This customer asks for {{n}} days' notice for the pickup. The expected pickup is sooner — confirm with the customer.",
         "rastreioFixo": "Set in the customer settings.",
         "escopoPlanilha": "This customer requires the scope spreadsheet (.xlsx)."
+      },
+      "caminhoes": {
+        "titulo": "Truck {{n}}",
+        "adicionar": "Add truck",
+        "remover": "Remove truck {{n}}"
       }
     },
     "lotes": {
@@ -2689,7 +2726,11 @@
         "viagem_finalizada": "Trip finished",
         "viagem_cancelada": "Trip cancelled",
         "viagem_emergencia": "Emergency on the trip",
-        "viagem_emergencia_ciente": "Emergency acknowledged"
+        "viagem_emergencia_ciente": "Emergency acknowledged",
+        "viagem_adicionada": "Added a truck",
+        "juntado": "Joined to another lot (same pickup)",
+        "coleta_juntada": "Received a lot from the same pickup",
+        "separado": "Separated from the pickup"
       },
       "campos": {
         "status": "Status",
@@ -2710,7 +2751,11 @@
         "processamento": "Processing phase",
         "motivoDevolucao": "Correction reason",
         "finalizadaPor": "Ended by",
-        "emergencia": "Emergency"
+        "emergencia": "Emergency",
+        "caminhao": "Truck",
+        "caminhoes": "Trucks",
+        "rastreador": "Tracker",
+        "lote": "Lot"
       }
     },
     "informacoes": {
@@ -2890,6 +2935,20 @@
       },
       "operacao": "What happened in {{sistema}}",
       "documentosSoLa": "This lot's documents stay in {{sistema}} and only open there (with its login)."
+    },
+    "juntados": {
+      "titulo": "Same pickup ({{n}} lots)",
+      "descricao": "Same customer, address and date: these lots became part of {{code}}. Quantities, services, documents and trips are already added up.",
+      "daqui": "Scheduled in iERP",
+      "volumes": "{{n}} volumes"
+    },
+    "gerar": {
+      "botao": "Generate",
+      "pdf": "Work order PDF",
+      "relatorio": "Final report (ZIP)",
+      "falta": "Missing: {{itens}}",
+      "faltaRecebimento": "receive the lot",
+      "naoPronto": "The final report cannot be generated yet"
     }
   },
   "recebimento": {
@@ -3006,7 +3065,9 @@
     "inativoTitle": "Inactive record",
     "toast": {
       "inativar": "{{name}} deactivated.",
-      "reativar": "{{name}} reactivated."
+      "reativar": "{{name}} reactivated.",
+      "saveFailed": "Could not save.",
+      "actionFailed": "Could not complete the action."
     },
     "confirm": {
       "inativar": {
@@ -3096,12 +3157,29 @@
         "situacao": "Status",
         "ultimoContato": "Last contact",
         "ultimaPosicao": "Last position",
-        "viagem": "Open trip"
+        "viagem": "Open trip",
+        "gps": "GPS"
       },
-      "integracaoTitle": "Waiting for the integration",
-      "integracaoBody": "Truck trackers will come from the GPS system's API. Once it is connected, the devices show up here.",
-      "vazio": "No trackers",
-      "vazioBody": "The list is filled by the integration with the GPS system."
+      "campos": {
+        "placa": "Plate",
+        "descricao": "Description",
+        "status": "Status"
+      },
+      "vazio": "No trackers yet",
+      "vazioBody": "Devices show up by themselves when the GPS server (Administration › Integration) sends their points.",
+      "lerAgora": "Read now",
+      "descricao": "The truck's GPS device. The plate and description help pick the right device for a trip.",
+      "secao": "Device",
+      "placaAjuda": "The plate of the truck the device is in.",
+      "situacaoTitulo": "Status",
+      "firmware": "Firmware",
+      "pontosPerdidos": "Lost points",
+      "confirm": "An inactive device is ignored when reading the GPS server.",
+      "toast": {
+        "salvo": "{{name}} saved.",
+        "lido": "GPS server read.",
+        "falhou": "Could not read the GPS server."
+      }
     },
     "paginas": {
       "materiais": "Materials that go inside bins and pallets, in the 3 languages.",
@@ -3160,7 +3238,9 @@
       "linkCopiado": "Driver link copied.",
       "codigoCopiado": "Arrival code copied.",
       "copiaFalhou": "Could not copy. Select and copy it manually.",
-      "abrirLote": "Open lot"
+      "abrirLote": "Open lot",
+      "caminhao": "Truck {{n}}",
+      "rotuloCaminhao": "Trip of lot {{code}}, truck {{n}}"
     },
     "origens": {
       "IERP": "iERP",
@@ -3273,12 +3353,30 @@
       "titulo": "Trip"
     },
     "recebimento": {
-      "titulo": "Lot with a tracked trip",
-      "encerra": "Receiving the lot ends the trip in the driver app.",
-      "semViagem": "The driver has not started the trip yet; receiving the lot cancels the tracking."
+      "titulo": "Tracked trucks of this lot",
+      "naoEncerra": "Receiving the lot does not end the trips: each truck ends with the arrival code or the Finish button."
     },
     "baixar": {
       "botao": "Download {{formato}}"
+    },
+    "caminhao": {
+      "adicionar": "Add truck",
+      "titulo": "Add truck",
+      "descricao": "One more truck for this pickup, with its own driver, plate, link and arrival code.",
+      "adicionado": "Truck {{n}} added."
+    },
+    "rastreador": {
+      "usar": "Use tracker",
+      "titulo": "Use the truck's tracker",
+      "descricao": "Truck {{n}} of lot {{code}} goes with the GPS device: the trip starts now and ends with the Finish button.",
+      "campo": "Tracker",
+      "ocupado": "busy with {{code}}",
+      "avisoEstado": "This device is not online right now",
+      "nenhum": "No active tracker",
+      "nenhumTexto": "Devices show up in Records › GPS trackers when the GPS server reads them.",
+      "confirmar": "Start with tracker",
+      "pelo": "By device",
+      "iniciada": "Truck {{n}} of {{code}} left with the tracker."
     }
   },
   "estoque": {
@@ -3449,5 +3547,12 @@
       "concluido": "Completed"
     },
     "rodape": "© {{year}} Re-Teck · Reverse logistics"
+  },
+  "novidades": {
+    "titulo": "What's new",
+    "botaoNova": "What's new (new version)",
+    "descricao": "What changed in each iERP update. Current version: {{versao}}.",
+    "versao": "Version {{versao}}",
+    "atual": "Current"
   }
 }

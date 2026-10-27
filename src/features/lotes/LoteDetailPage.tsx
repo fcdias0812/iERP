@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import {
@@ -34,6 +35,8 @@ import type { AbaLote, OrigemLote } from './origem'
 import { AvisoLoteDeFora, DocumentosDeFora } from './LoteDeFora'
 import { AvisoDevolucao } from './ProcessamentoExterno'
 import { StatusDoLote } from './StatusDoLote'
+import { DocumentosGerados } from './DocumentosGerados'
+import { AbrirNoSistema } from './LotesJuntados'
 
 /**
  * Detalhe do lote (padrão Detalhe), aberto de Ordens › Lotes ou de Operação › Lotes: abas
@@ -75,7 +78,21 @@ function LoteDetail({ id, origem }: { id: string; origem: OrigemLote }) {
   if (query.error instanceof ApiError && query.error.isNotFound) return <NotFoundContent />
   if (query.isError || !o)
     return <AppError error={query.error} reset={() => void query.refetch()} />
+  // Juntado a outro da mesma coleta: abre o principal (22/10/2026).
+  if (o.juntadoA) return <IrParaPrincipal origem={origem} id={o.juntadoA.id} />
   return <Detalhe o={o} origem={origem} />
+}
+
+function IrParaPrincipal({ origem, id }: { origem: OrigemLote; id: string }) {
+  const navigate = useNavigate()
+  useEffect(() => {
+    void navigate({
+      to: origem === 'ordens' ? '/ordens/lotes/$id' : '/operacao/lotes/$id',
+      params: { id },
+      replace: true,
+    })
+  }, [navigate, origem, id])
+  return <Skeleton className="h-64 w-full" />
 }
 
 function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
@@ -130,6 +147,8 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
         }
         actions={
           <>
+            <AbrirNoSistema o={o} />
+            <DocumentosGerados o={o} />
             {editavel && (
               <Can permission={permissaoEditar} fallback="disable">
                 <Button variant="secondary" onClick={() => ir({ aba: abaUrl(aba), editar: true })}>

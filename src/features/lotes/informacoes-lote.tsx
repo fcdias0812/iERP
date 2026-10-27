@@ -16,7 +16,9 @@ export function useInformacoesDoLote(o: Ordem) {
   const sites = useSitesDoCliente(o.clienteId)
   const site = sites.data?.find((s) => s.id === o.siteId)
   const doca = site?.docas.find((d) => d.id === o.docaId)
-  const q = o.quantidades
+  // A coleta inteira (os lotes juntados somam — 22/10/2026).
+  const q = o.coleta?.quantidades ?? o.quantidades
+  const servicosDaColeta = o.coleta?.servicos ?? o.servicos
   const simNao = (v: boolean) => (v ? t('dataTable.yes') : t('dataTable.no'))
   const qtd = (v: number | null) => (
     <span className="num">{v === null ? EMPTY : formatNumber(v)}</span>
@@ -92,7 +94,7 @@ export function useInformacoesDoLote(o: Ordem) {
     { label: campo('placa'), value: o.placa && <span className="font-mono">{o.placa}</span> },
   ]
 
-  const servicos = SERVICOS.filter((s) => o.servicos[s]).map((s) =>
+  const servicos = SERVICOS.filter((s) => servicosDaColeta[s]).map((s) =>
     t(`ordens.agendamento.servicos.${s}`),
   )
 
@@ -101,7 +103,7 @@ export function useInformacoesDoLote(o: Ordem) {
     { label: campo('pallets'), value: qtd(q.pallets) },
     { label: campo('gaylords'), value: qtd(q.gaylords) },
     { label: campo('racks'), value: qtd(q.racks) },
-    ...(o.servicos.valueRecoveryRacks
+    ...(servicosDaColeta.valueRecoveryRacks
       ? [{ label: campo('placasPolicarbonato'), value: qtd(q.placasPolicarbonato) }]
       : []),
     {

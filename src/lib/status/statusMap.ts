@@ -38,7 +38,10 @@ import {
   PencilLine,
   Receipt,
   MapPinCheck,
+  Satellite,
+  SatelliteDish,
   Siren,
+  WifiOff,
   type LucideIcon,
 } from 'lucide-react'
 import type { StatusTone } from './tones'
@@ -105,6 +108,12 @@ export const STATUS_MAP = {
   viagem_finalizada: { tone: 'success', icon: CircleCheckBig, flowOrder: 112 },
   viagem_cancelada: { tone: 'inactive', icon: Ban, flowOrder: 401 },
   viagem_emergencia: { tone: 'danger', icon: Siren, flowOrder: 305 },
+  // Rastreador GPS do caminhão (a mesma régua do 1.0).
+  rastreador_online: { tone: 'success', icon: Satellite, flowOrder: 150 },
+  rastreador_sem_satelite: { tone: 'warning', icon: SatelliteDish, flowOrder: 151 },
+  rastreador_gps_com_problema: { tone: 'danger', icon: TriangleAlert, flowOrder: 152 },
+  rastreador_sem_conexao: { tone: 'danger', icon: WifiOff, flowOrder: 153 },
+  rastreador_nunca_conectou: { tone: 'inactive', icon: CircleDashed, flowOrder: 431 },
   // Estados que vêm dos sistemas de estoque (o rótulo é o de lá; a cor, pelo significado).
   estoque_ok: { tone: 'success', icon: CircleCheck, flowOrder: 140 },
   estoque_info: { tone: 'info', icon: CircleDot, flowOrder: 141 },

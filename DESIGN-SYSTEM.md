@@ -166,7 +166,7 @@ Componentes usam `h-control`, `h-control-sm`, `h-control-lg` e `var(--table-row-
 | `--navbar-h`            | 56px           | altura da navbar fixa                        |
 | `--sidebar-w`           | 240px          | menu lateral expandido                       |
 | `--sidebar-w-collapsed` | 56px           | menu lateral recolhido (só ícones)           |
-| `--content-max-w`       | 1600px         | largura máxima da área de conteúdo           |
+| `--content-max-w`       | sem limite     | largura máxima da área de conteúdo           |
 | `--page-px`             | 16 / 24 / 32px | margem lateral da página (cresce com a tela) |
 
 ## 6. Marca

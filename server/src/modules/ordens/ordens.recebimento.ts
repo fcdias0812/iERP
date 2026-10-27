@@ -319,10 +319,17 @@ export function criarServicoRecebimento(
   ) {
     const ordem = await db
       .selectFrom('ordens')
-      .select(['id', 'clienteId', 'status', 'devolucaoEm'])
+      .select(['id', 'clienteId', 'status', 'devolucaoEm', 'juntadoA'])
       .where('id', '=', ordemId)
       .executeTakeFirst()
     if (!ordem) throw naoEncontrado('Lote não encontrado.')
+    // A coleta tem um recebimento só, no lote principal (22/10/2026).
+    if (ordem.juntadoA)
+      throw new ErroApi(
+        409,
+        'lot_merged',
+        'Este lote foi juntado a outro da mesma coleta: receba pelo lote principal.',
+      )
     await garantirLoteDaqui(db, ordemId)
     // Com DEVOLUÇÃO pedida pelo sistema de fora (MoonShot), a correção vale mesmo depois de o
     // processamento ter começado lá: é justamente o que ele pediu.
@@ -598,6 +605,37 @@ export function criarServicoRecebimento(
             .insertInto('ordensEtapas')
             .values({ id: randomUUID(), ordemId, etapa: 'inspecao', em: recebidoEm, autor })
             .execute()
+          // Os lotes daqui juntados a este chegaram juntos (os de fora seguem o sistema deles).
+          const juntados = await trx
+            .selectFrom('ordens')
+            .select('id')
+            .where('juntadoA', '=', ordemId)
+            .where('externoSistema', 'is', null)
+            .where('status', '=', 'agendado')
+            .execute()
+          for (const j of juntados) {
+            await trx
+              .updateTable('ordens')
+              .set({
+                status: 'inspecao',
+                recebidoEm,
+                etapaDesde: recebidoEm,
+                alteradoEm: agora,
+                alteradoPor: autor,
+              })
+              .where('id', '=', j.id)
+              .execute()
+            await trx
+              .insertInto('ordensEtapas')
+              .values({ id: randomUUID(), ordemId: j.id, etapa: 'inspecao', em: recebidoEm, autor })
+              .execute()
+            await registrarHistorico(trx, 'ordem', j.id, {
+              autor,
+              em: agora,
+              acao: 'recebido',
+              mudancas: [{ campo: 'status', antes: 'agendado', depois: 'inspecao' }],
+            })
+          }
           const depois = await resumo(trx, ordemId)
           await registrarHistorico(trx, 'ordem', ordemId, {
             autor,

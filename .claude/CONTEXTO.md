@@ -550,6 +550,81 @@ dele: **o iERP compara as leituras** — a cada 5 minutos e ao abrir o estoque, 
 saiu e mudou (campo, antes, depois) na mesma tabela de auditoria dos outros históricos, com
 período 30/90/365 dias ou tudo. Detalhes no mesmo §0.4.
 
+### 5.19 Viagens e lotes — pedido de 22/10/2026 (pronto, não commitado)
+
+Palavras dele: "Lembre-se: Eles gostam de agilidade e praticidade, então deixe o mais simples e
+direto possível." Seis partes, com as decisões dele:
+
+1. **Mais de uma viagem por lote** (vários caminhões ao mesmo tempo): **as duas formas** — já no
+   Agendamento (quantos caminhões, motorista/placa de cada) e um botão "Adicionar caminhão" no
+   lote. Cada caminhão com motorista, placa, link e código de chegada próprios. **Recebimento não
+   mexe nas viagens** ("cada uma por si": cada uma termina pelo código de chegada ou Finalizar).
+2. **Aparelho de GPS no caminhão** — "utilize o mesmo método no 1.0, esse sistema do gps não vai
+   mudar": servidor de GPS (Walker, Cloudflare Worker) lido por PULL (`GET <url>?after=<cursor>`,
+   `Authorization: Bearer`), a cada 5 min, páginas com `more`; a placa aparece sozinha;
+   "Usar rastreador" liga um aparelho a uma viagem; encerramento manual. **Mesma chave de leitura
+   do 1.0** (cada iERP guarda o seu cursor).
+3. **Juntar lotes da mesma coleta** (mesmo cliente, mesmo endereço do site, mesma data de coleta),
+   de QUALQUER origem (iERP, Gerenciamento, MSDC): viram UM lote no iERP. O primeiro criado é o
+   principal; as telas mostram só ele, com quantidades, serviços, documentos e viagens somados;
+   dentro dele, a lista dos lotes juntados, cada um com o botão para abrir no sistema dele. O
+   recebimento é um só, no principal. Para o MoonShot vai só o principal, com tudo junto.
+4. **Botão para o lote no outro sistema**: Gerenciamento e MSDC sempre (nascem e terminam lá);
+   MoonShot só depois do recebimento (antes o lote só existe no iERP).
+5. **Configurações do cliente › tipos de documento do lote**: lista única (os de hoje + tipos
+   novos criados ali mesmo) e, por cliente, "aceita" e "vai no relatório final".
+6. **PDF da OS e ZIP do relatório final** no lote. ZIP = PDF da OS + planilha (recebimento e
+   balanço de massa, como o relatório de Reciclagem do 1.0) + os documentos dos tipos marcados
+   "vai no relatório final". Libera depois do recebimento e com todos os documentos marcados
+   presentes; se faltar algum, diz qual.
+
+**Onde ficou cada parte** (22/10/2026):
+
+- **Caminhões:** `ordens_viagens` sem o índice único (migration `2026-10-22-03`): uma linha por
+  caminhão (`numero`, `motorista_id`, `placa_informada`, `origem` celular|aparelho,
+  `rastreador_id`). Agendamento/editar mandam `caminhoes[]` (o 1º também vai em
+  motoristaId/placa da ordem); `aoMudarRastreio` sincroniza por posição. "Adicionar caminhão" =
+  `POST /api/viagens/lote/:ordemId` (só lote agendado e daqui; liga o rastreio). Tela:
+  `agendamento-campos.tsx` (lista de caminhões) e `ViagemNoLote.tsx` (cards + painel). Receber
+  não encerra viagem.
+- **Aparelho de GPS:** `server/src/modules/viagens/gps-caminhao.ts` (leitor PULL, ligado no
+  `index.ts`) + `rastreadores.ts` (`/api/rastreadores`, tabela `rastreadores`, migration
+  `2026-10-22-04`). Cadastro em Administração › Integração, tipo `gps`, sistema `GPS_CAMINHAO`
+  (URL da leitura + a chave do 1.0). Sistema › Cadastros › Rastreadores GPS lista os aparelhos
+  (placa aparece sozinha; "Ler agora"); na viagem, "Usar rastreador" (`UsarRastreador.tsx`). A
+  viagem pelo aparelho guarda os pontos aqui (`ordens_viagens_pontos`) e termina no Finalizar.
+- **Juntar lotes:** `ordens.juntado_a` (migration `2026-10-22-05`), regra em
+  `server/src/modules/ordens/coleta.ts` (`chaveDaColeta` = dia da coleta no fuso de SP + endereço
+  do site normalizado; `reagruparColetas` roda ao criar, editar e na sincronização do
+  Gerenciamento/MSDC). Lote já recebido sozinho não vira juntado. O `obter` do principal soma
+  tudo; listas, busca, dashboard e link público escondem os juntados; abrir um juntado leva ao
+  principal (`IrParaPrincipal`). Recebimento só no principal (`lot_merged` nos outros) e propaga
+  Inspeção aos juntados do iERP. MoonShot: `sistemaDoLote` ignora juntados. Tela:
+  `LotesJuntados.tsx` (card "A mesma coleta" + `AbrirNoSistema`).
+- **Tipos de documento:** tabelas `tipos_documento` e `clientes_tipos_documento` (migration
+  `2026-10-22-06`), `server/src/modules/clientes/tipos-documento.ts` (`/api/tipos-documento`).
+  Sem marca: os do sistema aceitos, nenhum no relatório; escopo sempre aceito. Enviar documento
+  de tipo não aceito = 422 `document_type_not_accepted`. Tela: seção "Documentos do lote" no
+  `ConfiguracoesSheet` (dois interruptores por tipo + "Tipo novo" em 3 idiomas),
+  `features/lotes/tipos-documento.ts` (`useNomeDoTipo`), aba Documentos do lote só com os aceitos.
+- **PDF e ZIP:** `server/src/modules/ordens/relatorio-final.ts` (pdfkit 0.20.2 + qrcode 1.5.4;
+  planilha exceljs 4.4.0; ZIP fflate 0.8.3) — PDF em português, A4, logo, QR do link de cada
+  caminhão (nunca o código de chegada), assinaturas; planilha "Recebimento" + "Processamento".
+  Rotas `GET /api/ordens/:id/pdf`, `/relatorio-final/situacao`, `/relatorio-final` (409
+  `report_not_received` / `report_missing_documents`). Tela: botão **Gerar** no cabeçalho do lote
+  (`DocumentosGerados.tsx`), o item do ZIP diz o que falta.
+- **Teste no banco de desenvolvimento:** LOT-00026 + LOT-00027 (cliente "AWS Serviços Brasil
+  (teste)", 15/12/2026) mostram a junção.
+
+### 5.20 Novidades (27/10/2026, não commitado)
+
+Pedido dele: "Coloque o botão para ver as novidades que tem em cada atualização. Lembre-se de
+adicionar no .claude para sempre colocar as atualizações la." Botão ✨ na barra do topo
+(`src/components/layout/NovidadesButton.tsx`), ao lado da Ajuda, com bolinha até a pessoa abrir a
+versão atual (`novidadesVistas` no `ui-store`). Lista em `src/config/novidades.ts` (3 idiomas,
+versão nova no topo; 2.0 a 2.3 montadas do histórico do Git, 2.4 = a entrega de viagens/lotes +
+este botão). **Toda entrega acrescenta uma versão** — regra no `FLUXO-DE-TRABALHO.md` §2 passo 9.
+
 ### 5.6 Cálculo da OS (pré-cálculo)
 
 Pedido dele: "Utilize o cálculo no sistema `C:\Systems\TI-Re-Teck-iERP`". Portado **fielmente** de
@@ -608,6 +683,17 @@ feito: **Clientes › Configurações (22/10/2026)** — §5.2; no GitHub desde 
 Ainda dos Clientes (do 1.0): números da Visão geral, anexos que a OS pede. Depois: login pelo Portal, PDF da OS, relatório final, travar lote, viagem
 junta, chamados internos — e perguntar quais processos do galpão (separação, conferência,
 sanitização, testes, desmontagem, caixotes) ainda são feitos no 1.0.
+
+**O que falta em relação ao 1.0 (levantado em 27/10/2026, com o 1.0 atualizado até `cc9473b`):**
+login pelo Portal (SSO, senha temporária; hoje o autor é "Sistema"); travar lote + Lotes travados;
+etiqueta de pallet no Recebimento e etiqueta QR do caixote; viagem junta (carona, também pedida
+pelo agendamento de fora); alerta de parada prolongada + cadastro de Pontos do mapa; cancelar
+viagem; página do rastreador GPS (mapa e viagens dele); excluir lote enquanto agendado; agendamento
+de fora com doca/transportadora "A definir", site sem cadastro e medidas da doca (commits recentes
+do 1.0); Clientes: números da Visão geral e anexos obrigatórios no agendamento; Chamados internos;
+processos do galpão (Separação, Conferência/Inventário, Sanitização, Testes, Desmontagem); estoque
+próprio de caixotes (página do caixote, saída, juntar, transferir) e páginas de aparelho
+(Assets/Servidores); Novidades (changelog). De propósito diferente: 3 idiomas (o 1.0 tem 6).
 
 **Estoque ← armazém, Controle de Notebooks e RTB WMS está pronto (20/10/2026)** — commit local
 `2cac597` (no GitHub desde 20/10/2026; §5.18; `INTEGRACOES.md` §0.4). **Estoque › Histórico também

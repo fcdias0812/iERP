@@ -160,7 +160,7 @@ export async function aplicarAndamento(
 export async function enfileirarAviso(db: Db, ordemId: string, evento: string) {
   const o = await db
     .selectFrom('ordensLista')
-    .select(['codigo', 'clienteSistema', 'externoSistema'])
+    .select(['codigo', 'clienteSistema', 'externoSistema', 'juntadoA'])
     .where('id', '=', ordemId)
     .executeTakeFirst()
   if (!o) return
@@ -325,7 +325,7 @@ export async function lerPainel(
   const ordens = codigos.length
     ? await db
         .selectFrom('ordensLista')
-        .select(['id', 'codigo', 'clienteSistema', 'externoSistema'])
+        .select(['id', 'codigo', 'clienteSistema', 'externoSistema', 'juntadoA'])
         .where('codigo', 'in', codigos)
         .execute()
     : []
@@ -372,9 +372,7 @@ export async function lerPaineis(db: Db, fazerFetch: Fetch = fetch) {
     .execute()
     // Só os sistemas de lotes: o rastreador (`modules/viagens/`) e os de estoque
     // (`modules/estoque/`, lidos ao abrir a tela) têm o caminho deles.
-    .then((l) =>
-      l.filter((i) => ['processamento', 'origem'].includes(tipoDoSistema(i.sistema))),
-    )
+    .then((l) => l.filter((i) => ['processamento', 'origem'].includes(tipoDoSistema(i.sistema))))
   const gerenciamento = criarSincronizacaoGerenciamento(db, fazerFetch)
   // Cada sistema por conta própria, em paralelo: um lento ou com erro não segura o outro.
   const resultados = await Promise.allSettled(

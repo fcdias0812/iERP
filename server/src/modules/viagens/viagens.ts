@@ -53,9 +53,12 @@ import {
  * O trajeto é ARQUIVADO aqui quando a viagem termina (o replay não depende do rastreador).
  *
  *   GET  /api/viagens?situacao=abertas|finalizadas[&desde=ISO]
+ *   GET  /api/viagens/lote/:ordemId            as viagens do lote (uma por caminhão)
+ *   POST /api/viagens/lote/:ordemId            { motoristaId, placa } — adicionar caminhão
  *   GET  /api/viagens/:id                      detalhe + trajeto + paradas
  *   GET  /api/viagens/:id/chat                 conversa
  *   POST /api/viagens/:id/chat                 { texto } — mensagem para o motorista
+ *   POST /api/viagens/:id/rastreador           { rastreadorId } — o caminhão vai pelo APARELHO de GPS
  *   POST /api/viagens/:id/finalizar            o operador encerra a viagem
  *   POST /api/viagens/:id/emergencia/ciente    ciência da emergência
  *   GET  /api/viagens/mapa/transito/:z/:x/:y.png   trânsito (TomTom), pela chave guardada aqui
@@ -66,6 +69,17 @@ type Fetch = typeof fetch
 type Conexao = Db | Transaction<Database>
 
 export type FinalizadaPor = 'motorista' | 'operador' | 'recebimento' | 'rastreador'
+export type OrigemGps = 'celular' | 'aparelho'
+
+/** Um caminhão do lote: quem a Re-Teck escalou (motorista do cadastro e placa). */
+export interface Caminhao {
+  motoristaId: string | null
+  placa: string | null
+}
+
+/** Placa para comparar (sem traço, maiúscula). */
+const placaLimpa = (p: string | null | undefined) =>
+  p ? p.replace(/[^0-9a-z]/gi, '').toUpperCase() : ''
 
 export interface PosicaoViagem {
   latitude: number
@@ -88,6 +102,14 @@ export interface EmergenciaViagem {
 export interface Viagem {
   id: string
   ordemId: string
+  /** O caminhão do lote (1, 2, 3…) — 22/10/2026: várias viagens por lote. */
+  numero: number
+  /** celular (app do motorista) | aparelho (rastreador de GPS no caminhão). */
+  origemGps: OrigemGps
+  /** O aparelho (origem aparelho). */
+  rastreadorId: string | null
+  /** O id da placa do aparelho (ex.: gps-2998). */
+  rastreadorAparelho: string | null
   loteCodigo: string
   /** IERP = lote agendado aqui; senão o sistema de onde o lote veio (só para ver). */
   origem: string
@@ -282,6 +304,21 @@ export function linkDoMotorista(
 
 /* ------------------------------------------------------------ serviço */
 
+const PLACA_VALIDA = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/
+export const caminhaoSchema = z.object({
+  motoristaId: z
+    .string()
+    .trim()
+    .max(60)
+    .nullish()
+    .transform((v) => v || null),
+  placa: z
+    .string()
+    .nullish()
+    .transform((v) => placaLimpa(v) || null)
+    .refine((v) => v === null || PLACA_VALIDA.test(v), 'Placa inválida.'),
+})
+
 interface ConfigCompleta {
   id: string
   nome: string
@@ -307,8 +344,12 @@ const linhaDaViagem = (db: Conexao) =>
     .selectFrom('ordensViagens as v')
     .innerJoin('ordensLista as o', 'o.id', 'v.ordemId')
     .leftJoin('clientesSites as s', 's.id', 'o.siteId')
+    .leftJoin('motoristas as m', 'm.id', 'v.motoristaId')
+    .leftJoin('rastreadores as r', 'r.id', 'v.rastreadorId')
     .selectAll('v')
     .select([
+      'm.nome as motoristaEscalado',
+      'r.deviceId as rastreadorAparelho',
       'o.codigo as loteCodigo',
       'o.clienteNome',
       'o.siteCodigo',
@@ -317,8 +358,6 @@ const linhaDaViagem = (db: Conexao) =>
       's.longitude as siteLongitude',
       'o.dataColeta',
       'o.coletaPrevista',
-      'o.motoristaNome as motoristaCadastro',
-      'o.placa as placaCadastro',
       'o.status as ordemStatus',
     ])
 
@@ -364,6 +403,10 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
   const paraViagem = (l: LinhaViagem, base: string | null): Viagem => ({
     id: l.id,
     ordemId: l.ordemId,
+    numero: l.numero,
+    origemGps: l.origem as OrigemGps,
+    rastreadorId: l.rastreadorId,
+    rastreadorAparelho: l.rastreadorAparelho,
     loteCodigo: l.loteCodigo,
     origem: 'IERP',
     somenteLeitura: false,
@@ -375,17 +418,18 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     siteLongitude: l.siteLongitude,
     dataColeta: l.dataColeta ?? l.coletaPrevista,
     coletaConfirmada: l.dataColeta !== null,
-    motoristaNome: l.motoristaNome ?? l.motoristaCadastro,
-    placa: l.placa ?? l.placaCadastro,
+    motoristaNome: l.motoristaNome ?? l.motoristaEscalado,
+    placa: l.placa ?? l.placaInformada,
     status: l.status as StatusViagem,
-    codigoChegada: l.codigoChegada,
+    // O código de chegada é do app do motorista (o aparelho do caminhão não tem "Cheguei").
+    codigoChegada: l.origem === 'celular' ? l.codigoChegada : null,
     linkMotorista:
-      base && ABERTAS.includes(l.status as StatusViagem)
+      base && l.origem === 'celular' && ABERTAS.includes(l.status as StatusViagem)
         ? linkDoMotorista(base, {
             codigo: l.loteCodigo,
             cliente: l.clienteNome,
-            motorista: l.motoristaCadastro,
-            placa: l.placaCadastro,
+            motorista: l.motoristaEscalado,
+            placa: l.placaInformada,
           })
         : null,
     tripId: l.tripId,
@@ -440,6 +484,10 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     return {
       id: `${PREFIXO_DE_FORA}${f.tripId}`,
       ordemId: o.id,
+      numero: 1,
+      origemGps: 'celular',
+      rastreadorId: null,
+      rastreadorAparelho: null,
       loteCodigo: o.codigo,
       origem: f.origem,
       somenteLeitura: true,
@@ -513,59 +561,59 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
   /* -------------------------------------------------- nascimento (agendamento e edição) */
 
   /**
-   * Agendou (ou editou) o lote: "Rastrear coleta = Sim" garante a viagem; "Não" cancela a que
-   * ainda espera o motorista. Viagem já na rua não se desliga pela edição (o motorista está
-   * dirigindo) — ela termina pelo código, pelo botão Finalizar ou pelo recebimento. Antes de
-   * desligar, `antesDeDesligar` confere no rastreador se o motorista acabou de sair.
+   * Agendou (ou editou) o lote. Rastreio ligado: um caminhão = uma viagem (22/10/2026: "vários
+   * caminhões podem ir fazer essa viagem ao mesmo tempo"). A lista vale pela ordem: o caminhão N
+   * esperando o motorista ganha o motorista e a placa da posição N; posições novas viram viagens
+   * novas; as que sobram e ainda esperam são canceladas. Viagem que já saiu (ou terminou) fica
+   * como está — ela termina pelo código, pelo botão Finalizar. Desligado: cancela as que esperam.
    */
   async function aoMudarRastreio(
     trx: Conexao,
     ordemId: string,
-    rastrear: boolean,
+    caminhoes: Caminhao[] | null,
     autor: string,
     agora: string,
   ) {
-    const atual = await trx
+    const todas = await trx
       .selectFrom('ordensViagens')
       .selectAll()
       .where('ordemId', '=', ordemId)
-      .executeTakeFirst()
-    if (rastrear) {
-      if (!atual) {
-        await trx.insertInto('ordensViagens').values(novaViagem(ordemId, agora)).execute()
-        return
-      }
-      // Religou: código novo, e a busca no rastreador conta a partir de agora.
-      if (atual.status === 'cancelada' && atual.tripId === null)
-        await trx
-          .updateTable('ordensViagens')
-          .set({
-            status: 'aguardando_motorista',
-            codigoChegada: gerarCodigoChegada(),
-            codigoRegistrado: 0,
-            encerrarNoRastreador: 0,
-            finalizadaPor: null,
-            terminadaEm: null,
-            criadoEm: agora,
-            alteradoEm: agora,
-          })
-          .where('id', '=', atual.id)
-          .where('status', '=', 'cancelada')
-          .execute()
-      return
-    }
-    if (!atual) return
-    if (atual.status === 'em_rota' || atual.status === 'chegou')
+      .orderBy('numero')
+      .execute()
+    const vivas = todas.filter((v) => v.status !== 'cancelada')
+    const lista = caminhoes ?? []
+    // Saiu ou terminou: não se desliga nem se tira pela edição.
+    const naoMexe = (v: OrdensViagensTable) => v.status !== 'aguardando_motorista'
+    if (vivas.slice(lista.length).some((v) => v.status === 'em_rota' || v.status === 'chegou'))
       throw new ErroApi(
         409,
         'trip_in_progress',
-        'A viagem deste lote já começou: finalize-a em Ordens › Viagens antes de desligar o rastreio.',
+        'Um caminhão deste lote já saiu: finalize a viagem dele em Ordens › Viagens antes de tirá-lo.',
       )
-    if (atual.status === 'aguardando_motorista') {
+    let proximo = Math.max(0, ...todas.map((v) => v.numero)) + 1
+    for (const [i, c] of lista.entries()) {
+      const v = vivas[i]
+      if (!v) {
+        await trx
+          .insertInto('ordensViagens')
+          .values(novaViagem(ordemId, agora, proximo++, c))
+          .execute()
+        continue
+      }
+      if (naoMexe(v)) continue
+      if (v.motoristaId !== c.motoristaId || v.placaInformada !== c.placa)
+        await trx
+          .updateTable('ordensViagens')
+          .set({ motoristaId: c.motoristaId, placaInformada: c.placa, alteradoEm: agora })
+          .where('id', '=', v.id)
+          .execute()
+    }
+    for (const v of vivas.slice(lista.length)) {
+      if (v.status !== 'aguardando_motorista') continue
       const r = await trx
         .updateTable('ordensViagens')
         .set({ status: 'cancelada', terminadaEm: agora, alteradoEm: agora })
-        .where('id', '=', atual.id)
+        .where('id', '=', v.id)
         .where('status', '=', 'aguardando_motorista')
         .executeTakeFirst()
       if (Number(r.numUpdatedRows))
@@ -573,8 +621,59 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
           autor,
           em: agora,
           acao: 'viagem_cancelada',
+          mudancas: [{ campo: 'caminhao', antes: null, depois: v.numero }],
         })
     }
+  }
+
+  /** "Adicionar caminhão" no lote: mais uma viagem, com motorista e placa próprios. */
+  async function adicionarCaminhao(ordemId: string, corpo: unknown, autor: string) {
+    const c = caminhaoSchema.parse(corpo)
+    const o = await db
+      .selectFrom('ordens')
+      .select(['id', 'status', 'externoSistema'])
+      .where('id', '=', ordemId)
+      .executeTakeFirst()
+    if (!o) throw naoEncontrado('Lote não encontrado.')
+    if (o.externoSistema)
+      throw new ErroApi(409, 'external_lot', 'Este lote é de outro sistema: o rastreio é de lá.')
+    if (o.status !== 'agendado')
+      throw new ErroApi(409, 'invalid_transition', 'Só se adiciona caminhão a lote agendado.')
+    if (c.motoristaId) {
+      const m = await db
+        .selectFrom('motoristas')
+        .select('id')
+        .where('id', '=', c.motoristaId)
+        .executeTakeFirst()
+      if (!m) throw new ErroApi(422, 'validation', 'Motorista não encontrado.')
+    }
+    const agora = new Date().toISOString()
+    const id = await db.transaction().execute(async (trx) => {
+      const r = await trx
+        .selectFrom('ordensViagens')
+        .select((eb) => eb.fn.max('numero').as('n'))
+        .where('ordemId', '=', ordemId)
+        .executeTakeFirst()
+      const nova = novaViagem(ordemId, agora, Number(r?.n ?? 0) + 1, c)
+      await trx.insertInto('ordensViagens').values(nova).execute()
+      // O lote passa a ser rastreado (é o que o caminhão novo pede).
+      await trx
+        .updateTable('ordens')
+        .set({ rastrear: 1, alteradoEm: agora, alteradoPor: autor })
+        .where('id', '=', ordemId)
+        .execute()
+      await registrarHistorico(trx, 'ordem', ordemId, {
+        autor,
+        em: agora,
+        acao: 'viagem_adicionada',
+        mudancas: [
+          { campo: 'caminhao', antes: null, depois: nova.numero },
+          ...(c.placa ? [{ campo: 'placa', antes: null, depois: c.placa }] : []),
+        ],
+      })
+      return nova.id
+    })
+    return obter(id)
   }
 
   /**
@@ -583,23 +682,36 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
    * Rastreador fora do ar não segura a edição.
    */
   async function antesDeDesligar(ordemId: string) {
-    const v = await db
+    const esperando = await db
       .selectFrom('ordensViagens')
-      .select(['id', 'status'])
+      .select('id')
       .where('ordemId', '=', ordemId)
-      .executeTakeFirst()
-    if (v?.status !== 'aguardando_motorista') return
+      .where('status', '=', 'aguardando_motorista')
+      .where('origem', '=', 'celular')
+      .execute()
+    if (!esperando.length) return
     const cfg = await config()
     if (!cfg) return
     const api = clienteDoRastreador(cfg, fazerFetch)
-    await umDeCadaVez(v.id, () => conferirUma(v.id, cfg, api)).catch((e: unknown) =>
-      console.error('[viagens] conferir antes de desligar:', e),
-    )
+    for (const v of esperando)
+      await umDeCadaVez(v.id, () => conferirUma(v.id, cfg, api)).catch((e: unknown) =>
+        console.error('[viagens] conferir antes de desligar:', e),
+      )
   }
 
-  const novaViagem = (ordemId: string, agora: string): OrdensViagensTable => ({
+  const novaViagem = (
+    ordemId: string,
+    agora: string,
+    numero: number,
+    c: Caminhao,
+  ): OrdensViagensTable => ({
     id: randomUUID(),
     ordemId,
+    numero,
+    motoristaId: c.motoristaId,
+    placaInformada: c.placa,
+    origem: 'celular',
+    rastreadorId: null,
     codigoChegada: gerarCodigoChegada(),
     status: 'aguardando_motorista',
     tripId: null,
@@ -635,7 +747,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     const sem = await db
       .selectFrom('ordens as o')
       .leftJoin('ordensViagens as v', 'v.ordemId', 'o.id')
-      .select(['o.id', 'o.criadoEm'])
+      .select(['o.id', 'o.criadoEm', 'o.motoristaId', 'o.placa'])
       .where('o.rastrear', '=', 1)
       .where('o.status', '=', 'agendado')
       .where('o.externoSistema', 'is', null)
@@ -644,8 +756,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     for (const o of sem)
       await db
         .insertInto('ordensViagens')
-        .values(novaViagem(o.id, o.criadoEm))
-        .onConflict((c) => c.column('ordemId').doNothing())
+        .values(novaViagem(o.id, o.criadoEm, 1, { motoristaId: o.motoristaId, placa: o.placa }))
         .execute()
   }
 
@@ -921,6 +1032,37 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     await arquivar(v.id, tripId, null, cfg, api)
   }
 
+  /**
+   * Vários caminhões no mesmo lote (22/10/2026): as viagens do rastreador já amarradas a OUTRO
+   * caminhão do lote ficam de fora; sem amarração ainda, vale a da placa deste caminhão (o link
+   * do motorista leva a placa) e, sem placa, qualquer uma livre.
+   */
+  async function livresPara(
+    v: Pick<OrdensViagensTable, 'id' | 'ordemId' | 'tripId' | 'placaInformada'>,
+    lista: ResumoRastreador[],
+  ) {
+    if (v.tripId !== null) return lista
+    const outras = await db
+      .selectFrom('ordensViagens')
+      .select(['tripId', 'placaInformada'])
+      .where('ordemId', '=', v.ordemId)
+      .where('id', '<>', v.id)
+      .where('status', '<>', 'cancelada')
+      .execute()
+    const presas = new Set(outras.map((o) => o.tripId).filter((t) => t !== null))
+    const livres = lista.filter((t) => !presas.has(t.tripId))
+    const minha = placaLimpa(v.placaInformada)
+    if (minha) {
+      const mesma = livres.filter((t) => placaLimpa(t.plate) === minha)
+      if (mesma.length) return mesma
+      // Placa de outro caminhão do lote não serve para este.
+      const deOutros = new Set(outras.map((o) => placaLimpa(o.placaInformada)).filter(Boolean))
+      return livres.filter((t) => !deOutros.has(placaLimpa(t.plate)) && !placaLimpa(t.plate))
+    }
+    const deOutros = new Set(outras.map((o) => placaLimpa(o.placaInformada)).filter(Boolean))
+    return livres.filter((t) => !deOutros.has(placaLimpa(t.plate)))
+  }
+
   /** Confere UMA viagem com o rastreador (dentro de `umDeCadaVez`, relendo-a). */
   async function conferirUma(viagemId: string, cfg: ConfigCompleta, api: ClienteRastreador) {
     const linha = await lerViagem(viagemId)
@@ -928,7 +1070,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     const { codigo, ...v } = linha
     if (v.encerrarNoRastreador) return encerrarPendente(v, codigo, cfg, api)
     if (ABERTAS.includes(v.status as StatusViagem)) {
-      const escolhida = escolherViagem(v, await api.viagensDoLote(codigo))
+      const escolhida = escolherViagem(v, await livresPara(v, await api.viagensDoLote(codigo)))
       if (escolhida) await aplicar(v, escolhida, cfg, api)
       return
     }
@@ -941,6 +1083,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     const pendentes = await db
       .selectFrom('ordensViagens')
       .select('id')
+      .where('origem', '=', 'celular')
       .where((eb) =>
         eb.or([
           eb('status', 'in', ['aguardando_motorista', 'em_rota', 'chegou']),
@@ -1060,13 +1203,22 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     async viagemIniciada(dados: unknown) {
       const r = lerResumo(dados)
       if (!r?.serviceOrder) return
-      const linha = await db
+      const abertas = await db
         .selectFrom('ordensViagens as v')
         .innerJoin('ordens as o', 'o.id', 'v.ordemId')
-        .select('v.id')
+        .select(['v.id', 'v.tripId', 'v.placaInformada'])
         .where('o.codigo', '=', r.serviceOrder)
+        .where('v.origem', '=', 'celular')
         .where('v.status', 'in', ['aguardando_motorista', 'em_rota', 'chegou'])
-        .executeTakeFirst()
+        .orderBy('v.numero')
+        .execute()
+      // Já amarrada; senão o caminhão da mesma placa; senão o primeiro sem placa e sem viagem.
+      const linha =
+        abertas.find((v) => v.tripId === r.tripId) ??
+        abertas.find(
+          (v) => v.tripId === null && placaLimpa(v.placaInformada) === placaLimpa(r.plate),
+        ) ??
+        abertas.find((v) => v.tripId === null && !placaLimpa(v.placaInformada))
       if (linha) {
         const { cfg, api } = await cliente()
         await umDeCadaVez(linha.id, async () => {
@@ -1074,7 +1226,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
           if (!atual || !ABERTAS.includes(atual.status as StatusViagem)) return
           const { codigo: _c, ...v } = atual
           void _c
-          const escolhida = escolherViagem(v, [r])
+          const escolhida = escolherViagem(v, await livresPara(v, [r]))
           if (escolhida) await aplicar(v, escolhida, cfg, api)
         })
         return
@@ -1219,55 +1371,6 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
 
   /* -------------------------------------------------- recebimento */
 
-  /**
-   * O lote foi recebido (Operação › Recebimento): a viagem termina (decisão do usuário). Sem
-   * viagem iniciada, é cancelada. Aqui só se grava (rápido); avisar o rastreador e guardar o
-   * trajeto vão por fora — o rastreador lento ou fora do ar não segura o recebimento, e a
-   * conferência de minuto termina o serviço (`encerrar_no_rastreador`).
-   */
-  async function aoReceberLote(ordemId: string, autor: string) {
-    const v = await db
-      .selectFrom('ordensViagens')
-      .selectAll()
-      .where('ordemId', '=', ordemId)
-      .executeTakeFirst()
-    if (!v) return
-    const feito = await umDeCadaVez(v.id, async () => {
-      const atual = await lerViagem(v.id)
-      if (!atual || !ABERTAS.includes(atual.status as StatusViagem)) return false
-      const agora = new Date().toISOString()
-      const semViagem = atual.status === 'aguardando_motorista' || atual.tripId === null
-      const r = await db
-        .updateTable('ordensViagens')
-        .set({
-          status: semViagem ? 'cancelada' : 'finalizada',
-          finalizadaPor: 'recebimento',
-          terminadaEm: agora,
-          // Sem viagem: ainda confere se o motorista saiu nesse meio-tempo.
-          encerrarNoRastreador: 1,
-          alteradoEm: agora,
-        })
-        .where('id', '=', v.id)
-        .where('status', '=', atual.status)
-        .executeTakeFirst()
-      if (!Number(r.numUpdatedRows)) return false
-      await historico(
-        ordemId,
-        autor,
-        semViagem ? 'viagem_cancelada' : 'viagem_finalizada',
-        porQuem('recebimento'),
-      )
-      return true
-    })
-    if (!feito) return
-    const cfg = await config()
-    if (!cfg) return
-    const api = clienteDoRastreador(cfg, fazerFetch)
-    void umDeCadaVez(v.id, () => conferirUma(v.id, cfg, api)).catch((e: unknown) =>
-      console.error(`[viagens] encerrar a viagem do lote ${ordemId} no recebimento:`, e),
-    )
-  }
-
   /* -------------------------------------------------- leitura e ações da tela */
 
   const consultaSchema = z.object({
@@ -1365,7 +1468,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     const l = await daqui(id)
     const cfg = await config()
     const v = paraViagem(l, cfg?.url ?? null)
-    if (l.arquivada) {
+    if (l.arquivada || l.origem === 'aparelho') {
       const pontos = await db
         .selectFrom('ordensViagensPontos')
         .select(['latitude', 'longitude', 'velocidade', 'precisao', 'registradoEm'])
@@ -1442,6 +1545,8 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
    * avisa o rastreador e guarda o trajeto. Rastreador fora do ar: a conferência termina.
    */
   async function finalizar(id: string, autor: string) {
+    const peloAparelho = id.startsWith(PREFIXO_DE_FORA) ? null : await lerViagem(id)
+    if (peloAparelho?.origem === 'aparelho') return finalizarAparelho(id, autor)
     await naRua(id)
     const { cfg, api } = await cliente()
     await umDeCadaVez(id, async () => {
@@ -1469,6 +1574,102 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
       } catch (e) {
         console.error(`[viagens] encerrar a viagem ${v.tripId}:`, e)
       }
+    })
+    return obter(id)
+  }
+
+  /**
+   * O aparelho do caminhão não tem "Cheguei" nem código: a viagem termina no botão Finalizar
+   * (como no 1.0). O trajeto já está aqui (a leitura do servidor de GPS grava os pontos).
+   */
+  async function finalizarAparelho(id: string, autor: string) {
+    await umDeCadaVez(id, async () => {
+      const v = await lerViagem(id)
+      if (!v || (v.status !== 'em_rota' && v.status !== 'chegou'))
+        throw new ErroApi(409, 'trip_not_active', 'A viagem não está em andamento.')
+      const agora = new Date().toISOString()
+      await db
+        .updateTable('ordensViagens')
+        .set({
+          status: 'finalizada',
+          finalizadaPor: 'operador',
+          terminadaEm: agora,
+          arquivada: 1,
+          alteradoEm: agora,
+        })
+        .where('id', '=', id)
+        .where('status', '=', v.status)
+        .execute()
+      await historico(v.ordemId, autor, 'viagem_finalizada', porQuem('operador'))
+    })
+    return obter(id)
+  }
+
+  /**
+   * "Usar rastreador" (como no 1.0): o caminhão que ainda espera o motorista vai pelo APARELHO
+   * de GPS. A viagem começa na hora; os pontos chegam pela leitura do servidor de GPS. O aparelho
+   * precisa estar ativo e livre (uma viagem aberta por aparelho).
+   */
+  async function usarRastreador(id: string, corpo: unknown, autor: string) {
+    const { rastreadorId } = z.object({ rastreadorId: z.string().min(1) }).parse(corpo)
+    const r = await db
+      .selectFrom('rastreadores')
+      .selectAll()
+      .where('id', '=', rastreadorId)
+      .executeTakeFirst()
+    if (!r) throw new ErroApi(422, 'validation', 'Rastreador não encontrado.')
+    if (r.status !== 'ativo')
+      throw new ErroApi(409, 'tracker_inactive', 'Este rastreador está inativo.')
+    await umDeCadaVez(id, async () => {
+      const v = await lerViagem(id)
+      if (!v) throw naoEncontrado('Viagem não encontrada.')
+      if (v.status !== 'aguardando_motorista' || v.tripId !== null)
+        throw new ErroApi(
+          409,
+          'trip_in_progress',
+          'Este caminhão já saiu: o rastreador só entra antes da viagem começar.',
+        )
+      const ocupado = await db
+        .selectFrom('ordensViagens as x')
+        .innerJoin('ordens as o', 'o.id', 'x.ordemId')
+        .select('o.codigo')
+        .where('x.rastreadorId', '=', rastreadorId)
+        .where('x.origem', '=', 'aparelho')
+        .where('x.status', 'in', ['em_rota', 'chegou'])
+        .executeTakeFirst()
+      if (ocupado)
+        throw new ErroApi(
+          409,
+          'tracker_in_use',
+          `Este rastreador está numa viagem aberta (${ocupado.codigo}).`,
+        )
+      const agora = new Date().toISOString()
+      const placa = r.placa ?? v.placaInformada
+      await db
+        .updateTable('ordensViagens')
+        .set({
+          origem: 'aparelho',
+          rastreadorId,
+          status: 'em_rota',
+          iniciadaEm: agora,
+          placa,
+          ...(r.ultimaLatitude !== null && r.ultimaLongitude !== null && r.ultimoPontoEm
+            ? {
+                ultimaLatitude: r.ultimaLatitude,
+                ultimaLongitude: r.ultimaLongitude,
+                ultimaVelocidade: r.ultimaVelocidade,
+                ultimaEm: r.ultimoPontoEm,
+              }
+            : {}),
+          alteradoEm: agora,
+        })
+        .where('id', '=', id)
+        .where('status', '=', 'aguardando_motorista')
+        .execute()
+      await historico(v.ordemId, autor, 'viagem_iniciada', [
+        { campo: 'rastreador', antes: null, depois: r.deviceId },
+        ...(placa ? [{ campo: 'placa', antes: null, depois: placa }] : []),
+      ])
     })
     return obter(id)
   }
@@ -1532,7 +1733,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     const viagem = {
       codigoLote: l.loteCodigo,
       cliente: l.clienteNome,
-      placa: l.placa ?? l.placaCadastro,
+      placa: l.placa ?? l.placaInformada,
       iniciadaEm: l.iniciadaEm,
     }
     const { gerar, contentType } = FORMATOS[f]
@@ -1543,21 +1744,29 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     }
   }
 
-  async function doLote(ordemId: string): Promise<Viagem | null> {
-    const l = await linhaDaViagem(db).where('v.ordemId', '=', ordemId).executeTakeFirst()
-    if (l) {
-      const cfg = await config()
-      return paraViagem(l, cfg?.url ?? null)
-    }
-    for (const f of deFora.values()) if (f.ordemId === ordemId) return paraViagemDeFora(f)
-    return null
+  /** As viagens do lote (uma por caminhão; as canceladas ficam de fora). */
+  async function doLote(ordemId: string): Promise<Viagem[]> {
+    const linhas = await linhaDaViagem(db)
+      .where('v.ordemId', '=', ordemId)
+      .where('v.status', '<>', 'cancelada')
+      .orderBy('v.numero')
+      .execute()
+    const cfg = await config()
+    const viagens = linhas.map((l) => paraViagem(l, cfg?.url ?? null))
+    for (const f of deFora.values())
+      if (f.ordemId === ordemId) {
+        const v = await paraViagemDeFora(f)
+        if (v) viagens.push(v)
+      }
+    return viagens
   }
 
   return {
     config,
     aoMudarRastreio,
     antesDeDesligar,
-    aoReceberLote,
+    adicionarCaminhao,
+    usarRastreador,
     sincronizar,
     tempoReal,
     listar,
@@ -1717,6 +1926,11 @@ export function rotasViagens(servico: ServicoViagens, fazerFetch: Fetch = fetch)
   r.get('/lote/:ordemId', async (req, res) => {
     res.json(await servico.doLote(String(req.params.ordemId)))
   })
+  r.post('/lote/:ordemId', async (req, res) => {
+    res
+      .status(201)
+      .json(await servico.adicionarCaminhao(String(req.params.ordemId), req.body, autorDa(req)))
+  })
   r.get('/:id', async (req, res) => {
     res.json(await servico.obter(String(req.params.id)))
   })
@@ -1732,6 +1946,9 @@ export function rotasViagens(servico: ServicoViagens, fazerFetch: Fetch = fetch)
   })
   r.post('/:id/chat', async (req, res) => {
     res.status(201).json(await servico.enviarChat(String(req.params.id), req.body))
+  })
+  r.post('/:id/rastreador', async (req, res) => {
+    res.json(await servico.usarRastreador(String(req.params.id), req.body, autorDa(req)))
   })
   r.post('/:id/finalizar', async (req, res) => {
     res.json(await servico.finalizar(String(req.params.id), autorDa(req)))

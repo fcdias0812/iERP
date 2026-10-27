@@ -20,8 +20,9 @@ import {
 /*
  * Ordens › Viagens (20/10/2026): a viagem nasce no agendamento, é amarrada à viagem do
  * rastreador de GPS (ReTeckTracker) pelo código do lote, recebe o código de chegada, acompanha
- * posição/chegada/emergência, termina pelo rastreador, pelo operador ou pelo recebimento e tem o
- * trajeto arquivado. Os lotes de fora (MSDC/Gerenciamento) aparecem só para ver.
+ * posição/chegada/emergência, termina pelo rastreador (código de chegada) ou pelo operador e tem o
+ * trajeto arquivado. Desde 22/10/2026: vários caminhões (viagens) por lote, e o recebimento não
+ * mexe nas viagens. Os lotes de fora (MSDC/Gerenciamento) aparecem só para ver.
  *
  * O rastreador é FALSO (em memória), com as mesmas rotas e a mesma chave interna do de verdade.
  */
@@ -174,6 +175,11 @@ async function api(caminho: string, init?: { method?: string; body?: unknown }) 
   return { status: res.status, body: texto && json ? JSON.parse(texto) : undefined }
 }
 
+/** Cada lote dos testes numa data própria (a mesma coleta — cliente, endereço, data — se junta). */
+let seqDia = 0
+const outroDia = () =>
+  new Date(Date.UTC(2027, 0, 1) + seqDia++ * 86_400_000).toISOString().slice(0, 10)
+
 async function criarOrdem(extra: Record<string, unknown> = {}) {
   const form = new FormData()
   form.append(
@@ -184,7 +190,7 @@ async function criarOrdem(extra: Record<string, unknown> = {}) {
       docaId,
       transportadoraId: null,
       referenciaCliente: null,
-      coletaPrevista: '2026-10-25',
+      coletaPrevista: outroDia(),
       dataColeta: null,
       dataChegada: null,
       rastrear: true,
@@ -450,7 +456,7 @@ describe('viagens › do agendamento ao arquivo', () => {
       docaId,
       transportadoraId: null,
       referenciaCliente: null,
-      coletaPrevista: '2026-10-25',
+      coletaPrevista: completo.coletaPrevista.slice(0, 10),
       dataColeta: null,
       dataChegada: null,
       rastrear,
@@ -499,7 +505,7 @@ describe('viagens › do agendamento ao arquivo', () => {
         docaId,
         transportadoraId: null,
         referenciaCliente: 'mudou',
-        coletaPrevista: '2026-10-25',
+        coletaPrevista: completo.coletaPrevista.slice(0, 10),
         dataColeta: null,
         dataChegada: null,
         rastrear: false,
@@ -637,42 +643,79 @@ describe('viagens › do agendamento ao arquivo', () => {
   })
 })
 
-describe('viagens › recebimento', () => {
-  it('receber o lote encerra a viagem na rua (e cancela a que esperava o motorista)', async () => {
-    const naRua = await criarOrdem()
-    const t = trip(naRua.codigo)
-    const esperando = await criarOrdem()
-    await servico.sincronizar()
-    await receber(naRua.id)
-    await ate(() => t.status === 'Finalizada')
-    assert.equal(t.status, 'Finalizada')
-    await receber(esperando.id)
-    await new Promise((ok) => setTimeout(ok, 50))
-    const finalizadas = (await api('/viagens?situacao=finalizadas')).body.viagens as Viagem[]
-    const a = finalizadas.find((x) => x.loteCodigo === naRua.codigo)!
-    assert.equal(a.status, 'finalizada')
-    assert.equal(a.finalizadaPor, 'recebimento')
-    assert.equal(a.totalPontos, 2)
-    const b = finalizadas.find((x) => x.loteCodigo === esperando.codigo)!
-    assert.equal(b.status, 'cancelada')
-  })
+describe('viagens › vários caminhões e o recebimento (22/10/2026)', () => {
+  const doLote = async (id: string) => (await api(`/viagens/lote/${id}`)).body as Viagem[]
 
-  it('rastreador fora do ar não segura o recebimento: avisa na próxima conferência', async () => {
+  it('receber o lote não mexe nas viagens (cada uma por si)', async () => {
     const lote = await criarOrdem()
     const t = trip(lote.codigo)
+    const esperando = await criarOrdem()
     await servico.sincronizar()
-    rastreador.foraDoAr = true
     await receber(lote.id)
+    await receber(esperando.id)
     await new Promise((ok) => setTimeout(ok, 50))
     assert.equal(t.status, 'Ativa')
-    rastreador.foraDoAr = false
+    assert.equal((await doLote(lote.id))[0]?.status, 'em_rota')
+    assert.equal((await doLote(esperando.id))[0]?.status, 'aguardando_motorista')
+  })
+
+  it('dois caminhões: cada um com link e código próprios, e amarra a viagem da sua placa', async () => {
+    const lote = await criarOrdem({
+      caminhoes: [
+        { motoristaId, placa: 'ABC1D23' },
+        { motoristaId: null, placa: 'XYZ-9A88' },
+      ],
+    })
+    const [a, b] = await doLote(lote.id)
+    assert.equal(a?.numero, 1)
+    assert.equal(b?.numero, 2)
+    assert.notEqual(a?.codigoChegada, b?.codigoChegada)
+    assert.equal(new URL(b!.linkMotorista!).searchParams.get('plate'), 'XYZ9A88')
+    // O caminhão 2 sai primeiro: a viagem dele não vai para o caminhão 1.
+    const t2 = trip(lote.codigo, { plate: 'XYZ9A88', driverName: 'Carlos' })
+    const t1 = trip(lote.codigo, { plate: 'ABC1D23' })
     await servico.sincronizar()
-    assert.equal(t.status, 'Finalizada')
-    const f = (await api('/viagens?situacao=finalizadas')).body.viagens.find(
-      (x: { loteCodigo: string }) => x.loteCodigo === lote.codigo,
-    )
-    assert.equal(f.finalizadaPor, 'recebimento')
-    assert.equal(f.totalPontos, 2)
+    const [a2, b2] = await doLote(lote.id)
+    assert.equal(a2?.tripId, t1.tripId)
+    assert.equal(b2?.tripId, t2.tripId)
+    assert.equal(t1.codigoHash, a2?.codigoChegada)
+    assert.equal(t2.codigoHash, b2?.codigoChegada)
+  })
+
+  it('adicionar caminhão no lote; a edição tira o que ainda espera', async () => {
+    const lote = await criarOrdem()
+    const r = await api(`/viagens/lote/${lote.id}`, {
+      method: 'POST',
+      body: { motoristaId: null, placa: 'QWE1R23' },
+    })
+    assert.equal(r.status, 201, JSON.stringify(r.body))
+    assert.equal(r.body.numero, 2)
+    assert.equal(r.body.status, 'aguardando_motorista')
+    assert.ok((await historicoDoLote(lote.id)).includes('viagem_adicionada'))
+    const completo = (await api(`/ordens/${lote.id}`)).body
+    assert.equal(completo.caminhoes.length, 2)
+    // Editar com um caminhão só: o 2º (esperando) é cancelado.
+    const e = await api(`/ordens/${lote.id}`, {
+      method: 'PUT',
+      body: {
+        clienteId,
+        siteId,
+        docaId,
+        transportadoraId: null,
+        referenciaCliente: null,
+        coletaPrevista: completo.coletaPrevista.slice(0, 10),
+        dataColeta: null,
+        dataChegada: null,
+        rastrear: true,
+        caminhoes: [{ motoristaId, placa: 'ABC1D23' }],
+        servicos: completo.servicos,
+        quantidades: completo.quantidades,
+        escopo: completo.escopo,
+        observacoes: null,
+      },
+    })
+    assert.equal(e.status, 200, JSON.stringify(e.body))
+    assert.equal((await doLote(lote.id)).length, 1)
   })
 })
 
@@ -705,17 +748,6 @@ describe('viagens › concorrência (revisão de 20/10/2026)', () => {
     assert.equal(depois.finalizadaPor, 'operador')
     assert.equal(depois.arquivada, 1)
     assert.equal(await contar(lote.id, 'viagem_finalizada'), 1)
-  })
-
-  it('o "Cheguei" atrasado não reabre a viagem já recebida', async () => {
-    const lote = await criarOrdem()
-    const t = trip(lote.codigo)
-    await servico.sincronizar()
-    await receber(lote.id)
-    await servico.tempoReal.aguardandoConfirmacao({ tripId: t.tripId })
-    t.status = 'AguardandoConfirmação'
-    await servico.sincronizar()
-    assert.equal((await viagemDe(lote.codigo)).status, 'finalizada')
   })
 
   it('emergência que chega antes de a viagem ser amarrada não se perde', async () => {
@@ -754,18 +786,6 @@ describe('viagens › concorrência (revisão de 20/10/2026)', () => {
     assert.equal(await contar(lote.id, 'viagem_iniciada'), 1)
   })
 
-  it('receber logo depois de o motorista sair (ainda não amarrada) encerra a viagem lá', async () => {
-    const lote = await criarOrdem()
-    const t = trip(lote.codigo)
-    await receber(lote.id)
-    await ate(() => t.status === 'Finalizada')
-    assert.equal(t.status, 'Finalizada')
-    const v = await viagemDe(lote.codigo)
-    assert.equal(v.status, 'finalizada')
-    assert.equal(v.tripId, t.tripId)
-    assert.equal(v.arquivada, 1)
-  })
-
   it('desligar o rastreio logo depois de o motorista sair é recusado', async () => {
     const lote = await criarOrdem()
     trip(lote.codigo)
@@ -778,7 +798,7 @@ describe('viagens › concorrência (revisão de 20/10/2026)', () => {
         docaId,
         transportadoraId: null,
         referenciaCliente: null,
-        coletaPrevista: '2026-10-25',
+        coletaPrevista: completo.coletaPrevista.slice(0, 10),
         dataColeta: null,
         dataChegada: null,
         rastrear: false,
@@ -804,7 +824,16 @@ describe('viagens › concorrência (revisão de 20/10/2026)', () => {
 
 describe('viagens › lotes de fora (só para ver)', () => {
   it('acha a viagem do LOT do iERP antigo e mostra sem ações', async () => {
-    const lote = await criarOrdem({ rastrear: false, motoristaId: null, placa: null })
+    // Lote de fora: o iERP procura a viagem dele perto da data da coleta (hoje).
+    const hoje = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(
+      new Date(),
+    )
+    const lote = await criarOrdem({
+      rastrear: false,
+      motoristaId: null,
+      placa: null,
+      coletaPrevista: hoje,
+    })
     await db
       .updateTable('ordens')
       .set({

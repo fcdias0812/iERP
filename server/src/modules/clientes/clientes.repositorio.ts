@@ -11,6 +11,7 @@ import { formatarCnpj } from '../../shared/documentos.js'
 import type { EventoHistorico, Mudanca } from '../../shared/historico.js'
 import { normalizar } from '../../shared/texto.js'
 import { configuracoesDa } from './clientes-configuracoes.js'
+import { tiposDoCliente } from './tipos-documento.js'
 import { COLUNAS_CLIENTE, acoesDe } from './clientes.regras.js'
 import type {
   Cliente,
@@ -105,7 +106,7 @@ export function criarRepositorioClientes(db: Db) {
       .where('id', '=', id)
       .executeTakeFirst()
     if (!linha) return undefined
-    const [contatos, historico, transportadora] = await Promise.all([
+    const [contatos, historico, transportadora, documentos] = await Promise.all([
       cx
         .selectFrom('clientesContatos')
         .selectAll()
@@ -127,6 +128,7 @@ export function criarRepositorioClientes(db: Db) {
             .where('id', '=', linha.transportadoraPadraoId)
             .executeTakeFirst()
         : undefined,
+      tiposDoCliente(cx, id),
     ])
     return {
       id: linha.id,
@@ -135,7 +137,7 @@ export function criarRepositorioClientes(db: Db) {
       cnpj: linha.cnpj,
       slaDias: linha.slaDias,
       status: linha.status as ClienteStatus,
-      configuracoes: configuracoesDa(linha, transportadora?.nome ?? null),
+      configuracoes: configuracoesDa(linha, transportadora?.nome ?? null, documentos),
       rastreioToken: linha.rastreioToken,
       contatos: contatos.map((k) => ({
         id: k.id,
