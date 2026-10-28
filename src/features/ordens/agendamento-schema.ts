@@ -190,7 +190,7 @@ export const novoAgendamento = (): AgendamentoForm => ({
   observacoesArquivos: [],
 })
 
-const dia = (d: Date | undefined) => (d ? format(d, 'yyyy-MM-dd') : null)
+export const dia = (d: Date | undefined) => (d ? format(d, 'yyyy-MM-dd') : null)
 const opcional = (v: string) => (v === NENHUM || !v ? null : v)
 
 /** Quantidades como a API espera (campos condicionais limpos). */

@@ -9,7 +9,7 @@ import type { Db } from '../../db/database.js'
 import type { Database } from '../../db/schema.js'
 import { EXTENSOES, extensaoDe, MAX_BYTES, nomeSeguro } from '../../shared/arquivos.js'
 import { configuracoesDoCliente } from '../clientes/clientes-configuracoes.js'
-import { juntadosA, reagruparColetas } from './coleta.js'
+import { coletaDe, juntadosA, reagruparColetas, unirMesmaPlaca } from './coleta.js'
 import { zipSync } from 'fflate'
 import { tiposDoCliente, type TipoDoCliente } from '../clientes/tipos-documento.js'
 import { gerarPdfDaOs, gerarPlanilhaDoRelatorio } from './relatorio-final.js'
@@ -468,7 +468,11 @@ export async function proximoNumeroAnexo(cx: Db | Transaction<Database>): Promis
   return Number(r?.n ?? 0) + 1
 }
 
-/** Os caminhões do lote (as viagens que não foram canceladas), na ordem. */
+/**
+ * Os caminhões do lote (as viagens que não foram canceladas), na ordem. Um caminhão pode ter mais
+ * de um rastreador (28/10/2026): as viagens do mesmo número são o mesmo caminhão — vale a que já
+ * saiu (o caminhão fica travado na edição) ou, senão, a primeira.
+ */
 export async function caminhoesDoLote(db: Db | Transaction<Database>, ordemId: string) {
   const l = await db
     .selectFrom('ordensViagens')
@@ -476,8 +480,15 @@ export async function caminhoesDoLote(db: Db | Transaction<Database>, ordemId: s
     .where('ordemId', '=', ordemId)
     .where('status', '<>', 'cancelada')
     .orderBy('numero')
+    .orderBy('criadoEm')
     .execute()
-  return l.map((v) => ({
+  const porNumero = new Map<number, (typeof l)[number]>()
+  for (const v of l) {
+    const atual = porNumero.get(v.numero)
+    if (!atual || (atual.status === 'aguardando_motorista' && v.status !== 'aguardando_motorista'))
+      porNumero.set(v.numero, v)
+  }
+  return [...porNumero.values()].map((v) => ({
     viagemId: v.id,
     numero: v.numero,
     motoristaId: v.motoristaId,
@@ -780,7 +791,9 @@ export function criarServicoOrdens(
    */
   async function conferirRegrasDoCliente(
     v: OrdemInput,
-    o: { novo: true; escopoArquivos: string[] } | { novo: false; rastrearAntes: boolean },
+    o:
+      | { novo: true; escopoArquivos: string[]; vaiJunto: boolean }
+      | { novo: false; rastrearAntes: boolean },
   ) {
     const c = await configuracoesDoCliente(db, v.clienteId)
     if (!c) return // conferirVinculos responde "Cliente não encontrado."
@@ -793,7 +806,9 @@ export function criarServicoOrdens(
     if (
       !c.rastreioExcecao &&
       v.rastrear !== c.rastrearColeta &&
-      (o.novo || v.rastrear !== o.rastrearAntes)
+      (o.novo || v.rastrear !== o.rastrearAntes) &&
+      // Vai junto de uma coleta que já tem caminhão (28/10/2026): o rastreio é o dela.
+      !(o.novo && o.vaiJunto && !v.rastrear)
     )
       throw new ErroApi(
         422,
@@ -943,6 +958,11 @@ export function criarServicoOrdens(
     lote,
     recebimento,
 
+    /** A coleta em que um lote novo entraria (Agendamento — 28/10/2026). */
+    coleta(d: { clienteId: string; siteId: string; dia: string }) {
+      return coletaDe(db, d)
+    },
+
     async pdf(id: string) {
       const o = await obter(id)
       if (o.juntadoA) throw new ErroApi(409, 'lot_merged', 'Lote juntado a outro: use o principal.')
@@ -1059,9 +1079,15 @@ export function criarServicoOrdens(
         return { id: randomUUID(), secao: a.secao, nome, extensao, conteudo: a.conteudo }
       })
       const nomes = await conferirVinculos(v)
+      const junto = await coletaDe(db, {
+        clienteId: v.clienteId,
+        siteId: v.siteId,
+        dia: v.dataColeta ?? v.coletaPrevista,
+      })
       await conferirRegrasDoCliente(v, {
         novo: true,
         escopoArquivos: arquivos.escopo.map((a) => a.nomeOriginal),
+        vaiJunto: Boolean(junto?.caminhoes.length),
       })
 
       // Pré-cálculo guardado junto (sem veículo ativo, a ordem é criada sem ele).
@@ -1177,6 +1203,8 @@ export function criarServicoOrdens(
         await Promise.all(gravados.map((g) => rm(g, { force: true })))
         throw e
       }
+      // Dois caminhões com a mesma placa no agendamento = um só (28/10/2026).
+      await unirMesmaPlaca(db, id, new Date().toISOString())
       // A mesma coleta (cliente, endereço, data) de outro lote: este é juntado ao primeiro.
       await reagruparColetas(db, [v.clienteId], autor)
       return obter(id)
@@ -1500,9 +1528,114 @@ export function criarServicoOrdens(
           agora,
         )
       })
+      // Deu a um caminhão a placa de outro: é o mesmo caminhão (28/10/2026).
+      await unirMesmaPlaca(db, id, new Date().toISOString())
       // Mudou a data ou o site: a coleta pode juntar ou separar.
       await reagruparColetas(db, [v.clienteId], autor)
       return obter(id)
+    },
+
+    /**
+     * Exclui o lote DE VEZ (pedido do usuário, 27/10/2026 — o mesmo do iERP 1.0): só AGENDADO,
+     * daqui (não de outro sistema) e sem caminhão na rua — depois do recebimento o lote já existe
+     * dentro da empresa. O principal leva junto os lotes daqui juntados a ele (a coleta inteira);
+     * os de outro sistema ficam e se reagrupam. Fica o registro em `ordens_excluidas` (Auditoria,
+     * históricos de módulo e o número que não volta) e os arquivos do lote saem do disco.
+     */
+    async excluir(id: string, autor: string) {
+      const colunas = [
+        'id',
+        'numero',
+        'codigo',
+        'status',
+        'clienteId',
+        'juntadoA',
+      ] as const satisfies readonly (keyof Database['ordens'])[]
+      const alvo = await db
+        .selectFrom('ordens')
+        .select(colunas)
+        .where('id', '=', id)
+        .executeTakeFirst()
+      if (!alvo) throw naoEncontrado('Lote não encontrado.')
+      await garantirLoteDaqui(db, id)
+      const juntados = alvo.juntadoA
+        ? []
+        : await db
+            .selectFrom('ordens')
+            .select(colunas)
+            .where('juntadoA', '=', id)
+            .where('externoSistema', 'is', null)
+            .orderBy('numero')
+            .execute()
+      const lotes = [alvo, ...juntados]
+      const ids = lotes.map((l) => l.id)
+      // Tudo conferido ANTES de apagar: parar no meio deixaria metade da coleta apagada.
+      const recebido = lotes.find((l) => l.status !== 'agendado')
+      if (recebido)
+        throw new ErroApi(
+          409,
+          'lot_not_scheduled',
+          `O ${recebido.codigo} já foi recebido e não pode mais ser excluído: ele já existe dentro da empresa. Só lotes agendados podem ser excluídos.`,
+        )
+      const naRua = await db
+        .selectFrom('ordensViagens as v')
+        .innerJoin('ordens as o', 'o.id', 'v.ordemId')
+        .select('o.codigo')
+        .where('v.ordemId', 'in', ids)
+        .where('v.status', 'in', ['em_rota', 'chegou'])
+        .executeTakeFirst()
+      if (naRua)
+        throw new ErroApi(
+          409,
+          'lot_trip_on_road',
+          `Um caminhão do ${naRua.codigo} já saiu: finalize a viagem dele em Ordens › Viagens antes de excluir o lote.`,
+        )
+
+      const agora = new Date().toISOString()
+      await db.transaction().execute(async (trx) => {
+        for (const l of lotes) {
+          await trx
+            .insertInto('ordensExcluidas')
+            .values({
+              id: l.id,
+              numero: l.numero,
+              codigo: l.codigo,
+              clienteId: l.clienteId,
+              excluidoEm: agora,
+              excluidoPor: autor,
+            })
+            .execute()
+          await registrarHistorico(trx, 'ordem', l.id, {
+            autor,
+            em: agora,
+            acao: 'lote_excluido',
+            // Juntado que saiu com o principal: o histórico diz com qual.
+            ...(l.id === alvo.id
+              ? {}
+              : { mudancas: [{ campo: 'lote', antes: alvo.codigo, depois: null }] }),
+          })
+        }
+        // Juntado excluído sozinho: o principal registra que a coleta perdeu um lote.
+        if (alvo.juntadoA)
+          await registrarHistorico(trx, 'ordem', alvo.juntadoA, {
+            autor,
+            em: agora,
+            acao: 'juntado_excluido',
+            mudancas: [{ campo: 'lote', antes: alvo.codigo, depois: null }],
+          })
+        // Os de outro sistema juntados a ele ficam soltos; o reagrupar escolhe o novo principal.
+        await trx
+          .updateTable('ordens')
+          .set({ juntadoA: null })
+          .where('juntadoA', 'in', ids)
+          .execute()
+        await trx.deleteFrom('ordens').where('id', 'in', ids).execute()
+      })
+      await Promise.all(
+        ids.map((i) => rm(path.join(opcoes.pasta, 'ordens', i), { recursive: true, force: true })),
+      )
+      await reagruparColetas(db, [alvo.clienteId], autor)
+      return { ids, codigos: lotes.map((l) => l.codigo) }
     },
 
     /** Conteúdo do anexo para download. */
@@ -1550,6 +1683,14 @@ export function rotasOrdens(servico: ServicoOrdens) {
   r.post('/pre-calculo', async (req, res) => {
     res.json(await servico.preCalcular(req.body))
   })
+  // Agendamento (28/10/2026): a coleta em que o lote novo vai entrar e os caminhões dela.
+  r.get('/coleta', async (req, res) => {
+    const q = z
+      .object({ clienteId: z.string().min(1), siteId: z.string().min(1), dia: z.string() })
+      .refine((x) => ehDia(x.dia), 'Dia inválido.')
+      .parse(req.query)
+    res.json(await servico.coleta(q))
+  })
   r.get('/:id', async (req, res) => {
     res.json(await servico.obter(req.params.id))
   })
@@ -1575,6 +1716,9 @@ export function rotasOrdens(servico: ServicoOrdens) {
   }).array('arquivos', MAX_ARQUIVOS)
   r.put('/:id', async (req, res) => {
     res.json(await servico.editar(String(req.params.id), req.body, autorDa(req)))
+  })
+  r.delete('/:id', async (req, res) => {
+    res.json(await servico.excluir(String(req.params.id), autorDa(req)))
   })
   r.post('/:id/anexos', uploadDocumentos, async (req, res) => {
     const ordem = await servico.adicionarAnexos(

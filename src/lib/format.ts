@@ -90,6 +90,21 @@ export function formatMonthYear(value: DateInput | null | undefined, lang = curr
   }).format(d)
 }
 
+/** "out. de 26" / "Oct 26" — mês curto e ano (eixo de gráfico mensal). */
+export function formatMonthShort(
+  value: DateInput | null | undefined,
+  lang = currentLang(),
+): string {
+  if (value == null) return EMPTY
+  const d = toDate(value)
+  if (!isValid(d)) return EMPTY
+  return new Intl.DateTimeFormat(lang, {
+    timeZone: TIME_ZONE,
+    month: 'short',
+    year: '2-digit',
+  }).format(d)
+}
+
 /** "qua." / "Wed" — dia da semana abreviado. */
 export function formatWeekday(value: DateInput | null | undefined, lang = currentLang()): string {
   if (value == null) return EMPTY

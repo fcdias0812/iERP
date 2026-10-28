@@ -194,6 +194,19 @@ function db(): Registro[] {
 
 const ABERTAS = ['aguardando_motorista', 'em_rota', 'chegou']
 
+/** Pelo aparelho de GPS: a viagem começa na hora (como no servidor). */
+const pelo = (rastreadorId: string | null): Partial<Viagem> =>
+  rastreadorId
+    ? {
+        origemGps: 'aparelho',
+        rastreadorId,
+        rastreadorAparelho: rastreadorId,
+        status: 'em_rota',
+        iniciadaEm: agora(),
+        linkMotorista: null,
+      }
+    : {}
+
 const resumo = (r: Registro): Viagem => {
   const v: Partial<Registro> = { ...r }
   delete v.trajeto
@@ -249,7 +262,11 @@ export const viagensHandlers = [
     if (!o) return apiError(404, 'not_found', 'Lote não encontrado.')
     if (o.status !== 'agendado')
       return apiError(409, 'invalid_transition', 'Só se adiciona caminhão a lote agendado.')
-    const c = (await request.json()) as { motoristaId: string | null; placa: string | null }
+    const c = (await request.json()) as {
+      motoristaId: string | null
+      placa: string | null
+      rastreadorId?: string | null
+    }
     const doLote = db().filter((v) => v.ordemId === o.id)
     const numero = Math.max(0, ...doLote.map((v) => v.numero)) + 1
     const r: Registro = {
@@ -266,12 +283,53 @@ export const viagensHandlers = [
         codigoChegada: String(100000 + Math.floor(Math.random() * 899999)),
         linkMotorista: `${RASTREADOR}/app/?os=${o.codigo}`,
         dataColeta: o.dataColeta ?? o.coletaPrevista,
+        ...pelo(c.rastreadorId ?? null),
       }),
       trajeto: [],
       chat: [],
     }
     db().push(r)
     o.rastrear = true
+    return HttpResponse.json(detalhe(r), { status: 201 })
+  }),
+  // Adicionar rastreador (28/10/2026): mais um rastreador no MESMO caminhão (mesmo número e código).
+  http.post('*/api/viagens/:id/rastreios', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    const b = db().find((v) => v.id === params.id)
+    if (!b) return apiError(404, 'not_found', 'Viagem não encontrada.')
+    if (b.somenteLeitura) return apiError(409, 'external_lot', 'Viagem de outro sistema.')
+    if (!ABERTAS.includes(b.status))
+      return apiError(409, 'trip_not_open', 'Este caminhão já terminou a viagem.')
+    const { rastreadorId = null } = (await request.json()) as { rastreadorId?: string | null }
+    if (
+      rastreadorId &&
+      db().some(
+        (v) =>
+          v.ordemId === b.ordemId &&
+          v.numero === b.numero &&
+          v.rastreadorId === rastreadorId &&
+          ABERTAS.includes(v.status),
+      )
+    )
+      return apiError(409, 'tracker_already_on_truck', 'Este rastreador já está neste caminhão.')
+    const r: Registro = {
+      ...b,
+      id: `vg${Date.now()}`,
+      tripId: null,
+      iniciadaEm: null,
+      posicao: null,
+      totalPontos: 0,
+      emergencia: null,
+      status: 'aguardando_motorista',
+      origemGps: 'celular',
+      rastreadorId: null,
+      rastreadorAparelho: null,
+      ...pelo(rastreadorId),
+      trajeto: [],
+      chat: [],
+    }
+    db().push(r)
     return HttpResponse.json(detalhe(r), { status: 201 })
   }),
   http.get('*/api/viagens/lote/:ordemId', ({ params }) => {

@@ -23,8 +23,10 @@ import { useIdiomaTexto, useTraducao } from '@/hooks/use-traducao'
 import { EMPTY, formatDate, formatNumber } from '@/lib/format'
 import { textoOriginal } from '@/lib/localized-text'
 import { listarOrdens, obterOrdem, ordensKeys, urlFotoRecebimento } from '@/services/ordens'
-import type { InspecaoVisual, Ordem } from '@/services/types'
+import type { FotosRecebimento, InspecaoVisual, Ordem, RecebimentoInput } from '@/services/types'
 import { CampoFotos } from './CampoFotos'
+import { etiquetasDosPallets, type EtiquetaPallet } from './etiquetas-pallet'
+import { EtiquetasDoRecebimento } from './EtiquetasPallet'
 import {
   formParaEnvio,
   INSPECOES,
@@ -48,6 +50,14 @@ import { StatusDoLote } from './StatusDoLote'
  */
 
 type Form = UseFormReturn<RecebimentoForm>
+
+/** O recebimento montado para a API (gravado na hora ou depois das etiquetas). */
+interface Pedido {
+  v: RecebimentoForm
+  ordemId: string
+  dados: RecebimentoInput
+  fotos: FotosRecebimento
+}
 
 /** O que a aba Configurações do cliente pode exigir no recebimento (o servidor confere igual). */
 type Exigencia = 'lacre' | 'nota' | 'tara' | 'fotos'
@@ -164,6 +174,10 @@ function Formulario({
   const regras = useCliente(lote?.clienteId ?? escolhido.data?.clienteId).data?.configuracoes
   const exigidos = EXIGENCIAS.filter((e) => regras?.[e.regra])
   const [faltando, setFaltando] = useState<Exigencia[]>([])
+  // Recebimento novo pronto para gravar, esperando a impressão das etiquetas.
+  const [etiquetas, setEtiquetas] = useState<{ pedido: Pedido; lista: EtiquetaPallet[] } | null>(
+    null,
+  )
 
   const enviar = form.handleSubmit(async (v) => {
     const falta = exigidos.filter((e) => e.falta(v))
@@ -182,14 +196,37 @@ function Formulario({
           ? anterior
           : await traducao.traduzir(original, idioma.idioma)
     const { dados, fotos } = formParaEnvio(v, texto)
-    const salvo = await salvar
-      .mutateAsync({ ordemId: v.loteId, dados, fotos, modo: corrigir ? 'corrigir' : 'receber' })
-      .catch(() => null)
-    if (salvo) {
-      form.reset(v)
-      onClose()
+    const pedido = { v, ordemId: v.loteId, dados, fotos }
+    // Recebimento novo: só conclui depois de imprimir uma etiqueta por pallet (27/10/2026).
+    if (corrigir) await gravar(pedido)
+    else {
+      const doLote = lote ?? escolhido.data
+      setEtiquetas({
+        pedido,
+        lista: etiquetasDosPallets({
+          cliente: doLote?.clienteNome ?? v.clienteNome,
+          lote: doLote?.codigo ?? rotuloLote.split(' · ')[0] ?? '',
+          data: dados.dataRecebimento,
+          pallets: dados.pallets.map((p) => ({ bruto: p.pesoBruto, tara: p.tara })),
+        }),
+      })
     }
   })
+
+  async function gravar(p: Pedido) {
+    const salvo = await salvar
+      .mutateAsync({
+        ordemId: p.ordemId,
+        dados: p.dados,
+        fotos: p.fotos,
+        modo: corrigir ? 'corrigir' : 'receber',
+      })
+      .catch(() => null)
+    if (salvo) {
+      form.reset(p.v)
+      onClose()
+    }
+  }
 
   return (
     <CadastroSheet
@@ -203,7 +240,7 @@ function Formulario({
       descricao={corrigir ? t('recebimento.corrigirDescricao') : t('recebimento.descricao')}
       status={lote ? <StatusDoLote lote={lote} /> : undefined}
       formId="form-recebimento"
-      salvando={form.formState.isSubmitting}
+      salvando={form.formState.isSubmitting || salvar.isPending}
       sujo={form.formState.isDirty}
       permissao={permissao}
       dados={
@@ -388,6 +425,15 @@ function Formulario({
               )}
             </RhfField>
           </CadastroSecao>
+          {etiquetas && (
+            <EtiquetasDoRecebimento
+              loteId={etiquetas.pedido.ordemId}
+              etiquetas={etiquetas.lista}
+              salvando={salvar.isPending}
+              onVoltar={() => setEtiquetas(null)}
+              onConcluir={() => void gravar(etiquetas.pedido)}
+            />
+          )}
         </form>
       }
     />

@@ -3,7 +3,9 @@ import type { TableQuery } from '@/components/data-table/types'
 import { api, buildUrl } from './http'
 import type {
   CalculoOs,
+  ColetaExistente,
   EspelhoExterno,
+  LoteExcluido,
   OcorrenciaInput,
   Ordem,
   OrdemInput,
@@ -125,6 +127,15 @@ export function adicionarDocumentosLote(
 
 export const removerDocumentoLote = (ordemId: string, anexoId: string) =>
   api<Ordem>(`/ordens/${ordemId}/anexos/${anexoId}`, { method: 'DELETE' })
+
+/** A coleta em que o lote novo vai entrar (null = nenhuma) — Agendamento, 28/10/2026. */
+export const coletaDoAgendamento = (
+  d: { clienteId: string; siteId: string; dia: string },
+  signal?: AbortSignal,
+) => api<ColetaExistente | null>('/ordens/coleta', { query: d, signal })
+
+/** Exclui o lote de vez (só agendado; o principal leva os juntados daqui). */
+export const excluirOrdem = (id: string) => api<LoteExcluido>(`/ordens/${id}`, { method: 'DELETE' })
 
 /* ---------------- Recebimento (Operação › Recebimento) */
 

@@ -45,6 +45,7 @@ import {
   SERVICOS,
   type AgendamentoForm,
 } from './agendamento-schema'
+import type { ColetaExistente } from '@/services/types'
 import { useRegrasDoCliente } from './regras-do-cliente'
 import { SecaoContexto } from './secao-contexto'
 import { buscarClientesAtivos, useSitesDoCliente } from './use-ordens'
@@ -316,12 +317,15 @@ export function Coleta({ form }: { form: Form }) {
 
 /* ------------------------------------------------------------ rastreio */
 
-export function Rastreio({ form }: { form: Form }) {
+export function Rastreio({ form, coleta }: { form: Form; coleta?: ColetaExistente | null }) {
   const { t } = useTranslation()
   const rastrear = useWatch({ control: form.control, name: 'rastrear' })
   const regras = useRegrasDoCliente(form)
+  // A coleta que já existe e já tem caminhão (28/10/2026): o lote novo vai junto, com os caminhões
+  // dela — o rastreio aqui é só para um caminhão a mais (e a regra fixa do cliente não prende).
+  const junto = coleta?.caminhoes.length ? coleta : null
   // Sem exceção, o rastreio é o do cliente (aba Configurações).
-  const fixo = Boolean(regras && !regras.rastreioExcecao)
+  const fixo = Boolean(regras && !regras.rastreioExcecao) && !junto
   const exigir = Boolean(regras?.exigirMotoristaPlaca)
   const motoristas = useOpcoesMotoristas()
   const ativos = (motoristas.data ?? []).filter((m) => m.status === 'ativo')
@@ -334,6 +338,36 @@ export function Rastreio({ form }: { form: Form }) {
       descricao={t('ordens.agendamento.secoesAjuda.rastreio')}
       colunas={1}
     >
+      {coleta && (
+        <Alert tone="info" title={t('ordens.agendamento.junto.titulo', { code: coleta.codigo })}>
+          <div className="flex flex-col gap-2">
+            {junto ? (
+              <>
+                <ul
+                  aria-label={t('ordens.agendamento.junto.caminhoes')}
+                  className="flex flex-col gap-1"
+                >
+                  {junto.caminhoes.map((c) => (
+                    <li key={c.numero} className="type-body">
+                      {[
+                        t('viagens.card.caminhao', { n: c.numero }),
+                        c.motoristaNome ?? t('viagens.card.motoristaADefinir'),
+                        c.placa,
+                        t('ordens.agendamento.junto.rastreadores', { n: c.rastreadores }),
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </li>
+                  ))}
+                </ul>
+                <p>{t('ordens.agendamento.junto.ajuda')}</p>
+              </>
+            ) : (
+              <p>{t('ordens.agendamento.junto.semCaminhao')}</p>
+            )}
+          </div>
+        </Alert>
+      )}
       <SimNao
         form={form}
         name="rastrear"

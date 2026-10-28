@@ -12,6 +12,7 @@ import {
   poisDaEstrada,
   viagensDoLote,
   adicionarCaminhao,
+  adicionarRastreio,
   viagensKeys,
   type SituacaoViagens,
 } from '@/services/viagens'
@@ -90,6 +91,46 @@ export function useAdicionarCaminhao(ordemId: string) {
       toast.success(t('viagens.caminhao.adicionado', { n: v.numero }))
     },
     onError: (e) => toast.error(t('viagens.toast.falhou'), { description: apiErrorMessage(e) }),
+  })
+}
+
+/**
+ * "Nova viagem" em Ordens › Viagens (28/10/2026): mais um caminhão no lote escolhido lá, com o
+ * rastreador (celular ou aparelho de GPS).
+ */
+export function useNovaViagem() {
+  const { t } = useTranslation()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (d: {
+      ordemId: string
+      motoristaId: string | null
+      placa: string | null
+      rastreadorId: string | null
+    }) => adicionarCaminhao(d.ordemId, d),
+    onSuccess: (v) => {
+      void qc.invalidateQueries({ queryKey: viagensKeys.todas })
+      void qc.invalidateQueries({ queryKey: ['ordens'] })
+      toast.success(t('viagens.nova.criada', { code: v.loteCodigo, n: v.numero }))
+    },
+    onError: (e) => toast.error(t('viagens.nova.falhou'), { description: apiErrorMessage(e) }),
+  })
+}
+
+/** "Adicionar rastreador" no card do caminhão (28/10/2026). */
+export function useAdicionarRastreio() {
+  const { t } = useTranslation()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (d: { viagemId: string; rastreadorId: string | null }) =>
+      adicionarRastreio(d.viagemId, d.rastreadorId),
+    onSuccess: (v) => {
+      void qc.invalidateQueries({ queryKey: viagensKeys.todas })
+      void qc.invalidateQueries({ queryKey: ['ordens'] })
+      void qc.invalidateQueries({ queryKey: ['rastreadores'] })
+      toast.success(t('viagens.rastreios.adicionado', { n: v.numero }))
+    },
+    onError: (e) => toast.error(t('viagens.rastreios.falhou'), { description: apiErrorMessage(e) }),
   })
 }
 

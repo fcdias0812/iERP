@@ -37,6 +37,8 @@ interface Linha {
   tipo: string | null
   subtipo: string | null
   registroCodigo: string | null
+  /** Lote excluído (27/10/2026): o código fica, sem link. */
+  excluido: boolean
   clienteNome: string | null
   em: string
   autor: string
@@ -108,6 +110,7 @@ export function HistoricoTabela({
         nota: e.nota ?? null,
         registroId: doModulo?.registroId ?? daAuditoria?.registroId ?? null,
         registroCodigo: doModulo?.registroCodigo ?? daAuditoria?.registroRotulo ?? null,
+        excluido: Boolean(doModulo?.registroExcluido ?? daAuditoria?.registroExcluido),
         clienteNome: doModulo?.clienteNome ?? null,
         tipo: daAuditoria?.tipo ?? null,
         subtipo: daAuditoria?.registroSubtipo ?? null,
@@ -162,14 +165,23 @@ export function HistoricoTabela({
               accessor: (r) => r.registroCodigo,
               size: registro.tipos ? 200 : 130,
               cell: (r) =>
-                r.registroId && r.registroCodigo
-                  ? registro.link({
-                      id: r.registroId,
-                      rotulo: r.registroCodigo,
-                      tipo: r.tipo,
-                      subtipo: r.subtipo,
-                    })
-                  : '—',
+                r.excluido && r.registroCodigo ? (
+                  <span className="flex flex-col">
+                    <span className="font-mono">{r.registroCodigo}</span>
+                    <span className="type-caption text-muted-foreground">
+                      {t('historico.excluido')}
+                    </span>
+                  </span>
+                ) : r.registroId && r.registroCodigo ? (
+                  registro.link({
+                    id: r.registroId,
+                    rotulo: r.registroCodigo,
+                    tipo: r.tipo,
+                    subtipo: r.subtipo,
+                  })
+                ) : (
+                  '—'
+                ),
             },
           ] satisfies DataTableColumn<Linha>[])
         : []),

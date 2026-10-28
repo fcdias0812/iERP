@@ -273,13 +273,7 @@ describe('clientes › documentos', () => {
   })
 })
 
-describe('clientes › visão geral e geolocalização', () => {
-  it('resumo de lotes informa que a integração não está ligada', async () => {
-    const r = await api(`/clientes/${clienteId}/lotes/resumo`)
-    assert.equal(r.body.conectado, false)
-    assert.deepEqual(r.body.ultimos, [])
-  })
-
+describe('clientes › geolocalização', () => {
   it('CEP → endereço (com região) e endereço → coordenadas, com cache', async () => {
     const cep = await api('/geo/cep/01001-000')
     // O ViaCEP devolve "Sudeste"; a API devolve o código da região.

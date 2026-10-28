@@ -4,11 +4,11 @@ import { autorDa } from '../../shared/autor.js'
 import { lerConsulta } from '../../shared/consulta-tabela.js'
 import { MAX_BYTES, type ServicoDocumentos } from './clientes-documentos.servico.js'
 import type { ServicoConfiguracoes } from './clientes-configuracoes.js'
+import type { ServicoPainel } from './clientes-painel.js'
 import type { ServicoRastreio } from './clientes-rastreio.js'
 import type { ServicoSites } from './clientes-sites.servico.js'
 import { COLUNAS_CLIENTE } from './clientes.regras.js'
 import type { ServicoClientes } from './clientes.servico.js'
-import type { LotesResumoCliente } from './clientes.types.js'
 
 /*
  * API de clientes (montada em /api/clientes):
@@ -21,7 +21,7 @@ import type { LotesResumoCliente } from './clientes.types.js'
  *   PUT  /:id/configuracoes  aba Configurações (rastreio, agendamento, recebimento, prazos)
  *   POST /:id/rastreio       gera/troca o link público de acompanhamento; DELETE desativa
  *
- *   GET    /:id/lotes/resumo            lotes a chegar / em operação / finalizados + últimos 5
+ *   GET    /:id/painel?periodo=         painel da Visão geral (números, gráficos, prazo)
  *   GET    /:id/sites                   sites com docas e responsável
  *   POST   /:id/sites                   cria site (responsável existente ou contato novo)
  *   PUT    /:id/sites/:siteId           edita site e docas
@@ -37,6 +37,7 @@ export function rotasClientes(
   documentos: ServicoDocumentos,
   configuracoes: ServicoConfiguracoes,
   rastreio: ServicoRastreio,
+  painel: ServicoPainel,
 ) {
   const r = Router()
   const upload = multer({
@@ -82,19 +83,10 @@ export function rotasClientes(
     res.json(await rastreio.desativar(req.params.id, autorDa(req)))
   })
 
-  /* ---------------- visão geral: lotes */
+  /* ---------------- visão geral: o painel do cliente */
 
-  r.get('/:id/lotes/resumo', async (req, res) => {
-    await servico.obter(req.params.id)
-    // Os lotes vêm dos sistemas de produção; a integração ainda não está ligada.
-    const body: LotesResumoCliente = {
-      conectado: false,
-      aChegar: 0,
-      emOperacao: 0,
-      finalizados: 0,
-      ultimos: [],
-    }
-    res.json(body)
+  r.get('/:id/painel', async (req, res) => {
+    res.json(await painel.painel(req.params.id, req.query))
   })
 
   /* ---------------- logística: sites e docas */

@@ -22,6 +22,7 @@ import { useCan } from '@/hooks/use-can'
 import { isValidPlate } from '@/lib/validators/br'
 import { z } from '@/lib/zod-i18n'
 import type { Viagem } from '@/services/types'
+import { porCaminhao } from './agrupar'
 import { CardViagem } from './CardViagem'
 import { CartaoMapa } from './CartaoMapa'
 import { ChatViagemSheet } from './ChatViagemSheet'
@@ -80,6 +81,8 @@ function Viagens({
     .sort((a, b) => a.numero - b.numero)
   if (!viagens.length && !podeAdicionar) return null
   const marcada = viagens.find((v) => v.id === escolhida) ?? viagens[0]
+  // Um card por caminhão, com os rastreadores dele (28/10/2026).
+  const caminhoes = porCaminhao(viagens)
   return (
     <section
       aria-labelledby="lote-info-viagem"
@@ -89,16 +92,17 @@ function Viagens({
         {t('viagens.doLote.titulo')}
       </h2>
       <div className="flex flex-col gap-3">
-        {viagens.map((v) => (
+        {caminhoes.map(([v, ...outros]) => (
           <CardViagem
-            key={v.id}
-            v={v}
+            key={v!.id}
+            v={v!}
+            outros={outros}
             semAbrirLote
-            escolhida={viagens.length > 1 && v.id === marcada?.id}
-            onEscolher={viagens.length > 1 ? () => setEscolhida(v.id) : undefined}
-            onChat={() => setChat(v)}
-            onFinalizar={() => setFinalizar(v)}
-            onCiente={() => ciente.mutate(v.id)}
+            escolhida={caminhoes.length > 1 && [v!, ...outros].some((x) => x.id === marcada?.id)}
+            onEscolher={caminhoes.length > 1 ? () => setEscolhida(v!.id) : undefined}
+            onChat={setChat}
+            onFinalizar={setFinalizar}
+            onCiente={(x) => ciente.mutate(x.id)}
           />
         ))}
         {podeAdicionar && (

@@ -194,17 +194,7 @@ export interface DocumentoCliente {
   enviadoPor: string
 }
 
-/* ------------------------------------------------------------ lotes (visão geral) */
+/* ------------------------------------------------------------ painel (visão geral) */
 
-/**
- * Resumo dos lotes do cliente. Os lotes vêm dos sistemas de produção (integração ainda não
- * ligada): enquanto `conectado` for false, a tela mostra "sem dados".
- */
-export interface LotesResumoCliente {
-  conectado: boolean
-  aChegar: number
-  emOperacao: number
-  finalizados: number
-  /** Últimos lotes com atualização (até 5). */
-  ultimos: { id: string; codigo: string; status: string; atualizadoEm: string }[]
-}
+/** O painel da aba Visão geral (números, gráficos e prazo) — `clientes-painel.ts`. */
+export type { PainelCliente, PeriodoPainel } from './clientes-painel.js'

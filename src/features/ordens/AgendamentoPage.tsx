@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
@@ -11,6 +11,7 @@ import { Anexos, Coleta, Local, Quantidades, Rastreio, Servicos } from './agenda
 import {
   agendamentoSchema,
   chaveDoCalculo,
+  dia,
   errosDoCliente,
   formParaInput,
   novoAgendamento,
@@ -19,7 +20,7 @@ import {
 } from './agendamento-schema'
 import { PreCalculoCard } from './PreCalculoCard'
 import { useAplicarPadroesDoCliente, useRegrasDoCliente } from './regras-do-cliente'
-import { useCriarOrdem, usePreCalculo } from './use-ordens'
+import { useColetaDoAgendamento, useCriarOrdem, usePreCalculo } from './use-ordens'
 
 /*
  * Ordens › Agendamento — o ÚNICO cadastro com página própria (decisão do usuário): o formulário
@@ -49,6 +50,19 @@ function Agendamento() {
   const calculo = usePreCalculo()
   const [calculadoCom, setCalculadoCom] = useState<string | null>(null)
   const valores = useWatch({ control: form.control }) as AgendamentoForm
+  // A mesma coleta de um lote que já existe (28/10/2026): avisa e vai com os caminhões dele.
+  const coleta = useColetaDoAgendamento({
+    clienteId: valores.clienteId,
+    siteId: valores.siteId,
+    dia: dia(valores.dataColeta ?? valores.coletaPrevista),
+  }).data
+  const juntoCom = useRef<string | null>(null)
+  useEffect(() => {
+    // Achou a coleta com caminhão: o rastreio do lote novo vem desligado (uma vez por coleta).
+    if (!coleta?.caminhoes.length || juntoCom.current === coleta.id) return
+    juntoCom.current = coleta.id
+    form.setValue('rastrear', false, { shouldDirty: true })
+  }, [coleta, form])
 
   const preCalcular = () => {
     const v = form.getValues()
@@ -101,7 +115,7 @@ function Agendamento() {
         <div className="flex min-w-0 flex-col gap-6">
           <Local form={form} />
           <Coleta form={form} />
-          <Rastreio form={form} />
+          <Rastreio form={form} coleta={coleta} />
           <Servicos form={form} />
           <Quantidades form={form} />
           <Anexos form={form} />

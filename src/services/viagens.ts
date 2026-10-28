@@ -32,11 +32,14 @@ export const usarRastreador = (viagemId: string, rastreadorId: string) =>
     body: { rastreadorId },
   })
 
-/** "Adicionar caminhão" no lote. */
+/** "Adicionar caminhão" no lote e "Nova viagem" em Viagens (com o rastreador, se for aparelho). */
 export const adicionarCaminhao = (
   ordemId: string,
-  caminhao: { motoristaId: string | null; placa: string | null },
+  caminhao: { motoristaId: string | null; placa: string | null; rastreadorId?: string | null },
 ) => api<ViagemDetalhe>(`/viagens/lote/${ordemId}`, { method: 'POST', body: caminhao })
+/** "Adicionar rastreador" no caminhão (28/10/2026): celular (null) ou aparelho de GPS. */
+export const adicionarRastreio = (viagemId: string, rastreadorId: string | null) =>
+  api<ViagemDetalhe>(`/viagens/${viagemId}/rastreios`, { method: 'POST', body: { rastreadorId } })
 export const lerChatViagem = (id: string, signal?: AbortSignal) =>
   api<MensagemViagem[]>(`/viagens/${id}/chat`, { signal })
 export const enviarChatViagem = (id: string, texto: string) =>

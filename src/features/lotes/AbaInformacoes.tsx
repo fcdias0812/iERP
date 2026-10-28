@@ -17,7 +17,7 @@ import { LotesJuntados } from './LotesJuntados'
  * (endereço, horário e restrições da doca vêm do cadastro do site), datas, transporte,
  * serviços, quantidades, pré-cálculo, escopo e observações. Os arquivos ficam na aba Documentos.
  */
-export function AbaInformacoes({ o }: { o: Ordem }) {
+export function AbaInformacoes({ o, permissaoExcluir }: { o: Ordem; permissaoExcluir: string }) {
   const { t } = useTranslation()
   const info = useInformacoesDoLote(o)
   const campo = (k: string) => t(`ordens.agendamento.campos.${k as 'cliente'}`)
@@ -27,7 +27,7 @@ export function AbaInformacoes({ o }: { o: Ordem }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <DadosDeFora o={o} />
-      <LotesJuntados o={o} />
+      <LotesJuntados o={o} permissaoExcluir={permissaoExcluir} />
       {instrucoes && (
         <Alert
           tone="info"

@@ -8,9 +8,11 @@ import { clientesKeys, listarClientes, listarSites } from '@/services/clientes'
 import {
   adicionarDocumentosLote,
   cancelarOcorrencia,
+  coletaDoAgendamento,
   corrigirOcorrencia,
   criarOrdem,
   editarOrdem,
+  excluirOrdem,
   listarOrdens,
   obterEspelhoDoLote,
   obterOrdem,
@@ -57,6 +59,22 @@ export async function buscarClientesAtivos(busca: string) {
   })
   return page.rows.map((c) => ({ value: c.id, label: c.nome }))
 }
+
+/**
+ * A coleta em que o lote novo vai entrar (mesmo cliente, endereço e dia — 28/10/2026): o Agendamento
+ * avisa e mostra os caminhões que já existem. Sem cliente, site ou data, nada.
+ */
+export const useColetaDoAgendamento = (d: {
+  clienteId: string
+  siteId: string
+  dia: string | null
+}) =>
+  useQuery({
+    queryKey: ['ordens', 'coleta', d.clienteId, d.siteId, d.dia],
+    queryFn: ({ signal }) =>
+      coletaDoAgendamento({ clienteId: d.clienteId, siteId: d.siteId, dia: d.dia! }, signal),
+    enabled: Boolean(d.clienteId && d.siteId && d.dia),
+  })
 
 /** Pré-cálculo: não grava nada; o erro aparece no próprio card. */
 export const usePreCalculo = () => useMutation({ mutationFn: preCalcularOrdem })
@@ -185,6 +203,26 @@ export function useRemoverDocumento(ordemId: string) {
     },
     onError: (e) =>
       toast.error(t('lotes.documentos.toast.falhouRemover'), { description: apiErrorMessage(e) }),
+  })
+}
+
+/**
+ * Exclui o lote de vez (27/10/2026). Tira o lote (e os juntados que saíram com ele) do cache e
+ * atualiza o que mostra lotes: listas, viagens, painéis e históricos.
+ */
+export function useExcluirLote() {
+  const { t } = useTranslation()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => excluirOrdem(id),
+    onSuccess: (r) => {
+      for (const id of r.ids) qc.removeQueries({ queryKey: ordensKeys.detalhe(id) })
+      for (const chave of ['ordens', 'viagens', 'dashboard', 'historico', 'auditoria', 'clientes'])
+        void qc.invalidateQueries({ queryKey: [chave] })
+      toast.success(t('lotes.excluir.toast.excluido', { codes: r.codigos.join(', ') }))
+    },
+    onError: (e) =>
+      toast.error(t('lotes.excluir.toast.falhou'), { description: apiErrorMessage(e) }),
   })
 }
 

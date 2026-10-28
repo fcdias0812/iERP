@@ -17,7 +17,15 @@ export async function proximoNumero(
     .selectFrom(tabela)
     .select(sql<number | null>`max(numero)`.as('n'))
     .executeTakeFirstOrThrow()
-  return Number(r.n ?? 0) + 1
+  // Lote excluído (27/10/2026) não devolve o número: o código dele nunca é reusado.
+  const excluido =
+    tabela === 'ordens'
+      ? await cx
+          .selectFrom('ordensExcluidas')
+          .select(sql<number | null>`max(numero)`.as('n'))
+          .executeTakeFirstOrThrow()
+      : null
+  return Math.max(Number(r.n ?? 0), Number(excluido?.n ?? 0)) + 1
 }
 
 export const codigoCom = (prefixo: string, numero: number) =>

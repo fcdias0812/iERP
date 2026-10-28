@@ -86,6 +86,16 @@ export function apiErrorMessage(error: unknown): string {
       return i18n.t('apiErrors.trackerNotFound')
     case 'trip_in_progress':
       return i18n.t('apiErrors.tripInProgress')
+    case 'truck_already_in_lot':
+      return i18n.t('apiErrors.truckAlreadyInLot')
+    case 'tracker_already_on_truck':
+      return i18n.t('apiErrors.trackerAlreadyOnTruck')
+    case 'trip_not_open':
+      return i18n.t('apiErrors.tripNotOpen')
+    case 'lot_trip_on_road':
+      return i18n.t('apiErrors.lotTripOnRoad')
+    case 'lot_not_scheduled':
+      return i18n.t('apiErrors.lotNotScheduled')
     case 'trip_read_only':
       return i18n.t('apiErrors.tripReadOnly')
     case 'trip_not_active':

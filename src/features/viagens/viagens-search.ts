@@ -11,4 +11,6 @@ export const viagensSearchSchema = z.object({
   viagem: z.string().optional().catch(undefined),
   /** Conversa aberta com o motorista (id da viagem). */
   chat: z.string().optional().catch(undefined),
+  /** Painel "New trip" aberto (28/10/2026). */
+  aberto: z.literal('novo').optional().catch(undefined),
 })

@@ -1375,7 +1375,12 @@
     "lotMerged": "This lot was joined to another one of the same pickup: use the main lot.",
     "documentTypeNotAccepted": "This customer does not accept this document type (see the customer Settings).",
     "reportNotReceived": "The final report is only available after the lot is received.",
-    "reportMissingDocuments": "Documents checked for the final report are missing."
+    "reportMissingDocuments": "Documents checked for the final report are missing.",
+    "lotTripOnRoad": "A truck for this lot has already left: finish its trip in Orders › Trips before deleting the lot.",
+    "lotNotScheduled": "This lot has already been received and can no longer be deleted: it already exists inside the company. Only scheduled lots can be deleted.",
+    "trackerAlreadyOnTruck": "This tracker is already on this truck.",
+    "tripNotOpen": "This truck has already finished its trip: trackers can only be added while it is open.",
+    "truckAlreadyInLot": "This truck (same plate) is already on the lot: to put one more tracker on it, use \"Add tracker\" on its card."
   },
   "calendar": {
     "today": "Today",
@@ -1787,15 +1792,7 @@
       }
     },
     "visaoGeral": {
-      "lotesTitle": "Customer lots",
-      "kpis": {
-        "aChegar": "Lots arriving",
-        "emOperacao": "Lots in operation",
-        "finalizados": "Lots finished"
-      },
       "ultimosTitle": "Recently updated lots",
-      "semIntegracaoTitle": "Waiting for integration",
-      "semIntegracaoBody": "Lots show up here once the integration with the production systems is on.",
       "semLotes": "No lots for this customer yet."
     },
     "historico": {
@@ -2052,6 +2049,51 @@
         "gerado": "Tracking link ready.",
         "desativado": "Link deactivated."
       }
+    },
+    "painel": {
+      "proximaColeta": "Next pickup: {{dia}}",
+      "semProximaColeta": "No pickup scheduled from today on",
+      "erro": "Could not load the customer dashboard.",
+      "numerosTitulo": "Customer numbers",
+      "kpis": {
+        "aChegar": "Lots arriving",
+        "emOperacao": "Lots in operation",
+        "lotesPeriodo": "Lots in the period",
+        "concluidos": "Completed in the period",
+        "kgRecebidos": "Kg received",
+        "palletsRecebidos": "Pallets received"
+      },
+      "lotes": "Lots",
+      "nLotes": "{{n}} lots",
+      "etapasTitulo": "Lots by stage",
+      "etapasDescricao": "Lots in the period (by pickup date), in the stage they are in now.",
+      "semLotesPeriodo": "No lots in this period.",
+      "kgRecebidos": "Kg received",
+      "lotesColetados": "Lots picked up",
+      "mesesTitulo": "Pickups and kg per month",
+      "mesesDescricao": "Bars: kg received in the month. Line: lots picked up in the month.",
+      "outros": "Other",
+      "materiaisTitulo": "Kg per material",
+      "materiaisDescricao": "Material measured in the mass balance (it comes from MoonShot today).",
+      "semMateriais": "No mass balance in this period.",
+      "ocorrencias": "Incidents",
+      "ocorrenciasTitulo": "Incidents by type",
+      "semOcorrencias": "No incidents in this period.",
+      "prazoTitulo": "Deadline (SLA)",
+      "prazoDescricao": "From arrival at Re-Teck to the COD within {{n}} days, for lots completed in the period.",
+      "semSla": "Customer without SLA: set the deadline in the Settings tab.",
+      "cumprimento": "of completed lots within the deadline",
+      "noPrazo": "On time",
+      "foraDoPrazo": "Late",
+      "tempoMedio": "Average time to COD",
+      "dias": "{{n}} days",
+      "atrasadosAgora": "In operation and already late",
+      "aria": {
+        "etapas": "Chart of lots by stage: {{lista}}",
+        "meses": "Chart of kg received and lots per month: {{lista}}",
+        "materiais": "Chart of kg per material: {{lista}}",
+        "ocorrencias": "Chart of incidents by type: {{lista}}"
+      }
     }
   },
   "contatos": {
@@ -2083,7 +2125,8 @@
       "criado": "Created",
       "editado": "Changed the details",
       "status": "Changed the status"
-    }
+    },
+    "excluido": "deleted"
   },
   "transportadoras": {
     "list": {
@@ -2424,6 +2467,13 @@
         "titulo": "Truck {{n}}",
         "adicionar": "Add truck",
         "remover": "Remove truck {{n}}"
+      },
+      "junto": {
+        "titulo": "Goes together with {{code}} (same pickup)",
+        "caminhoes": "Trucks already in this pickup",
+        "rastreadores": "{{n}} tracker(s)",
+        "ajuda": "These trucks already count for this lot. Turn on \"Track the pickup\" only for one more truck.",
+        "semCaminhao": "Same customer, address and date: the two lots become one."
       }
     },
     "lotes": {
@@ -2730,7 +2780,10 @@
         "viagem_adicionada": "Added a truck",
         "juntado": "Joined to another lot (same pickup)",
         "coleta_juntada": "Received a lot from the same pickup",
-        "separado": "Separated from the pickup"
+        "separado": "Separated from the pickup",
+        "lote_excluido": "Deleted the lot",
+        "juntado_excluido": "Deleted a joined lot",
+        "rastreador_adicionado": "Added tracker"
       },
       "campos": {
         "status": "Status",
@@ -2948,7 +3001,20 @@
       "relatorio": "Final report (ZIP)",
       "falta": "Missing: {{itens}}",
       "faltaRecebimento": "receive the lot",
-      "naoPronto": "The final report cannot be generated yet"
+      "naoPronto": "The final report cannot be generated yet",
+      "etiquetas": "Pallet labels ({{n}})"
+    },
+    "excluir": {
+      "botao": "Delete",
+      "titulo": "Delete lot {{code}}?",
+      "descricao": "Lot {{code}} from {{cliente}} will be permanently deleted, along with its documents and the trips waiting for a driver. This cannot be undone: only the record in the Audit log remains.",
+      "levaJuntos": "The lots joined to it will also be deleted: {{codes}}.",
+      "ficam": "The lots from other systems joined to it remain: {{codes}}.",
+      "confirmar": "Delete lot",
+      "toast": {
+        "excluido": "Lot deleted: {{codes}}.",
+        "falhou": "Could not delete the lot."
+      }
     }
   },
   "recebimento": {
@@ -3032,6 +3098,22 @@
       "nota": "invoice",
       "tara": "tare of each pallet",
       "fotos": "at least one general photo"
+    },
+    "etiquetas": {
+      "pallet": "Pallet",
+      "data": "Date",
+      "liquido": "Net weight",
+      "titulo": "Print the pallet labels",
+      "explica": "{{n}} pallet(s) arrived: {{n}} label(s) will be printed, one per pallet, with customer, lot, date, weight and the lot QR code. Stick each one on its pallet.",
+      "lista": "Labels to be printed",
+      "bloqueadoTitulo": "The browser blocked the print window",
+      "bloqueado": "Allow pop-ups for this site and try again.",
+      "aberta": "Print window opened. Stick each label on its pallet and finish.",
+      "semImprimir": "Receiving is only completed after the labels are printed.",
+      "voltar": "Back to the form",
+      "deNovo": "Open again",
+      "concluir": "Printed and stuck: finish receiving",
+      "imprimir": "Print {{n}} label(s)"
     }
   },
   "historicoModulo": {
@@ -3377,6 +3459,43 @@
       "confirmar": "Start with tracker",
       "pelo": "By device",
       "iniciada": "Truck {{n}} of {{code}} left with the tracker."
+    },
+    "nova": {
+      "botao": "New trip",
+      "titulo": "New trip",
+      "descricao": "One more truck for an order already scheduled: choose the order, the truck and the tracker.",
+      "secoes": {
+        "ordem": "Order",
+        "caminhao": "Truck",
+        "rastreador": "Tracker"
+      },
+      "ordem": "Scheduled order",
+      "ordemAjuda": "Only orders scheduled in iERP (orders from other systems are tracked there).",
+      "escolhaOrdem": "Search by lot, customer or site…",
+      "rastreio": "Track with",
+      "rastreios": {
+        "celular": "Driver's phone",
+        "aparelho": "GPS device"
+      },
+      "celularAjuda": "The driver gets the truck's link and the arrival code is said at the destination.",
+      "criada": "Truck {{n}} created on {{code}}.",
+      "falhou": "Could not create the trip."
+    },
+    "rastreios": {
+      "n": "{{n}} trackers on this truck",
+      "primeiro": "the 1st is above",
+      "celular": "Driver's phone",
+      "outros": "Other trackers on this truck",
+      "rotulo": "Tracker {{n}}",
+      "adicionar": "Add tracker",
+      "titulo": "Add tracker",
+      "descricao": "One more tracker on truck {{n}} of {{code}}: the same truck, driver, plate and arrival code.",
+      "celularTitulo": "One more phone",
+      "celularTexto": "Whoever rides in the truck opens the same driver link on the other phone.",
+      "confirmar": "Add",
+      "adicionado": "Tracker added to truck {{n}}.",
+      "falhou": "Could not add the tracker.",
+      "aparelhoEmUso": "This device is already on {{code}}: it can only go along if it is the same customer and the same day."
     }
   },
   "estoque": {

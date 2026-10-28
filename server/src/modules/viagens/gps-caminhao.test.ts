@@ -8,7 +8,12 @@ import { criarApp } from '../../app.js'
 import { criarDb, type Db } from '../../db/database.js'
 import { migrarParaUltima } from '../../db/migrate.js'
 import { semear } from '../../db/seed.js'
-import { estadoDoRastreador, lerRespostaDaLeitura, urlDaLeitura } from './gps-caminhao.js'
+import {
+  criarLeitorGps,
+  estadoDoRastreador,
+  lerRespostaDaLeitura,
+  urlDaLeitura,
+} from './gps-caminhao.js'
 
 /*
  * Viagem pelo APARELHO de GPS do caminhão (22/10/2026 — "utilize o mesmo método no 1.0"): o
@@ -336,5 +341,47 @@ describe('gps do caminhão › leitura e viagem pelo aparelho', () => {
       (x: { sistema: string }) => x.sistema === 'GPS_CAMINHAO',
     )
     assert.match(i.ultimoErro ?? '', /recusou/)
+  })
+})
+
+describe('gps do caminhão › quando lê de novo', () => {
+  it('lida: a próxima em 5 min; falhou: em 1 min (28/10/2026)', async () => {
+    const leitor = criarLeitorGps(db, { fetch: fetchFalso, semEspera: true })
+    walker.recusar = false
+    await leitor.lerAgora()
+    const ok = leitor.proximaLeituraEm() - Date.now()
+    assert.ok(ok > 4 * 60_000 && ok <= 5 * 60_000, `lida: ${ok} ms`)
+    walker.recusar = true
+    await leitor.lerAgora()
+    const falha = leitor.proximaLeituraEm() - Date.now()
+    assert.ok(falha > 0 && falha <= 60_000, `falhou: ${falha} ms`)
+    walker.recusar = false
+  })
+
+  it('aparelho que só vem na lista de devices (sem pontos) também é cadastrado, como no 1.0', async () => {
+    const leitor = criarLeitorGps(db, { fetch: fetchFalso, semEspera: true })
+    walker.paginas.push({
+      ok: 1,
+      cursor: 900,
+      more: false,
+      batches: [],
+      devices: [{ deviceId: 'GPS-3100', firmware: '1.18.0', status: { online: true, fix: '3D' } }],
+    })
+    await leitor.lerAgora()
+    const r = await db
+      .selectFrom('rastreadores')
+      .selectAll()
+      .where('deviceId', '=', 'gps-3100')
+      .executeTakeFirst()
+    assert.ok(r, 'o aparelho novo foi cadastrado')
+    assert.equal(r.firmware, '1.18.0')
+    assert.equal(r.status, 'ativo')
+  })
+
+  it('a URL com a marca <cursor> (como o 1.0 cadastra) recebe o cursor', () => {
+    const url = 'https://gps.teste/ierp/v1/points?after=<cursor>'
+    assert.equal(urlDaLeitura(url, '42'), 'https://gps.teste/ierp/v1/points?after=42')
+    // Primeira leitura (sem cursor): o parâmetro sai, como no 1.0.
+    assert.equal(urlDaLeitura(url, null), 'https://gps.teste/ierp/v1/points')
   })
 })

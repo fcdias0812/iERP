@@ -20,6 +20,99 @@ export interface Novidade {
 
 export const NOVIDADES: Novidade[] = [
   {
+    versao: '2.8',
+    data: '2026-10-28',
+    itens: {
+      'pt-BR': [
+        'Ordens › Viagens: botão "Nova viagem" para pôr mais um caminhão numa ordem já agendada, com o rastreador (celular do motorista ou aparelho de GPS).',
+        'Vários rastreadores no mesmo caminhão: "Adicionar rastreador" no card. O card continua sendo um por caminhão e mostra cada rastreador com a sua situação.',
+        'O mesmo aparelho de GPS pode ir em duas ordens do mesmo cliente no mesmo dia.',
+        'Leitura do servidor de GPS a cada 5 minutos; se falhar, tenta de novo em 1 minuto.',
+        'Ordens da mesma coleta juntam também os caminhões: mesma placa = o mesmo caminhão (os rastreadores se somam no card); outra placa ou sem placa = mais um caminhão da coleta.',
+        'No Agendamento, a ordem da mesma coleta avisa com qual lote vai junto e mostra os caminhões que já existem.',
+      ],
+      en: [
+        'Orders › Trips: "New trip" button to add one more truck to an order already scheduled, with its tracker (driver\'s phone or GPS device).',
+        'Several trackers on the same truck: "Add tracker" on the card. There is still one card per truck, showing each tracker and its status.',
+        'The same GPS device can go on two orders of the same customer on the same day.',
+        'The GPS server is read every 5 minutes; if a read fails, it tries again in 1 minute.',
+        'Orders of the same pickup now join their trucks too: same plate = the same truck (its trackers add up on the card); another plate or no plate = one more truck in the pickup.',
+        'In Scheduling, an order of the same pickup shows which lot it goes with and the trucks that already exist.',
+      ],
+      'zh-TW': [
+        '訂單 › 行程：「新增行程」按鈕，可為已排程的訂單再加一輛卡車與追蹤器（司機手機或 GPS 裝置）。',
+        '同一輛卡車可有多個追蹤器：在卡片上「新增追蹤器」。每輛卡車仍是一張卡片，並顯示每個追蹤器的狀態。',
+        '同一個 GPS 裝置可用於同一客戶同一天的兩張訂單。',
+        '每 5 分鐘讀取一次 GPS 伺服器；讀取失敗時，1 分鐘後再試。',
+        '同一次收運的訂單也會合併卡車：相同車牌 = 同一輛卡車（追蹤器在卡片上相加）；不同車牌或沒有車牌 = 收運中多一輛卡車。',
+        '在排程中，同一次收運的訂單會顯示與哪個批次合併，以及已有的卡車。',
+      ],
+    },
+  },
+  {
+    versao: '2.7',
+    data: '2026-10-27',
+    itens: {
+      'pt-BR': [
+        'Etiqueta de pallet no Recebimento: ao salvar um recebimento novo, sai uma etiqueta por pallet (100 × 70 mm) com cliente, lote, data, pesos e o QR code do lote. O recebimento só é concluído depois de abrir a impressão.',
+        'Etiqueta perdida ou rasgada? No lote, menu Gerar › Etiquetas dos pallets imprime de novo com os pesos gravados.',
+      ],
+      en: [
+        'Pallet labels at Receiving: when saving a new receiving, one label per pallet (100 × 70 mm) is printed with customer, lot, date, weights and the lot QR code. Receiving is only completed after the print window opens.',
+        'Lost or torn label? On the lot, Generate › Pallet labels prints them again with the recorded weights.',
+      ],
+      'zh-TW': [
+        '收貨時的棧板標籤：儲存新的收貨時，每個棧板列印一張標籤（100 × 70 mm），含客戶、批次、日期、重量與批次的 QR code。開啟列印後才能完成收貨。',
+        '標籤遺失或破損？在批次的「產生 › 棧板標籤」可用已記錄的重量重新列印。',
+      ],
+    },
+  },
+  {
+    versao: '2.6',
+    data: '2026-10-27',
+    itens: {
+      'pt-BR': [
+        'Excluir lote: o lote agendado sai pelo botão Excluir do lote (digite o código para confirmar). Depois do recebimento, ou com caminhão já na rua, não dá mais.',
+        'O lote principal leva junto os lotes daqui da mesma coleta. Um lote juntado também sai sozinho, pela lista "Lotes juntados".',
+        'O lote excluído some das listas e dos painéis, mas continua na Auditoria e nos Históricos com a marca "excluído". O código dele nunca volta a ser usado.',
+      ],
+      en: [
+        'Delete lot: a scheduled lot can be removed with the Delete button on the lot (type the code to confirm). After receiving, or with a truck already on the road, it no longer can.',
+        'The main lot takes along the lots from here in the same pickup. A joined lot can also be deleted on its own, from the "Joined lots" list.',
+        'A deleted lot disappears from lists and dashboards, but stays in the Audit log and the Histories marked "deleted". Its code is never reused.',
+      ],
+      'zh-TW': [
+        '刪除批次：已排程的批次可使用批次中的「刪除」按鈕移除（輸入代碼確認）。收貨後或卡車已出發時則無法刪除。',
+        '主批次會一併刪除同一次收運中來自此系統的批次。合併的批次也可在「合併的批次」清單中單獨刪除。',
+        '已刪除的批次會從清單與儀表板消失，但仍以「已刪除」標記保留在稽核與歷史中。其代碼永遠不會再被使用。',
+      ],
+    },
+  },
+  {
+    versao: '2.5',
+    data: '2026-10-27',
+    itens: {
+      'pt-BR': [
+        'Clientes › Visão geral virou o painel do cliente: lotes a chegar, em operação, concluídos, kg e pallets recebidos.',
+        'Gráficos de coletas e kg por mês, lotes por etapa, kg por material (balanço de massa) e ocorrências por tipo.',
+        'Prazo (SLA) do cliente: quanto foi concluído no prazo, tempo médio até o COD e os lotes já atrasados.',
+        'Período à escolha: 30 dias, 90 dias, 12 meses ou tudo. Os últimos lotes abrem direto no lote.',
+      ],
+      en: [
+        'Customers › Overview is now the customer dashboard: lots arriving, in operation, completed, kg and pallets received.',
+        'Charts of pickups and kg per month, lots by stage, kg per material (mass balance) and incidents by type.',
+        'Customer deadline (SLA): how much was completed on time, average time to COD and lots already late.',
+        'Pick the period: 30 days, 90 days, 12 months or all. The latest lots open straight into the lot.',
+      ],
+      'zh-TW': [
+        '客戶 › 總覽變成客戶儀表板：即將到達、作業中、已完成的批次，以及已收公斤數與棧板。',
+        '每月收運與公斤數、各階段批次、各物料公斤數（質量平衡）與各類型事件圖表。',
+        '客戶期限（SLA）：準時完成的比例、到 COD 的平均時間與已逾期的批次。',
+        '可選擇期間：30 天、90 天、12 個月或全部。最近的批次可直接開啟。',
+      ],
+    },
+  },
+  {
     versao: '2.4',
     data: '2026-10-27',
     itens: {

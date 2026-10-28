@@ -45,9 +45,12 @@ export interface EventoHistorico {
     | 'chave_trocada'
     | 'chave_revogada'
     | 'viagem_adicionada'
+    | 'rastreador_adicionado'
     | 'juntado'
     | 'coleta_juntada'
     | 'separado'
+    | 'lote_excluido'
+    | 'juntado_excluido'
     | 'viagem_iniciada'
     | 'viagem_chegou'
     | 'viagem_finalizada'
@@ -346,17 +349,34 @@ export interface DocumentoCliente {
   enviadoPor: string
 }
 
+/** Período do painel do cliente (o mesmo do seletor dos Históricos). */
+export type PeriodoPainel = '30' | '90' | '365' | 'tudo'
+
 /**
- * Resumo dos lotes do cliente (Visão geral). Os lotes vêm dos sistemas de produção:
- * enquanto `conectado` for false, a tela mostra "sem dados".
+ * Painel da Visão geral do cliente (27/10/2026) — espelho de
+ * `server/src/modules/clientes/clientes-painel.ts` (regras lá).
  */
-export interface LotesResumoCliente {
-  conectado: boolean
-  aChegar: number
-  emOperacao: number
-  finalizados: number
-  /** Últimos lotes com atualização (até 5). */
-  ultimos: { id: string; codigo: string; status: string; atualizadoEm: string }[]
+export interface PainelCliente {
+  periodo: PeriodoPainel
+  /** Primeiro dia do período (null = tudo). */
+  desde: string | null
+  agora: { aChegar: number; emOperacao: number; proximaColeta: string | null }
+  numeros: { lotes: number; concluidos: number; kgRecebidos: number; palletsRecebidos: number }
+  etapas: { etapa: StatusOrdem; lotes: number }[]
+  /** Mês a mês (AAAA-MM): lotes pela coleta e kg pelo recebimento. */
+  porMes: { mes: string; lotes: number; kg: number }[]
+  materiais: { codigo: string; rotulo: string; kg: number }[]
+  prazo: {
+    slaDias: number | null
+    noPrazo: number
+    foraDoPrazo: number
+    /** 0..1; null = sem SLA ou nenhum lote concluído. */
+    cumprimento: number | null
+    tempoMedioDias: number | null
+    atrasadosAgora: number
+  }
+  ocorrencias: { categoria: CategoriaOcorrencia; total: number }[]
+  ultimos: { id: string; codigo: string; status: StatusOrdem; alteradoEm: string }[]
 }
 
 /** CEP → endereço (ViaCEP, pelo servidor). */
@@ -751,6 +771,24 @@ export interface DevolucaoAoRecebimento {
   motivo: string | null
   pedidoPor: string | null
   em: string
+}
+
+/** A coleta em que um lote NOVO vai entrar (Agendamento — 28/10/2026): o principal e os caminhões. */
+export interface ColetaExistente {
+  id: string
+  codigo: string
+  caminhoes: {
+    numero: number
+    motoristaNome: string | null
+    placa: string | null
+    rastreadores: number
+  }[]
+}
+
+/** Resposta do Excluir lote (27/10/2026): os lotes apagados (o principal leva os juntados daqui). */
+export interface LoteExcluido {
+  ids: string[]
+  codigos: string[]
 }
 
 /** Um lote juntado ao principal (a mesma coleta — 22/10/2026). */
@@ -1185,6 +1223,8 @@ export interface EventoHistoricoModulo extends EventoHistorico {
   registroId: string
   registroCodigo: string
   clienteNome: string
+  /** O lote foi excluído (a tela mostra o código sem link). */
+  registroExcluido: boolean
 }
 
 /* ---------------- Sistema › Cadastros (server/src/modules/cadastros/cadastros.ts) */
@@ -1295,6 +1335,8 @@ export interface EventoAuditoria extends EventoHistorico {
   registroRotulo: string
   /** Caixote ou pallet (recipientes). */
   registroSubtipo: string | null
+  /** O registro foi excluído (lote — 27/10/2026): a tela mostra o rótulo sem link. */
+  registroExcluido: boolean
 }
 
 /* ---------------- Administração › Integração (server/src/modules/integracao/integracao.ts) */

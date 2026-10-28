@@ -34,9 +34,17 @@ export interface EventoAuditoria extends EventoHistorico {
   registroRotulo: string
   /** Caixote ou pallet (recipientes). */
   registroSubtipo: string | null
+  /** O registro foi excluído (lote — 27/10/2026): a tela mostra o rótulo sem link. */
+  registroExcluido: boolean
 }
 
 const consultaSchema = z.object({ desde: z.iso.datetime({ offset: true }).optional() })
+
+interface Rotulo {
+  rotulo: string
+  subtipo: string | null
+  excluido: boolean
+}
 
 interface Linha {
   id: string
@@ -49,29 +57,43 @@ interface Linha {
 
 export function criarServicoAuditoria(db: Db) {
   /** Rótulo (código ou nome) e subtipo de cada registro, por tipo. */
-  async function rotulos(): Promise<Map<string, { rotulo: string; subtipo: string | null }>> {
-    const mapa = new Map<string, { rotulo: string; subtipo: string | null }>()
-    const por = (tipo: TipoRegistro, linhas: { id: string; rotulo: string; subtipo?: string }[]) =>
+  async function rotulos(): Promise<Map<string, Rotulo>> {
+    const mapa = new Map<string, Rotulo>()
+    const por = (
+      tipo: TipoRegistro,
+      linhas: { id: string; rotulo: string; subtipo?: string }[],
+      excluido = false,
+    ) =>
       linhas.forEach((l) =>
-        mapa.set(`${tipo}:${l.id}`, { rotulo: l.rotulo, subtipo: l.subtipo ?? null }),
+        mapa.set(`${tipo}:${l.id}`, { rotulo: l.rotulo, subtipo: l.subtipo ?? null, excluido }),
       )
-    const [usuarios, perfis, clientes, transp, motor, veic, ordens, mat, areas, recip, integ] =
-      await Promise.all([
-        db.selectFrom('usuarios').select(['id', 'nome as rotulo']).execute(),
-        db.selectFrom('perfisAcesso').select(['id', 'nomeOrdem as rotulo']).execute(),
-        db.selectFrom('clientes').select(['id', 'nome as rotulo']).execute(),
-        db.selectFrom('transportadoras').select(['id', 'nome as rotulo']).execute(),
-        db.selectFrom('motoristas').select(['id', 'nome as rotulo']).execute(),
-        db.selectFrom('veiculos').select(['id', 'codigo as rotulo']).execute(),
-        db.selectFrom('ordens').select(['id', 'codigo as rotulo']).execute(),
-        db.selectFrom('materiais').select(['id', 'nomeOrdem as rotulo']).execute(),
-        db.selectFrom('areasEstoque').select(['id', 'nome as rotulo']).execute(),
-        db
-          .selectFrom('recipientes')
-          .select(['id', 'codigo as rotulo', 'tipo as subtipo'])
-          .execute(),
-        db.selectFrom('integracoes').select(['id', 'nome as rotulo']).execute(),
-      ])
+    const [
+      usuarios,
+      perfis,
+      clientes,
+      transp,
+      motor,
+      veic,
+      ordens,
+      excluidas,
+      mat,
+      areas,
+      recip,
+      integ,
+    ] = await Promise.all([
+      db.selectFrom('usuarios').select(['id', 'nome as rotulo']).execute(),
+      db.selectFrom('perfisAcesso').select(['id', 'nomeOrdem as rotulo']).execute(),
+      db.selectFrom('clientes').select(['id', 'nome as rotulo']).execute(),
+      db.selectFrom('transportadoras').select(['id', 'nome as rotulo']).execute(),
+      db.selectFrom('motoristas').select(['id', 'nome as rotulo']).execute(),
+      db.selectFrom('veiculos').select(['id', 'codigo as rotulo']).execute(),
+      db.selectFrom('ordens').select(['id', 'codigo as rotulo']).execute(),
+      db.selectFrom('ordensExcluidas').select(['id', 'codigo as rotulo']).execute(),
+      db.selectFrom('materiais').select(['id', 'nomeOrdem as rotulo']).execute(),
+      db.selectFrom('areasEstoque').select(['id', 'nome as rotulo']).execute(),
+      db.selectFrom('recipientes').select(['id', 'codigo as rotulo', 'tipo as subtipo']).execute(),
+      db.selectFrom('integracoes').select(['id', 'nome as rotulo']).execute(),
+    ])
     por('usuario', usuarios)
     por('perfil', perfis)
     por('cliente', clientes)
@@ -79,6 +101,7 @@ export function criarServicoAuditoria(db: Db) {
     por('motorista', motor)
     por('veiculo', veic)
     por('ordem', ordens)
+    por('ordem', excluidas, true)
     por('material', mat)
     por('area', areas)
     por('recipiente', recip)
@@ -123,6 +146,7 @@ export function criarServicoAuditoria(db: Db) {
           registroId,
           registroRotulo: r?.rotulo ?? registroId,
           registroSubtipo: r?.subtipo ?? null,
+          registroExcluido: r?.excluido ?? false,
         }
       }
       const eventos = [

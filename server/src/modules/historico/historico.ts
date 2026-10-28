@@ -7,9 +7,9 @@ import type { EventoHistorico, Mudanca } from '../../shared/historico.js'
  * Histórico do MÓDULO (Ordens › Histórico e Operação › Histórico — pedido do usuário, 19/10/2026):
  * a mesma auditoria do histórico de cada registro, mas de todos os lotes, já filtrada pelo que
  * interessa a cada módulo (divisão aprovada por ele):
- *   - ordens:   lote criado (agendamento), edições do lote, documentos e ocorrências de coleta e
- *               trajeto e as viagens (iniciada, chegou, finalizada, cancelada, emergência);
- *   - operacao: lote criado, recebimento e correções, mudanças de etapa e ocorrências de
+ *   - ordens:   lote criado (agendamento) e excluído, edições do lote, documentos e ocorrências de
+ *               coleta e trajeto e as viagens (iniciada, chegou, finalizada, cancelada, emergência);
+ *   - operacao: lote criado e excluído, recebimento e correções, mudanças de etapa e ocorrências de
  *               recebimento (futuro: chamados internos).
  *
  *   GET /api/historico/:modulo?desde=<ISO>   eventos (mais recente primeiro) com o lote e o cliente
@@ -24,6 +24,8 @@ export interface EventoHistoricoModulo extends EventoHistorico {
   registroId: string
   registroCodigo: string
   clienteNome: string
+  /** O lote foi excluído (a tela mostra o código sem link). */
+  registroExcluido: boolean
 }
 
 /** Ações de lote de cada módulo (as de ocorrência dependem do momento). */
@@ -34,9 +36,12 @@ const ACOES: Record<ModuloHistorico, string[]> = {
     'documento_adicionado',
     'documento_removido',
     'viagem_adicionada',
+    'rastreador_adicionado',
     'juntado',
     'coleta_juntada',
     'separado',
+    'lote_excluido',
+    'juntado_excluido',
     'viagem_iniciada',
     'viagem_chegou',
     'viagem_finalizada',
@@ -46,6 +51,7 @@ const ACOES: Record<ModuloHistorico, string[]> = {
   ],
   operacao: [
     'criado',
+    'lote_excluido',
     'recebido',
     'recebimento_editado',
     'status',
@@ -69,11 +75,14 @@ export function criarServicoHistorico(db: Db) {
   return {
     async listar(entrada: unknown): Promise<EventoHistoricoModulo[]> {
       const { modulo, desde } = consultaSchema.parse(entrada)
+      // O lote excluído (27/10/2026) continua aqui, pelo registro em `ordens_excluidas`.
       let q = db
         .selectFrom('historico as h')
-        .innerJoin('ordens as o', 'o.id', 'h.registroId')
-        .innerJoin('clientes as c', 'c.id', 'o.clienteId')
-        .select([
+        .leftJoin('ordens as o', 'o.id', 'h.registroId')
+        .leftJoin('ordensExcluidas as x', 'x.id', 'h.registroId')
+        .leftJoin('clientes as c', 'c.id', 'o.clienteId')
+        .leftJoin('clientes as cx', 'cx.id', 'x.clienteId')
+        .select((eb) => [
           'h.id',
           'h.autor',
           'h.em',
@@ -81,10 +90,12 @@ export function criarServicoHistorico(db: Db) {
           'h.mudancas',
           'h.nota',
           'h.registroId',
-          'o.codigo as registroCodigo',
-          'c.nome as clienteNome',
+          'x.id as excluidoId',
+          eb.fn.coalesce('o.codigo', 'x.codigo').as('registroCodigo'),
+          eb.fn.coalesce('c.nome', 'cx.nome').as('clienteNome'),
         ])
         .where('h.entidade', '=', 'ordem')
+        .where((eb) => eb.or([eb('o.id', 'is not', null), eb('x.id', 'is not', null)]))
         .where('h.acao', 'in', [...ACOES[modulo], ...ACOES_OCORRENCIA])
       if (desde) q = q.where('h.em', '>=', new Date(desde).toISOString())
       const linhas = await q.orderBy('h.em', 'desc').orderBy('h.id', 'desc').execute()
@@ -120,8 +131,9 @@ export function criarServicoHistorico(db: Db) {
           ...(l.mudancas ? { mudancas: JSON.parse(l.mudancas) as Mudanca[] } : {}),
           ...(l.nota ? { nota: l.nota } : {}),
           registroId: l.registroId,
-          registroCodigo: l.registroCodigo,
-          clienteNome: l.clienteNome,
+          registroCodigo: l.registroCodigo ?? l.registroId,
+          clienteNome: l.clienteNome ?? '',
+          registroExcluido: l.excluidoId !== null,
         }))
     },
   }

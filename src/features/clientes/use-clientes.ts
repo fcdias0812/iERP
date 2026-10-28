@@ -17,7 +17,7 @@ import {
   removerDocumento,
   removerSite,
   resumoClientes,
-  resumoLotesCliente,
+  painelCliente,
   desativarLinkRastreio,
   gerarLinkRastreio,
   salvarConfiguracoesCliente,
@@ -29,6 +29,7 @@ import type {
   Cliente,
   ClienteInput,
   ConfiguracoesClienteInput,
+  PeriodoPainel,
   SiteInput,
   TipoDocumento,
 } from '@/services/types'
@@ -152,10 +153,12 @@ function useAtualizarDetalhe(clienteId: string) {
   }
 }
 
-export const useLotesResumo = (clienteId: string) =>
+/** O painel da Visão geral (números, gráficos e prazo) no período escolhido. */
+export const usePainelCliente = (clienteId: string, periodo: PeriodoPainel) =>
   useQuery({
-    queryKey: clientesKeys.lotes(clienteId),
-    queryFn: () => resumoLotesCliente(clienteId),
+    queryKey: clientesKeys.painel(clienteId, periodo),
+    queryFn: ({ signal }) => painelCliente(clienteId, periodo, signal),
+    placeholderData: keepPreviousData,
   })
 
 export const useSites = (clienteId: string) =>

@@ -54,7 +54,8 @@ import {
  *
  *   GET  /api/viagens?situacao=abertas|finalizadas[&desde=ISO]
  *   GET  /api/viagens/lote/:ordemId            as viagens do lote (uma por caminhão)
- *   POST /api/viagens/lote/:ordemId            { motoristaId, placa } — adicionar caminhão
+ *   POST /api/viagens/lote/:ordemId            { motoristaId, placa, rastreadorId? } — adicionar caminhão
+ *   POST /api/viagens/:id/rastreios            { rastreadorId? } — mais um rastreador no mesmo caminhão
  *   GET  /api/viagens/:id                      detalhe + trajeto + paradas
  *   GET  /api/viagens/:id/chat                 conversa
  *   POST /api/viagens/:id/chat                 { texto } — mensagem para o motorista
@@ -579,12 +580,21 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
       .selectAll()
       .where('ordemId', '=', ordemId)
       .orderBy('numero')
+      .orderBy('criadoEm')
       .execute()
-    const vivas = todas.filter((v) => v.status !== 'cancelada')
+    // Um caminhão pode ter mais de um rastreador (28/10/2026): o mesmo número = o mesmo caminhão.
+    const grupos = new Map<number, OrdensViagensTable[]>()
+    for (const v of todas.filter((x) => x.status !== 'cancelada'))
+      grupos.set(v.numero, [...(grupos.get(v.numero) ?? []), v])
+    const vivos = [...grupos.values()]
     const lista = caminhoes ?? []
     // Saiu ou terminou: não se desliga nem se tira pela edição.
-    const naoMexe = (v: OrdensViagensTable) => v.status !== 'aguardando_motorista'
-    if (vivas.slice(lista.length).some((v) => v.status === 'em_rota' || v.status === 'chegou'))
+    const naoMexe = (g: OrdensViagensTable[]) => g.some((v) => v.status !== 'aguardando_motorista')
+    if (
+      vivos
+        .slice(lista.length)
+        .some((g) => g.some((v) => v.status === 'em_rota' || v.status === 'chegou'))
+    )
       throw new ErroApi(
         409,
         'trip_in_progress',
@@ -592,43 +602,61 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
       )
     let proximo = Math.max(0, ...todas.map((v) => v.numero)) + 1
     for (const [i, c] of lista.entries()) {
-      const v = vivas[i]
-      if (!v) {
+      const g = vivos[i]
+      if (!g) {
         await trx
           .insertInto('ordensViagens')
           .values(novaViagem(ordemId, agora, proximo++, c))
           .execute()
         continue
       }
-      if (naoMexe(v)) continue
-      if (v.motoristaId !== c.motoristaId || v.placaInformada !== c.placa)
-        await trx
-          .updateTable('ordensViagens')
-          .set({ motoristaId: c.motoristaId, placaInformada: c.placa, alteradoEm: agora })
-          .where('id', '=', v.id)
-          .execute()
+      if (naoMexe(g)) continue
+      for (const v of g)
+        if (v.motoristaId !== c.motoristaId || v.placaInformada !== c.placa)
+          await trx
+            .updateTable('ordensViagens')
+            .set({ motoristaId: c.motoristaId, placaInformada: c.placa, alteradoEm: agora })
+            .where('id', '=', v.id)
+            .execute()
     }
-    for (const v of vivas.slice(lista.length)) {
-      if (v.status !== 'aguardando_motorista') continue
-      const r = await trx
-        .updateTable('ordensViagens')
-        .set({ status: 'cancelada', terminadaEm: agora, alteradoEm: agora })
-        .where('id', '=', v.id)
-        .where('status', '=', 'aguardando_motorista')
-        .executeTakeFirst()
-      if (Number(r.numUpdatedRows))
+    for (const g of vivos.slice(lista.length)) {
+      let cancelou = false
+      for (const v of g) {
+        if (v.status !== 'aguardando_motorista') continue
+        const r = await trx
+          .updateTable('ordensViagens')
+          .set({ status: 'cancelada', terminadaEm: agora, alteradoEm: agora })
+          .where('id', '=', v.id)
+          .where('status', '=', 'aguardando_motorista')
+          .executeTakeFirst()
+        if (Number(r.numUpdatedRows)) cancelou = true
+      }
+      if (cancelou)
         await registrarHistorico(trx, 'ordem', ordemId, {
           autor,
           em: agora,
           acao: 'viagem_cancelada',
-          mudancas: [{ campo: 'caminhao', antes: null, depois: v.numero }],
+          mudancas: [{ campo: 'caminhao', antes: null, depois: g[0]!.numero }],
         })
     }
   }
 
-  /** "Adicionar caminhão" no lote: mais uma viagem, com motorista e placa próprios. */
+  /** O rastreador que vai num caminhão: o aparelho de GPS (null = o celular do motorista). */
+  const rastreadorSchema = z.object({
+    rastreadorId: z
+      .string()
+      .nullish()
+      .transform((v) => v || null),
+  })
+
+  /**
+   * "Adicionar caminhão" no lote — e "Nova viagem" em Ordens › Viagens (28/10/2026), que é o
+   * mesmo com o lote escolhido lá: mais um caminhão (um card), com motorista e placa próprios e o
+   * rastreador (celular do motorista ou aparelho de GPS, que começa a viagem na hora).
+   */
   async function adicionarCaminhao(ordemId: string, corpo: unknown, autor: string) {
     const c = caminhaoSchema.parse(corpo)
+    const { rastreadorId } = rastreadorSchema.parse(corpo ?? {})
     const o = await db
       .selectFrom('ordens')
       .select(['id', 'status', 'externoSistema'])
@@ -639,6 +667,21 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
       throw new ErroApi(409, 'external_lot', 'Este lote é de outro sistema: o rastreio é de lá.')
     if (o.status !== 'agendado')
       throw new ErroApi(409, 'invalid_transition', 'Só se adiciona caminhão a lote agendado.')
+    // A mesma placa é o mesmo caminhão (28/10/2026): mais um rastreador vai no card dele.
+    if (c.placa) {
+      const mesmo = await db
+        .selectFrom('ordensViagens')
+        .select(['numero', 'placaInformada'])
+        .where('ordemId', '=', ordemId)
+        .where('status', 'in', ABERTAS)
+        .execute()
+      if (mesmo.some((v) => placaLimpa(v.placaInformada) === c.placa))
+        throw new ErroApi(
+          409,
+          'truck_already_in_lot',
+          `O caminhão ${c.placa} já está neste lote: para mais um rastreador nele, use "Adicionar rastreador" no card dele.`,
+        )
+    }
     if (c.motoristaId) {
       const m = await db
         .selectFrom('motoristas')
@@ -673,7 +716,69 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
       })
       return nova.id
     })
+    if (rastreadorId) return usarRastreador(id, { rastreadorId }, autor)
     return obter(id)
+  }
+
+  /**
+   * "Adicionar rastreador" no card do caminhão (pedido do usuário, 28/10/2026: "ter a opção de
+   * adicionar um ou mais rastreadores/rastreios de celular no mesmo caminhão"). Cada rastreador é
+   * uma viagem no rastreador de GPS, mas é o MESMO caminhão: mesmo lote, mesmo número (o card é um
+   * só), mesmo motorista, placa e código de chegada. Celular: o motorista abre o mesmo link (a
+   * placa amarra a viagem); aparelho de GPS: começa na hora.
+   */
+  async function adicionarRastreio(viagemId: string, corpo: unknown, autor: string) {
+    const { rastreadorId } = rastreadorSchema.parse(corpo ?? {})
+    const base = await lerViagem(viagemId)
+    if (!base) throw naoEncontrado('Viagem não encontrada.')
+    const o = await db
+      .selectFrom('ordens')
+      .select(['status', 'externoSistema'])
+      .where('id', '=', base.ordemId)
+      .executeTakeFirstOrThrow()
+    if (o.externoSistema)
+      throw new ErroApi(409, 'external_lot', 'Este lote é de outro sistema: o rastreio é de lá.')
+    if (o.status !== 'agendado' || !ABERTAS.includes(base.status as StatusViagem))
+      throw new ErroApi(
+        409,
+        'trip_not_open',
+        'Este caminhão já terminou a viagem: o rastreador entra só enquanto ela está aberta.',
+      )
+    if (rastreadorId) {
+      const repetido = await db
+        .selectFrom('ordensViagens')
+        .select('id')
+        .where('ordemId', '=', base.ordemId)
+        .where('numero', '=', base.numero)
+        .where('rastreadorId', '=', rastreadorId)
+        .where('status', 'in', ABERTAS)
+        .executeTakeFirst()
+      if (repetido)
+        throw new ErroApi(
+          409,
+          'tracker_already_on_truck',
+          'Este rastreador já está neste caminhão.',
+        )
+    }
+    const agora = new Date().toISOString()
+    const nova: OrdensViagensTable = {
+      ...novaViagem(base.ordemId, agora, base.numero, {
+        motoristaId: base.motoristaId,
+        placa: base.placaInformada,
+      }),
+      codigoChegada: base.codigoChegada,
+    }
+    await db.transaction().execute(async (trx) => {
+      await trx.insertInto('ordensViagens').values(nova).execute()
+      await registrarHistorico(trx, 'ordem', base.ordemId, {
+        autor,
+        em: agora,
+        acao: 'rastreador_adicionado',
+        mudancas: [{ campo: 'caminhao', antes: null, depois: base.numero }],
+      })
+    })
+    if (rastreadorId) return usarRastreador(nova.id, { rastreadorId }, autor)
+    return obter(nova.id)
   }
 
   /**
@@ -742,7 +847,11 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     alteradoEm: agora,
   })
 
-  /** Lote agendado com rastreio e sem viagem (criado antes desta tela): ganha a dele. */
+  /**
+   * Lote agendado com rastreio e sem viagem (criado antes desta tela): ganha a dele. Lote JUNTADO
+   * a outro não: os caminhões dele passaram para o principal (28/10/2026 — sem isso, cada
+   * conferência criava um caminhão novo que o reagrupar levava para o principal, sem fim).
+   */
   async function garantirViagens() {
     const sem = await db
       .selectFrom('ordens as o')
@@ -751,6 +860,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
       .where('o.rastrear', '=', 1)
       .where('o.status', '=', 'agendado')
       .where('o.externoSistema', 'is', null)
+      .where('o.juntadoA', 'is', null)
       .where('v.id', 'is', null)
       .execute()
     for (const o of sem)
@@ -1629,14 +1739,21 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
           'trip_in_progress',
           'Este caminhão já saiu: o rastreador só entra antes da viagem começar.',
         )
-      const ocupado = await db
+      // O mesmo aparelho em duas viagens só vale para o mesmo cliente no mesmo dia (28/10/2026: um
+      // caminhão que passa em dois lotes "é só colocarmos o mesmo rastreador em ambas").
+      const coleta = db.selectFrom('ordens').select(['clienteId', 'dataColeta', 'coletaPrevista'])
+      const meu = await coleta.where('id', '=', v.ordemId).executeTakeFirstOrThrow()
+      const dia = (o: { dataColeta: string | null; coletaPrevista: string }) =>
+        diaNoFuso(new Date(o.dataColeta ?? o.coletaPrevista))
+      const usos = await db
         .selectFrom('ordensViagens as x')
         .innerJoin('ordens as o', 'o.id', 'x.ordemId')
-        .select('o.codigo')
+        .select(['o.codigo', 'o.clienteId', 'o.dataColeta', 'o.coletaPrevista'])
         .where('x.rastreadorId', '=', rastreadorId)
         .where('x.origem', '=', 'aparelho')
         .where('x.status', 'in', ['em_rota', 'chegou'])
-        .executeTakeFirst()
+        .execute()
+      const ocupado = usos.find((u) => u.clienteId !== meu.clienteId || dia(u) !== dia(meu))
       if (ocupado)
         throw new ErroApi(
           409,
@@ -1744,12 +1861,13 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     }
   }
 
-  /** As viagens do lote (uma por caminhão; as canceladas ficam de fora). */
+  /** As viagens do lote (uma por rastreador; as canceladas ficam de fora). */
   async function doLote(ordemId: string): Promise<Viagem[]> {
     const linhas = await linhaDaViagem(db)
       .where('v.ordemId', '=', ordemId)
       .where('v.status', '<>', 'cancelada')
       .orderBy('v.numero')
+      .orderBy('v.criadoEm')
       .execute()
     const cfg = await config()
     const viagens = linhas.map((l) => paraViagem(l, cfg?.url ?? null))
@@ -1766,6 +1884,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     aoMudarRastreio,
     antesDeDesligar,
     adicionarCaminhao,
+    adicionarRastreio,
     usarRastreador,
     sincronizar,
     tempoReal,
@@ -1946,6 +2065,11 @@ export function rotasViagens(servico: ServicoViagens, fazerFetch: Fetch = fetch)
   })
   r.post('/:id/chat', async (req, res) => {
     res.status(201).json(await servico.enviarChat(String(req.params.id), req.body))
+  })
+  r.post('/:id/rastreios', async (req, res) => {
+    res
+      .status(201)
+      .json(await servico.adicionarRastreio(String(req.params.id), req.body, autorDa(req)))
   })
   r.post('/:id/rastreador', async (req, res) => {
     res.json(await servico.usarRastreador(String(req.params.id), req.body, autorDa(req)))

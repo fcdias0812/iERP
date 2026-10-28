@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
+import type { Selectable, Transaction } from 'kysely'
 import type { Db } from '../../db/database.js'
-import type { RastreadoresTable } from '../../db/schema.js'
+import type { Database, RastreadoresTable } from '../../db/schema.js'
 
 /*
  * O APARELHO de GPS do caminhão (pedido do usuário, 22/10/2026: "utilize o mesmo método no 1.0,
@@ -94,13 +95,17 @@ export const normalizarDevice = (v: unknown) => {
   return DEVICE.test(d) ? d : null
 }
 
-/** O endereço da leitura com o cursor (marca `<cursor>`/`{cursor}` na URL; sem marca, `after`). */
+/**
+ * O endereço da leitura com o cursor — igual ao 1.0 (`lib/rastreadorGps.js`): a marca `<cursor>`
+ * ou `{cursor}` diz qual parâmetro leva o cursor (sem marca, `after`); sem cursor ainda (primeira
+ * leitura), o parâmetro sai do endereço.
+ */
 export function urlDaLeitura(base: string, cursor: string | null) {
-  if (/<cursor>|\{cursor\}/.test(base))
-    return base.replace(/<cursor>|\{cursor\}/g, encodeURIComponent(cursor ?? ''))
-  const u = new URL(base)
-  if (cursor) u.searchParams.set('after', cursor)
-  else u.searchParams.delete('after')
+  const u = new URL(base.trim().replace(/<cursor>|\{cursor\}/gi, '__CURSOR__'))
+  let parametro = 'after'
+  for (const [nome, valor] of u.searchParams) if (valor === '__CURSOR__') parametro = nome
+  u.searchParams.delete(parametro)
+  if (cursor) u.searchParams.set(parametro, cursor)
   return u.toString()
 }
 
@@ -236,6 +241,11 @@ export function criarLeitorGps(db: Db, opcoes: { fetch?: Fetch; semEspera?: bool
   let ultimaLeitura = 0
   let esperarAte = 0
   let lendo: Promise<void> | null = null
+  /**
+   * A leitura falhou (ou sobrou fila): a próxima vem em 1 min, não em 5 (regra do usuário,
+   * 28/10/2026: "Se a leitura falhar, ele tenta de novo dentro de 1 minuto").
+   */
+  let repetirLogo = false
 
   async function config() {
     const c = await db
@@ -259,36 +269,49 @@ export function criarLeitorGps(db: Db, opcoes: { fetch?: Fetch; semEspera?: bool
       .execute()
   }
 
+  /**
+   * O aparelho pelo id da placa — cadastrado sozinho se ainda não existe (como no 1.0: tanto quem
+   * mandou pontos quanto quem só aparece na lista `devices` do servidor).
+   */
+  async function aparelho(
+    cx: Db | Transaction<Database>,
+    deviceId: string,
+    firmware: string | null,
+    agora: string,
+  ): Promise<Selectable<RastreadoresTable>> {
+    const r = await cx
+      .selectFrom('rastreadores')
+      .selectAll()
+      .where('deviceId', '=', deviceId)
+      .executeTakeFirst()
+    if (r) return r
+    const novo: Selectable<RastreadoresTable> = {
+      id: randomUUID(),
+      deviceId,
+      placa: null,
+      descricao: null,
+      status: 'ativo',
+      firmware,
+      ultimoContatoEm: null,
+      ultimoStatus: null,
+      ultimaLatitude: null,
+      ultimaLongitude: null,
+      ultimaVelocidade: null,
+      ultimoPontoEm: null,
+      ultimoSeq: null,
+      pontosPerdidos: 0,
+      criadoEm: agora,
+      alteradoEm: agora,
+    }
+    await cx.insertInto('rastreadores').values(novo).execute()
+    return novo
+  }
+
   /** Guarda o que veio de UMA placa: o aparelho (cria se novo) e os pontos na viagem aberta. */
   async function processarLote(l: LoteDoAparelho) {
     const agora = new Date().toISOString()
     await db.transaction().execute(async (trx) => {
-      let r = await trx
-        .selectFrom('rastreadores')
-        .selectAll()
-        .where('deviceId', '=', l.deviceId)
-        .executeTakeFirst()
-      if (!r) {
-        r = {
-          id: randomUUID(),
-          deviceId: l.deviceId,
-          placa: null,
-          descricao: null,
-          status: 'ativo',
-          firmware: l.firmware,
-          ultimoContatoEm: null,
-          ultimoStatus: null,
-          ultimaLatitude: null,
-          ultimaLongitude: null,
-          ultimaVelocidade: null,
-          ultimoPontoEm: null,
-          ultimoSeq: null,
-          pontosPerdidos: 0,
-          criadoEm: agora,
-          alteradoEm: agora,
-        }
-        await trx.insertInto('rastreadores').values(r).execute()
-      }
+      const r = await aparelho(trx, l.deviceId, l.firmware, agora)
       if (r.status !== 'ativo') return
 
       // Último contato: o "visto por último" da placa, o ponto mais novo, o envio ou agora —
@@ -330,88 +353,87 @@ export function criarLeitorGps(db: Db, opcoes: { fetch?: Fetch; semEspera?: bool
         .where('id', '=', r.id)
         .execute()
 
-      // A viagem aberta deste aparelho recebe os pontos (sem repetir a mesma hora).
+      // As viagens abertas deste aparelho recebem os pontos (sem repetir a mesma hora). Pode ser
+      // mais de uma: o mesmo aparelho em dois lotes do cliente no mesmo dia (28/10/2026).
       if (!l.pontos.length) return
-      const v = await trx
+      const abertas = await trx
         .selectFrom('ordensViagens')
         .selectAll()
         .where('rastreadorId', '=', r.id)
         .where('origem', '=', 'aparelho')
         .where('status', 'in', ['em_rota', 'chegou'])
-        .executeTakeFirst()
-      if (!v) return
-      const ja = new Set(
-        (
+        .execute()
+      for (const v of abertas) {
+        const ja = new Set(
+          (
+            await trx
+              .selectFrom('ordensViagensPontos')
+              .select('registradoEm')
+              .where('viagemId', '=', v.id)
+              .where(
+                'registradoEm',
+                'in',
+                l.pontos.map((p) => p.em),
+              )
+              .execute()
+          ).map((x) => x.registradoEm),
+        )
+        // Sem repetir a mesma hora (nem dentro do mesmo envio).
+        const novos = l.pontos.filter((p) => !ja.has(p.em) && (ja.add(p.em), true))
+        if (!novos.length) continue
+        const ultimo = await trx
+          .selectFrom('ordensViagensPontos')
+          .select(['seq', 'latitude', 'longitude'])
+          .where('viagemId', '=', v.id)
+          .orderBy('seq', 'desc')
+          .executeTakeFirst()
+        let proximo = (ultimo?.seq ?? 0) + 1
+        let anterior = ultimo ?? null
+        let distancia = v.distanciaMetros ?? 0
+        for (const p of novos) {
+          if (anterior) distancia += metros(anterior, p)
+          anterior = { seq: proximo, latitude: p.latitude, longitude: p.longitude }
           await trx
-            .selectFrom('ordensViagensPontos')
-            .select('registradoEm')
-            .where('viagemId', '=', v.id)
-            .where(
-              'registradoEm',
-              'in',
-              l.pontos.map((p) => p.em),
-            )
+            .insertInto('ordensViagensPontos')
+            .values({
+              viagemId: v.id,
+              seq: proximo++,
+              latitude: p.latitude,
+              longitude: p.longitude,
+              velocidade: p.velocidade,
+              precisao: p.precisao,
+              registradoEm: p.em,
+            })
             .execute()
-        ).map((x) => x.registradoEm),
-      )
-      // Sem repetir a mesma hora (nem dentro do mesmo envio).
-      const novos = l.pontos.filter((p) => !ja.has(p.em) && (ja.add(p.em), true))
-      if (!novos.length) return
-      const ultimo = await trx
-        .selectFrom('ordensViagensPontos')
-        .select(['seq', 'latitude', 'longitude'])
-        .where('viagemId', '=', v.id)
-        .orderBy('seq', 'desc')
-        .executeTakeFirst()
-      let proximo = (ultimo?.seq ?? 0) + 1
-      let anterior = ultimo ?? null
-      let distancia = v.distanciaMetros ?? 0
-      for (const p of novos) {
-        if (anterior) distancia += metros(anterior, p)
-        anterior = { seq: proximo, latitude: p.latitude, longitude: p.longitude }
+        }
+        const maisNovo = novos.at(-1)!
         await trx
-          .insertInto('ordensViagensPontos')
-          .values({
-            viagemId: v.id,
-            seq: proximo++,
-            latitude: p.latitude,
-            longitude: p.longitude,
-            velocidade: p.velocidade,
-            precisao: p.precisao,
-            registradoEm: p.em,
+          .updateTable('ordensViagens')
+          .set({
+            totalPontos: v.totalPontos + novos.length,
+            distanciaMetros: Math.round(distancia),
+            ...(!v.ultimaEm || maisNovo.em > v.ultimaEm
+              ? {
+                  ultimaLatitude: maisNovo.latitude,
+                  ultimaLongitude: maisNovo.longitude,
+                  ultimaVelocidade: maisNovo.velocidade,
+                  ultimaEm: maisNovo.em,
+                }
+              : {}),
+            alteradoEm: agora,
           })
+          .where('id', '=', v.id)
           .execute()
       }
-      const maisNovo = novos.at(-1)!
-      await trx
-        .updateTable('ordensViagens')
-        .set({
-          totalPontos: v.totalPontos + novos.length,
-          distanciaMetros: Math.round(distancia),
-          ...(!v.ultimaEm || maisNovo.em > v.ultimaEm
-            ? {
-                ultimaLatitude: maisNovo.latitude,
-                ultimaLongitude: maisNovo.longitude,
-                ultimaVelocidade: maisNovo.velocidade,
-                ultimaEm: maisNovo.em,
-              }
-            : {}),
-          alteradoEm: agora,
-        })
-        .where('id', '=', v.id)
-        .execute()
     })
   }
 
-  /** Só firmware, status e último contato (a lista `devices`). */
+  /** A lista `devices`: firmware, status e último contato (cadastra o aparelho novo). */
   async function processarDispositivo(d: LeituraGps['dispositivos'][number]) {
-    const r = await db
-      .selectFrom('rastreadores')
-      .selectAll()
-      .where('deviceId', '=', d.deviceId)
-      .executeTakeFirst()
-    if (!r || r.status !== 'ativo') return
     const agora = new Date().toISOString()
+    // Aparelho que só aparece na lista (sem pontos novos) também é cadastrado (28/10/2026).
+    const r = await aparelho(db, d.deviceId, d.firmware, agora)
+    if (r.status !== 'ativo') return
     const visto = texto(d.status?.lastSeenAt)
     const vistoIso =
       visto && !Number.isNaN(Date.parse(visto)) ? new Date(visto).toISOString() : null
@@ -446,22 +468,24 @@ export function criarLeitorGps(db: Db, opcoes: { fetch?: Fetch; semEspera?: bool
         })
       } catch (e) {
         await registrarErro(cfg.id, `O servidor de GPS não respondeu (${(e as Error).message}).`)
-        esperarAte = Date.now() + TICK_MS
+        repetirLogo = true
         return
       }
       if (res.status === 429) {
         const s = Number(res.headers.get('retry-after'))
+        // Muitas leituras: espera o que o servidor pedir (sem pedido, 1 min).
         esperarAte = Date.now() + (Number.isFinite(s) && s > 0 ? s * 1000 : TICK_MS)
+        repetirLogo = true
         return
       }
       if (res.status === 401 || res.status === 403) {
         await registrarErro(cfg.id, 'O servidor de GPS recusou a chave de leitura.')
-        esperarAte = Date.now() + TICK_MS
+        repetirLogo = true
         return
       }
       if (!res.ok) {
         await registrarErro(cfg.id, `O servidor de GPS respondeu ${res.status}.`)
-        esperarAte = Date.now() + TICK_MS
+        repetirLogo = true
         return
       }
       let corpo: unknown
@@ -469,7 +493,7 @@ export function criarLeitorGps(db: Db, opcoes: { fetch?: Fetch; semEspera?: bool
         corpo = await res.json()
       } catch {
         await registrarErro(cfg.id, 'O servidor de GPS não respondeu em JSON.')
-        esperarAte = Date.now() + TICK_MS
+        repetirLogo = true
         return
       }
       const leitura = lerRespostaDaLeitura(corpo)
@@ -494,7 +518,7 @@ export function criarLeitorGps(db: Db, opcoes: { fetch?: Fetch; semEspera?: bool
       if (!leitura.mais) return
       if (pagina === MAX_PAGINAS - 1) {
         // Sobrou fila: a próxima rodada vem em 1 min.
-        ultimaLeitura = Date.now() - INTERVALO_MS + TICK_MS
+        repetirLogo = true
         return
       }
       if (!opcoes.semEspera) await espera(ENTRE_PAGINAS_MS)
@@ -504,15 +528,23 @@ export function criarLeitorGps(db: Db, opcoes: { fetch?: Fetch; semEspera?: bool
   /** "Ler agora" (e o relógio): uma leitura por vez. */
   function lerAgora() {
     lendo ??= rodada()
-      .catch((e: unknown) => console.error('[gps] leitura:', e))
+      .catch((e: unknown) => {
+        console.error('[gps] leitura:', e)
+        repetirLogo = true
+      })
       .finally(() => {
-        ultimaLeitura = Date.now()
+        // Lida: a próxima em 5 min. Falhou ou sobrou fila: em 1 min.
+        ultimaLeitura = repetirLogo ? Date.now() - INTERVALO_MS + TICK_MS : Date.now()
+        repetirLogo = false
         lendo = null
       })
     return lendo
   }
 
-  /** O relógio: confere a cada minuto; lê a cada 5 min (ou antes, se sobrou fila). */
+  /** Quando a próxima leitura do relógio pode acontecer (ms). */
+  const proximaLeituraEm = () => Math.max(ultimaLeitura + INTERVALO_MS, esperarAte)
+
+  /** O relógio: confere a cada minuto; lê a cada 5 min (1 min depois de falha ou com fila). */
   function iniciar() {
     const tick = () => {
       if (Date.now() < esperarAte || Date.now() - ultimaLeitura < INTERVALO_MS) return
@@ -524,7 +556,7 @@ export function criarLeitorGps(db: Db, opcoes: { fetch?: Fetch; semEspera?: bool
     return () => clearInterval(t)
   }
 
-  return { lerAgora, iniciar }
+  return { lerAgora, iniciar, proximaLeituraEm }
 }
 
 export type LeitorGps = ReturnType<typeof criarLeitorGps>

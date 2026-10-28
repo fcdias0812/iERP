@@ -209,6 +209,7 @@ export const perfisHandlers = [
           registroId: p.id,
           registroRotulo: p.nome.textos['pt-BR'] ?? p.id,
           registroSubtipo: null,
+          registroExcluido: false,
         })),
       ),
       ...ordensMock().flatMap((o) =>
@@ -219,6 +220,7 @@ export const perfisHandlers = [
           registroId: o.id,
           registroRotulo: o.codigo,
           registroSubtipo: null,
+          registroExcluido: false,
         })),
       ),
     ]

@@ -2,7 +2,8 @@ import { http, HttpResponse } from 'msw/http'
 import type {
   ContatoCliente,
   DocumentoCliente,
-  LotesResumoCliente,
+  PainelCliente,
+  PeriodoPainel,
   SiteCliente,
   SiteInput,
   TipoDocumento,
@@ -10,10 +11,11 @@ import type {
 import { useSessionStore } from '@/stores/session-store'
 import { apiError, simulateNetwork } from '../config'
 import { getDb } from '../db'
+import { ordensMock } from './ordens'
 
 /*
  * API SIMULADA das abas do cliente (mesmo contrato de server/src/modules/clientes):
- * lotes (resumo), sites/docas, documentos e geolocalização. Usada nos testes e2e e na
+ * painel da Visão geral, sites/docas, documentos e geolocalização. Usada nos testes e2e e na
  * demonstração sem backend (VITE_USE_MOCKS=true). Regras resumidas; as completas são do servidor.
  */
 
@@ -122,18 +124,16 @@ function montarSite(
 }
 
 export const clientesAbasHandlers = [
-  http.get('*/api/clientes/:id/lotes/resumo', async ({ request, params }) => {
+  // Painel da Visão geral: as mesmas contas do servidor, sobre os lotes simulados.
+  http.get('*/api/clientes/:id/painel', async ({ request, params }) => {
     const fail = await simulateNetwork(request)
     if (fail) return fail
-    if (!cliente(params.id)) return apiError(404, 'not_found', 'Cliente não encontrado.')
-    const body: LotesResumoCliente = {
-      conectado: false,
-      aChegar: 0,
-      emOperacao: 0,
-      finalizados: 0,
-      ultimos: [],
-    }
-    return HttpResponse.json(body)
+    const c = cliente(params.id)
+    if (!c) return apiError(404, 'not_found', 'Cliente não encontrado.')
+    const pedido = new URL(request.url).searchParams.get('periodo')
+    const periodo: PeriodoPainel =
+      (['30', '90', '365', 'tudo'] as const).find((x) => x === pedido) ?? '365'
+    return HttpResponse.json(painelSimulado(c.id, c.configuracoes.slaDias, periodo))
   }),
 
   /* ---------------- sites */
@@ -277,3 +277,100 @@ export const clientesAbasHandlers = [
     })
   }),
 ]
+
+const DIA_MS = 86_400_000
+
+/** O painel do cliente sobre os lotes simulados (regras completas no servidor). */
+function painelSimulado(
+  clienteId: string,
+  slaDias: number | null,
+  periodo: PeriodoPainel,
+): PainelCliente {
+  const agora = Date.now()
+  const inicio = periodo === 'tudo' ? null : agora - Number(periodo) * DIA_MS
+  const noPeriodo = (iso: string | null) => Boolean(iso) && (!inicio || Date.parse(iso!) >= inicio)
+  const lotes = ordensMock().filter((o) => o.clienteId === clienteId && !o.juntadoA)
+  const validos = lotes.filter((o) => o.status !== 'cancelado')
+  const coleta = (o: (typeof lotes)[number]) => o.dataColeta ?? o.coletaPrevista
+  const doPeriodo = validos.filter((o) => noPeriodo(coleta(o)))
+  const recebidos = validos.filter((o) => noPeriodo(o.recebidoEm))
+  const concluidos = validos.filter((o) => o.status === 'concluido' && noPeriodo(o.codEmitidoEm))
+  const emOperacao = validos.filter((o) =>
+    ['inspecao', 'processo', 'aguardando_cod'].includes(o.status),
+  )
+  const mes = (iso: string) => iso.slice(0, 7)
+  const meses = Array.from({ length: periodo === '30' ? 2 : periodo === '90' ? 4 : 12 }, (_, i) => {
+    const d = new Date()
+    d.setDate(1)
+    d.setMonth(d.getMonth() - i)
+    return d.toISOString().slice(0, 7)
+  }).reverse()
+  const pesagens = recebidos.flatMap((o) =>
+    o.pallets.map((p) => ({ mes: mes(o.recebidoEm!), kg: p.pesoKg })),
+  )
+  const duracoes = concluidos
+    .filter((o) => o.recebidoEm && o.codEmitidoEm)
+    .map((o) => (Date.parse(o.codEmitidoEm!) - Date.parse(o.recebidoEm!)) / DIA_MS)
+  const noPrazo = slaDias ? duracoes.filter((d) => d <= slaDias).length : 0
+  const materiais = new Map<string, { codigo: string; rotulo: string; kg: number }>()
+  for (const o of doPeriodo)
+    for (const m of o.balanco?.commodities ?? []) {
+      const atual = materiais.get(m.codigo) ?? { codigo: m.codigo, rotulo: m.rotulo, kg: 0 }
+      atual.kg += m.pesoKg
+      materiais.set(m.codigo, atual)
+    }
+  const ocorrencias = new Map<PainelCliente['ocorrencias'][number]['categoria'], number>()
+  for (const o of lotes)
+    for (const oc of o.ocorrencias)
+      if (oc.status !== 'cancelado' && noPeriodo(oc.criadoEm))
+        ocorrencias.set(oc.categoria, (ocorrencias.get(oc.categoria) ?? 0) + 1)
+  return {
+    periodo,
+    desde: inicio ? new Date(inicio).toISOString().slice(0, 10) : null,
+    agora: {
+      aChegar: validos.filter((o) => o.status === 'agendado').length,
+      emOperacao: emOperacao.length,
+      proximaColeta:
+        validos
+          .filter((o) => o.status === 'agendado' && Date.parse(coleta(o)) >= agora - DIA_MS)
+          .map((o) => coleta(o).slice(0, 10))
+          .sort()[0] ?? null,
+    },
+    numeros: {
+      lotes: doPeriodo.length,
+      concluidos: concluidos.length,
+      kgRecebidos: pesagens.reduce((a, p) => a + (p.kg ?? 0), 0),
+      palletsRecebidos: pesagens.length,
+    },
+    etapas: (['agendado', 'inspecao', 'processo', 'aguardando_cod', 'concluido'] as const).map(
+      (etapa) => ({ etapa, lotes: doPeriodo.filter((o) => o.status === etapa).length }),
+    ),
+    porMes: meses.map((m) => ({
+      mes: m,
+      lotes: doPeriodo.filter((o) => mes(coleta(o)) === m).length,
+      kg: pesagens.filter((p) => p.mes === m).reduce((a, p) => a + (p.kg ?? 0), 0),
+    })),
+    materiais: [...materiais.values()].sort((a, b) => b.kg - a.kg),
+    prazo: {
+      slaDias,
+      noPrazo,
+      foraDoPrazo: slaDias ? duracoes.length - noPrazo : 0,
+      cumprimento: slaDias && duracoes.length ? noPrazo / duracoes.length : null,
+      tempoMedioDias: duracoes.length
+        ? Math.round((duracoes.reduce((a, d) => a + d, 0) / duracoes.length) * 10) / 10
+        : null,
+      atrasadosAgora: slaDias
+        ? emOperacao.filter(
+            (o) => o.recebidoEm && (agora - Date.parse(o.recebidoEm)) / DIA_MS > slaDias,
+          ).length
+        : 0,
+    },
+    ocorrencias: [...ocorrencias.entries()]
+      .map(([categoria, total]) => ({ categoria, total }))
+      .sort((a, b) => b.total - a.total),
+    ultimos: [...lotes]
+      .sort((a, b) => b.alteradoEm.localeCompare(a.alteradoEm))
+      .slice(0, 5)
+      .map((o) => ({ id: o.id, codigo: o.codigo, status: o.status, alteradoEm: o.alteradoEm })),
+  }
+}

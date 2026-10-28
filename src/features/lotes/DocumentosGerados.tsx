@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, FileArchive, FileDown, FileText } from 'lucide-react'
+import { ChevronDown, FileArchive, FileDown, FileText, Printer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import { useCliente } from '@/features/clientes/use-clientes'
 import { urlPdfOrdem, urlRelatorioFinal } from '@/services/ordens'
 import type { Ordem } from '@/services/types'
 import { useNomeDoTipo } from './tipos-documento'
+import { etiquetasDosPallets, useImprimirEtiquetas } from './etiquetas-pallet'
 
 /*
  * PDF da OS e ZIP do relatório final (pedido do usuário, 22/10/2026). O PDF sai a qualquer
@@ -32,6 +33,23 @@ export function DocumentosGerados({ o }: { o: Ordem }) {
       .map((d) => nomeDoTipo(d.codigo, d.nome)),
   ]
   const falta = faltam.length ? t('lotes.gerar.falta', { itens: faltam.join(', ') }) : null
+  const imprimir = useImprimirEtiquetas()
+  const pallets = recebido ? [...o.pallets].sort((a, b) => a.numero - b.numero) : []
+  const reimprimir = async () => {
+    const ok = await imprimir(
+      etiquetasDosPallets({
+        cliente: o.clienteNome,
+        lote: o.codigo,
+        data: o.recebimento?.dataRecebimento ?? pallets[0]?.pesadoEm ?? o.alteradoEm,
+        pallets: pallets.map((p) => ({ bruto: p.pesoKg, tara: p.taraKg })),
+      }),
+      o.id,
+    )
+    if (!ok)
+      toast.error(t('recebimento.etiquetas.bloqueadoTitulo'), {
+        description: t('recebimento.etiquetas.bloqueado'),
+      })
+  }
 
   return (
     <DropdownMenu>
@@ -49,6 +67,13 @@ export function DocumentosGerados({ o }: { o: Ordem }) {
             {t('lotes.gerar.pdf')}
           </a>
         </DropdownMenuItem>
+        {/* Etiqueta perdida ou rasgada: imprime de novo com os pesos gravados (27/10/2026). */}
+        {pallets.length > 0 && (
+          <DropdownMenuItem onSelect={() => void reimprimir()}>
+            <Printer aria-hidden />
+            {t('lotes.gerar.etiquetas', { n: pallets.length })}
+          </DropdownMenuItem>
+        )}
         {falta ? (
           <DropdownMenuItem
             onSelect={() => toast.warning(t('lotes.gerar.naoPronto'), { description: falta })}

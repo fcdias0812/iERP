@@ -550,7 +550,7 @@ dele: **o iERP compara as leituras** — a cada 5 minutos e ao abrir o estoque, 
 saiu e mudou (campo, antes, depois) na mesma tabela de auditoria dos outros históricos, com
 período 30/90/365 dias ou tudo. Detalhes no mesmo §0.4.
 
-### 5.19 Viagens e lotes — pedido de 22/10/2026 (pronto; commit local `daa8aff`, 27/10/2026)
+### 5.19 Viagens e lotes — pedido de 22/10/2026 (pronto; no GitHub desde 27/10/2026, `daa8aff`)
 
 Palavras dele: "Lembre-se: Eles gostam de agilidade e praticidade, então deixe o mais simples e
 direto possível." Seis partes, com as decisões dele:
@@ -616,7 +616,7 @@ direto possível." Seis partes, com as decisões dele:
 - **Teste no banco de desenvolvimento:** LOT-00026 + LOT-00027 (cliente "AWS Serviços Brasil
   (teste)", 15/12/2026) mostram a junção.
 
-### 5.20 Novidades (27/10/2026; commit local `daa8aff`)
+### 5.20 Novidades (27/10/2026; no GitHub, `daa8aff`)
 
 Pedido dele: "Coloque o botão para ver as novidades que tem em cada atualização. Lembre-se de
 adicionar no .claude para sempre colocar as atualizações la." Botão ✨ na barra do topo
@@ -624,6 +624,110 @@ adicionar no .claude para sempre colocar as atualizações la." Botão ✨ na ba
 versão atual (`novidadesVistas` no `ui-store`). Lista em `src/config/novidades.ts` (3 idiomas,
 versão nova no topo; 2.0 a 2.3 montadas do histórico do Git, 2.4 = a entrega de viagens/lotes +
 este botão). **Toda entrega acrescenta uma versão** — regra no `FLUXO-DE-TRABALHO.md` §2 passo 9.
+
+### 5.21 Clientes › Visão geral = painel do cliente (27/10/2026, não commitado)
+
+Pedido dele: "a visão geral com gráficos e dashboard individual de cada cliente". Decisões dele:
+o painel É a aba Visão geral (contato, dados e link de acompanhamento continuam embaixo); tudo:
+números + lotes por etapa, coletas e kg por mês, kg por material, prazo (SLA) + ocorrências;
+período escolhido (30/90 dias, 12 meses, tudo — começa em 12 meses, mesmo `SeletorPeriodo` dos
+Históricos); lotes de QUALQUER origem (Gerenciamento e MSDC também; a mesma coleta conta uma vez).
+Servidor `server/src/modules/clientes/clientes-painel.ts` (`GET /api/clientes/:id/painel?periodo=`;
+regras no topo do arquivo: lote do período = dia da coleta; kg/pallets = pesagens dos lotes
+recebidos no período; prazo = chegada → COD em até `slaDias`; materiais = balanço de massa; o antigo
+`/lotes/resumo` vazio saiu). Tela `AbaVisaoGeral.tsx` + `PainelGraficos.tsx` (Recharts 3 pelo
+`ChartContainer`; pizza com `fill` nos dados — o `Cell` está obsoleto no Recharts 3).
+
+### 5.22 Excluir lote (27/10/2026, não commitado)
+
+Pedido dele: "vamos continuar a implementar as funcionalidades do 1.0 nele. Excluir lote". Decisões
+dele: **apagar de vez + registro na Auditoria** (igual ao 1.0; não vira "Cancelado"); **só lote
+Agendado** (depois do recebimento ele já existe dentro da empresa); **juntados um por um** — o
+principal leva junto os lotes DAQUI da coleta, e cada juntado também sai sozinho pela lista "Lotes
+juntados". Regras (`excluir` em `server/src/modules/ordens/ordens.ts`, `DELETE /api/ordens/:id`):
+lote de outro sistema (Gerenciamento/MSDC) nunca (`external_lot`; os de fora juntados ao principal
+ficam e se reagrupam); caminhão na rua (`em_rota`/`chegou`) recusa (`lot_trip_on_road`); viagem
+esperando o motorista sai junto (não existe nada no rastreador ainda); tudo é conferido antes de
+apagar; os arquivos (`arquivos/ordens/<id>/`) saem do disco. Fica o registro em `ordens_excluidas`
+(migration `2026-10-27-01`): a Auditoria e os Históricos de módulo mostram o código com "excluído"
+(sem link) e `proximoNumero` não reusa o número. Histórico: `lote_excluido` (no lote) e
+`juntado_excluido` (no principal). Tela: botão Excluir no detalhe (`ExcluirLote.tsx`, confirmação
+digitando o código; volta para a lista) e na linha do juntado; permissão `<origem>.lotes.excluir`.
+
+### 5.23 Etiqueta de pallet no Recebimento (27/10/2026, não commitado)
+
+Pedido dele: "Próximo: Etiqueta de pallet" (do 1.0). Decisões dele: **obrigatória como no 1.0** —
+no recebimento NOVO, Salvar abre a janela "Imprima as etiquetas dos pallets" e só libera
+"Imprimi e colei: concluir recebimento" depois de abrir a impressão (nada é gravado antes; Voltar
+volta ao formulário; corrigir o recebimento não pede etiqueta); **reimprimir** pelo menu Gerar do
+lote ("Etiquetas dos pallets (N)", com os pesos gravados — o 1.0 não tem); conteúdo **igual ao 1.0
++ QR code** (cliente, lote, data, pallet i/N, peso bruto, tara e líquido — líquido só com tara; o
+QR abre `/operacao/lotes/<id>`); **100 × 70 mm**, uma por página. Tudo no navegador:
+`features/lotes/etiquetas-pallet.ts` (HTML numa janela própria + `window.print`; QR com `qrcode`
+1.5.4, MIT, o mesmo do servidor) e `EtiquetasPallet.tsx` (a janela); ligado em `RecebimentoSheet`
+e `DocumentosGerados`. A etiqueta impressa é tinta preta (não usa os tokens de tela).
+
+### 5.24 Viagens: Nova viagem e vários rastreadores no mesmo caminhão (28/10/2026, não commitado)
+
+Pedido dele (28/10/2026; desde então ele escreve em inglês para treinar, e em português quando a
+regra é delicada): criar viagem depois da ordem, pela tela de Viagens, e as combinações
+caminhões × rastreadores. Regras que ELE fixou (mensagem em português, a que vale): **card =
+caminhão** (1 caminhão no agendamento = 1 card; 2 caminhões = 2 cards da mesma coleta); **mesmo
+site + cliente + dia = as ordens se juntam, viagens incluídas** (já existia — `coleta.ts`); em
+qualquer caso, **vários rastreadores no mesmo caminhão** (celular e/ou aparelho de GPS). Ex.: 3
+ordens no mesmo site/dia, 1 caminhão, 2 rastreadores. Sites com endereços diferentes num caminhão
+só "não vai existir; se existir, põe o mesmo rastreador nas duas" → o mesmo APARELHO pode ficar em
+viagens abertas de lotes do mesmo cliente e dia (`usarRastreador`; `gps-caminhao.ts` alimenta
+todas). Implementação: cada rastreador continua sendo uma linha de `ordens_viagens` (é assim que o
+ReTeckTracker acha: código do lote + placa); os do mesmo caminhão têm o MESMO `numero`, motorista,
+placa e código de chegada. `POST /api/viagens/:id/rastreios` (Adicionar rastreador — card) e
+`POST /api/viagens/lote/:ordemId` com `rastreadorId` ("Nova viagem" = Adicionar caminhão pela tela
+de Viagens, `NovaViagemSheet`, `?aberto=novo`). Telas: `porCaminhao` (agrupar.ts) junta os
+rastreadores num card (`CardViagem` com `outros`, `AdicionarRastreador`, `SeletorAparelho`); a
+edição do lote e o `aoMudarRastreio` contam o caminhão pelo `numero`. Histórico
+`rastreador_adicionado`. (Uma primeira versão "viagem = rastreador levando várias ordens" foi
+desfeita no mesmo dia, antes do commit — a migration dela foi revertida no banco de dev.)
+
+**Leitura do servidor de GPS (28/10/2026):** regra dele — "pega os dados a cada 5 minutos; se a
+leitura falhar, tenta de novo dentro de 1 minuto". Corrigido em `gps-caminhao.ts`: antes a falha
+(e a "fila que sobrou") esperava 5 min porque o fim da leitura sobrescrevia o atraso de 1 min
+(`repetirLogo`; `proximaLeituraEm` para os testes). A URL de leitura segue a regra do 1.0: a marca
+`<cursor>`/`{cursor}` diz o parâmetro, e sem cursor (1ª leitura) ele sai do endereço. O servidor
+NÃO estava cadastrado no 2.0 (por isso nenhum aparelho em Cadastros › Rastreadores GPS): ele
+mesmo cadastra em Administração › Integração (URL + chave do 1.0 — a chave é segredo e não vai
+para docs nem memória). Depois do cadastro só 1 aparelho apareceu: o 2.0 só criava aparelho que
+mandava PONTOS; o 1.0 cria também quem só vem na lista `devices` ("Cadastrado sozinho pelo servidor
+de GPS") — corrigido (`aparelho()` em `gps-caminhao.ts`); vieram 4 (gps-2998, gps-5170, gps-5830,
+gps-8fc4). A primeira leitura atravessa a fila de pontos guardada no servidor desde setembro (28
+páginas por rodada, a próxima em 1 min) até chegar no presente.
+
+**Lotes que se juntam levam os caminhões (28/10/2026).** Ele testou 3 lotes da mesma coleta
+(LOT-00028/29/30, excluídos depois a pedido dele) e viu dois caminhões: o lote juntou, as viagens
+não. Decisões: "viram da coleta, pela placa" — `juntarViagens` em `ordens/coleta.ts`, chamado no
+`reagruparColetas` (na hora de juntar e, idempotente, para lote já juntado antes): mesma placa (ou
+um dos dois sem placa) = o MESMO caminhão (mesmo número; o celular que só espera e repete o do
+principal é cancelado; aparelho de GPS ou viagem já começada vira mais um rastreador; o código de
+chegada passa a ser o do caminhão, se ainda não foi gravado no rastreador); placa diferente = mais
+um caminhão do principal. E no Agendamento "aviso + usar os caminhões existentes": `GET
+/api/ordens/coleta?clienteId&siteId&dia` (`coletaDe`) → o Agendamento mostra "Vai junto com o
+LOT-x (mesma coleta)" com os caminhões e desliga o "Rastrear a coleta" do lote novo (liga só para
+um caminhão a mais); a regra "toda coleta deste cliente é rastreada" aceita o lote que vai junto de
+uma coleta que já tem caminhão.
+Ajuste do mesmo dia: no teste dele (LOT-00031/32/33 — dois caminhões vazios e um com motorista e
+placa) virou 1 card e ele esperava **3**: "sem placa = caminhão ainda a definir". Regra final: SÓ
+a mesma placa é o mesmo caminhão; sem placa ou outra placa = mais um caminhão (o motorista que só o
+lote que se junta tem ainda passa para o caminhão de mesma placa). Os lotes dele foram acertados no
+banco de dev para a regra nova.
+Depois apareceram 5 cards: a conferência de fundo `garantirViagens` (lote rastreado sem nenhuma
+viagem ganha uma) recriava caminhão nos lotes JUNTADOS (os deles tinham ido para o principal) — e o
+reagrupar levaria de novo, sem fim. Corrigido: juntado fica de fora; os 2 caminhões que o erro
+criou (LOT-00032/33) foram cancelados no banco de dev.
+E a regra da placa vale DENTRO do lote também (ele deu ao caminhão 1 a placa do 3 e não juntou):
+`unirMesmaPlaca` (coleta.ts) roda ao criar, editar e juntar — mesma placa fica no número menor, o
+celular repetido que só espera sai, GPS/viagem começada vira mais um rastreador. "Adicionar
+caminhão"/"Nova viagem" com placa que já está no lote recusa (`truck_already_in_lot` → use
+"Adicionar rastreador"). O LOT-00031 dele foi acertado (caminhão 1 = Antônio · ABC1D23, caminhão 2
+a definir).
 
 ### 5.6 Cálculo da OS (pré-cálculo)
 
@@ -660,8 +764,8 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 - **Cadastros:** a API do aparelho de GPS no caminhão (Rastreadores GPS — "Usar rastreador" do
   antigo); material precisa de outros campos (código, categoria, preço)?
 - **Ordens:** viagem junta (vários lotes no mesmo caminhão, como no antigo); o QR do link do
-  motorista; o alerta de parada prolongada (o antigo avisava com 5/10 min parado); editar/cancelar
-  ordem.
+  motorista; o alerta de parada prolongada (o antigo avisava com 5/10 min parado). (Editar e
+  excluir o lote agendado já existem — §5.22.)
 - **Detalhe do lote:** quem muda a etapa depois de Inspeção (processo, aguardando COD, concluído
   — integração ou botão na tela)? Categorias de ocorrência definitivas? Ocorrência ganha
   "resolvida"/responsável?
@@ -680,17 +784,20 @@ autenticação, frequência) estão em [`INTEGRACOES.md`](INTEGRACOES.md) §2. A
 clientes").** O 1.0 está neste PC em `C:\Trabalho\01_Sistemas\TI-Re-Teck-iERP` (ele clonou). Já
 feito: **Clientes › Configurações (22/10/2026)** — §5.2; no GitHub desde 22/10/2026 (`78dfd6d`).
 **Clientes › link de acompanhamento (22/10/2026)** — §5.2; no GitHub desde 22/10/2026 (`6cf9d0c`).
-Ainda dos Clientes (do 1.0): números da Visão geral, anexos que a OS pede. Depois: login pelo Portal, PDF da OS, relatório final, travar lote, viagem
+**Clientes › Visão geral = painel do cliente (27/10/2026)** — §5.21. **Excluir lote
+(27/10/2026)** — §5.22. **Etiqueta de pallet (27/10/2026)** — §5.23. **Viagens: Nova viagem e vários rastreadores por
+caminhão (28/10/2026)** — §5.24. Ainda dos Clientes (do 1.0): anexos que a OS pede. Depois: login pelo Portal, travar lote, viagem
 junta, chamados internos — e perguntar quais processos do galpão (separação, conferência,
 sanitização, testes, desmontagem, caixotes) ainda são feitos no 1.0.
 
 **O que falta em relação ao 1.0 (levantado em 27/10/2026, com o 1.0 atualizado até `cc9473b`):**
 login pelo Portal (SSO, senha temporária; hoje o autor é "Sistema"); travar lote + Lotes travados;
-etiqueta de pallet no Recebimento e etiqueta QR do caixote; viagem junta (carona, também pedida
+~~etiqueta de pallet no Recebimento~~ (feita, §5.23) e etiqueta QR do caixote; viagem junta (carona, também pedida
 pelo agendamento de fora); alerta de parada prolongada + cadastro de Pontos do mapa; cancelar
-viagem; página do rastreador GPS (mapa e viagens dele); excluir lote enquanto agendado; agendamento
+viagem; página do rastreador GPS (mapa e viagens dele); ~~excluir lote enquanto agendado~~ (feito,
+§5.22); agendamento
 de fora com doca/transportadora "A definir", site sem cadastro e medidas da doca (commits recentes
-do 1.0); Clientes: números da Visão geral e anexos obrigatórios no agendamento; Chamados internos;
+do 1.0); Clientes: anexos obrigatórios no agendamento; Chamados internos;
 processos do galpão (Separação, Conferência/Inventário, Sanitização, Testes, Desmontagem); estoque
 próprio de caixotes (página do caixote, saída, juntar, transferir) e páginas de aparelho
 (Assets/Servidores); Novidades (changelog). De propósito diferente: 3 idiomas (o 1.0 tem 6).

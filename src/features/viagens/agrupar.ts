@@ -72,6 +72,20 @@ const ORDEM_STATUS: Record<StatusViagem, number> = {
 const porNome = (a: string, b: string) =>
   a.localeCompare(b, 'pt-BR', { sensitivity: 'base', numeric: true })
 
+/**
+ * Um card por CAMINHÃO (28/10/2026: "Se no agendamento tiver apenas um caminhão, lá em viagens irá
+ * ter apenas um card referenciando aquele caminhão"): os rastreadores do mesmo caminhão (mesmo
+ * lote e número) ficam juntos — o mais urgente primeiro (é ele que o card mostra em cima).
+ */
+export function porCaminhao(viagens: Viagem[]): Viagem[][] {
+  const grupos = new Map<string, Viagem[]>()
+  for (const v of viagens) {
+    const chave = `${v.ordemId}#${v.numero}`
+    grupos.set(chave, [...(grupos.get(chave) ?? []), v])
+  }
+  return [...grupos.values()].map((g) => [...g].sort(compararViagens))
+}
+
 export function compararViagens(a: Viagem, b: Viagem) {
   const ea = a.emergencia && !a.emergencia.cienteEm ? 0 : 1
   const eb = b.emergencia && !b.emergencia.cienteEm ? 0 : 1

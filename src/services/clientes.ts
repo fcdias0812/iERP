@@ -4,7 +4,8 @@ import { api, buildUrl } from './http'
 import type {
   AcaoCliente,
   DocumentoCliente,
-  LotesResumoCliente,
+  PainelCliente,
+  PeriodoPainel,
   SiteCliente,
   SiteInput,
   TipoDocumento,
@@ -29,7 +30,7 @@ export const clientesKeys = {
   detalhe: (id: string) => ['clientes', 'detalhe', id] as const,
   sites: (id: string) => ['clientes', 'sites', id] as const,
   documentos: (id: string) => ['clientes', 'documentos', id] as const,
-  lotes: (id: string) => ['clientes', 'lotes', id] as const,
+  painel: (id: string, periodo: PeriodoPainel) => ['clientes', 'painel', id, periodo] as const,
 }
 
 export function listarClientes(query: TableQuery, signal?: AbortSignal) {
@@ -81,8 +82,8 @@ export const salvarConfiguracoesCliente = (id: string, input: ConfiguracoesClien
 
 /* ------------------------------------------------------------ visão geral */
 
-export const resumoLotesCliente = (id: string) =>
-  api<LotesResumoCliente>(`/clientes/${id}/lotes/resumo`)
+export const painelCliente = (id: string, periodo: PeriodoPainel, signal?: AbortSignal) =>
+  api<PainelCliente>(`/clientes/${id}/painel`, { query: { periodo }, signal })
 
 /* ------------------------------------------------------------ logística */
 

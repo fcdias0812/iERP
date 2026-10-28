@@ -1375,7 +1375,12 @@
     "lotMerged": "此批次已併入同一次收運的另一個批次：請使用主要批次。",
     "documentTypeNotAccepted": "此客戶不接受此文件類型（請查看客戶設定）。",
     "reportNotReceived": "批次收貨後才能產生最終報告。",
-    "reportMissingDocuments": "缺少勾選要放入最終報告的文件。"
+    "reportMissingDocuments": "缺少勾選要放入最終報告的文件。",
+    "lotTripOnRoad": "此批次的卡車已出發：請先在「訂單 › 行程」結束該行程，再刪除批次。",
+    "lotNotScheduled": "此批次已收貨，無法再刪除：它已存在於公司內部。只有已排程的批次可以刪除。",
+    "trackerAlreadyOnTruck": "此追蹤器已在這輛卡車上。",
+    "tripNotOpen": "這輛卡車的行程已結束：只有行程進行中才能新增追蹤器。",
+    "truckAlreadyInLot": "這輛卡車（相同車牌）已在此批次：若要再加一個追蹤器，請在它的卡片上使用「新增追蹤器」。"
   },
   "calendar": {
     "today": "今天",
@@ -1787,15 +1792,7 @@
       }
     },
     "visaoGeral": {
-      "lotesTitle": "客戶批次",
-      "kpis": {
-        "aChegar": "即將到貨的批次",
-        "emOperacao": "作業中的批次",
-        "finalizados": "已完成的批次"
-      },
       "ultimosTitle": "最近更新的批次",
-      "semIntegracaoTitle": "等待整合",
-      "semIntegracaoBody": "與生產系統的整合啟用後，批次會顯示在這裡。",
       "semLotes": "此客戶尚無批次。"
     },
     "historico": {
@@ -2052,6 +2049,51 @@
         "gerado": "追蹤連結已就緒。",
         "desativado": "已停用連結。"
       }
+    },
+    "painel": {
+      "proximaColeta": "下次收運：{{dia}}",
+      "semProximaColeta": "今天起沒有已排程的收運",
+      "erro": "無法載入客戶儀表板。",
+      "numerosTitulo": "客戶數據",
+      "kpis": {
+        "aChegar": "即將到達的批次",
+        "emOperacao": "作業中的批次",
+        "lotesPeriodo": "期間內的批次",
+        "concluidos": "期間內完成",
+        "kgRecebidos": "已收公斤數",
+        "palletsRecebidos": "已收棧板"
+      },
+      "lotes": "批次",
+      "nLotes": "{{n}} 個批次",
+      "etapasTitulo": "各階段批次",
+      "etapasDescricao": "期間內的批次（依收運日期），以目前所在階段顯示。",
+      "semLotesPeriodo": "此期間沒有批次。",
+      "kgRecebidos": "已收公斤數",
+      "lotesColetados": "已收運批次",
+      "mesesTitulo": "每月收運與公斤數",
+      "mesesDescricao": "長條：當月收到的公斤數。折線：當月收運的批次。",
+      "outros": "其他",
+      "materiaisTitulo": "各物料公斤數",
+      "materiaisDescricao": "質量平衡中計算的物料（目前來自 MoonShot）。",
+      "semMateriais": "此期間沒有質量平衡。",
+      "ocorrencias": "事件",
+      "ocorrenciasTitulo": "各類型事件",
+      "semOcorrencias": "此期間沒有事件。",
+      "prazoTitulo": "期限（SLA）",
+      "prazoDescricao": "從抵達 Re-Teck 到 COD 在 {{n}} 天內，以期間內完成的批次計算。",
+      "semSla": "客戶沒有 SLA：請在「設定」分頁設定期限。",
+      "cumprimento": "完成批次在期限內",
+      "noPrazo": "準時",
+      "foraDoPrazo": "逾期",
+      "tempoMedio": "到 COD 的平均時間",
+      "dias": "{{n}} 天",
+      "atrasadosAgora": "作業中且已逾期",
+      "aria": {
+        "etapas": "各階段批次圖表：{{lista}}",
+        "meses": "每月收到公斤數與批次圖表：{{lista}}",
+        "materiais": "各物料公斤數圖表：{{lista}}",
+        "ocorrencias": "各類型事件圖表：{{lista}}"
+      }
     }
   },
   "contatos": {
@@ -2083,7 +2125,8 @@
       "criado": "建立",
       "editado": "變更了資料",
       "status": "變更了狀態"
-    }
+    },
+    "excluido": "已刪除"
   },
   "transportadoras": {
     "list": {
@@ -2424,6 +2467,13 @@
         "titulo": "卡車 {{n}}",
         "adicionar": "新增卡車",
         "remover": "移除卡車 {{n}}"
+      },
+      "junto": {
+        "titulo": "與 {{code}} 合併（同一次收運）",
+        "caminhoes": "此收運已有的卡車",
+        "rastreadores": "{{n}} 個追蹤器",
+        "ajuda": "這些卡車已適用於此批次。只有多加一輛卡車時才開啟「追蹤收運」。",
+        "semCaminhao": "相同客戶、地址與日期：兩個批次合併為一個。"
       }
     },
     "lotes": {
@@ -2730,7 +2780,10 @@
         "viagem_adicionada": "新增了卡車",
         "juntado": "併入另一個批次（同一次收運）",
         "coleta_juntada": "併入同一次收運的批次",
-        "separado": "從收運中分開"
+        "separado": "從收運中分開",
+        "lote_excluido": "刪除了批次",
+        "juntado_excluido": "刪除了一個合併的批次",
+        "rastreador_adicionado": "新增了追蹤器"
       },
       "campos": {
         "status": "狀態",
@@ -2948,7 +3001,20 @@
       "relatorio": "最終報告（ZIP）",
       "falta": "缺少：{{itens}}",
       "faltaRecebimento": "收貨",
-      "naoPronto": "目前還不能產生最終報告"
+      "naoPronto": "目前還不能產生最終報告",
+      "etiquetas": "棧板標籤（{{n}}）"
+    },
+    "excluir": {
+      "botao": "刪除",
+      "titulo": "要刪除批次 {{code}} 嗎？",
+      "descricao": "{{cliente}} 的批次 {{code}} 將被永久刪除，包括其文件與等待司機的行程。此操作無法復原：只會在稽核中保留紀錄。",
+      "levaJuntos": "合併到此批次的批次也會被刪除：{{codes}}。",
+      "ficam": "合併到此批次的其他系統批次會保留：{{codes}}。",
+      "confirmar": "刪除批次",
+      "toast": {
+        "excluido": "已刪除批次：{{codes}}。",
+        "falhou": "無法刪除批次。"
+      }
     }
   },
   "recebimento": {
@@ -3032,6 +3098,22 @@
       "nota": "發票",
       "tara": "每個棧板的皮重",
       "fotos": "至少一張整體照片"
+    },
+    "etiquetas": {
+      "pallet": "棧板",
+      "data": "日期",
+      "liquido": "淨重",
+      "titulo": "列印棧板標籤",
+      "explica": "已到達 {{n}} 個棧板：將列印 {{n}} 張標籤，每個棧板一張，含客戶、批次、日期、重量與批次的 QR code。請將每張貼在對應的棧板上。",
+      "lista": "將列印的標籤",
+      "bloqueadoTitulo": "瀏覽器封鎖了列印視窗",
+      "bloqueado": "請允許此網站的彈出式視窗後再試一次。",
+      "aberta": "已開啟列印。請將每張標籤貼在對應的棧板上並完成。",
+      "semImprimir": "列印標籤後才能完成收貨。",
+      "voltar": "返回表單",
+      "deNovo": "再次開啟",
+      "concluir": "已列印並貼上：完成收貨",
+      "imprimir": "列印 {{n}} 張標籤"
     }
   },
   "historicoModulo": {
@@ -3377,6 +3459,43 @@
       "confirmar": "以追蹤器開始",
       "pelo": "透過裝置",
       "iniciada": "{{code}} 的卡車 {{n}} 已以追蹤器出發。"
+    },
+    "nova": {
+      "botao": "新增行程",
+      "titulo": "新增行程",
+      "descricao": "為已排程的訂單再加一輛卡車：選擇訂單、卡車與追蹤器。",
+      "secoes": {
+        "ordem": "訂單",
+        "caminhao": "卡車",
+        "rastreador": "追蹤器"
+      },
+      "ordem": "已排程的訂單",
+      "ordemAjuda": "只有在 iERP 排程的訂單（其他系統的訂單由該系統追蹤）。",
+      "escolhaOrdem": "依批次、客戶或據點搜尋…",
+      "rastreio": "追蹤方式",
+      "rastreios": {
+        "celular": "司機的手機",
+        "aparelho": "GPS 裝置"
+      },
+      "celularAjuda": "司機會收到卡車的連結，到達代碼在目的地口頭告知。",
+      "criada": "已在 {{code}} 建立卡車 {{n}}。",
+      "falhou": "無法建立行程。"
+    },
+    "rastreios": {
+      "n": "此卡車有 {{n}} 個追蹤器",
+      "primeiro": "第 1 個在上方",
+      "celular": "司機的手機",
+      "outros": "此卡車的其他追蹤器",
+      "rotulo": "追蹤器 {{n}}",
+      "adicionar": "新增追蹤器",
+      "titulo": "新增追蹤器",
+      "descricao": "在 {{code}} 的卡車 {{n}} 再加一個追蹤器：相同的卡車、司機、車牌與到達代碼。",
+      "celularTitulo": "再加一支手機",
+      "celularTexto": "隨車人員在另一支手機開啟同一個司機連結。",
+      "confirmar": "新增",
+      "adicionado": "已為卡車 {{n}} 新增追蹤器。",
+      "falhou": "無法新增追蹤器。",
+      "aparelhoEmUso": "此裝置已在 {{code}}：只有同一客戶、同一天時才能一起使用。"
     }
   },
   "estoque": {

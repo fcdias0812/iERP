@@ -340,6 +340,16 @@ export interface OrdensAnexosTable {
   enviadoPor: string
 }
 
+/** Lote excluído (27/10/2026): o registro que fica para a auditoria e segura a sequência. */
+export interface OrdensExcluidasTable {
+  id: string
+  numero: number
+  codigo: string
+  clienteId: string
+  excluidoEm: string
+  excluidoPor: string
+}
+
 /** Etapas por onde o lote passou (linha do tempo). */
 export interface OrdensEtapasTable {
   id: string
@@ -688,6 +698,7 @@ export interface Database {
   ordensBalancos: OrdensBalancosTable
   integracoes: IntegracoesTable
   integracoesAvisos: IntegracoesAvisosTable
+  ordensExcluidas: OrdensExcluidasTable
   ordensEtapas: OrdensEtapasTable
   ordensPallets: OrdensPalletsTable
   ordensOcorrencias: OrdensOcorrenciasTable

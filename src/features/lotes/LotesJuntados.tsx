@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { StatusBadge } from '@/components/ui/status-badge'
 import { formatNumber } from '@/lib/format'
 import type { Ordem } from '@/services/types'
+import { ExcluirLote } from './ExcluirLote'
 
 /*
  * A MESMA COLETA (pedido do usuário, 22/10/2026): os lotes juntados a este (mesmo cliente,
@@ -12,7 +13,7 @@ import type { Ordem } from '@/services/types'
  * aqui fica cada pedido, com o escopo dele e o botão para o lote no sistema de lá (Gerenciamento,
  * MSDC — "por isso o botão para ver diretamente o lote no sistema").
  */
-export function LotesJuntados({ o }: { o: Ordem }) {
+export function LotesJuntados({ o, permissaoExcluir }: { o: Ordem; permissaoExcluir: string }) {
   const { t } = useTranslation()
   if (!o.juntados.length) return null
   return (
@@ -46,6 +47,18 @@ export function LotesJuntados({ o }: { o: Ordem }) {
                         {t('lotes.deFora.abrir', { sistema })}
                       </a>
                     </Button>
+                  )}
+                  {/* O juntado daqui, ainda agendado, sai sozinho (27/10/2026: "um por um"). */}
+                  {j.origem === 'IERP' && j.status === 'agendado' && !o.externo && (
+                    <span className="ml-auto">
+                      <ExcluirLote
+                        id={j.id}
+                        codigo={j.codigo}
+                        cliente={o.clienteNome}
+                        permissao={permissaoExcluir}
+                        compacto
+                      />
+                    </span>
                   )}
                 </div>
                 {j.escopo && (

@@ -2,6 +2,7 @@ import express from 'express'
 import { config } from './config.js'
 import type { Db } from './db/database.js'
 import { criarServicoConfiguracoes } from './modules/clientes/clientes-configuracoes.js'
+import { criarServicoPainel } from './modules/clientes/clientes-painel.js'
 import { rotasTiposDocumento } from './modules/clientes/tipos-documento.js'
 import { criarServicoDocumentos } from './modules/clientes/clientes-documentos.servico.js'
 import { criarServicoRastreio, rotasRastreioPublico } from './modules/clientes/clientes-rastreio.js'
@@ -96,6 +97,7 @@ export function criarApp(
       documentos,
       criarServicoConfiguracoes(db, repoClientes),
       rastreio,
+      criarServicoPainel(db),
     ),
   )
   api.use('/tipos-documento', rotasTiposDocumento(db))

@@ -1375,7 +1375,12 @@
     "lotMerged": "Este lote foi juntado a outro da mesma coleta: use o lote principal.",
     "documentTypeNotAccepted": "Este cliente não aceita este tipo de documento (veja as Configurações do cliente).",
     "reportNotReceived": "O relatório final só sai depois do recebimento do lote.",
-    "reportMissingDocuments": "Faltam documentos marcados para o relatório final."
+    "reportMissingDocuments": "Faltam documentos marcados para o relatório final.",
+    "lotTripOnRoad": "Um caminhão deste lote já saiu: finalize a viagem dele em Ordens › Viagens antes de excluir o lote.",
+    "lotNotScheduled": "Este lote já foi recebido e não pode mais ser excluído: ele já existe dentro da empresa. Só lotes agendados podem ser excluídos.",
+    "trackerAlreadyOnTruck": "Este rastreador já está neste caminhão.",
+    "tripNotOpen": "Este caminhão já terminou a viagem: o rastreador entra só enquanto ela está aberta.",
+    "truckAlreadyInLot": "Este caminhão (mesma placa) já está no lote: para mais um rastreador nele, use \"Adicionar rastreador\" no card dele."
   },
   "calendar": {
     "today": "Hoje",
@@ -1787,15 +1792,7 @@
       }
     },
     "visaoGeral": {
-      "lotesTitle": "Lotes do cliente",
-      "kpis": {
-        "aChegar": "Lotes a chegar",
-        "emOperacao": "Lotes em operação",
-        "finalizados": "Lotes finalizados"
-      },
       "ultimosTitle": "Últimos lotes atualizados",
-      "semIntegracaoTitle": "Aguardando integração",
-      "semIntegracaoBody": "Os lotes aparecem aqui quando a integração com os sistemas de produção estiver ligada.",
       "semLotes": "Nenhum lote deste cliente ainda."
     },
     "historico": {
@@ -2052,6 +2049,51 @@
         "gerado": "Link de acompanhamento pronto.",
         "desativado": "Link desativado."
       }
+    },
+    "painel": {
+      "proximaColeta": "Próxima coleta: {{dia}}",
+      "semProximaColeta": "Nenhuma coleta agendada a partir de hoje",
+      "erro": "Não foi possível carregar o painel do cliente.",
+      "numerosTitulo": "Números do cliente",
+      "kpis": {
+        "aChegar": "Lotes a chegar",
+        "emOperacao": "Lotes em operação",
+        "lotesPeriodo": "Lotes no período",
+        "concluidos": "Concluídos no período",
+        "kgRecebidos": "Kg recebidos",
+        "palletsRecebidos": "Pallets recebidos"
+      },
+      "lotes": "Lotes",
+      "nLotes": "{{n}} lotes",
+      "etapasTitulo": "Lotes por etapa",
+      "etapasDescricao": "Lotes do período (pela data da coleta), na etapa em que estão agora.",
+      "semLotesPeriodo": "Nenhum lote neste período.",
+      "kgRecebidos": "Kg recebidos",
+      "lotesColetados": "Lotes coletados",
+      "mesesTitulo": "Coletas e kg por mês",
+      "mesesDescricao": "Barras: kg recebidos no mês. Linha: lotes com coleta no mês.",
+      "outros": "Outros",
+      "materiaisTitulo": "Kg por material",
+      "materiaisDescricao": "Material apurado no balanço de massa (hoje vem do MoonShot).",
+      "semMateriais": "Nenhum balanço de massa neste período.",
+      "ocorrencias": "Ocorrências",
+      "ocorrenciasTitulo": "Ocorrências por tipo",
+      "semOcorrencias": "Nenhuma ocorrência neste período.",
+      "prazoTitulo": "Prazo (SLA)",
+      "prazoDescricao": "Da chegada na Re-Teck ao COD em até {{n}} dias, nos lotes concluídos no período.",
+      "semSla": "Cliente sem SLA: defina o prazo na aba Configurações.",
+      "cumprimento": "dos lotes concluídos dentro do prazo",
+      "noPrazo": "No prazo",
+      "foraDoPrazo": "Fora do prazo",
+      "tempoMedio": "Tempo médio até o COD",
+      "dias": "{{n}} dias",
+      "atrasadosAgora": "Em operação e já atrasados",
+      "aria": {
+        "etapas": "Gráfico de lotes por etapa: {{lista}}",
+        "meses": "Gráfico de kg recebidos e lotes por mês: {{lista}}",
+        "materiais": "Gráfico de kg por material: {{lista}}",
+        "ocorrencias": "Gráfico de ocorrências por tipo: {{lista}}"
+      }
     }
   },
   "contatos": {
@@ -2083,7 +2125,8 @@
       "criado": "Cadastrou",
       "editado": "Alterou os dados",
       "status": "Mudou o status"
-    }
+    },
+    "excluido": "excluído"
   },
   "transportadoras": {
     "list": {
@@ -2424,6 +2467,13 @@
         "titulo": "Caminhão {{n}}",
         "adicionar": "Adicionar caminhão",
         "remover": "Remover caminhão {{n}}"
+      },
+      "junto": {
+        "titulo": "Vai junto com o {{code}} (mesma coleta)",
+        "caminhoes": "Caminhões que já existem nesta coleta",
+        "rastreadores": "{{n}} rastreador(es)",
+        "ajuda": "Estes caminhões já valem para este lote. Ligue \"Rastrear a coleta\" só se for um caminhão a mais.",
+        "semCaminhao": "Mesmo cliente, endereço e data: os dois lotes viram um só."
       }
     },
     "lotes": {
@@ -2730,7 +2780,10 @@
         "viagem_adicionada": "Adicionou caminhão",
         "juntado": "Juntado a outro lote (mesma coleta)",
         "coleta_juntada": "Recebeu um lote da mesma coleta",
-        "separado": "Separado da coleta"
+        "separado": "Separado da coleta",
+        "lote_excluido": "Excluiu o lote",
+        "juntado_excluido": "Excluiu um lote juntado",
+        "rastreador_adicionado": "Adicionou rastreador"
       },
       "campos": {
         "status": "Status",
@@ -2948,7 +3001,20 @@
       "relatorio": "Relatório final (ZIP)",
       "falta": "Falta: {{itens}}",
       "faltaRecebimento": "receber o lote",
-      "naoPronto": "O relatório final ainda não pode ser gerado"
+      "naoPronto": "O relatório final ainda não pode ser gerado",
+      "etiquetas": "Etiquetas dos pallets ({{n}})"
+    },
+    "excluir": {
+      "botao": "Excluir",
+      "titulo": "Excluir o lote {{code}}?",
+      "descricao": "O lote {{code}} de {{cliente}} será apagado de vez, com os documentos e as viagens que esperavam o motorista. Isso não pode ser desfeito: fica só o registro na Auditoria.",
+      "levaJuntos": "Os lotes juntados a ele também serão excluídos: {{codes}}.",
+      "ficam": "Os lotes de outros sistemas juntados a ele continuam: {{codes}}.",
+      "confirmar": "Excluir lote",
+      "toast": {
+        "excluido": "Lote excluído: {{codes}}.",
+        "falhou": "Não foi possível excluir o lote."
+      }
     }
   },
   "recebimento": {
@@ -3032,6 +3098,22 @@
       "nota": "nota fiscal",
       "tara": "tara de cada pallet",
       "fotos": "pelo menos uma foto geral"
+    },
+    "etiquetas": {
+      "pallet": "Pallet",
+      "data": "Data",
+      "liquido": "Peso líquido",
+      "titulo": "Imprima as etiquetas dos pallets",
+      "explica": "Chegaram {{n}} pallet(s): saem {{n}} etiqueta(s), uma por pallet, com cliente, lote, data, peso e o QR code do lote. Cole cada uma no pallet correspondente.",
+      "lista": "Etiquetas que serão impressas",
+      "bloqueadoTitulo": "O navegador bloqueou a janela de impressão",
+      "bloqueado": "Permita pop-ups para este site e tente de novo.",
+      "aberta": "Impressão aberta. Cole cada etiqueta no pallet correspondente e conclua.",
+      "semImprimir": "O recebimento só é concluído depois de imprimir as etiquetas.",
+      "voltar": "Voltar ao formulário",
+      "deNovo": "Abrir de novo",
+      "concluir": "Imprimi e colei: concluir recebimento",
+      "imprimir": "Imprimir {{n}} etiqueta(s)"
     }
   },
   "historicoModulo": {
@@ -3377,6 +3459,43 @@
       "confirmar": "Iniciar pelo rastreador",
       "pelo": "Pelo aparelho",
       "iniciada": "Caminhão {{n}} do {{code}} saiu pelo rastreador."
+    },
+    "nova": {
+      "botao": "Nova viagem",
+      "titulo": "Nova viagem",
+      "descricao": "Mais um caminhão para uma ordem já agendada: escolha a ordem, o caminhão e o rastreador.",
+      "secoes": {
+        "ordem": "Ordem",
+        "caminhao": "Caminhão",
+        "rastreador": "Rastreador"
+      },
+      "ordem": "Ordem agendada",
+      "ordemAjuda": "Só ordens agendadas no iERP (as de outro sistema são rastreadas por lá).",
+      "escolhaOrdem": "Buscar pelo lote, cliente ou site…",
+      "rastreio": "Rastrear pelo",
+      "rastreios": {
+        "celular": "Celular do motorista",
+        "aparelho": "Aparelho de GPS"
+      },
+      "celularAjuda": "O motorista recebe o link do caminhão e o código de chegada é falado no destino.",
+      "criada": "Caminhão {{n}} criado no {{code}}.",
+      "falhou": "Não foi possível criar a viagem."
+    },
+    "rastreios": {
+      "n": "{{n}} rastreadores neste caminhão",
+      "primeiro": "o 1º está acima",
+      "celular": "Celular do motorista",
+      "outros": "Outros rastreadores deste caminhão",
+      "rotulo": "Rastreador {{n}}",
+      "adicionar": "Adicionar rastreador",
+      "titulo": "Adicionar rastreador",
+      "descricao": "Mais um rastreador no caminhão {{n}} do {{code}}: o mesmo caminhão, motorista, placa e código de chegada.",
+      "celularTitulo": "Mais um celular",
+      "celularTexto": "Quem vai no caminhão abre o mesmo link do motorista no outro celular.",
+      "confirmar": "Adicionar",
+      "adicionado": "Rastreador adicionado ao caminhão {{n}}.",
+      "falhou": "Não foi possível adicionar o rastreador.",
+      "aparelhoEmUso": "Este aparelho já está no {{code}}: ele só pode ir junto se for do mesmo cliente e do mesmo dia."
     }
   },
   "estoque": {

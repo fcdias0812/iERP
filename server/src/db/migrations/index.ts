@@ -23,6 +23,7 @@ import * as m20261022_03 from './2026-10-22-03-varias-viagens.js'
 import * as m20261022_04 from './2026-10-22-04-rastreadores-gps.js'
 import * as m20261022_05 from './2026-10-22-05-juntar-lotes.js'
 import * as m20261022_06 from './2026-10-22-06-tipos-de-documento.js'
+import * as m20261027_01 from './2026-10-27-01-lotes-excluidos.js'
 
 /**
  * Migrations em ordem. Nova migration: crie `AAAA-MM-DD-NN-assunto.ts` nesta pasta
@@ -53,4 +54,5 @@ export const migrations: Record<string, Migration> = {
   '2026-10-22-04-rastreadores-gps': m20261022_04,
   '2026-10-22-05-juntar-lotes': m20261022_05,
   '2026-10-22-06-tipos-de-documento': m20261022_06,
+  '2026-10-27-01-lotes-excluidos': m20261027_01,
 }

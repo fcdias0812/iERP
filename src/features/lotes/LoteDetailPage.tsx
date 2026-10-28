@@ -37,6 +37,7 @@ import { AvisoDevolucao } from './ProcessamentoExterno'
 import { StatusDoLote } from './StatusDoLote'
 import { DocumentosGerados } from './DocumentosGerados'
 import { AbrirNoSistema } from './LotesJuntados'
+import { ExcluirLote } from './ExcluirLote'
 
 /**
  * Detalhe do lote (padrão Detalhe), aberto de Ordens › Lotes ou de Operação › Lotes: abas
@@ -104,6 +105,7 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
     receber,
   } = useSearch({ strict: false }) as LoteSearch
   const ir = useIrNoLote(origem, o.id)
+  const navigate = useNavigate()
   const permissaoEditar = `${origem}.lotes.editar`
   const abaUrl = (a: AbaLote) => (a === 'informacoes' ? undefined : a)
   const abrirOcorrencia = (oc: string) => ir({ aba: 'ocorrencias', ocorrencia: oc })
@@ -157,6 +159,19 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
                 </Button>
               </Can>
             )}
+            {editavel && (
+              <ExcluirLote
+                id={o.id}
+                codigo={o.codigo}
+                cliente={o.clienteNome}
+                levaJuntos={o.juntados.filter((j) => j.origem === 'IERP').map((j) => j.codigo)}
+                ficam={o.juntados.filter((j) => j.origem !== 'IERP').map((j) => j.codigo)}
+                permissao={`${origem}.lotes.excluir`}
+                onExcluido={() =>
+                  void navigate({ to: origem === 'ordens' ? '/ordens/lotes' : '/operacao/lotes' })
+                }
+              />
+            )}
             {podeCorrigirRecebimento && (
               <Can permission="operacao.recebimento.editar" fallback="disable">
                 <Button variant="secondary" onClick={() => ir({ aba: abaUrl(aba), receber: true })}>
@@ -191,7 +206,7 @@ function Detalhe({ o, origem }: { o: Ordem; origem: OrigemLote }) {
             id: 'informacoes',
             label: t('lotes.abas.informacoes'),
             icon: Info,
-            content: <AbaInformacoes o={o} />,
+            content: <AbaInformacoes o={o} permissaoExcluir={`${origem}.lotes.excluir`} />,
           },
           {
             id: 'progresso',

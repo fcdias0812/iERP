@@ -102,6 +102,25 @@ test('configurações: mostra as regras do cliente e grava pelo painel, com hist
   await expect(linhas.filter({ hasText: 'Exigir lacre' })).toBeVisible()
 })
 
+test('visão geral: painel do cliente com números, gráficos, prazo e período', async ({ page }) => {
+  // Lote de demonstração ord00001 (TechNova): em processo, pallets pesados, balanço e ocorrência.
+  await abrir(page, '/clientes/cli00001')
+  await expect(page.getByText('Lotes em operação')).toBeVisible()
+  await expect(
+    page.getByRole('img', { name: /Gráfico de lotes por etapa: Agendado/ }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('img', { name: /Gráfico de kg por material: Metais ferrosos/ }),
+  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Prazo (SLA)' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'LOT-00001' })).toBeVisible()
+  expect(await violacoes(page)).toEqual([])
+  await page.getByRole('button', { name: 'Tudo' }).click()
+  await expect(page.getByRole('button', { name: 'Tudo' })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('link', { name: 'LOT-00001' }).click()
+  await expect(page).toHaveURL(/\/ordens\/lotes\/ord00001/)
+})
+
 test('link de acompanhamento: gera, troca e desativa na Visão geral', async ({ page }) => {
   await abrir(page, '/clientes/cli00001')
   await expect(page.getByText('Este cliente ainda não tem link.')).toBeVisible()

@@ -61,7 +61,23 @@ test('receber lote: obrigatórios, avaria vira ocorrência, lote vai para Inspe�
   await anexarFoto(pallet, 'pallet.png')
   expect(await violacoes(page)).toEqual([])
 
+  // Recebimento novo: só conclui depois de abrir a impressão das etiquetas (uma por pallet).
   await painel.getByRole('button', { name: 'Salvar' }).click()
+  const etiquetas = page.getByRole('dialog', { name: 'Imprima as etiquetas dos pallets' })
+  await expect(etiquetas).toContainText('Pallet 1/1')
+  await expect(etiquetas).toContainText('250,5 kg')
+  await expect(etiquetas.getByRole('button', { name: /concluir recebimento/ })).toHaveCount(0)
+  expect(await violacoes(page)).toEqual([])
+  const [janela] = await Promise.all([
+    page.waitForEvent('popup'),
+    etiquetas.getByRole('button', { name: 'Imprimir 1 etiqueta(s)' }).click(),
+  ])
+  await expect(janela.locator('section.etq')).toHaveCount(1)
+  await expect(janela.locator('section.etq')).toContainText('Pallet 1/1')
+  await expect(janela.locator('section.etq')).toContainText('230,5 kg')
+  await expect(janela.locator('section.etq svg')).toHaveCount(1)
+  await janela.close()
+  await etiquetas.getByRole('button', { name: /concluir recebimento/ }).click()
   await expect(page.getByText(/Lote LOT-\d+ recebido\./)).toBeVisible()
   await expect(page).not.toHaveURL(/aberto=/)
 
@@ -80,4 +96,13 @@ test('receber lote: obrigatórios, avaria vira ocorrência, lote vai para Inspe�
   const oc = page.locator('main tbody tr', { hasText: 'Avaria na carga' })
   await expect(oc).toContainText('Recebimento')
   await expect(page.getByRole('button', { name: 'Corrigir recebimento' })).toBeVisible()
+
+  // Etiqueta perdida: imprime de novo pelo menu Gerar, com os pesos gravados.
+  await page.getByRole('button', { name: 'Gerar' }).click()
+  const [deNovo] = await Promise.all([
+    page.waitForEvent('popup'),
+    page.getByRole('menuitem', { name: 'Etiquetas dos pallets (1)' }).click(),
+  ])
+  await expect(deNovo.locator('section.etq')).toContainText('250,5 kg')
+  await deNovo.close()
 })

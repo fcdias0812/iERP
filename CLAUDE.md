@@ -174,7 +174,8 @@ O layout não muda. Modelos completos para copiar:
   shell). Ao criar o login, deixe essas duas fora dele. Na API simulada, o link `d`×48 abre os
   lotes do primeiro cliente (o mock se perde ao recarregar a página).
 - **Clientes** — item direto no menu (sem submenu); detalhe com abas na URL (`?aba=`), uma por
-  arquivo em `src/features/clientes/detalhe/` (Visão geral, Contatos, Logística com painel lateral
+  arquivo em `src/features/clientes/detalhe/` (Visão geral = painel do cliente com gráficos —
+  `AbaVisaoGeral` + `PainelGraficos`, servidor `clientes/clientes-painel.ts`; Contatos, Logística com painel lateral
   - mapa Leaflet carregado sob demanda, Documentos com envio de arquivo, Histórico como tabela de
     auditoria); cadastro no painel (`ClienteSheet`) com lista de contatos (`useFieldArray`). Rotas `src/routes/_app/clientes/`,
     backend `server/src/modules/clientes/` (view `clientes_lista`; sites/docas, documentos em disco)
@@ -194,14 +195,18 @@ O layout não muda. Modelos completos para copiar:
 - **Lotes** (Ordens › Lotes = Operação › Lotes) — `src/features/lotes/`: a mesma lista e o mesmo
   detalhe nos dois módulos. **Mesma coleta** (cliente + endereço + dia): os lotes seguintes viram
   `juntado_a` do primeiro (`server/src/modules/ordens/coleta.ts`) — só o principal aparece, com tudo
-  somado (`LotesJuntados.tsx`). Botão **Gerar** = PDF da OS e ZIP do relatório final
+  somado (`LotesJuntados.tsx`) — e os caminhões também (`juntarViagens`: SÓ a mesma placa = o mesmo
+  caminhão, sem placa = outro; o Agendamento avisa pelo `GET /api/ordens/coleta`). Botão **Gerar** = PDF da OS e ZIP do relatório final
   (`ordens/relatorio-final.ts`, `DocumentosGerados.tsx`); tipos de documento por cliente em
   `clientes/tipos-documento.ts` (aba Configurações do cliente) (`origem` = `ordens` | `operacao` decide rota, caminho e permissão
   `<origem>.lotes.ver`/`<origem>.lotes.editar`). Detalhe com abas na URL (`?aba=`): **Informações** (padrão),
   **Progresso** (etapa, pallets, peso bruto, processamento e **balanço de massa** do MoonShot,
 linha do tempo, recebimento), **Ocorrências** (painel
   `?ocorrencia=nova|<id>`, texto traduzível, fotos), **Documentos** (do agendamento + adicionados
-  depois, com tipo e remoção) e **Histórico**. **Editar** (só enquanto agendado, cliente fixo,
+  depois, com tipo e remoção) e **Histórico**. **Excluir** (só agendado e daqui, sem caminhão na
+  rua; apaga de vez — o principal leva os juntados daqui — e fica o registro em `ordens_excluidas`
+  para a Auditoria/Históricos e para o código não voltar): `ExcluirLote.tsx`, `DELETE /api/ordens/:id`.
+  **Editar** (só enquanto agendado, cliente fixo,
   refaz o pré-cálculo): `LoteSheet` com os campos do Agendamento
   (`features/ordens/agendamento-campos.tsx` + `SecaoContexto` = moldura página/painel); backend
   `PUT /api/ordens/:id`. Backend `server/src/modules/ordens/ordens.lote.ts` (tabelas
@@ -214,6 +219,8 @@ linha do tempo, recebimento), **Ocorrências** (painel
 /api/ordens/:id/recebimento` (multipart `dados` + fotos em `lacres.<i>`, `notas.<i>`,
   `pallets.<i>`, `gerais`), tabelas `ordens_recebimentos`, `ordens_lacres`, `ordens_notas_fiscais`,
   `ordens_recebimento_fotos`; receber = agendado → Inspeção; avaria/outro viram ocorrência.
+  **Etiqueta de pallet** (obrigatória no recebimento novo, antes de gravar; reimpressão no menu
+  Gerar): `features/lotes/etiquetas-pallet.ts` + `EtiquetasPallet.tsx` (100 × 70 mm, QR do lote).
 - **Ordens › Viagens** — `src/features/viagens/` (Em andamento: cards por dia da coleta e
   cliente + mapa Leaflet ao vivo com Trânsito/Postos/Pontos; Finalizadas: tabela + replay + `BaixarTrajeto` GPX/KML/CSV; chat;
   aviso de emergência no `AppShell`; `ViagemNoLote` (card + `CartaoMapa`) na aba Informações; `CodigoDeChegada` no
@@ -224,7 +231,11 @@ linha do tempo, recebimento), **Ocorrências** (painel
   Integração (tipo `rastreio`, sistema `RASTREADOR`). **Vários caminhões por lote** (uma viagem
   por caminhão, `numero`; "Adicionar caminhão" = `POST /api/viagens/lote/:ordemId`) e o
   **aparelho de GPS** do caminhão (`gps-caminhao.ts` = leitor PULL do servidor de GPS, o mesmo do
-  1.0; `rastreadores.ts` = `/api/rastreadores`; Integração tipo `gps`, sistema `GPS_CAMINHAO`). O rastreador é o MESMO do iERP antigo: só as
+  1.0; `rastreadores.ts` = `/api/rastreadores`; Integração tipo `gps`, sistema `GPS_CAMINHAO`).
+  **Card = caminhão; vários rastreadores no mesmo caminhão** (28/10/2026): cada rastreador é uma
+  linha de `ordens_viagens` com o MESMO `numero` (motorista, placa e código de chegada iguais) —
+  `POST /api/viagens/:id/rastreios` (`AdicionarRastreador`), `porCaminhao` junta no card; "Nova
+  viagem" em Viagens = `POST /api/viagens/lote/:ordemId` com `rastreadorId` (`NovaViagemSheet`). O rastreador é o MESMO do iERP antigo: só as
   viagens dos LOT do 2.0; nunca apagar nada lá. Detalhes em `.claude/INTEGRACOES.md` §0.3.
 - **Estoque** (Materiais ← armazém/EC-Inventory-Management; Assets e Peças ← Controle de
   Notebooks; E-commerce ← RTB WMS) — `server/src/modules/estoque/estoque.ts` (`GET

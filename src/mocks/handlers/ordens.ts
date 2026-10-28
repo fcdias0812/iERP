@@ -564,6 +564,22 @@ export const ordensHandlers = [
       : apiError(422, 'no_vehicles', 'Nenhum veículo ativo para o cálculo.')
   }),
 
+  // A coleta em que o lote novo entraria (28/10/2026): mesmo cliente, site e dia (sem caminhões
+  // aqui — os caminhões ficam na API simulada de viagens).
+  http.get('*/api/ordens/coleta', ({ request }) => {
+    const q = new URL(request.url).searchParams
+    const dia = q.get('dia')
+    const o = lotes().find(
+      (x) =>
+        x.clienteId === q.get('clienteId') &&
+        x.siteId === q.get('siteId') &&
+        !x.juntadoA &&
+        x.status !== 'cancelado' &&
+        (x.dataColeta ?? x.coletaPrevista).slice(0, 10) === dia,
+    )
+    return HttpResponse.json(o ? { id: o.id, codigo: o.codigo, caminhoes: [] } : null)
+  }),
+
   http.get('*/api/ordens/:id', async ({ request, params }) => {
     const fail = await simulateNetwork(request)
     if (fail) return fail
@@ -880,6 +896,29 @@ export const ordensHandlers = [
     return HttpResponse.json(o)
   }),
 
+  // Excluir lote (27/10/2026): só agendado e daqui; o principal leva os juntados daqui.
+  http.delete('*/api/ordens/:id', async ({ request, params }) => {
+    const fail = await simulateNetwork(request)
+    if (fail) return fail
+    if (params.id === 'ordgp001' || params.id === 'ordms001')
+      return apiError(409, 'external_lot', 'Este lote vem de outro sistema e só é alterado lá.')
+    const o = lotes().find((x) => x.id === params.id)
+    if (!o) return apiError(404, 'not_found', 'Lote não encontrado.')
+    const juntos = o.juntadoA ? [] : o.juntados.filter((j) => j.origem === 'IERP')
+    const alvos = [o, ...lotes().filter((x) => juntos.some((j) => j.id === x.id))]
+    const recebido = alvos.find((x) => x.status !== 'agendado')
+    if (recebido)
+      return apiError(
+        409,
+        'lot_not_scheduled',
+        `O ${recebido.codigo} já foi recebido e não pode mais ser excluído.`,
+      )
+    ordens = lotes()
+      .filter((x) => !alvos.includes(x))
+      .map((x) => ({ ...x, juntados: x.juntados.filter((j) => !alvos.some((a) => a.id === j.id)) }))
+    return HttpResponse.json({ ids: alvos.map((x) => x.id), codigos: alvos.map((x) => x.codigo) })
+  }),
+
   http.put('*/api/ordens/:id', async ({ request, params }) => {
     const fail = await simulateNetwork(request)
     if (fail) return fail
@@ -990,6 +1029,7 @@ export const ordensHandlers = [
           registroId: o.id,
           registroCodigo: o.codigo,
           clienteNome: o.clienteNome,
+          registroExcluido: false,
         })),
     )
     eventos.sort((a, b) => b.em.localeCompare(a.em))

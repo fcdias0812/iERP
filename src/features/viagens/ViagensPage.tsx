@@ -1,7 +1,8 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { Search, Truck, X } from 'lucide-react'
+import { Plus, Search, Truck, X } from 'lucide-react'
+import { Can } from '@/components/layout/Can'
 import { DataTable, type DataTableColumn } from '@/components/data-table'
 import { EMPTY_QUERY, type TableQuery } from '@/components/data-table/types'
 import { AppLink } from '@/components/layout/AppLink'
@@ -30,6 +31,7 @@ import type { Viagem } from '@/services/types'
 import {
   agruparViagens,
   diaRelativo,
+  porCaminhao,
   gravarModo,
   lerModo,
   MODOS,
@@ -39,6 +41,7 @@ import { BaixarTrajeto } from './BaixarTrajeto'
 import { CardViagem } from './CardViagem'
 import { CartaoMapa } from './CartaoMapa'
 import { ChatViagemSheet } from './ChatViagemSheet'
+import { NovaViagemSheet } from './NovaViagemSheet'
 import { PainelViagem } from './PainelViagem'
 import { temTrajeto } from './formato'
 import { useReplay } from './use-replay'
@@ -80,7 +83,7 @@ function Viagens() {
   const encerrar = useFinalizarViagem()
   const ciente = useCienteEmergencia()
 
-  const ir = (s: { aba?: AbaViagens; viagem?: string; chat?: string }) =>
+  const ir = (s: { aba?: AbaViagens; viagem?: string; chat?: string; aberto?: 'novo' }) =>
     void navigate({ to: '/ordens/viagens', search: s, replace: true })
   const trocarAba = (a: AbaViagens) => ir({ aba: a === 'em-andamento' ? undefined : a })
   const escolher = (id: string | undefined) => ir({ aba: search.aba, viagem: id })
@@ -102,6 +105,14 @@ function Viagens() {
           resposta
             ? t('viagens.atualizado', { hora: formatTime(resposta.atualizadoEm) })
             : t('viagens.descricao')
+        }
+        actions={
+          <Can permission="ordens.viagens.editar" fallback="disable">
+            <Button onClick={() => ir({ aba: search.aba, viagem: search.viagem, aberto: 'novo' })}>
+              <Plus aria-hidden />
+              {t('viagens.nova.botao')}
+            </Button>
+          </Can>
         }
       />
       {resposta && !resposta.configurado && (
@@ -171,6 +182,12 @@ function Viagens() {
       )}
 
       <ChatViagemSheet viagem={doChat} onFechar={() => abrirChat(undefined)} />
+      {search.aberto === 'novo' && (
+        <NovaViagemSheet
+          onClose={() => ir({ aba: search.aba, viagem: search.viagem })}
+          onCriada={(v) => ir({ viagem: v.id })}
+        />
+      )}
       <ConfirmDialog
         open={Boolean(finalizar)}
         onOpenChange={(aberto) => !aberto && setFinalizar(null)}
@@ -303,29 +320,33 @@ function EmAndamento({
             {(g.dia !== undefined || g.cliente !== undefined) && (
               <h3 className="mb-2 type-label text-muted-foreground">
                 {tituloDoGrupo(g.dia, g.cliente)}{' '}
-                <span className="num">({formatNumber(g.itens.length)})</span>
+                <span className="num">({formatNumber(porCaminhao(g.itens).length)})</span>
               </h3>
             )}
             <ul className="flex flex-col gap-2">
-              {g.itens.map((v) => (
-                <li key={v.id}>
-                  <CardViagem
-                    v={v}
-                    escolhida={v.id === escolhidaId}
-                    onEscolher={() => {
-                      onEscolher(v.id === escolhidaId ? undefined : v.id)
-                      // Celular/tablet: o mapa fica embaixo da lista — leva até ele.
-                      if (v.id !== escolhidaId && !window.matchMedia('(min-width: 80rem)').matches)
-                        document
-                          .getElementById('mapa-viagens')
-                          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                    }}
-                    onChat={() => onChat(v.id)}
-                    onFinalizar={() => onFinalizar(v)}
-                    onCiente={() => onCiente(v)}
-                  />
-                </li>
-              ))}
+              {porCaminhao(g.itens).map(([v, ...outros]) => {
+                const marcada = [v!, ...outros].some((x) => x.id === escolhidaId)
+                return (
+                  <li key={v!.id}>
+                    <CardViagem
+                      v={v!}
+                      outros={outros}
+                      escolhida={marcada}
+                      onEscolher={() => {
+                        onEscolher(marcada ? undefined : v!.id)
+                        // Celular/tablet: o mapa fica embaixo da lista — leva até ele.
+                        if (!marcada && !window.matchMedia('(min-width: 80rem)').matches)
+                          document
+                            .getElementById('mapa-viagens')
+                            ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      }}
+                      onChat={(x) => onChat(x.id)}
+                      onFinalizar={onFinalizar}
+                      onCiente={onCiente}
+                    />
+                  </li>
+                )
+              })}
             </ul>
           </section>
         ))}
