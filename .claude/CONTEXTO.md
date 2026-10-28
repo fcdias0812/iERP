@@ -625,7 +625,7 @@ versão atual (`novidadesVistas` no `ui-store`). Lista em `src/config/novidades.
 versão nova no topo; 2.0 a 2.3 montadas do histórico do Git, 2.4 = a entrega de viagens/lotes +
 este botão). **Toda entrega acrescenta uma versão** — regra no `FLUXO-DE-TRABALHO.md` §2 passo 9.
 
-### 5.21 Clientes › Visão geral = painel do cliente (27/10/2026, não commitado)
+### 5.21 Clientes › Visão geral = painel do cliente (27/10/2026; no GitHub, `db846a9`)
 
 Pedido dele: "a visão geral com gráficos e dashboard individual de cada cliente". Decisões dele:
 o painel É a aba Visão geral (contato, dados e link de acompanhamento continuam embaixo); tudo:
@@ -638,7 +638,7 @@ recebidos no período; prazo = chegada → COD em até `slaDias`; materiais = ba
 `/lotes/resumo` vazio saiu). Tela `AbaVisaoGeral.tsx` + `PainelGraficos.tsx` (Recharts 3 pelo
 `ChartContainer`; pizza com `fill` nos dados — o `Cell` está obsoleto no Recharts 3).
 
-### 5.22 Excluir lote (27/10/2026, não commitado)
+### 5.22 Excluir lote (27/10/2026; no GitHub, `db846a9`)
 
 Pedido dele: "vamos continuar a implementar as funcionalidades do 1.0 nele. Excluir lote". Decisões
 dele: **apagar de vez + registro na Auditoria** (igual ao 1.0; não vira "Cancelado"); **só lote
@@ -654,7 +654,7 @@ apagar; os arquivos (`arquivos/ordens/<id>/`) saem do disco. Fica o registro em 
 `juntado_excluido` (no principal). Tela: botão Excluir no detalhe (`ExcluirLote.tsx`, confirmação
 digitando o código; volta para a lista) e na linha do juntado; permissão `<origem>.lotes.excluir`.
 
-### 5.23 Etiqueta de pallet no Recebimento (27/10/2026, não commitado)
+### 5.23 Etiqueta de pallet no Recebimento (27/10/2026; no GitHub, `db846a9`)
 
 Pedido dele: "Próximo: Etiqueta de pallet" (do 1.0). Decisões dele: **obrigatória como no 1.0** —
 no recebimento NOVO, Salvar abre a janela "Imprima as etiquetas dos pallets" e só libera
@@ -667,7 +667,7 @@ QR abre `/operacao/lotes/<id>`); **100 × 70 mm**, uma por página. Tudo no nave
 1.5.4, MIT, o mesmo do servidor) e `EtiquetasPallet.tsx` (a janela); ligado em `RecebimentoSheet`
 e `DocumentosGerados`. A etiqueta impressa é tinta preta (não usa os tokens de tela).
 
-### 5.24 Viagens: Nova viagem e vários rastreadores no mesmo caminhão (28/10/2026, não commitado)
+### 5.24 Viagens: Nova viagem e vários rastreadores no mesmo caminhão (28/10/2026; no GitHub, `db846a9`)
 
 Pedido dele (28/10/2026; desde então ele escreve em inglês para treinar, e em português quando a
 regra é delicada): criar viagem depois da ordem, pela tela de Viagens, e as combinações
