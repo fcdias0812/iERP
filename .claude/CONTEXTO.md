@@ -748,7 +748,7 @@ negócio (perguntar). Resumo:
 - Diferenças da v1: entram todos os veículos ativos (não há "usar no cálculo"); avisos saem como
   códigos traduzidos na tela; pré-calcular não grava nada; o resultado é guardado na ordem ao criar.
 
-### 5.25 Aviso de versão nova (28/10/2026, não commitado)
+### 5.25 Aviso de versão nova (28/10/2026; no GitHub, `58f1047`)
 
 Pedido dele: "Sempre que o sistema detectar uma versão mais recente, vai aparecer um pop up ...
 reiniciar a página ou continuar ... Se ele não reiniciar, o ícone de novidades fica com um ponto
