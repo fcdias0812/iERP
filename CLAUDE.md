@@ -12,7 +12,8 @@ antigo (v1) nem de outro lugar.
 > Repositório: https://github.com/fcdias0812/iERP. Commit só com o "sim" do usuário; push só quando
 > ele pedir. Ao terminar uma entrega, atualize o `.claude/CONTEXTO.md` **e as Novidades**
 > (`src/config/novidades.ts` — versão nova no topo, 3 idiomas; botão Novidades da barra do topo;
-> regra em `.claude/FLUXO-DE-TRABALHO.md` §2, passo 9).
+> regra em `.claude/FLUXO-DE-TRABALHO.md` §2, passo 9). Versão nova publicada: o `AvisoAtualizacao`
+> (lê o `version.json` gerado no build) pede para reiniciar; adiou = "?" no botão Novidades.
 > **Próxima etapa: integrações** — leia [`.claude/INTEGRACOES.md`](.claude/INTEGRACOES.md) (onde cada
 > dado de outro sistema entra e o que perguntar ao usuário antes).
 

@@ -3673,5 +3673,14 @@
     "descricao": "iERP 每次更新的變更內容。目前版本：{{versao}}。",
     "versao": "版本 {{versao}}",
     "atual": "目前"
+  },
+  "atualizacao": {
+    "titulo": "有更新需要套用",
+    "descricao": "iERP 已發布新版本。請重新整理頁面以使用新版本——之前請先儲存正在進行的工作，以免遺失。若想先繼續，「最新消息」按鈕會顯示「?」，直到您重新整理。",
+    "reiniciar": "立即重新整理",
+    "continuar": "繼續目前的工作",
+    "botao": "最新消息：有新版本，請重新整理以查看變更",
+    "precisaReiniciar": "請重新整理以查看變更",
+    "precisaReiniciarTexto": "iERP 已發布新版本。請儲存正在進行的工作並重新整理頁面，以使用新版本並查看新內容。"
   }
 }

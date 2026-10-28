@@ -3673,5 +3673,14 @@
     "descricao": "What changed in each iERP update. Current version: {{versao}}.",
     "versao": "Version {{versao}}",
     "atual": "Current"
+  },
+  "atualizacao": {
+    "titulo": "There are updates to apply",
+    "descricao": "A new version of iERP has been published. Restart the page to use it — first save what you are doing so nothing is lost. If you prefer to keep going now, the What's new button shows a \"?\" until you restart.",
+    "reiniciar": "Restart now",
+    "continuar": "Keep doing what I am doing",
+    "botao": "What's new: there is a new version, restart to see the changes",
+    "precisaReiniciar": "Restart to see the changes",
+    "precisaReiniciarTexto": "A new version of iERP has been published. Save what you are doing and restart the page to use it and see what is new."
   }
 }

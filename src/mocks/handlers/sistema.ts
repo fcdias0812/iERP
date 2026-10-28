@@ -1,3 +1,4 @@
+import { passthrough } from 'msw'
 import { http, HttpResponse } from 'msw/http'
 import type { LocalizedText } from '@/lib/localized-text'
 import type { ResultadoBusca } from '@/services/types'
@@ -18,6 +19,17 @@ const norm = (s: string) =>
 const contem = (texto: string, q: string) => norm(texto).includes(norm(q))
 
 export const sistemaHandlers = [
+  // Versão nova publicada (28/10/2026): com `sessionStorage['ierp-mock-build']`, o "servidor"
+  // responde outro build (os e2e ligam); sem isso, o version.json de verdade do site.
+  http.get('*/version.json', () => {
+    let outro: string | null = null
+    try {
+      outro = globalThis.sessionStorage?.getItem('ierp-mock-build') ?? null
+    } catch {
+      outro = null
+    }
+    return outro ? HttpResponse.json({ build: outro }) : passthrough()
+  }),
   http.get('*/api/busca', async ({ request }) => {
     const fail = await simulateNetwork(request)
     if (fail) return fail

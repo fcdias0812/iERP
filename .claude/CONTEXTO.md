@@ -748,6 +748,22 @@ negócio (perguntar). Resumo:
 - Diferenças da v1: entram todos os veículos ativos (não há "usar no cálculo"); avisos saem como
   códigos traduzidos na tela; pré-calcular não grava nada; o resultado é guardado na ordem ao criar.
 
+### 5.25 Aviso de versão nova (28/10/2026, não commitado)
+
+Pedido dele: "Sempre que o sistema detectar uma versão mais recente, vai aparecer um pop up ...
+reiniciar a página ou continuar ... Se ele não reiniciar, o ícone de novidades fica com um ponto
+de interrogação chamativo, e dentro dele aparece que precisa reiniciar". Como ficou: cada build
+ganha um identificador (`vite.config.ts`: `__IERP_BUILD__` no código + `version.json` no site;
+`IERP_BUILD` no ambiente pode fixar o valor). `src/lib/atualizacao.ts` lê o `version.json` sem
+cache; `AvisoAtualizacao` (no `AppShell`) confere ao abrir, a cada 5 min e ao voltar para a aba
+(e quando uma tela não carrega — `vite:preloadError`); build diferente → `ConfirmDialog`
+"Reiniciar agora" / "Continuar o que estou fazendo". Adiou: `atualizacao-store` guarda o build e
+o `NovidadesButton` troca a bolinha por um "?" laranja (`bg-alert`), com um Alert "Reinicie para
+ver as mudanças" + botão dentro. No `npm run dev` não confere (o Vite já recarrega). Nos e2e, a
+API simulada responde outro build com `sessionStorage['ierp-mock-build']` (o painel do navegador
+do app não registra o service worker do MSW — para ver na mão, um build sem mocks com o
+`version.json` trocado).
+
 ## 6. Perguntas em aberto (fazer quando chegar a hora)
 
 As perguntas de **cada integração** (sistema de origem, quem chama quem, identificação do lote,

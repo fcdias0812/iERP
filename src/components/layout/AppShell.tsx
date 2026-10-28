@@ -5,6 +5,7 @@ import { useHotkey } from '@/hooks/use-hotkey'
 import { useUiStore } from '@/stores/ui-store'
 import { AlertaEmergencias } from '@/features/viagens/AlertaEmergencias'
 import { AppBreadcrumb } from './AppBreadcrumb'
+import { AvisoAtualizacao } from './AvisoAtualizacao'
 import { AppSidebar, MobileNav } from './AppSidebar'
 import { CommandPalette } from './CommandPalette'
 import { Navbar } from './Navbar'
@@ -53,6 +54,7 @@ export function AppShell() {
       <CommandPalette />
       <ShortcutsDialog />
       <SignOutDialog />
+      <AvisoAtualizacao />
     </>
   )
 }

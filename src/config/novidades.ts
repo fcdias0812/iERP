@@ -20,6 +20,24 @@ export interface Novidade {
 
 export const NOVIDADES: Novidade[] = [
   {
+    versao: '2.9',
+    data: '2026-10-28',
+    itens: {
+      'pt-BR': [
+        'Quando sair uma versão nova do iERP, aparece um aviso para reiniciar a página agora ou continuar o que estiver fazendo (para não perder nada).',
+        'Quem continua vê um "?" laranja no botão Novidades; lá dentro, o convite para reiniciar e ver as mudanças.',
+      ],
+      en: [
+        'When a new iERP version is published, a notice offers to restart the page now or keep doing what you are doing (so nothing is lost).',
+        'If you keep going, the What\'s new button shows an orange "?"; inside it, the invitation to restart and see the changes.',
+      ],
+      'zh-TW': [
+        '發布新版 iERP 時，會出現提示：立即重新整理頁面，或繼續目前的工作（以免遺失資料）。',
+        '若選擇繼續，「最新消息」按鈕會顯示橘色「?」；點開後可重新整理並查看變更。',
+      ],
+    },
+  },
+  {
     versao: '2.8',
     data: '2026-10-28',
     itens: {

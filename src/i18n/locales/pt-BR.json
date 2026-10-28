@@ -3673,5 +3673,14 @@
     "descricao": "O que mudou em cada atualização do iERP. Versão atual: {{versao}}.",
     "versao": "Versão {{versao}}",
     "atual": "Atual"
+  },
+  "atualizacao": {
+    "titulo": "Há atualizações para aplicar",
+    "descricao": "Uma versão nova do iERP foi publicada. Reinicie a página para usá-la — antes, salve o que estiver fazendo para não perder nada. Se preferir continuar agora, o botão Novidades fica com um \"?\" até você reiniciar.",
+    "reiniciar": "Reiniciar agora",
+    "continuar": "Continuar o que estou fazendo",
+    "botao": "Novidades: há uma versão nova, reinicie para ver as mudanças",
+    "precisaReiniciar": "Reinicie para ver as mudanças",
+    "precisaReiniciarTexto": "Há uma versão nova do iERP publicada. Salve o que estiver fazendo e reinicie a página para usá-la e ver as novidades dela."
   }
 }
