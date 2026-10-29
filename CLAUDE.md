@@ -14,6 +14,9 @@ antigo (v1) nem de outro lugar.
 > (`src/config/novidades.ts` — versão nova no topo, 3 idiomas; botão Novidades da barra do topo;
 > regra em `.claude/FLUXO-DE-TRABALHO.md` §2, passo 9). Versão nova publicada: o `AvisoAtualizacao`
 > (lê o `version.json` gerado no build) pede para reiniciar; adiou = "?" no botão Novidades.
+> **Subir no servidor (em paralelo com o 1.0):** [`IMPLANTACAO.md`](IMPLANTACAO.md) — Docker
+> (`Dockerfile` + `docker-compose.yml`, projeto `reteck-ierp-v2`), telas e API numa porta só
+> (`SITE_DIR`), dados no disco D, backup, integrações de produção e o que o usuário entrega por fora.
 > **Próxima etapa: integrações** — leia [`.claude/INTEGRACOES.md`](.claude/INTEGRACOES.md) (onde cada
 > dado de outro sistema entra e o que perguntar ao usuário antes).
 
@@ -154,7 +157,10 @@ Regras:
   os códigos em `src/lib/api-errors.ts`.
 - **Autor do histórico**: `autorDa(req)` (`src/shared/autor.ts`) — provisório ("Sistema") até o
   login ser definido.
-- `npm --prefix server run db:seed` cria dados **fictícios** só para desenvolvimento.
+- `npm --prefix server run db:seed` cria dados **fictícios** só para desenvolvimento (nunca no servidor).
+- **Produção** (`IMPLANTACAO.md`): com `SITE_DIR`, o próprio Express entrega as telas compiladas
+  (`entregarTelas` em `src/app.ts`: `index.html`/`version.json` sem cache, `assets/` por 1 ano,
+  rota da tela → `index.html`); saúde em `GET /api/health`.
 
 ## Como adicionar um módulo
 
@@ -236,7 +242,9 @@ linha do tempo, recebimento), **Ocorrências** (painel
   **Card = caminhão; vários rastreadores no mesmo caminhão** (28/10/2026): cada rastreador é uma
   linha de `ordens_viagens` com o MESMO `numero` (motorista, placa e código de chegada iguais) —
   `POST /api/viagens/:id/rastreios` (`AdicionarRastreador`), `porCaminhao` junta no card; "Nova
-  viagem" em Viagens = `POST /api/viagens/lote/:ordemId` com `rastreadorId` (`NovaViagemSheet`). O rastreador é o MESMO do iERP antigo: só as
+  viagem" em Viagens = `POST /api/viagens/lote/:ordemId` com `rastreadorId` (`NovaViagemSheet`).
+  **Cada viagem tem o seu código no rastreador** (`codigo_rastreio`: LOT-…, LOT-…-V2… — ele recusa
+  duas ativas com o mesmo); é o que vai no link e por onde o 2.0 acha a viagem lá. O rastreador é o MESMO do iERP antigo: só as
   viagens dos LOT do 2.0; nunca apagar nada lá. Detalhes em `.claude/INTEGRACOES.md` §0.3.
 - **Estoque** (Materiais ← armazém/EC-Inventory-Management; Assets e Peças ← Controle de
   Notebooks; E-commerce ← RTB WMS) — `server/src/modules/estoque/estoque.ts` (`GET

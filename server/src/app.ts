@@ -1,3 +1,4 @@
+import path from 'node:path'
 import express from 'express'
 import { config } from './config.js'
 import type { Db } from './db/database.js'
@@ -62,6 +63,8 @@ export function criarApp(
     estoque?: ServicoEstoque
     /** Leitor do servidor de GPS dos caminhões — o index.ts passa o MESMO do relógio. */
     gps?: LeitorGps
+    /** Telas compiladas a entregar junto com a API (produção). Padrão: `SITE_DIR`. */
+    siteDir?: string | null
   } = {},
 ) {
   const usuarios = criarServicoUsuarios(criarRepositorioUsuarios(db))
@@ -86,6 +89,10 @@ export function criarApp(
   const api = express.Router()
   api.get('/saude', (_req, res) => {
     res.json({ ok: true })
+  })
+  // O mesmo, no nome que o deploy padrão da Re-Teck confere (`/api/health` → `success: true`).
+  api.get('/health', (_req, res) => {
+    res.json({ ok: true, success: true })
   })
   api.use('/usuarios', rotasUsuarios(usuarios))
   const rastreio = criarServicoRastreio(db, repoClientes)
@@ -136,6 +143,44 @@ export function criarApp(
   app.disable('x-powered-by')
   app.use(express.json({ limit: '1mb' }))
   app.use('/api', api)
+  const siteDir = opcoes.siteDir === undefined ? config.siteDir : opcoes.siteDir
+  if (siteDir) app.use(entregarTelas(siteDir))
   app.use(tratarErros)
   return app
+}
+
+/*
+ * PRODUÇÃO: as telas compiladas (`dist/` da raiz) saem do mesmo servidor da API.
+ *  - `assets/` tem o hash no nome → guardadas por 1 ano;
+ *  - `index.html` e `version.json` NUNCA ficam guardados: é pelo `version.json` que a tela aberta
+ *    descobre que há versão nova (AvisoAtualizacao) — guardado, o aviso nunca apareceria;
+ *  - qualquer outro endereço que não seja arquivo nem `/api` devolve o `index.html` (as rotas são
+ *    da tela: `/clientes/…`, `/rastreio/<token>`…).
+ */
+function entregarTelas(pasta: string) {
+  const raiz = path.resolve(pasta)
+  const indice = path.join(raiz, 'index.html')
+  const semGuardar = (res: express.Response) => res.setHeader('Cache-Control', 'no-cache')
+  const router = express.Router()
+  router.use(
+    express.static(raiz, {
+      index: false,
+      setHeaders: (res, arquivo) => {
+        res.setHeader('X-Content-Type-Options', 'nosniff')
+        if (arquivo.startsWith(path.join(raiz, 'assets') + path.sep)) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+        } else semGuardar(res)
+      },
+    }),
+  )
+  router.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+    if (req.path === '/api' || req.path.startsWith('/api/')) return next()
+    // Arquivo que não existe (ex.: /assets/velho.js depois de uma versão nova) = 404, não a tela.
+    if (path.extname(req.path)) return next()
+    semGuardar(res)
+    res.setHeader('X-Content-Type-Options', 'nosniff')
+    res.sendFile(indice)
+  })
+  return router
 }

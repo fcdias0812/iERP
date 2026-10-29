@@ -1,0 +1,15 @@
+# Fora da imagem: dependências e builds locais, banco e arquivos de desenvolvimento, segredos.
+**/node_modules
+dist
+server/dist
+server/data
+.env
+.env.*
+!.env.example
+.git
+.claude
+.tanstack
+playwright-report
+test-results
+coverage
+*.log

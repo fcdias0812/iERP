@@ -1,0 +1,37 @@
+# iERP 2.0 no servidor — roda EM PARALELO com o iERP 1.0 (container `reteck-ierp`, porta 5000),
+# sem tocar nele. Guia completo: IMPLANTACAO.md.
+#
+# O `name:` é OBRIGATÓRIO: sem ele o Compose tira o nome do projeto da PASTA e o serviço `app`
+# daqui pode virar o MESMO `app` do iERP 1.0 — subir este recriaria o container dele (aconteceu
+# com o ambiente de teste do 1.0 em 01/09/2026).
+name: reteck-ierp-v2
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        VITE_ESRI_API_KEY: ${VITE_ESRI_API_KEY:-}
+        VITE_MAP_TILES_URL: ${VITE_MAP_TILES_URL:-}
+        VITE_MAP_TILES_ATTRIBUTION: ${VITE_MAP_TILES_ATTRIBUTION:-}
+        IERP_BUILD: ${IERP_BUILD:-}
+    container_name: reteck-ierp-v2
+    restart: unless-stopped
+    ports:
+      # esquerda = porta no servidor (do C:\Sistemas\registro-portas.json) | direita = dentro da caixa
+      - '${PORT:?defina PORT no .env (porta reservada no registro-portas.json)}:3000'
+    environment:
+      - PORT=3000
+      - TZ=America/Sao_Paulo
+      - DB_FILE=/app/data/ierp.sqlite
+      - ARQUIVOS_DIR=/app/data/arquivos
+      - SITE_DIR=/app/site
+      # E-mail no User-Agent das consultas de endereço ao Nominatim (exigência do serviço).
+      - GEO_CONTATO=${GEO_CONTATO:-rtbrti03@re-teckbr.com}
+      # Intervalo da leitura do servidor de GPS dos caminhões (padrão 5 min). Não mude sem motivo.
+      - GPS_LEITURA_INTERVALO_MS=${GPS_LEITURA_INTERVALO_MS:-}
+      # As CHAVES das integrações NÃO vêm daqui: ficam no banco, cadastradas na tela
+      # Administração › Integração (o certificado da CA do MSDC também).
+    volumes:
+      # Banco + arquivos enviados FORA da caixa, no disco D — sobrevivem a rebuild.
+      - '${DATA_PATH:?defina DATA_PATH no .env (pasta no disco D)}:/app/data'

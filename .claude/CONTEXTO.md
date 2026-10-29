@@ -764,6 +764,27 @@ API simulada responde outro build com `sessionStorage['ierp-mock-build']` (o pai
 do app não registra o service worker do MSW — para ver na mão, um build sem mocks com o
 `version.json` trocado).
 
+### 5.26 Verificação das integrações e código próprio por viagem (29/10/2026)
+
+Pedido dele: verificar todas as integrações, os dois lados, "nada pode falhar". Roteiro, resultado
+e riscos em `INTEGRACOES.md` §0.5. Atualizei (com o sim dele) os 7 repositórios de lá que estavam
+atrás do GitHub. **Achado corrigido:** o rastreador recusa duas viagens ativas com o mesmo código —
+agora cada viagem tem o seu (LOT-…, LOT-…-V2…), como no 1.0 (`codigo_rastreio`, migration
+`2026-10-29-01`, "Código no app" no card). Conferido ao vivo com 2 caminhões.
+
+### 5.27 Pronto para o servidor (29/10/2026)
+
+Pedido dele: "Vou migrar esse sistema para o servidor para deixar rodando em paralelo. Quero que
+você deixe todas, absolutamente todas as configurações e tudo que a outra sessão do claude precisa
+saber para subir ele". Feito: `IMPLANTACAO.md` (raiz) — passo a passo, variáveis, integrações de
+produção, segredos que ele entrega por fora, segurança (sem login = só rede interna), backup e
+volta atrás. Código: `Dockerfile` + `docker-compose.yml` (`name: reteck-ierp-v2`, igual ao padrão
+do 1.0), `.env.servidor.example`, `.dockerignore`; o Express entrega as telas com `SITE_DIR` e
+responde `/api/health` (teste `server/src/app.telas.test.ts`). Conferido neste PC: build de
+produção + `node dist/index.js` com banco NOVO → migrations do zero, telas e API na mesma porta,
+sem erro no console. **Não conferido:** o build da imagem Docker (não há Docker neste PC).
+**Pergunta em aberto:** banco novo (recomendado) ou cópia do banco deste PC.
+
 ## 6. Perguntas em aberto (fazer quando chegar a hora)
 
 As perguntas de **cada integração** (sistema de origem, quem chama quem, identificação do lote,
