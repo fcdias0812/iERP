@@ -3322,7 +3322,8 @@
       "copiaFalhou": "Não foi possível copiar. Selecione e copie manualmente.",
       "abrirLote": "Abrir lote",
       "caminhao": "Caminhão {{n}}",
-      "rotuloCaminhao": "Viagem do lote {{code}}, caminhão {{n}}"
+      "rotuloCaminhao": "Viagem do lote {{code}}, caminhão {{n}}",
+      "codigoApp": "Código no app:"
     },
     "origens": {
       "IERP": "iERP",

@@ -145,6 +145,7 @@ type ViagemApi = {
   origemGps: string
   codigoChegada: string | null
   placa: string | null
+  codigoRastreio: string
   code?: string
 }
 
@@ -197,6 +198,9 @@ describe('viagens › rastreadores no mesmo caminhão', () => {
     assert.equal(celular2.body.numero, c1.body.numero)
     assert.equal(celular2.body.codigoChegada, c1.body.codigoChegada)
     assert.equal(celular2.body.origemGps, 'celular')
+    // Cada celular é uma viagem no rastreador: código próprio (o mesmo seria recusado lá).
+    assert.equal(c1.body.codigoRastreio, lote.codigo)
+    assert.equal(celular2.body.codigoRastreio, `${lote.codigo}-V2`)
 
     const gps = await rastreio(c1.body.id, { rastreadorId: await aparelho('gps-ras-1') })
     assert.equal(gps.status, 201, JSON.stringify(gps.body))

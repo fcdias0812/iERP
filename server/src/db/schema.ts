@@ -531,6 +531,11 @@ export interface OrdensViagensTable {
   ordemId: string
   /** O caminhão do lote (1, 2, 3…). */
   numero: number
+  /**
+   * O código da viagem no rastreador (29/10/2026): o do lote na 1ª, LOT-…-V2, -V3… nas seguintes
+   * (o rastreador recusa duas viagens ativas com o mesmo código). Vai no link do motorista.
+   */
+  codigoRastreio: string | null
   /** Quem a Re-Teck escalou para este caminhão (o que o rastreador conta: motoristaNome/placa). */
   motoristaId: string | null
   placaInformada: string | null

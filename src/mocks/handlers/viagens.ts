@@ -275,7 +275,8 @@ export const viagensHandlers = [
         ordemId: o.id,
         numero,
         loteCodigo: o.codigo,
-        codigoRastreio: o.codigo,
+        // A 1ª viagem do lote usa o código dele; as seguintes, LOT-…-V2 (como no servidor).
+        codigoRastreio: doLote.length ? `${o.codigo}-V${doLote.length + 1}` : o.codigo,
         clienteNome: o.clienteNome,
         siteCodigo: o.siteCodigo,
         motoristaNome: null,
@@ -325,6 +326,7 @@ export const viagensHandlers = [
       origemGps: 'celular',
       rastreadorId: null,
       rastreadorAparelho: null,
+      codigoRastreio: `${b.loteCodigo}-V${db().filter((v) => v.ordemId === b.ordemId).length + 1}`,
       ...pelo(rastreadorId),
       trajeto: [],
       chat: [],

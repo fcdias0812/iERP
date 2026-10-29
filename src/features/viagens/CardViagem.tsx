@@ -132,6 +132,13 @@ export function CardViagem({
         </p>
       )}
 
+      {/* Código da viagem no app, quando não é o do lote (LOT-…-V2 — 29/10/2026). */}
+      {!v.somenteLeitura && v.origemGps === 'celular' && v.codigoRastreio !== v.loteCodigo && (
+        <p className="type-caption">
+          {t('viagens.card.codigoApp')} <span className="font-mono">{v.codigoRastreio}</span>
+        </p>
+      )}
+
       {v.origemGps === 'aparelho' ? (
         <p className="flex items-center gap-1.5 type-caption">
           <Satellite aria-hidden className="size-3.5 text-muted-foreground" />

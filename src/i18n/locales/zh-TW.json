@@ -3322,7 +3322,8 @@
       "copiaFalhou": "無法複製，請手動選取並複製。",
       "abrirLote": "開啟批次",
       "caminhao": "卡車 {{n}}",
-      "rotuloCaminhao": "批次 {{code}} 的行程，卡車 {{n}}"
+      "rotuloCaminhao": "批次 {{code}} 的行程，卡車 {{n}}",
+      "codigoApp": "App 中的代碼："
     },
     "origens": {
       "IERP": "iERP",

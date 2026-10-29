@@ -318,6 +318,45 @@ vão ser parte do estoque, respectivamente: Materiais, Assets, Peças e E-commer
   mesma do antigo); RTB_WMS = `http://<servidor>:5010` + a `INTEGRACAO_CHAVE` dele (a mesma do
   antigo). Trocar a chave do Notebooks ou do RTB WMS = trocar nos dois iERPs.
 
+## 0.5 Verificação completa dos dois lados (29/10/2026)
+
+Pedido dele: "Verifique novamente a conexão com todos os outros sistemas. Quero algo detalhado,
+nada pode falhar!!! Verifique ambos os lados." Como foi feito (repetir assim da próxima vez):
+
+1. **Código do outro lado atualizado:** 7 dos 8 repositórios estavam atrás do GitHub — `git fetch`
+   + conferir se os commits novos mexem nas rotas que o 2.0 usa + `git merge --ff-only` (com o "sim"
+   dele). O MSDC virou **"MS ITAD"** (o painel ainda diz `sistema: equip-rack-2`) e ganhou
+   dependências: `npm ci` + `npx prisma generate` no `backend` (o `npm ci` pula o script que gera o
+   Prisma).
+2. **Os 7 de teste no ar** pelos `.claude/scripts/subir-*.cmd` (o painel do Terminal do app aceita
+   6 abas: os 3 do estoque foram em segundo plano). A tela inicial do MSDC e do armazém dá 500 aqui
+   (o frontend deles não está compilado neste PC) — não é a integração.
+3. **Lado do iERP:** `integracoes` (última leitura/erro de cada um) + as 4 telas do estoque +
+   "Ler agora" do GPS.
+4. **Lado de lá, rota por rota, com a chave do 2.0, sem chave e com chave errada** (MSDC: painel,
+   lista, ordem por id e por código, espelho; Gerenciamento: idem; armazém/Notebooks/WMS:
+   `/api/integracao/estoque`; rastreador: `/api/trips` e o `negotiate` do SignalR; GPS na nuvem:
+   chave errada = 401). Banco de teste do MoonShot: `IerpSyncStates` (Id 2 = o 2.0) e
+   `OutboundEvents` sem erro; aviso de teste para o MoonShot → ele releu o lote no 2.0 na hora.
+5. **Testes de integração dos outros:** MSDC 97/97, armazém 330/331 (o 1 é a tela inicial sem
+   frontend compilado), MoonShot 110/110 (`dotnet test --filter FullyQualifiedName~Ierp`).
+6. **Ponta a ponta ao vivo com o rastreador** (`scratchpad/teste_vivo_rastreador.py` da sessão):
+   lote temporário com 2 caminhões → as 2 viagens começam no rastreador → o 2.0 amarra pelo SignalR
+   na hora → ponto de GPS → Finalizar pelo 2.0 → encerradas lá → lote excluído.
+
+**Achado e corrigido:** o rastreador RECUSA (409 "Esta coleta já está sendo rastreada") uma 2ª
+viagem ATIVA com o mesmo código, e o 2.0 mandava o mesmo LOT-… para todos os caminhões e celulares
+do lote — o 2º motorista não começava. Agora cada viagem tem o seu código, igual ao 1.0
+(`codigoDaViagem`): a 1ª o do lote, as seguintes LOT-…-V2, -V3… (`ordens_viagens.codigo_rastreio`,
+migration `2026-10-29-01`; `proximoCodigoDaViagem` nunca reusa; vai no link, é por ele que o 2.0
+acha a viagem no rastreador; o card mostra "Código no app" quando não é o do lote).
+
+**Riscos que ficam (de fora do iERP):** os servidores públicos do Overpass (camada "Postos/
+balanças" do mapa) estavam lotados — o principal responde "at capacity" e os espelhos não
+respondem; o iERP segue (a camada fica indisponível e tenta de novo em 2 min). Chave da TomTom
+(Trânsito) não cadastrada. Coleta da Nokia no Gerenciamento espera o cadastro do cliente Nokia.
+Aparelho gps-5170 sem contato desde 28/10 16:19.
+
 ## 1. O que existe hoje
 
 - **Rotas de entrada**: o contrato `/api/integracao/v1` (§0), com chave por sistema. Sistema novo

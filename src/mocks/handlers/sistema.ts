@@ -22,12 +22,13 @@ export const sistemaHandlers = [
   // Versão nova publicada (28/10/2026): com `sessionStorage['ierp-mock-build']`, o "servidor"
   // responde outro build (os e2e ligam); sem isso, o version.json de verdade do site.
   http.get('*/version.json', () => {
-    let outro: string | null = null
-    try {
-      outro = globalThis.sessionStorage?.getItem('ierp-mock-build') ?? null
-    } catch {
-      outro = null
-    }
+    const outro = (() => {
+      try {
+        return globalThis.sessionStorage?.getItem('ierp-mock-build') ?? null
+      } catch {
+        return null
+      }
+    })()
     return outro ? HttpResponse.json({ build: outro }) : passthrough()
   }),
   http.get('*/api/busca', async ({ request }) => {

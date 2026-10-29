@@ -290,6 +290,39 @@ export function codigoDoIerpAntigo(externoDados: string | null): string | null {
   }
 }
 
+/**
+ * O código da viagem no rastreador (29/10/2026, igual ao `codigoDaViagem` do iERP 1.0): a 1ª
+ * viagem do lote usa o código do lote; as seguintes, `LOT-…-V2`, `-V3`… — o rastreador recusa duas
+ * viagens ATIVAS com o mesmo código (409 "Esta coleta já está sendo rastreada").
+ */
+export const codigoDaViagem = (codigoLote: string, n: number) =>
+  n > 1 ? `${codigoLote}-V${n}` : codigoLote
+
+/** O próximo código livre do lote (nunca reusa: conta os já dados, de qualquer situação). */
+export async function proximoCodigoDaViagem(cx: Conexao, ordemId: string) {
+  const o = await cx
+    .selectFrom('ordens')
+    .select('codigo')
+    .where('id', '=', ordemId)
+    .executeTakeFirstOrThrow()
+  const usados = await cx
+    .selectFrom('ordensViagens')
+    .select('codigoRastreio')
+    .where((eb) =>
+      eb.or([eb('codigoRastreio', '=', o.codigo), eb('codigoRastreio', 'like', `${o.codigo}-V%`)]),
+    )
+    .execute()
+  const maior = Math.max(
+    0,
+    ...usados.map((u) => {
+      if (u.codigoRastreio === o.codigo) return 1
+      const m = /-V(\d+)$/.exec(u.codigoRastreio ?? '')
+      return m ? Number(m[1]) : 0
+    }),
+  )
+  return codigoDaViagem(o.codigo, maior + 1)
+}
+
 /** Link do motorista: o app do rastreador já preenchido (o CPF ele digita — não vai no link). */
 export function linkDoMotorista(
   base: string,
@@ -411,7 +444,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     loteCodigo: l.loteCodigo,
     origem: 'IERP',
     somenteLeitura: false,
-    codigoRastreio: l.loteCodigo,
+    codigoRastreio: l.codigoRastreio ?? l.loteCodigo,
     clienteNome: l.clienteNome,
     siteCodigo: l.siteCodigo,
     siteEndereco: l.siteEndereco,
@@ -427,7 +460,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     linkMotorista:
       base && l.origem === 'celular' && ABERTAS.includes(l.status as StatusViagem)
         ? linkDoMotorista(base, {
-            codigo: l.loteCodigo,
+            codigo: l.codigoRastreio ?? l.loteCodigo,
             cliente: l.clienteNome,
             motorista: l.motoristaEscalado,
             placa: l.placaInformada,
@@ -547,12 +580,13 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     return vez
   }
 
+  // `codigo` = o código da viagem no rastreador (29/10/2026; o do lote para as de antes).
   const lerViagem = (id: string) =>
     db
       .selectFrom('ordensViagens as v')
       .innerJoin('ordens as o', 'o.id', 'v.ordemId')
       .selectAll('v')
-      .select('o.codigo')
+      .select((eb) => eb.fn.coalesce('v.codigoRastreio', 'o.codigo').as('codigo'))
       .where('v.id', '=', id)
       .executeTakeFirst()
 
@@ -606,7 +640,9 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
       if (!g) {
         await trx
           .insertInto('ordensViagens')
-          .values(novaViagem(ordemId, agora, proximo++, c))
+          .values(
+            novaViagem(ordemId, agora, proximo++, c, await proximoCodigoDaViagem(trx, ordemId)),
+          )
           .execute()
         continue
       }
@@ -697,7 +733,13 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
         .select((eb) => eb.fn.max('numero').as('n'))
         .where('ordemId', '=', ordemId)
         .executeTakeFirst()
-      const nova = novaViagem(ordemId, agora, Number(r?.n ?? 0) + 1, c)
+      const nova = novaViagem(
+        ordemId,
+        agora,
+        Number(r?.n ?? 0) + 1,
+        c,
+        await proximoCodigoDaViagem(trx, ordemId),
+      )
       await trx.insertInto('ordensViagens').values(nova).execute()
       // O lote passa a ser rastreado (é o que o caminhão novo pede).
       await trx
@@ -762,10 +804,14 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     }
     const agora = new Date().toISOString()
     const nova: OrdensViagensTable = {
-      ...novaViagem(base.ordemId, agora, base.numero, {
-        motoristaId: base.motoristaId,
-        placa: base.placaInformada,
-      }),
+      ...novaViagem(
+        base.ordemId,
+        agora,
+        base.numero,
+        { motoristaId: base.motoristaId, placa: base.placaInformada },
+        // Cada rastreador é uma viagem no rastreador: código próprio (o mesmo seria recusado).
+        await proximoCodigoDaViagem(db, base.ordemId),
+      ),
       codigoChegada: base.codigoChegada,
     }
     await db.transaction().execute(async (trx) => {
@@ -809,10 +855,12 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     agora: string,
     numero: number,
     c: Caminhao,
+    codigoRastreio: string,
   ): OrdensViagensTable => ({
     id: randomUUID(),
     ordemId,
     numero,
+    codigoRastreio,
     motoristaId: c.motoristaId,
     placaInformada: c.placa,
     origem: 'celular',
@@ -866,7 +914,15 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
     for (const o of sem)
       await db
         .insertInto('ordensViagens')
-        .values(novaViagem(o.id, o.criadoEm, 1, { motoristaId: o.motoristaId, placa: o.placa }))
+        .values(
+          novaViagem(
+            o.id,
+            o.criadoEm,
+            1,
+            { motoristaId: o.motoristaId, placa: o.placa },
+            await proximoCodigoDaViagem(db, o.id),
+          ),
+        )
         .execute()
   }
 
@@ -1317,7 +1373,7 @@ export function criarServicoViagens(db: Db, opcoes: { fetch?: Fetch } = {}) {
         .selectFrom('ordensViagens as v')
         .innerJoin('ordens as o', 'o.id', 'v.ordemId')
         .select(['v.id', 'v.tripId', 'v.placaInformada'])
-        .where('o.codigo', '=', r.serviceOrder)
+        .where((eb) => eb(eb.fn.coalesce('v.codigoRastreio', 'o.codigo'), '=', r.serviceOrder))
         .where('v.origem', '=', 'celular')
         .where('v.status', 'in', ['aguardando_motorista', 'em_rota', 'chegou'])
         .orderBy('v.numero')

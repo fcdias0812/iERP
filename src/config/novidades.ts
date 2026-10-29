@@ -20,6 +20,24 @@ export interface Novidade {
 
 export const NOVIDADES: Novidade[] = [
   {
+    versao: '2.10',
+    data: '2026-10-29',
+    itens: {
+      'pt-BR': [
+        'Vários caminhões (ou vários celulares) no mesmo lote: cada um com o seu código no app do motorista (LOT-…, LOT-…-V2…). Antes, o segundo motorista era recusado pelo rastreador.',
+        'O card do caminhão mostra o "Código no app" quando ele não é o código do lote.',
+      ],
+      en: [
+        "Several trucks (or several phones) on the same lot: each one with its own code in the driver's app (LOT-…, LOT-…-V2…). Before, the tracker refused the second driver.",
+        'The truck card shows the "Code in the app" when it is not the lot code.',
+      ],
+      'zh-TW': [
+        '同一批次有多輛卡車（或多支手機）時，每輛在司機 App 中都有自己的代碼（LOT-…、LOT-…-V2…）。之前追蹤器會拒絕第二位司機。',
+        '當代碼不是批次代碼時，卡車卡片會顯示「App 中的代碼」。',
+      ],
+    },
+  },
+  {
     versao: '2.9',
     data: '2026-10-28',
     itens: {

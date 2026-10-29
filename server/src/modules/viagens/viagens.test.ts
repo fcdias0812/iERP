@@ -671,8 +671,13 @@ describe('viagens › vários caminhões e o recebimento (22/10/2026)', () => {
     assert.equal(b?.numero, 2)
     assert.notEqual(a?.codigoChegada, b?.codigoChegada)
     assert.equal(new URL(b!.linkMotorista!).searchParams.get('plate'), 'XYZ9A88')
+    // Cada caminhão com o código PRÓPRIO no rastreador (29/10/2026 — o rastreador recusa duas
+    // viagens ativas com o mesmo código): o 1º usa o do lote; o 2º, LOT-…-V2.
+    assert.equal(new URL(a!.linkMotorista!).searchParams.get('os'), lote.codigo)
+    assert.equal(new URL(b!.linkMotorista!).searchParams.get('os'), `${lote.codigo}-V2`)
+    assert.equal(b?.codigoRastreio, `${lote.codigo}-V2`)
     // O caminhão 2 sai primeiro: a viagem dele não vai para o caminhão 1.
-    const t2 = trip(lote.codigo, { plate: 'XYZ9A88', driverName: 'Carlos' })
+    const t2 = trip(`${lote.codigo}-V2`, { plate: 'XYZ9A88', driverName: 'Carlos' })
     const t1 = trip(lote.codigo, { plate: 'ABC1D23' })
     await servico.sincronizar()
     const [a2, b2] = await doLote(lote.id)

@@ -3322,7 +3322,8 @@
       "copiaFalhou": "Could not copy. Select and copy it manually.",
       "abrirLote": "Open lot",
       "caminhao": "Truck {{n}}",
-      "rotuloCaminhao": "Trip of lot {{code}}, truck {{n}}"
+      "rotuloCaminhao": "Trip of lot {{code}}, truck {{n}}",
+      "codigoApp": "Code in the app:"
     },
     "origens": {
       "IERP": "iERP",
